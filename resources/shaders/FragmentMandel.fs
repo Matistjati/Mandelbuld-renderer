@@ -1,10 +1,14 @@
 #version 330 core
 
-const int maxIterations = 1024;
-const float iterationLog = log(float(maxIterations));
 
 layout(location = 0) out vec4 color;
 in vec4 pos;
+
+uniform int maxIterations = 4096;
+uniform float iterationLog = log(float(4096));
+uniform float offsetX = 0;
+uniform float offsetY = 0;
+uniform float zoom = 1;
 
 vec4 GetColor(float iterations)
 {
@@ -35,6 +39,8 @@ vec4 GetColor(float iterations)
 
 void main()
 {
+	vec2 npos = vec2((offsetX) + pos.x * zoom, (offsetY) + pos.y * zoom);
+
 	float x = 0;
 	float y = 0;
 
@@ -52,10 +58,8 @@ void main()
 			break;
 		}
 
-		y = 2 * x * y + pos.y;
-		x = x2 - y2 + pos.x;
-
-
+		y = 2 * x * y + npos.y;
+		x = x2 - y2 + npos.x;
 	}
 
 	color = GetColor(float(maxIterations - i));

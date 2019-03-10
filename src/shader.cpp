@@ -74,19 +74,19 @@ std::string Shader::ParseShader(const std::string& file)
 
 	stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
+	std::string str;
 	try
 	{
 		stream.open(file);
+
+		str = std::string((std::istreambuf_iterator<char>(stream)),
+			std::istreambuf_iterator<char>());
 	}
 	catch (std::system_error& e)
 	{
 		std::cerr << e.code().message() << std::endl;
 	}
 
-	std::string str((std::istreambuf_iterator<char>(stream)),
-		std::istreambuf_iterator<char>());
-
-	stream.close();
 
 	return str;
 }

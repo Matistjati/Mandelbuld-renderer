@@ -3,77 +3,22 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <sstream>
 #include "shader.h"
 
-constexpr unsigned int width = 800;
-constexpr unsigned int height = 600;
+constexpr unsigned int width = 1080;
+constexpr unsigned int height = 1080;
 
-/*
-static std::string ParseShader(const std::string& file)
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+struct MandelInfo
 {
-	std::ifstream stream;
-
-	// Set exceptions to be thrown on failure
-	stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try 
-	{
-		stream.open(file);
-	}
-	catch (std::system_error& e)
-	{
-		std::cerr << e.code().message() << std::endl;
-	}
-
-	std::string str((std::istreambuf_iterator<char>(stream)),
-		std::istreambuf_iterator<char>());
-
-	return str;
-}
-
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-	unsigned int id = glCreateShader(type);
-	const char* src = source.c_str();
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
-
-	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-	if (result == GL_FALSE)
-	{
-		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-		char* message = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(id, length, &length, message);
-		std::cout << "failed to compile " <<
-			((type == GL_VERTEX_SHADER) ? " vertex " : " fragment ") << " shader.\nError: " << message << std::endl;
-		glDeleteShader(id);
-		return 0;
-	}
-
-	return id;
-}
-
-static unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
-{
-	unsigned int program = glCreateProgram();
-	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glValidateProgram(program);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	return program;
-}*/
+	float offsetX;
+	float offsetY;
+	float zoom;
+	int maxIterations;
+	Shader shader;
+};
 
 int main()
 {
@@ -141,7 +86,12 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	Shader mainShader("resources/shaders/Vertex.shader", "resources/shaders/FragmentMandelBulb.shader");
+	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
+
+	MandelInfo mandelInfo{ 0, 0, 1, 4096, mainShader };
+
+	glfwSetKeyCallback(window, KeyCallback);
+	glfwSetWindowUserPointer(window, &mandelInfo);
 
 	mainShader.use();
 
@@ -150,8 +100,6 @@ int main()
 	glBindVertexArray(VAO);
 
 	double lastTime = glfwGetTime();
-
-	//int vertexColorLocation = glGetUniformLocation(mainShader.id, "color");
 
 
 	// render loop
@@ -169,7 +117,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
@@ -181,4 +128,60 @@ int main()
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	glfwTerminate();
 	return 0;
+}
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	MandelInfo *mandel = (MandelInfo*)glfwGetWindowUserPointer(window);
+
+
+	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->offsetY += mandel->zoom * 0.5;
+		mandel->shader.setFloat("offsetY", mandel->offsetY);
+	}
+
+	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->offsetY -= mandel->zoom * 0.5;
+		mandel->shader.setFloat("offsetY", mandel->offsetY);
+	}
+
+	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->offsetX -= mandel->zoom * 0.5;
+		mandel->shader.setFloat("offsetX", mandel->offsetX);
+	}
+
+	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->offsetX += mandel->zoom * 0.5;
+		mandel->shader.setFloat("offsetX", mandel->offsetX);
+	}
+
+	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->zoom *= 0.9;
+		mandel->shader.setFloat("zoom", mandel->zoom);
+	}
+
+	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->zoom /= 0.9;
+		mandel->shader.setFloat("zoom", mandel->zoom);
+	}
+
+	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->maxIterations++;
+		mandel->shader.setInt("maxIterations", mandel->maxIterations);
+		mandel->shader.setFloat("iterationLog", log(mandel->maxIterations));
+	}
+
+	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->maxIterations--;
+		mandel->shader.setInt("maxIterations", mandel->maxIterations);
+		mandel->shader.setFloat("iterationLog", log(mandel->maxIterations));
+	}
 }
