@@ -86,9 +86,11 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
+	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandelWeird.fs");
 
 	MandelInfo mandelInfo{ 0, 0, 1, 4096, mainShader };
+
+	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowUserPointer(window, &mandelInfo);
@@ -134,6 +136,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 {
 	MandelInfo *mandel = (MandelInfo*)glfwGetWindowUserPointer(window);
 
+#pragma warning(push)
+#pragma warning(disable : 4244)
+#pragma warning(push)
+#pragma warning(disable : 4305)
 
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
@@ -180,8 +186,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->maxIterations--;
+		mandel->maxIterations-=1;
 		mandel->shader.setInt("maxIterations", mandel->maxIterations);
 		mandel->shader.setFloat("iterationLog", log(mandel->maxIterations));
 	}
+#pragma warning(pop)
+#pragma warning(pop)
 }
