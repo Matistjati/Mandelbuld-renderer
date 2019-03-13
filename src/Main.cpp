@@ -13,10 +13,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 struct MandelInfo
 {
-	float offsetX;
-	float offsetY;
 	float zoom;
 	int maxIterations;
+	float x;
+	float y;
+	float z;
 	Shader shader;
 };
 
@@ -86,9 +87,9 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
+	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/Infinite spheres.fs");
 
-	MandelInfo mandelInfo{ 0, 0, 1, 4096, mainShader };
+	MandelInfo mandelInfo{ 0, 0, 0.0, 0.0, 3.0, mainShader };
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowUserPointer(window, &mandelInfo);
@@ -112,6 +113,7 @@ int main()
 		// this aint cheap
 		glfwSetWindowTitle(window, std::to_string(1 / (glfwGetTime() - lastTime)).c_str());
 		lastTime = glfwGetTime();
+		mainShader.setFloat("time", lastTime);
 
 		// render
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -130,6 +132,7 @@ int main()
 	return 0;
 }
 
+
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	MandelInfo *mandel = (MandelInfo*)glfwGetWindowUserPointer(window);
@@ -137,51 +140,38 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetY += mandel->zoom * 0.5;
-		mandel->shader.setFloat("offsetY", mandel->offsetY);
+		mandel->x += .1;
+		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetY -= mandel->zoom * 0.5;
-		mandel->shader.setFloat("offsetY", mandel->offsetY);
+		mandel->x -= .1;
+		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetX -= mandel->zoom * 0.5;
-		mandel->shader.setFloat("offsetX", mandel->offsetX);
+		mandel->y += .1;
+		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetX += mandel->zoom * 0.5;
-		mandel->shader.setFloat("offsetX", mandel->offsetX);
+		mandel->y -= .1;
+		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
 
 	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->zoom *= 0.9;
-		mandel->shader.setFloat("zoom", mandel->zoom);
+		mandel->z += .5;
+		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
 
 	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->zoom /= 0.9;
-		mandel->shader.setFloat("zoom", mandel->zoom);
+		mandel->z -= .5;
+		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
 
-	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->maxIterations++;
-		mandel->shader.setInt("maxIterations", mandel->maxIterations);
-		mandel->shader.setFloat("iterationLog", log(mandel->maxIterations));
-	}
-
-	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->maxIterations--;
-		mandel->shader.setInt("maxIterations", mandel->maxIterations);
-		mandel->shader.setFloat("iterationLog", log(mandel->maxIterations));
-	}
 }

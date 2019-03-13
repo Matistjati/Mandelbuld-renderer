@@ -2,7 +2,8 @@
 
 layout(location = 0) out vec4 fragColor;
 
-in vec3 color;
+in vec4 pixelPos;
+uniform vec4 cameraPos;
 
 //uniform vec4 color;
 

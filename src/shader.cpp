@@ -68,6 +68,16 @@ void Shader::setFloat(const std::string &name, float value) const
 	glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
 
+void Shader::set3f(const std::string & name, float x, float y, float z) const
+{
+	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
+}
+
+void Shader::set4f(const std::string & name, float x, float y, float z, float w) const
+{
+	glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
+}
+
 std::string Shader::ParseShader(const std::string& file)
 {
 	std::ifstream stream;
