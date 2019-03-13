@@ -87,7 +87,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/Infinite spheres.fs");
+	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
 
 	MandelInfo mandelInfo{ 0, 0, 0.0, 0.0, 3.0, mainShader };
 
@@ -173,5 +173,4 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		mandel->z -= .5;
 		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
 	}
-
 }

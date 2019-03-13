@@ -12,9 +12,9 @@ uniform vec3 eye;
 
 float DE(vec3 p)
 {
-	vec3 q = fract(p) * 2.0 - (abs(sin(time / 2)));
+	vec3 q = fract(p) * 2.0 - 1.0;
 
-	return length(q) - 0.4;
+	return length(q) - 0.25;(abs(sin(time / 2)));
 }
 
 float trace(vec3 origin, vec3 ray)
@@ -23,9 +23,8 @@ float trace(vec3 origin, vec3 ray)
 
 	for (int i = 0; i < 32; i++)
 	{
-		vec3 p = origin + ray * t;
-		float distance = DE(p);
-		t += distance * 0.5;
+		float distance = DE(origin + ray * t);
+		t += distance * 0.6;
 	}
 
 	return t;
@@ -33,14 +32,14 @@ float trace(vec3 origin, vec3 ray)
 
 void main()
 {
-	vec2 uv = gl_FragCoord.xy / vec2(width, height);
-	uv = uv * 2. - 1.;
+	vec2 uv = (gl_FragCoord.xy / vec2(width, height));
+	uv = uv * 2.0 - 1.0;
 
 	uv.x *= float(width) / height;
 
 	vec3 r = normalize(vec3(uv, 1.0));
 	
-	float the = time;
+	//float the = time;
 	//r.xz *= mat2(cos(the), -sin(the), sin(the), cos(the));
 
 	vec3 origin = vec3(eye.y * -1, 0, eye.x);
