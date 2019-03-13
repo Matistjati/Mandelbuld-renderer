@@ -4,17 +4,21 @@
 
 #include <iostream>
 #include <string>
+
 #include "shader.h"
+#include "Camera.h"
 
 constexpr unsigned int width = 1080;
 constexpr unsigned int height = 1080;
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct MandelInfo
 {
-	float zoom;
+	float power;
 	int maxIterations;
+	float bailOut;
 	float x;
 	float y;
 	float z;
@@ -89,10 +93,16 @@ int main()
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
 
-	MandelInfo mandelInfo{ 0, 0, 0.0, 0.0, 3.0, mainShader };
+	MandelInfo mandelInfo{ 8, 10, 1.15, 0.0, 0.0, 0.0, mainShader };
+
+	mandelInfo.shader.setFloat("Power", mandelInfo.power);
+	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
+	mandelInfo.shader.setFloat("bailout", mandelInfo.bailOut);
+
+	glfwSetWindowUserPointer(window, &mandelInfo);
 
 	glfwSetKeyCallback(window, KeyCallback);
-	glfwSetWindowUserPointer(window, &mandelInfo);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	mainShader.use();
 
@@ -132,6 +142,15 @@ int main()
 	return 0;
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	MandelInfo *mandel = (MandelInfo*)glfwGetWindowUserPointer(window);
+	mandel->shader.setInt("width", width);
+	mandel->shader.setInt("height", height);
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	glViewport(0, 0, width, height);
+}
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -172,5 +191,41 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	{
 		mandel->z -= .5;
 		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
+	}
+
+	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->maxIterations += 1;
+		mandel->shader.setInt("maxIterations", mandel->maxIterations);
+	}
+
+	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->maxIterations -= 1;
+		mandel->shader.setInt("maxIterations", mandel->maxIterations);
+	}
+
+	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->power += 0.01;
+		mandel->shader.setFloat("Power", mandel->power);
+	}
+
+	if (key == GLFW_KEY_V && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->power -= 0.01;
+		mandel->shader.setFloat("Power", mandel->power);
+	}
+
+	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->bailOut += 0.01;
+		mandel->shader.setFloat("bailout", mandel->bailOut);
+	}
+
+	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->bailOut -= 0.01;
+		mandel->shader.setFloat("bailout", mandel->bailOut);
 	}
 }

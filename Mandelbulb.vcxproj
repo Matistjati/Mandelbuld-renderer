@@ -83,7 +83,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -107,7 +107,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -139,6 +139,7 @@
     <None Include="Basic.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="src/shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

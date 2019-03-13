@@ -3,24 +3,22 @@
 layout(location = 0) out vec4 color;
 in vec4 pos;
 
-const int width = 1080;
-const int height = 1080;
+uniform int width = 1080;
+uniform int height = 1080;
+uniform float Power = 8;
+uniform int maxIterations = 10;
+uniform float bailout = 1.15;
+
 
 uniform float time;
 
 uniform vec3 eye;
-
-vec4 orb;
 
 // For pow 2
 #define different 0
 
 float DE(vec3 p)
 {
-	const int Power = 8;
-	const int maxIterations = 10;
-	const float bailout = 1.15;
-
 	vec3 z = p;
 	float dr = 1.0;
 	float r = 0.0;
@@ -67,7 +65,7 @@ float trace(vec3 origin, vec3 ray)
 		vec3 p = origin + ray * t;
 
 		float distance = DE(p);//, (1.1 + 0.5*smoothstep( -0.3, 0.3, cos(0.1*time) )));
-		t += distance * 0.6;
+		t += distance * 0.4;
 	}
 
 	return t;
@@ -82,14 +80,14 @@ void main()
 
 	vec3 r = normalize(vec3(uv, 1.0));
 	
-	//float the = time;
+	float the = time;
 	//r.xz *= mat2(cos(the), -sin(the), sin(the), cos(the));
 
-	vec3 origin = vec3(eye.y * -1, 0, eye.x);
+	vec3 origin = vec3(eye.z, eye.y, eye.x);
 
 	float t = trace(origin, r);
 
-	float tmod= mod(t, 1);
+	float tmod= mod(100 - t, 1);
 
     color = vec4(tmod, tmod, tmod, 1.0);
 }
