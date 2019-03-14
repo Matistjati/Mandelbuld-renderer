@@ -1,7 +1,6 @@
 #version 330 core
 
 layout(location = 0) out vec4 color;
-in vec4 pos;
 
 uniform int width = 1080;
 uniform int height = 1080;
@@ -9,7 +8,8 @@ uniform float Power = 8;
 uniform int maxIterations = 10;
 uniform float bailout = 1.15;
 
-
+uniform float yaw;
+uniform float pitch;
 uniform float time;
 
 uniform vec3 eye;
@@ -76,18 +76,22 @@ void main()
 	vec2 uv = (gl_FragCoord.xy / vec2(width, height));
 	uv = uv * 2.0 - 1.0;
 
-	uv.x *= float(width) / height;
+	//uv.x *= float(width) / height;
 
-	vec3 r = normalize(vec3(uv, 1.0));
+	vec3 direction = normalize(vec3(uv.xy, 1));
+
+	direction.zy *= mat2(cos(pitch), -sin(pitch),
+				        sin(pitch), cos(pitch));
+						
+	direction.xy *= mat2(cos(-yaw), -sin(-yaw),
+				        sin(-yaw), cos(-yaw));
 	
-	float the = time;
-	//r.xz *= mat2(cos(the), -sin(the), sin(the), cos(the));
+	vec3 origin = eye.zyx;
 
-	vec3 origin = vec3(eye.z, eye.y, eye.x);
-
-	float t = trace(origin, r);
+	float t = trace(origin, direction.xyz);
 
 	float tmod= mod(100 - t, 1);
+
 
     color = vec4(tmod, tmod, tmod, 1.0);
 }

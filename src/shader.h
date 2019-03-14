@@ -4,7 +4,7 @@
 #define SHADER_H
 
 #include <string>
-
+#include <glm.hpp>
 
 class Shader
 {
@@ -22,7 +22,9 @@ public:
 	void setInt(const std::string &name, int value) const;
 	void setFloat(const std::string &name, float value) const;
 	void set3f(const std::string &name, float x, float y, float z) const;
+	void set3f(const std::string &name, glm::vec3 vector) const;
 	void set4f(const std::string &name, float x, float y, float z, float w) const;
+	void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
 private:
 	std::string ParseShader(const std::string& file);

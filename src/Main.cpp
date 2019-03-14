@@ -13,17 +13,24 @@ constexpr unsigned int height = 1080;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+bool statechanged = true;
 struct MandelInfo
 {
 	float power;
 	int maxIterations;
 	float bailOut;
-	float x;
-	float y;
-	float z;
+	float deltaTime;
+	float lastX = 0;
+	float lastY = 0;
+	bool firstMouse = true;
 	Shader shader;
+	Camera camera;
+	int yawLocation;
+	int pitchLocation;
+	int eyeLocation;
 };
+
 
 int main()
 {
@@ -92,8 +99,16 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
+	Camera camera(glm::vec3(0, 0, 0));
+	camera.MouseSensitivity = 0.001f;
 
-	MandelInfo mandelInfo{ 8, 10, 1.15, 0.0, 0.0, 0.0, mainShader };
+	MandelInfo mandelInfo{ 8, 10, 1.15, 0.0, 0, 0, true, mainShader, camera};
+
+	mandelInfo.yawLocation = glGetUniformLocation(mandelInfo.shader.id, "yaw");
+	mandelInfo.pitchLocation = glGetUniformLocation(mandelInfo.shader.id, "pitch");
+	mandelInfo.eyeLocation = glGetUniformLocation(mandelInfo.shader.id, "eye");
+
+	mainShader.use();
 
 	mandelInfo.shader.setFloat("Power", mandelInfo.power);
 	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
@@ -103,8 +118,10 @@ int main()
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
-	mainShader.use();
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -112,6 +129,7 @@ int main()
 
 	double lastTime = glfwGetTime();
 
+	int timeLocation = glGetUniformLocation(mainShader.id, "time");
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -121,12 +139,15 @@ int main()
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
 		// this aint cheap
-		glfwSetWindowTitle(window, std::to_string(1 / (glfwGetTime() - lastTime)).c_str());
+		float deltaTime = (glfwGetTime() - lastTime);
+		mandelInfo.deltaTime = deltaTime;
+
+		glfwSetWindowTitle(window, std::to_string(1 / deltaTime).c_str());
 		lastTime = glfwGetTime();
-		mainShader.setFloat("time", lastTime);
+		glUniform1f(timeLocation, lastTime);
 
 		// render
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT);
 
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -159,39 +180,28 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->x += .1;
-		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::FORWARD, mandel->deltaTime);
+		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->x -= .1;
-		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::BACKWARD, mandel->deltaTime);
+		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->y += .1;
-		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::LEFT, mandel->deltaTime);
+		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->y -= .1;
-		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::RIGHT, mandel->deltaTime);
+		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
-	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->z += .5;
-		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
-	}
-
-	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->z -= .5;
-		mandel->shader.set3f("eye", mandel->x, mandel->y, mandel->z);
-	}
 
 	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
@@ -228,4 +238,33 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		mandel->bailOut -= 0.01;
 		mandel->shader.setFloat("bailout", mandel->bailOut);
 	}
+
+	if (key == GLFW_KEY_ESCAPE && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		glfwSetWindowShouldClose(window, 1);
+	}
+}
+
+
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	MandelInfo *mandel = (MandelInfo*)glfwGetWindowUserPointer(window);
+
+	if (mandel->firstMouse)
+	{
+		mandel->lastX = xpos;
+		mandel->lastY = ypos;
+		mandel->firstMouse = false;
+	}
+
+	float xoffset = xpos - mandel->lastX;
+	float yoffset = mandel->lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	mandel->lastX = xpos;
+	mandel->lastY = ypos;
+
+	mandel->camera.ProcessMouseMovement(xoffset, yoffset);
+	glUniform1f(mandel->yawLocation, mandel->camera.Yaw);
+	glUniform1f(mandel->pitchLocation, mandel->camera.Pitch);
 }
