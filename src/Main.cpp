@@ -14,12 +14,11 @@ constexpr unsigned int height = 1080;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-bool statechanged = true;
+
 struct MandelInfo
 {
 	float power;
 	int maxIterations;
-	float bailOut;
 	float deltaTime;
 	float lastX = 0;
 	float lastY = 0;
@@ -29,6 +28,7 @@ struct MandelInfo
 	int yawMatrixLocation;
 	int pitchMatrixLocation;
 	int eyeLocation;
+	int powerLocation;
 };
 
 
@@ -60,13 +60,13 @@ int main()
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 
-	float vertices1[30] =
+	float vertices1[12] =
 	{	
-		// Positions       // Colors
-		 1.f,  1.f, 0.0f,  .66f, 0.0f, 0.0f,    // top right
-		 1.f, -1.f, 0.0f,  0.33f, 0.33f, 0.0f,  // bottom right
-		 -1.f,  1.f, 0.0f, 0.33f, 0.0f, 0.33f,  // top left,
-		-1.f, -1.f, 0.0f,  0.33f, 0.33f, 0.0f   // bottom left
+		// Positions
+		 1.f,  1.f, 0.0f,  // top right
+		 1.f, -1.f, 0.0f,  // bottom right
+		 -1.f,  1.f, 0.0f, // top left,
+		-1.f, -1.f, 0.0f,  // bottom left
 	};
 
 	unsigned int indices[6] =
@@ -82,13 +82,10 @@ int main()
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, 30 * sizeof(float), vertices1, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertices1, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(VAO);
 
@@ -98,22 +95,22 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindVertexArray(VAO);
+
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
-	Camera camera(glm::vec3(0, 0, 0));
+	Camera camera(glm::vec3(5, 5, 5));
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 1;
 
-	MandelInfo mandelInfo{ 8, 10, 1.15, 0.0, 0, 0, true, mainShader, camera};
+	MandelInfo mandelInfo{ 8, 10, 0.0, 0, 0, true, mainShader, camera};
 
 	mandelInfo.pitchMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
 	mandelInfo.yawMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
 	mandelInfo.eyeLocation = glGetUniformLocation(mandelInfo.shader.id, "eye");
+	mandelInfo.powerLocation = glGetUniformLocation(mandelInfo.shader.id, "power");
 
 	mainShader.use();
-
-	mandelInfo.shader.setFloat("Power", mandelInfo.power);
-	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
-	mandelInfo.shader.setFloat("bailout", mandelInfo.bailOut);
 
 	glfwSetWindowUserPointer(window, &mandelInfo);
 
@@ -124,27 +121,26 @@ int main()
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBindVertexArray(VAO);
 
-	double lastTime = glfwGetTime();
+	float lastTime = static_cast<float>(glfwGetTime());
 
 	int timeLocation = glGetUniformLocation(mainShader.id, "time");
+
+	mandelInfo.shader.setFloat("Power", mandelInfo.power);
+	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
+	mandelInfo.shader.set3f(mandelInfo.eyeLocation, mandelInfo.camera.position);
+	mandelInfo.shader.setMat2(mandelInfo.yawMatrixLocation, mandelInfo.camera.GetYawMatrix2());
+	mandelInfo.shader.setMat2(mandelInfo.pitchMatrixLocation, mandelInfo.camera.GetPitchMatrix2());
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		//float timeValue = glfwGetTime();
-		//float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
 		// this aint cheap
-		float deltaTime = (glfwGetTime() - lastTime);
+		float deltaTime = static_cast<float>(glfwGetTime() - lastTime);
 		mandelInfo.deltaTime = deltaTime;
 
 		glfwSetWindowTitle(window, std::to_string(1 / deltaTime).c_str());
-		lastTime = glfwGetTime();
+		lastTime = static_cast<float>(glfwGetTime());
 		glUniform1f(timeLocation, lastTime);
 
 		// render
@@ -159,6 +155,9 @@ int main()
 		glfwPollEvents();
 	}
 
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &EBO);
+
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	glfwTerminate();
 	return 0;
@@ -169,6 +168,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	MandelInfo *mandel = (MandelInfo*)glfwGetWindowUserPointer(window);
 	mandel->shader.setInt("width", width);
 	mandel->shader.setInt("height", height);
+
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
@@ -182,27 +182,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::FORWARD, mandel->deltaTime);
-		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.Position);
+		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		//glm::vec3 front(0, 1, 0);
-		glm::vec3 front(1, 0, 0);
-		mandel->camera.Position -= front * mandel->deltaTime;
-		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::BACKWARD, mandel->deltaTime);
+		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-
-		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::LEFT, mandel->deltaTime);
+		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-
-		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
+		mandel->camera.ProcessKeyboard(Camera_Movement::RIGHT, mandel->deltaTime);
+		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
 	}
 
 
@@ -220,26 +218,19 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power += 0.01;
-		mandel->shader.setFloat("Power", mandel->power);
+		mandel->power += 0.01f;
+		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
 	}
 
 	if (key == GLFW_KEY_V && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power -= 0.01;
-		mandel->shader.setFloat("Power", mandel->power);
+		mandel->power -= 0.01f;
+		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
 	}
 
-	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	if (key == GLFW_KEY_R && action == GLFW_PRESS)
 	{
-		mandel->bailOut += 0.01;
-		mandel->shader.setFloat("bailout", mandel->bailOut);
-	}
-
-	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->bailOut -= 0.01;
-		mandel->shader.setFloat("bailout", mandel->bailOut);
+		mandel->camera.movementReverse *= -1;
 	}
 
 	if (key == GLFW_KEY_ESCAPE && (action == GLFW_REPEAT || action == GLFW_PRESS))
@@ -256,16 +247,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	if (mandel->firstMouse)
 	{
-		mandel->lastX = xpos;
-		mandel->lastY = ypos;
+		mandel->lastX = static_cast<float>(xpos);
+		mandel->lastY = static_cast<float>(ypos);
 		mandel->firstMouse = false;
 	}
 
-	float xoffset = xpos - mandel->lastX;
-	float yoffset = mandel->lastY - ypos; // reversed since y-coordinates go from bottom to top
+	float xoffset = static_cast<float>(xpos - mandel->lastX);
+	float yoffset = static_cast<float>(mandel->lastY - ypos); // reversed since y-coordinates go from bottom to top
 
-	mandel->lastX = xpos;
-	mandel->lastY = ypos;
+	mandel->lastX = static_cast<float>(xpos);
+	mandel->lastY = static_cast<float>(ypos);
 
 	mandel->camera.ProcessMouseMovement(xoffset, yoffset);
 	mandel->shader.setMat2(mandel->pitchMatrixLocation, mandel->camera.GetPitchMatrix2());

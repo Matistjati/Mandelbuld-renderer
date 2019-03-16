@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Res">
-      <UniqueIdentifier>{61ef21df-3c6e-405a-9d6a-f90a1a384d21}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Res\Shaders">
-      <UniqueIdentifier>{0efa1b30-a459-45a4-8c26-d5618c7d6eb1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/Main.cpp">
@@ -30,11 +24,6 @@
     <ClCompile Include="src/ToString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Basic.shader">
-      <Filter>Res\Shaders</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/shader.h">

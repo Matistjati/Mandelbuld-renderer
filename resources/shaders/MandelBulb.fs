@@ -4,15 +4,17 @@ layout(location = 0) out vec4 color;
 
 uniform int width = 1080;
 uniform int height = 1080;
-uniform float Power = 8;
+uniform float power = 8;
 uniform int maxIterations = 10;
-uniform float bailout = 1.15;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
 uniform float time;
 
 uniform vec3 eye;
+
+const float bailout = 1.15;
+const float stepMultiplier = 0.6;
 
 // For pow 2
 #define different 0
@@ -37,12 +39,12 @@ float DE(vec3 p)
 		float theta = acos(z.z/r);
 		float phi = atan(z.y,z.x);
 #endif
-		dr =  pow(r, Power - 1.0) * Power * dr + 1.0;
+		dr =  pow(r, power - 1.0) * power * dr + 1.0;
 		
 		// scale and rotate the point
-		float zr = pow(r, Power);
-		theta = theta * Power;
-		phi = phi * Power;
+		float zr = pow(r, power);
+		theta = theta * power;
+		phi = phi * power;
 		
 		// convert back to cartesian coordinates
 #if different > 0
@@ -58,14 +60,15 @@ float DE(vec3 p)
 
 float trace(vec3 origin, vec3 ray)
 {
-	float t = 0.;
+	float t = 0.0f;
 
 	for (int i = 0; i < 100; i++)
 	{
 		vec3 p = origin + ray * t;
 
 		float distance = DE(p);//, (1.1 + 0.5*smoothstep( -0.3, 0.3, cos(0.1*time) )));
-		t += distance * 0.4;
+
+		t += distance * stepMultiplier;
 	}
 
 	return t;
@@ -82,25 +85,11 @@ void main()
 
 	direction.zy *= pitchMatrix;
 
-
-
-	/*vec2 zy = direction.zy;
-	zy *= pitchMatrix;
-	direction.z = zy.x;
-	direction.y = zy.y;*/
-	//float temp = direction.z;
-	//direction.z = pitchMatrix[0].x * direction.z + pitchMatrix[1].x * direction.y;
-	//direction.y = pitchMatrix[0].y * temp        + pitchMatrix[1].y * direction.y ;
-	
-
-
 	direction.xy *= yawMatrix;
 	
-	vec3 origin = eye.zyx;
+	float t = trace(eye.zyx, direction.xyz);
 
-	float t = trace(origin, direction.xyz);
-
-	float tmod= mod(100 - t, 1);
+	float tmod= mod(maxIterations - t, 1);
 
     color = vec4(tmod, tmod, tmod, 1.0);
 }

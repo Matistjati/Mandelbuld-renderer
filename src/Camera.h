@@ -28,95 +28,107 @@ const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 
 
-// An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
+// A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
 public:
+	// -1 or 1, for moving inside our outside of the bulb
+	float movementReverse;
+
 	// Camera Attributes
-	glm::vec3 Position;
+	glm::vec3 position;
+
 	// Euler Angles
-	float Yaw;
-	float Pitch;
+	float yaw;
+	float pitch;
+
 	// Camera options
 	float MovementSpeed;
 	float MouseSensitivity;
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY)
+	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(-1)
 	{
-		Position = position;
-		Yaw = yaw;
-		Pitch = pitch;
+		position = position;
+		yaw = Yaw;
+		pitch = Pitch;
 	}
+
 	// Constructor with scalar values
-	Camera(float posX, float posY, float posZ, float yaw, float pitch) :  MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY)
+	Camera(float posX, float posY, float posZ, float Yaw, float Pitch) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(-1)
 	{
-		Position = glm::vec3(posX, posY, posZ);
-		Yaw = yaw;
-		Pitch = pitch;
+		position = glm::vec3(posX, posY, posZ);
+		yaw = Yaw;
+		pitch = Pitch;
 	}
 
 	glm::mat2 GetYawMatrix2()
 	{
-		float rad = glm::radians(-Yaw);
+		float rad = glm::radians(-yaw);
 		return glm::mat2(cos(rad), -sin(rad),
-						 sin(rad), cos(rad));
+			sin(rad), cos(rad));
 	}
 
 	glm::mat2 GetPitchMatrix2()
 	{
-		float rad = glm::radians(Pitch);
+		float rad = glm::radians(pitch);
 		return glm::mat2(cos(rad), -sin(rad),
-						 sin(rad), cos(rad));
+			sin(rad), cos(rad));
+	}
+
+	glm::vec3 GetForwardVector()
+	{
+		glm::vec3 out;
+
+		// Vertical movement
+		out.x = cos(glm::radians(pitch)) * movementReverse;
+
+
+		// Horizontal movement
+		glm::vec2 verticalFront(1 * movementReverse, 0);
+
+		verticalFront = GetYawMatrix2() * verticalFront;
+
+		// If we face up, we wanna move slower horizontally
+		float rads2 = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI)));
+		float percentLookingMiddle = static_cast<float>((rads2 < M_PI_2) ?
+			rads2 / M_PI_2 :
+			(M_PI - rads2) / M_PI_2);
+
+		out += glm::vec3(0, verticalFront.x, verticalFront.y) * percentLookingMiddle;
+
+		return glm::normalize(out);
+	}
+
+	glm::vec3 GetRightVector()
+	{
+		glm::vec3 worldUp = glm::vec3(-1, 0, 0);
+		return glm::normalize(glm::cross(GetForwardVector(), worldUp));
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	{
-		//std::cout << "x: " << Front.x << ", y: " << Front.y << ", z:" << Front.z << std::endl;
 		float velocity = MovementSpeed * deltaTime;
 		if (direction == FORWARD)
-		{
-			// Vertical movement
-			Position.x += -cos(glm::radians(Pitch)) * velocity;
+			position += GetForwardVector() * velocity;
+		if (direction == BACKWARD)
+			position -= GetForwardVector() * velocity;
 
-			glm::vec2 verticalFront(-1, 0);
-
-			verticalFront = GetYawMatrix2() * verticalFront;
-
-			// If we face up, we wanna move slower horizontally
-			float rads2 = abs(fmod(glm::radians(Pitch), M_PI));
-			float percentLookingMiddle = (rads2 < M_PI_2) ?
-				rads2 / M_PI_2 :
-				(M_PI - rads2) / M_PI_2;
-
-			Position += glm::vec3(0, verticalFront.x, verticalFront.y) * velocity * percentLookingMiddle;
-		}
-		/*if (direction == BACKWARD)
-			Position -= Front * velocity;
-		if (direction == LEFT)
-			Position -= Right * velocity;
 		if (direction == RIGHT)
-			Position += Right * velocity;*/
+			position += GetRightVector() * velocity;
+		if (direction == LEFT)
+			position -= GetRightVector() * velocity;
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-	void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = false)
+	void ProcessMouseMovement(float xoffset, float yoffset)
 	{
 		xoffset *= MouseSensitivity;
 		yoffset *= MouseSensitivity;
 
-		Yaw += xoffset;
-		Pitch += yoffset;
-
-		// Make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (constrainPitch)
-		{
-			if (Pitch > 89.0f)
-				Pitch = 89.0f;
-			if (Pitch < -89.0f)
-				Pitch = -89.0f;
-		}
+		yaw += xoffset;
+		pitch += yoffset;
 	}
 };
 #endif
