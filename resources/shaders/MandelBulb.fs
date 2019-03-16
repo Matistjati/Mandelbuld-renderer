@@ -8,8 +8,8 @@ uniform float Power = 8;
 uniform int maxIterations = 10;
 uniform float bailout = 1.15;
 
-uniform float yaw;
-uniform float pitch;
+uniform mat2 yawMatrix;
+uniform mat2 pitchMatrix;
 uniform float time;
 
 uniform vec3 eye;
@@ -53,7 +53,7 @@ float DE(vec3 p)
 		z+=p;
 	}
 
-	return 0.5 * log(r) * r / dr;
+	return log(r) * r / dr;
 }
 
 float trace(vec3 origin, vec3 ray)
@@ -80,18 +80,27 @@ void main()
 
 	vec3 direction = normalize(vec3(uv.xy, 1));
 
-	direction.zy *= mat2(cos(pitch), -sin(pitch),
-				        sin(pitch), cos(pitch));
-						
-	direction.xy *= mat2(cos(-yaw), -sin(-yaw),
-				        sin(-yaw), cos(-yaw));
+	direction.zy *= pitchMatrix;
+
+
+
+	/*vec2 zy = direction.zy;
+	zy *= pitchMatrix;
+	direction.z = zy.x;
+	direction.y = zy.y;*/
+	//float temp = direction.z;
+	//direction.z = pitchMatrix[0].x * direction.z + pitchMatrix[1].x * direction.y;
+	//direction.y = pitchMatrix[0].y * temp        + pitchMatrix[1].y * direction.y ;
+	
+
+
+	direction.xy *= yawMatrix;
 	
 	vec3 origin = eye.zyx;
 
 	float t = trace(origin, direction.xyz);
 
 	float tmod= mod(100 - t, 1);
-
 
     color = vec4(tmod, tmod, tmod, 1.0);
 }

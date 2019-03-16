@@ -23,7 +23,10 @@ public:
 	void setFloat(const std::string &name, float value) const;
 	void set3f(const std::string &name, float x, float y, float z) const;
 	void set3f(const std::string &name, glm::vec3 vector) const;
+	void set3f(int location, glm::vec3 vector) const;
 	void set4f(const std::string &name, float x, float y, float z, float w) const;
+	void setMat2(const std::string &name, const glm::mat2 &mat) const;
+	void setMat2(int location, const glm::mat2 &mat) const;
 	void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
 private:

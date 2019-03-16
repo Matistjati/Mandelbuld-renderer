@@ -26,8 +26,8 @@ struct MandelInfo
 	bool firstMouse = true;
 	Shader shader;
 	Camera camera;
-	int yawLocation;
-	int pitchLocation;
+	int yawMatrixLocation;
+	int pitchMatrixLocation;
 	int eyeLocation;
 };
 
@@ -100,12 +100,13 @@ int main()
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
 	Camera camera(glm::vec3(0, 0, 0));
-	camera.MouseSensitivity = 0.001f;
+	camera.MouseSensitivity = 0.1f;
+	camera.MovementSpeed = 1;
 
 	MandelInfo mandelInfo{ 8, 10, 1.15, 0.0, 0, 0, true, mainShader, camera};
 
-	mandelInfo.yawLocation = glGetUniformLocation(mandelInfo.shader.id, "yaw");
-	mandelInfo.pitchLocation = glGetUniformLocation(mandelInfo.shader.id, "pitch");
+	mandelInfo.pitchMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
+	mandelInfo.yawMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
 	mandelInfo.eyeLocation = glGetUniformLocation(mandelInfo.shader.id, "eye");
 
 	mainShader.use();
@@ -181,24 +182,26 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::FORWARD, mandel->deltaTime);
-		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
+		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.Position);
 	}
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::BACKWARD, mandel->deltaTime);
+		//glm::vec3 front(0, 1, 0);
+		glm::vec3 front(1, 0, 0);
+		mandel->camera.Position -= front * mandel->deltaTime;
 		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::LEFT, mandel->deltaTime);
+
 		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::RIGHT, mandel->deltaTime);
+
 		glUniform3f(mandel->eyeLocation, mandel->camera.Position.x, mandel->camera.Position.y, mandel->camera.Position.z);
 	}
 
@@ -265,6 +268,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	mandel->lastY = ypos;
 
 	mandel->camera.ProcessMouseMovement(xoffset, yoffset);
-	glUniform1f(mandel->yawLocation, mandel->camera.Yaw);
-	glUniform1f(mandel->pitchLocation, mandel->camera.Pitch);
+	mandel->shader.setMat2(mandel->pitchMatrixLocation, mandel->camera.GetPitchMatrix2());
+	mandel->shader.setMat2(mandel->yawMatrixLocation, mandel->camera.GetYawMatrix2());
 }
