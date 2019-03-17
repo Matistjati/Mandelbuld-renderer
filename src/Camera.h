@@ -80,8 +80,13 @@ public:
 	{
 		glm::vec3 out;
 
+		float rads2 = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI)));
+		float percentNotLookingMiddle = static_cast<float>((rads2 < M_PI_2) ?
+			rads2 / M_PI_2 :
+			(M_PI - rads2) / M_PI_2);
+
 		// Vertical movement
-		out.x = cos(glm::radians(pitch)) * movementReverse;
+		out.y = cos(glm::radians(pitch) + static_cast<float>(M_PI_2)) * movementReverse * -1 * percentNotLookingMiddle;
 
 
 		// Horizontal movement
@@ -90,12 +95,9 @@ public:
 		verticalFront = GetYawMatrix2() * verticalFront;
 
 		// If we face up, we wanna move slower horizontally
-		float rads2 = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI)));
-		float percentLookingMiddle = static_cast<float>((rads2 < M_PI_2) ?
-			rads2 / M_PI_2 :
-			(M_PI - rads2) / M_PI_2);
+		float percentLookingMiddle = static_cast<float>(abs(rads2 - M_PI_2) / M_PI_2);
 
-		out += glm::vec3(0, verticalFront.x, verticalFront.y) * percentLookingMiddle;
+		out += glm::vec3(verticalFront.x, 0, verticalFront.y) * percentLookingMiddle;
 
 		return glm::normalize(out);
 	}
@@ -129,6 +131,10 @@ public:
 
 		yaw += xoffset;
 		pitch += yoffset;
+
+
+		//std::cout << std::to_string(percentLookingMiddle) << std::endl;
+		//std::cout << "pitch: " << std::to_string(glm::radians(pitch) + M_PI_2) << std::endl;
 	}
 };
 #endif

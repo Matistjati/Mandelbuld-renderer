@@ -8,8 +8,8 @@
 #include "shader.h"
 #include "Camera.h"
 
-constexpr unsigned int width = 1080;
-constexpr unsigned int height = 1080;
+constexpr unsigned int width = 800;
+constexpr unsigned int height = 800;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -182,6 +182,9 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::FORWARD, mandel->deltaTime);
+		/*glm::vec3 front(0, 0, 0);
+		mandel->camera.position += front * mandel->deltaTime;*/
+
 		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
 	}
 
@@ -218,7 +221,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power += 0.01f;
+		mandel->power += 0.03f;
 		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
 	}
 
