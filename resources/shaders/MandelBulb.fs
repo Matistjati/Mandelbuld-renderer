@@ -105,6 +105,6 @@ void main()
 	
 	int iterations = trace(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz);
 
-	float grayScale = float(iterations) / float(maxIterations);
+	float grayScale = 1 - float(iterations) / float(maxIterations);
     color = vec4(grayScale, grayScale, grayScale, 1.0);
 }
