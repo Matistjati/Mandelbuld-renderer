@@ -20,6 +20,7 @@ struct MandelInfo
 	float power;
 	int maxIterations;
 	float deltaTime;
+	float epsilon;
 	float lastX = 0;
 	float lastY = 0;
 	bool firstMouse = true;
@@ -99,11 +100,11 @@ int main()
 	glBindVertexArray(VAO);
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
-	Camera camera(glm::vec3(5, 5, 5));
+	Camera camera(glm::vec3(1.8, 0.8, -0.6), 169, -14);
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 1;
 
-	MandelInfo mandelInfo{ 8, 10, 0.0, 0, 0, true, mainShader, camera};
+	MandelInfo mandelInfo{ 8, 10, 0.0, 0.001, 0, 0, true, mainShader, camera};
 
 	mandelInfo.pitchMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
 	mandelInfo.yawMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
@@ -209,14 +210,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->maxIterations += 1;
-		mandel->shader.setInt("maxIterations", mandel->maxIterations);
+		mandel->epsilon *= 0.9;
+		mandel->shader.setFloat("epsilon", mandel->epsilon);
 	}
 
 	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->maxIterations -= 1;
-		mandel->shader.setInt("maxIterations", mandel->maxIterations);
+		mandel->epsilon /= 0.9;
+		mandel->shader.setFloat("epsilon", mandel->epsilon);
 	}
 
 	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))

@@ -47,9 +47,9 @@ public:
 	float MouseSensitivity;
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(-1)
+	Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(-1)
 	{
-		position = position;
+		position = Position;
 		yaw = Yaw;
 		pitch = Pitch;
 	}
@@ -104,7 +104,7 @@ public:
 
 	glm::vec3 GetRightVector()
 	{
-		glm::vec3 worldUp = glm::vec3(-1, 0, 0);
+		glm::vec3 worldUp = glm::vec3(0, 1, 0);
 		return glm::normalize(glm::cross(GetForwardVector(), worldUp));
 	}
 

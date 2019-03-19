@@ -5,19 +5,17 @@ layout(location = 0) out vec4 color;
 uniform int width = 1080;
 uniform int height = 1080;
 uniform float power = 8;
-uniform int maxIterations = 10;
+uniform float epsilon = 0.001;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
 uniform float time;
 
-uniform vec3 eye = vec3(1, 0, 0);
+uniform vec3 eye;
 
+const int maxIterations = 100;
 const float bailout = 1.15;
 const float stepMultiplier = 0.6;
-
-// For pow 2
-#define different 0
 
 float DE(vec3 p)
 {
@@ -28,7 +26,7 @@ float DE(vec3 p)
 	float dz = 1.0;
     
     
-	for( int i=0; i<4; i++ )
+	for(int i = 0; i < 4; i++)
     {
 #if 1
         float m2 = m*m;
@@ -55,7 +53,7 @@ float DE(vec3 p)
         float b = power*acos( w.y/r);
         float a = power*atan( w.x, w.z );
         w = p + pow(r,power) * vec3( sin(b)*sin(a), cos(b), sin(b)*cos(a) );
-#endif        
+#endif
         
         trap = min( trap, vec4(abs(w),m) );
 
@@ -68,20 +66,26 @@ float DE(vec3 p)
     return 0.25* log(m)*sqrt(m)/dz;
 }
 
-float trace(vec3 origin, vec3 ray)
+int trace(vec3 origin, vec3 ray)
 {
 	float t = 0.0f;
 
-	for (int i = 0; i < 100; i++)
+	int i = 0;
+	for (; i < maxIterations; i++)
 	{
 		vec3 p = origin + ray * t;
 
-		float distance = DE(p);//, (1.1 + 0.5*smoothstep( -0.3, 0.3, cos(0.1*time) )));
+		float distance = DE(p);
+		
+		if (distance < epsilon)
+		{
+			break;
+		}
 
 		t += distance * stepMultiplier;
 	}
 
-	return t;
+	return i;
 }
 
 void main()
@@ -97,9 +101,8 @@ void main()
 
 	direction.xz *= yawMatrix;
 	
-	float t = trace(eye.zyx, direction.xyz);
+	int iterations = trace(eye.zyx, direction.xyz);
 
-	float tmod= mod(maxIterations - t, 1);
-
-    color = vec4(tmod, tmod, tmod, 1.0);
+	float grayScale = float(iterations) / float(maxIterations);
+    color = vec4(grayScale, grayScale, grayScale, 1.0);
 }
