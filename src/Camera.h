@@ -47,7 +47,7 @@ public:
 	float MouseSensitivity;
 
 	// Constructor with vectors
-	Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(-1)
+	Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(1)
 	{
 		position = Position;
 		yaw = Yaw;
@@ -55,7 +55,7 @@ public:
 	}
 
 	// Constructor with scalar values
-	Camera(float posX, float posY, float posZ, float Yaw, float Pitch) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(-1)
+	Camera(float posX, float posY, float posZ, float Yaw, float Pitch) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(1)
 	{
 		position = glm::vec3(posX, posY, posZ);
 		yaw = Yaw;

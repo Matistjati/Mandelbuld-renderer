@@ -18,9 +18,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 struct MandelInfo
 {
 	float power;
-	int maxIterations;
 	float deltaTime;
-	float epsilon;
+	int worldFlip;
 	float lastX = 0;
 	float lastY = 0;
 	bool firstMouse = true;
@@ -104,7 +103,7 @@ int main()
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 1;
 
-	MandelInfo mandelInfo{ 8, 10, 0.0, 0.001, 0, 0, true, mainShader, camera};
+	MandelInfo mandelInfo{ 8, 0, -1, 0, 0, true, mainShader, camera};
 
 	mandelInfo.pitchMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
 	mandelInfo.yawMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
@@ -128,7 +127,6 @@ int main()
 	int timeLocation = glGetUniformLocation(mainShader.id, "time");
 
 	mandelInfo.shader.setFloat("Power", mandelInfo.power);
-	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
 	mandelInfo.shader.set3f(mandelInfo.eyeLocation, mandelInfo.camera.position);
 	mandelInfo.shader.setMat2(mandelInfo.yawMatrixLocation, mandelInfo.camera.GetYawMatrix2());
 	mandelInfo.shader.setMat2(mandelInfo.pitchMatrixLocation, mandelInfo.camera.GetPitchMatrix2());
@@ -210,14 +208,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->epsilon *= 0.9;
-		mandel->shader.setFloat("epsilon", mandel->epsilon);
+		mandel->worldFlip *= -1;
+		mandel->shader.setInt("worldFlip", mandel->worldFlip);
 	}
 
 	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->epsilon /= 0.9;
-		mandel->shader.setFloat("epsilon", mandel->epsilon);
+		mandel->camera.movementReverse *= -1;
 	}
 
 	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))
@@ -230,11 +227,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	{
 		mandel->power -= 0.01f;
 		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
-	}
-
-	if (key == GLFW_KEY_R && action == GLFW_PRESS)
-	{
-		mandel->camera.movementReverse *= -1;
 	}
 
 	if (key == GLFW_KEY_ESCAPE && (action == GLFW_REPEAT || action == GLFW_PRESS))

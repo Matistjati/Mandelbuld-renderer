@@ -5,7 +5,7 @@ layout(location = 0) out vec4 color;
 uniform int width = 1080;
 uniform int height = 1080;
 uniform float power = 8;
-uniform float epsilon = 0.001;
+uniform int worldFlip = -1;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
@@ -13,6 +13,7 @@ uniform float time;
 
 uniform vec3 eye;
 
+const float epsilon = 0.001;
 const int maxIterations = 100;
 const float bailout = 1.15;
 const float stepMultiplier = 0.6;
@@ -77,7 +78,7 @@ int trace(vec3 origin, vec3 ray)
 
 		float distance = DE(p);
 		
-		if (distance < epsilon)
+		if (distance < epsilon || distance > 3)
 		{
 			break;
 		}
@@ -100,8 +101,9 @@ void main()
 	direction.zy *= pitchMatrix;
 
 	direction.xz *= yawMatrix;
+	direction.y *= worldFlip;
 	
-	int iterations = trace(eye.zyx, direction.xyz);
+	int iterations = trace(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz);
 
 	float grayScale = float(iterations) / float(maxIterations);
     color = vec4(grayScale, grayScale, grayScale, 1.0);
