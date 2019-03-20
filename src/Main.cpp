@@ -8,8 +8,8 @@
 #include "shader.h"
 #include "Camera.h"
 
-constexpr unsigned int width = 800;
-constexpr unsigned int height = 800;
+constexpr unsigned int width = 1920;
+constexpr unsigned int height = 1080;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -101,9 +101,9 @@ int main()
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
 	Camera camera(glm::vec3(1.8, 0.8, -0.6), 169, -14);
 	camera.MouseSensitivity = 0.1f;
-	camera.MovementSpeed = 1;
+	camera.MovementSpeed = 3;
 
-	MandelInfo mandelInfo{ 8, 0, -1, 0, 0, true, mainShader, camera};
+	MandelInfo mandelInfo{ 2, 0, -1, 0, 0, true, mainShader, camera};
 
 	mandelInfo.pitchMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
 	mandelInfo.yawMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
@@ -126,10 +126,12 @@ int main()
 
 	int timeLocation = glGetUniformLocation(mainShader.id, "time");
 
-	mandelInfo.shader.setFloat("Power", mandelInfo.power);
+	mandelInfo.shader.setFloat("power", mandelInfo.power);
 	mandelInfo.shader.set3f(mandelInfo.eyeLocation, mandelInfo.camera.position);
 	mandelInfo.shader.setMat2(mandelInfo.yawMatrixLocation, mandelInfo.camera.GetYawMatrix2());
 	mandelInfo.shader.setMat2(mandelInfo.pitchMatrixLocation, mandelInfo.camera.GetPitchMatrix2());
+	mandelInfo.shader.setInt("width", width);
+	mandelInfo.shader.setInt("height", height);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -225,7 +227,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_V && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power -= 0.01f;
+		mandel->power -= 0.03f;
 		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
 	}
 
