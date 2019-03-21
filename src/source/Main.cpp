@@ -5,8 +5,8 @@
 #include <iostream>
 #include <string>
 
-#include "shader.h"
-#include "Camera.h"
+#include "headers/Camera.h"
+#include "headers/shader.h"
 
 constexpr unsigned int width = 1920;
 constexpr unsigned int height = 1080;

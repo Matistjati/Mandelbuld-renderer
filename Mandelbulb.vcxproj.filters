@@ -15,24 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src/Main.cpp">
+    <ClCompile Include="src/source/Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/shader.cpp">
+    <ClCompile Include="src/source/shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/ToString.cpp">
+    <ClCompile Include="src/source/ToString.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/source/Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src/shader.h">
+    <ClInclude Include="src/headers/shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src/Camera.h">
+    <ClInclude Include="src/headers/Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src/ToString.h">
+    <ClInclude Include="src/headers/ToString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
