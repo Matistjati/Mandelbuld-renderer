@@ -94,7 +94,7 @@ vec2 isphere(vec4 sph, vec3 origin, vec3 ray)
     return -b + vec2(-h,h);
 }
 
-float trace(Ray ray, out vec4 rescol, in float px, out float gradient)
+float trace(Ray ray, out vec4 trapOut, in float px)
 {
     float res = -1.0;
 
@@ -124,11 +124,9 @@ float trace(Ray ray, out vec4 rescol, in float px, out float gradient)
 		t += h;
     }
     
-	gradient = 1 - float(i) / float(maxSteps);
-    
     if(t < dis.y)
     {
-        rescol = trap;
+        trapOut = trap;
         res = t;
     }
 
@@ -174,8 +172,7 @@ vec3 render(Ray ray)
 	float px = 2.0 / (height * zoom);
 	vec4 trap;
 
-	float iterations;
-	float t = trace(ray, trap, zoom, iterations);
+	float t = trace(ray, trap, zoom);
 
 	vec3 col;
 
@@ -190,30 +187,6 @@ vec3 render(Ray ray)
 	}
 	else
 	{
-#if 0
-		// Ray heatmap
-		iterations = 1 - iterations;
-		if (iterations > 0.90)
-		{
-			col = vec3(1, 0.0, 0.0);
-		}
-		if (iterations > 0.80)
-		{
-			col = vec3(0.70, 0.1, 0.0);
-		}
-		else if (iterations > 0.50)
-		{
-			col = vec3(0.0, 0.5, 0.0);
-		}
-		else if (iterations > 0.25)
-		{
-			col = vec3(0.0, 0.25, 0.25);
-		}
-		else
-		{
-			col = vec3(0.0, 0.0, 0.8);
-		}
-#else
 		col = vec3(0.01);
 		col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
 	 	col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
@@ -255,7 +228,6 @@ vec3 render(Ray ray)
 
 		//col += 8.0*vec3(0.8,0.9,1.0)*(0.2+0.8*occlusion)*(0.03+0.97*pow(fakeSSS,5.0))*smoothstep(0.0,0.1,reflection.y )*SoftShadow( Ray(pos+0.01*normal, reflection), 2.0 );
 		//col = vec3(occlusion*occlusion);
-#endif
 	}
 
 	return col;
