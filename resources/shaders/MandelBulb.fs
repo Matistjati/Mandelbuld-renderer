@@ -7,9 +7,11 @@ uniform int height = 1080;
 uniform float power = 8;
 uniform int worldFlip = -1;
 
+uniform float normalEffect = 0.001;
+
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
-uniform float time;
+uniform vec3 sun = vec3(0.577, -0.577, -0.577);
 
 uniform vec3 eye;
 
@@ -18,7 +20,8 @@ const int maxIterations = 4;
 const int maxSteps = 100;
 const float bailout = 1.15;
 const float stepMultiplier = 0.6;
-const int outerSphereRadius = 3;
+const float sunBrightness = 1.0;
+const float sunTightness = 16.0;
 
 struct Ray
 {
@@ -26,9 +29,9 @@ struct Ray
 	vec3 dir;
 };
 
-float DE(vec3 p, out vec4 resColor)
+float Map(vec3 start, out vec4 resColor)
 {
-	vec3 w = p;
+	vec3 w = start;
     float m = dot(w,w);
 
     vec4 trap = vec4(abs(w),m);
@@ -51,20 +54,21 @@ float DE(vec3 p, out vec4 resColor)
         float k1 = x4 + y4 + z4 - 6.0*y2*z2 - 6.0*x2*y2 + 2.0*z2*x2;
         float k4 = x2 - y2 + z2;
 
-        w.x = p.x +  64.0*x*y*z*(x2-z2)*k4*(x4-6.0*x2*z2+z4)*k1*k2;
-        w.y = p.y + -16.0*y2*k3*k4*k4 + k1*k1;
-        w.z = p.z +  -power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
+        w.x = start.x +  64.0*x*y*z*(x2-z2)*k4*(x4-6.0*x2*z2+z4)*k1*k2;
+        w.y = start.y + -16.0*y2*k3*k4*k4 + k1*k1;
+        w.z = start.z +  -power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
 #else
-        dz = power*pow(sqrt(m),power-1)*dz + 1.0;
-		//dz = 8.0*pow(m,3.5)*dz + 1.0;
+        dz = power * pow(sqrt(m), power - 1) * dz + 1.0;
+		//dz = power*pow(m,power*0.5)*dz + 1.0;
         
         float r = length(w);
-        float b = power*acos( w.y/r);
-        float a = power*atan( w.x, w.z );
-        w = p + pow(r,power) * vec3( sin(b)*sin(a), cos(b), sin(b)*cos(a) );
+        float phi = power * acos(w.y / r);
+        float theta = power * atan(w.x, w.z);
+
+        w = start + pow(r, power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
 #endif
         
-        trap = min( trap, vec4(abs(w),m) );
+        trap = min(trap, vec4(abs(w),m));
 
         m = dot(w,w);
 		if( m > 256.0 )
@@ -112,10 +116,14 @@ float trace(Ray ray, out vec4 rescol, in float px, out float gradient)
 	for(; i<maxSteps; i++  )
     { 
         vec3 pos = ray.origin + ray.dir * t;
-		float h = DE(pos, trap);
-        float th = 0.25*px*t;
-		if( t>dis.y || h<th ) break;
-        t += h;
+		float h = Map(pos, trap);
+        float th = 0.25 * px * t;
+
+		if(t>dis.y || h < th)
+		{
+			break;
+        }
+		t += h;
     }
     
 	gradient = 1 - float(i) / float(maxSteps);
@@ -136,14 +144,31 @@ vec3 calculateNormal(vec3 p)
 	vec3 gradient;
 	vec4 temp;
 
-    gradient.x = DE(p + small_step.xyy, temp) - DE(p - small_step.xyy, temp);
-    gradient.y = DE(p + small_step.yxy, temp) - DE(p - small_step.yxy, temp);
-    gradient.z = DE(p + small_step.yyx, temp) - DE(p - small_step.yyx, temp);
+    gradient.x = Map(p + small_step.xyy, temp) - Map(p - small_step.xyy, temp);
+    gradient.y = Map(p + small_step.yxy, temp) - Map(p - small_step.yxy, temp);
+    gradient.z = Map(p + small_step.yyx, temp) - Map(p - small_step.yyx, temp);
 
     return normalize(gradient);
 }
 
-const vec3 sun = vec3(0.577, 0.577, -0.577);
+float SoftShadow(Ray ray, float k)
+{
+    float result = 1.0;
+    float t = 0.0;
+	
+	vec4 temp;
+
+    for(int i = 0; i < 64; i++)
+    {
+        float h = Map(ray.origin + ray.dir * t, temp);
+        result = min(result, k * h / t);
+
+        if(result < 0.001) break;
+
+        t += clamp(h, 0.01, 32);
+    }
+    return clamp(result, 0.0, 1.0);
+}
 
 vec3 render(Ray ray)
 {
@@ -165,12 +190,39 @@ vec3 render(Ray ray)
 		// Sun
 
 		// TODO How the fuck does this even work?? cpu render for intuition
-		const float sunSize = 5.0;
-		col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), 32.0);
+		col += sunBrightness * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
 	}
 	else
 	{
-		col = vec3(iterations, iterations, iterations);
+#if 0
+		// Ray heatmap
+		iterations = 1 - iterations;
+		if (iterations > 0.90)
+		{
+			col = vec3(1, 0.0, 0.0);
+		}
+		if (iterations > 0.80)
+		{
+			col = vec3(0.70, 0.1, 0.0);
+		}
+		else if (iterations > 0.50)
+		{
+			col = vec3(0.0, 0.5, 0.0);
+		}
+		else if (iterations > 0.25)
+		{
+			col = vec3(0.0, 0.25, 0.25);
+		}
+		else
+		{
+			col = vec3(0.0, 0.0, 0.8);
+		}
+#else
+		vec3 finalPosition = (ray.origin + ray.dir * t);
+		vec3 normal = calculateNormal(finalPosition);
+		Ray sunToFractal = Ray(finalPosition + normalEffect * normal, sun);
+		col = vec3(iterations) * SoftShadow(sunToFractal, 0.7);
+#endif
 	}
 
 	return sqrt(col);

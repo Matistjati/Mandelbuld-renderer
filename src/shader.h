@@ -23,6 +23,7 @@ public:
 	void setFloat(const std::string &name, float value) const;
 	void setFloat(int location, float value) const;
 	void set3f(const std::string &name, float x, float y, float z) const;
+	void set3f(int location, float x, float y, float z) const;
 	void set3f(const std::string &name, glm::vec3 vector) const;
 	void set3f(int location, glm::vec3 vector) const;
 	void set4f(const std::string &name, float x, float y, float z, float w) const;

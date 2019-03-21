@@ -78,6 +78,11 @@ void Shader::set3f(const std::string & name, float x, float y, float z) const
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 }
 
+void Shader::set3f(int location, float x, float y, float z) const
+{
+	glUniform3f(location, x, y, z);
+}
+
 void Shader::set3f(const std::string & name, glm::vec3 vector) const
 {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);

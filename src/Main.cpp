@@ -10,10 +10,20 @@
 
 constexpr unsigned int width = 1920;
 constexpr unsigned int height = 1080;
+constexpr int startPower = 8;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
+struct Locations
+{
+	int yawMatrix;
+	int pitchMatrix;
+	int eye;
+	int power;
+	int sun;
+};
 
 struct MandelInfo
 {
@@ -25,10 +35,9 @@ struct MandelInfo
 	bool firstMouse = true;
 	Shader shader;
 	Camera camera;
-	int yawMatrixLocation;
-	int pitchMatrixLocation;
-	int eyeLocation;
-	int powerLocation;
+	Locations location;
+	glm::vec3 sun;
+	float normalEffect;
 };
 
 
@@ -103,14 +112,25 @@ int main()
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 3;
 
-	MandelInfo mandelInfo{ 2, 0, -1, 0, 0, true, mainShader, camera};
+	MandelInfo mandelInfo{ startPower, 0, -1, 0, 0, true, mainShader, camera, Locations{}, glm::vec3(0.577, -0.577, -0.577), 0.1 };
 
-	mandelInfo.pitchMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
-	mandelInfo.yawMatrixLocation = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
-	mandelInfo.eyeLocation = glGetUniformLocation(mandelInfo.shader.id, "eye");
-	mandelInfo.powerLocation = glGetUniformLocation(mandelInfo.shader.id, "power");
+	mandelInfo.normalEffect = 0.001;
+
+	mandelInfo.location.pitchMatrix = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
+	mandelInfo.location.yawMatrix = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
+	mandelInfo.location.eye = glGetUniformLocation(mandelInfo.shader.id, "eye");
+	mandelInfo.location.power = glGetUniformLocation(mandelInfo.shader.id, "power");
+	mandelInfo.location.sun = glGetUniformLocation(mandelInfo.shader.id, "sun");
 
 	mainShader.use();
+
+	mandelInfo.shader.setFloat("power", mandelInfo.power);
+	mandelInfo.shader.set3f(mandelInfo.location.eye, mandelInfo.camera.position);
+	mandelInfo.shader.setMat2(mandelInfo.location.yawMatrix, mandelInfo.camera.GetYawMatrix2());
+	mandelInfo.shader.setMat2(mandelInfo.location.pitchMatrix, mandelInfo.camera.GetPitchMatrix2());
+	mandelInfo.shader.setInt("width", width);
+	mandelInfo.shader.setInt("height", height);
+	mandelInfo.shader.set3f(mandelInfo.location.sun, mandelInfo.sun);
 
 	glfwSetWindowUserPointer(window, &mandelInfo);
 
@@ -126,23 +146,22 @@ int main()
 
 	int timeLocation = glGetUniformLocation(mainShader.id, "time");
 
-	mandelInfo.shader.setFloat("power", mandelInfo.power);
-	mandelInfo.shader.set3f(mandelInfo.eyeLocation, mandelInfo.camera.position);
-	mandelInfo.shader.setMat2(mandelInfo.yawMatrixLocation, mandelInfo.camera.GetYawMatrix2());
-	mandelInfo.shader.setMat2(mandelInfo.pitchMatrixLocation, mandelInfo.camera.GetPitchMatrix2());
-	mandelInfo.shader.setInt("width", width);
-	mandelInfo.shader.setInt("height", height);
-
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// this aint cheap
-		float deltaTime = static_cast<float>(glfwGetTime() - lastTime);
+		float time = static_cast<float>(glfwGetTime());
+		float deltaTime = (time -lastTime);
 		mandelInfo.deltaTime = deltaTime;
 
 		glfwSetWindowTitle(window, std::to_string(1 / deltaTime).c_str());
-		lastTime = static_cast<float>(glfwGetTime());
+		lastTime = time;
 		glUniform1f(timeLocation, lastTime);
+
+		
+
+		mandelInfo.shader.set3f(mandelInfo.location.sun, glm::normalize(glm::vec3(sin(time * 0.25), sin(time * 0.1), cos(time * 0.25))));
+
 
 		// render
 		//glClear(GL_COLOR_BUFFER_BIT);
@@ -186,25 +205,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		/*glm::vec3 front(0, 0, 0);
 		mandel->camera.position += front * mandel->deltaTime;*/
 
-		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
+		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::BACKWARD, mandel->deltaTime);
-		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
+		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::LEFT, mandel->deltaTime);
-		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
+		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::RIGHT, mandel->deltaTime);
-		mandel->shader.set3f(mandel->eyeLocation, mandel->camera.position);
+		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
 
@@ -222,13 +241,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->power += 0.03f;
-		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
+		mandel->shader.setFloat(mandel->location.power, mandel->power);
+	}
+
+	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->normalEffect *= 0.9f;
+		mandel->shader.setFloat("normalEffect", mandel->normalEffect);
+	}
+
+	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->normalEffect /= 0.9f;
+		mandel->shader.setFloat("normalEffect", mandel->normalEffect);
 	}
 
 	if (key == GLFW_KEY_V && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->power -= 0.03f;
-		mandel->shader.setFloat(mandel->powerLocation, mandel->power);
+		mandel->shader.setFloat(mandel->location.power, mandel->power);
 	}
 
 	if (key == GLFW_KEY_ESCAPE && (action == GLFW_REPEAT || action == GLFW_PRESS))
@@ -257,6 +288,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	mandel->lastY = static_cast<float>(ypos);
 
 	mandel->camera.ProcessMouseMovement(xoffset, yoffset);
-	mandel->shader.setMat2(mandel->pitchMatrixLocation, mandel->camera.GetPitchMatrix2());
-	mandel->shader.setMat2(mandel->yawMatrixLocation, mandel->camera.GetYawMatrix2());
+	mandel->shader.setMat2(mandel->location.pitchMatrix, mandel->camera.GetPitchMatrix2());
+	mandel->shader.setMat2(mandel->location.yawMatrix, mandel->camera.GetYawMatrix2());
 }
