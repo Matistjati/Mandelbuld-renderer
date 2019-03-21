@@ -7,22 +7,20 @@ uniform int height = 1080;
 uniform float power = 8;
 uniform int worldFlip = -1;
 
-uniform float normalEffect = 0.001;
-uniform float shadowSoftness = 2.5;
+uniform float genericParameter = 1;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
-uniform vec3 sun;// = vec3(0.577, -0.577, -0.577);
+uniform vec3 sun;
 
 uniform vec3 eye;
-
 const float epsilon = 0.001;
 const int maxIterations = 4;
 const int maxSteps = 100;
 const float bailout = 1.15;
-const float stepMultiplier = 0.6;
 const float sunBrightness = 1.0;
 const float sunTightness = 16.0;
+const vec3 light = vec3( -0.707, 0.000,  0.707 );
 
 struct Ray
 {
@@ -83,7 +81,6 @@ float Map(vec3 start, out vec4 resColor)
 
 vec2 isphere(vec4 sph, vec3 origin, vec3 ray)
 {
-	// TODO How the fuck does this even work?? cpu render for intuition
     vec3 oc = origin - sph.xyz;
     
 	float b = dot(oc,ray);
@@ -103,7 +100,7 @@ float trace(Ray ray, out vec4 rescol, in float px, out float gradient)
 
     // bounding sphere
     vec2 dis = isphere( vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
-    if( dis.y<0.0 )
+    if(dis.y < 0.0)
         return -1.0;
 
     dis.x = max(dis.x, 0.0);
@@ -113,7 +110,7 @@ float trace(Ray ray, out vec4 rescol, in float px, out float gradient)
 	vec4 trap;
 
 	float t = dis.x;
-	int i=0;
+	int i = 0;
 	for(; i<maxSteps; i++  )
     { 
         vec3 pos = ray.origin + ray.dir * t;
@@ -189,8 +186,6 @@ vec3 render(Ray ray)
      	col = vec3(0.8, 0.95, 1.0) * (0.6 + 0.4 * ray.dir.y);
 
 		// Sun
-
-		// TODO How the fuck does this even work?? cpu render for intuition
 		col += sunBrightness * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
 	}
 	else
@@ -219,14 +214,51 @@ vec3 render(Ray ray)
 			col = vec3(0.0, 0.0, 0.8);
 		}
 #else
-		vec3 finalPosition = (ray.origin + ray.dir * t);
-		vec3 normal = calculateNormal(finalPosition);
-		Ray sunToFractal = Ray(finalPosition + normalEffect * normal, sun);
-		col = vec3(iterations) * SoftShadow(sunToFractal, shadowSoftness);
+		col = vec3(0.01);
+		col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
+	 	col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
+        col = mix(col, vec3(0.15, 0.4, 0.04), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
+        col *= 0.5;
+
+		// The end position of the ray
+		vec3 pos = (ray.origin + ray.dir * t);
+		vec3 normal = calculateNormal(pos);
+		Ray fractalToSun = Ray(pos + 0.001 * normal, sun);
+		vec3 fractalToSunDir = normalize(sun - ray.dir);
+		float occlusion = clamp(0.05*log(trap.x),0.0,1.0);
+		float fakeSSS = clamp(1.0+dot(ray.dir,normal),0.0,1.0);
+
+		// Sun
+		float shadow = SoftShadow(fractalToSun, 32.);
+		float diffuse = clamp(dot(sun, normal), 0.0, 1.0 ) * shadow;
+		float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1.0), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
+
+		// Bounce
+		float diffuse2 = clamp( 0.5 + 0.5*dot(light, normal), 0.0, 1.0 )*occlusion;
+
+		// Sky
+		float diffuse3 = (0.7+0.3*normal.y)*(0.2+0.8*occlusion);
+
+		vec3 light = vec3(0.0); 
+		light += 7.0*vec3(1.50,1.10,0.70)*diffuse;
+		light += 4.0*vec3(0.25,0.20,0.15)*diffuse2;
+		light += 1.5*vec3(0.10,0.20,0.30)*diffuse3;
+		light += 2.5*vec3(0.35,0.30,0.25)*(0.05+0.95*occlusion); // ambient
+		light += 4*fakeSSS*occlusion;                          // fake SSS
+
+
+		col *= light;
+		col = pow( col, vec3(0.7,0.9,1.0) );                  // fake SSS
+		col += specular * 15.;
+
+		vec3 reflection = reflect( ray.dir, normal );
+
+		//col += 8.0*vec3(0.8,0.9,1.0)*(0.2+0.8*occlusion)*(0.03+0.97*pow(fakeSSS,5.0))*smoothstep(0.0,0.1,reflection.y )*SoftShadow( Ray(pos+0.01*normal, reflection), 2.0 );
+		//col = vec3(occlusion*occlusion);
 #endif
 	}
 
-	return sqrt(col);
+	return col;
 }
 
 void main()

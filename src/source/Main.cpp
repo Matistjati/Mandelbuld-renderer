@@ -36,8 +36,7 @@ struct MandelInfo
 	Shader shader;
 	Camera camera;
 	Locations location;
-	float normalEffect;
-	float shadowSoftness;
+	float genericParameter;
 };
 
 
@@ -112,9 +111,7 @@ int main()
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 3;
 
-	MandelInfo mandelInfo{ startPower, 0, -1, 0, 0, true, mainShader, camera, Locations{}, 0.1f, 2.5f };
-
-	mandelInfo.normalEffect = 0.001f;
+	MandelInfo mandelInfo{ startPower, 0, -1, 0, 0, true, mainShader, camera, Locations{}, 1. };
 
 	mandelInfo.location.pitchMatrix = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
 	mandelInfo.location.yawMatrix = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
@@ -203,36 +200,28 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::forward, mandel->deltaTime);
-		/*glm::vec3 front(0, 0, 0);
-		mandel->camera.position += front * mandel->deltaTime;*/
-
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
-
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::back, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
-
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::left, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
-
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::right, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
-
 	if (key == GLFW_KEY_SPACE && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::up, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
-
 	if (key == GLFW_KEY_LEFT_SHIFT && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.ProcessKeyboard(Camera_Movement::down, mandel->deltaTime);
@@ -245,47 +234,35 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		mandel->worldFlip *= -1;
 		mandel->shader.setInt("worldFlip", mandel->worldFlip);
 	}
-
 	if (key == GLFW_KEY_X && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->camera.movementReverse *= -1;
 	}
+
 
 	if (key == GLFW_KEY_C && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->power += 0.03f;
 		mandel->shader.setFloat(mandel->location.power, mandel->power);
 	}
-
-	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->normalEffect *= 0.9f;
-		mandel->shader.setFloat("normalEffect", mandel->normalEffect);
-	}
-
-	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->normalEffect /= 0.9f;
-		mandel->shader.setFloat("normalEffect", mandel->normalEffect);
-	}
-
-	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->shadowSoftness /= 0.9f;
-		mandel->shader.setFloat("shadowSoftness", mandel->shadowSoftness);
-	}
-
-	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
-	{
-		mandel->shadowSoftness *= 0.9f;
-		mandel->shader.setFloat("shadowSoftness", mandel->shadowSoftness);
-	}
-
 	if (key == GLFW_KEY_V && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		mandel->power -= 0.03f;
 		mandel->shader.setFloat(mandel->location.power, mandel->power);
 	}
+
+
+	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->genericParameter += 0.1f;
+		mandel->shader.setFloat("genericParameter", mandel->genericParameter);
+	}
+	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->genericParameter -= 0.1f;
+		mandel->shader.setFloat("genericParameter", mandel->genericParameter);
+	}
+
 
 	if (key == GLFW_KEY_ESCAPE && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
