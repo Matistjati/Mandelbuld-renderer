@@ -8,10 +8,11 @@ uniform float power = 8;
 uniform int worldFlip = -1;
 
 uniform float normalEffect = 0.001;
+uniform float shadowSoftness = 2.5;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
-uniform vec3 sun = vec3(0.577, -0.577, -0.577);
+uniform vec3 sun;// = vec3(0.577, -0.577, -0.577);
 
 uniform vec3 eye;
 
@@ -221,7 +222,7 @@ vec3 render(Ray ray)
 		vec3 finalPosition = (ray.origin + ray.dir * t);
 		vec3 normal = calculateNormal(finalPosition);
 		Ray sunToFractal = Ray(finalPosition + normalEffect * normal, sun);
-		col = vec3(iterations) * SoftShadow(sunToFractal, 0.7);
+		col = vec3(iterations) * SoftShadow(sunToFractal, shadowSoftness);
 #endif
 	}
 

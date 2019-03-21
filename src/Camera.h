@@ -15,10 +15,12 @@
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement
 {
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
+	forward,
+	back,
+	left,
+	right,
+	up,
+	down
 };
 
 // Default camera values
@@ -26,7 +28,6 @@ const float YAW = 0;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
-
 
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -46,6 +47,9 @@ public:
 	float MovementSpeed;
 	float MouseSensitivity;
 
+	// Used for orientation
+	const glm::vec3 worldUp = glm::vec3(0, 1, 0);
+	
 	// Constructor with vectors
 	Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(1)
 	{
@@ -104,7 +108,6 @@ public:
 
 	glm::vec3 GetRightVector()
 	{
-		glm::vec3 worldUp = glm::vec3(0, 1, 0);
 		return glm::normalize(glm::cross(GetForwardVector(), worldUp));
 	}
 
@@ -112,15 +115,21 @@ public:
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	{
 		float velocity = MovementSpeed * deltaTime;
-		if (direction == FORWARD)
+		if (direction == forward)
 			position += GetForwardVector() * velocity;
-		if (direction == BACKWARD)
+		if (direction == back)
 			position -= GetForwardVector() * velocity;
 
-		if (direction == RIGHT)
+		if (direction == right)
 			position += GetRightVector() * velocity;
-		if (direction == LEFT)
+		if (direction == left)
 			position -= GetRightVector() * velocity;
+
+
+		if (direction == up)
+			position += worldUp * velocity;
+		if (direction == down)
+			position -= worldUp * velocity;
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.

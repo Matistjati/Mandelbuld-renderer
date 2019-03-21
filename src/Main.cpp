@@ -36,8 +36,8 @@ struct MandelInfo
 	Shader shader;
 	Camera camera;
 	Locations location;
-	glm::vec3 sun;
 	float normalEffect;
+	float shadowSoftness;
 };
 
 
@@ -112,9 +112,9 @@ int main()
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 3;
 
-	MandelInfo mandelInfo{ startPower, 0, -1, 0, 0, true, mainShader, camera, Locations{}, glm::vec3(0.577, -0.577, -0.577), 0.1 };
+	MandelInfo mandelInfo{ startPower, 0, -1, 0, 0, true, mainShader, camera, Locations{}, 0.1f, 2.5f };
 
-	mandelInfo.normalEffect = 0.001;
+	mandelInfo.normalEffect = 0.001f;
 
 	mandelInfo.location.pitchMatrix = glGetUniformLocation(mandelInfo.shader.id, "pitchMatrix");
 	mandelInfo.location.yawMatrix = glGetUniformLocation(mandelInfo.shader.id, "yawMatrix");
@@ -130,7 +130,6 @@ int main()
 	mandelInfo.shader.setMat2(mandelInfo.location.pitchMatrix, mandelInfo.camera.GetPitchMatrix2());
 	mandelInfo.shader.setInt("width", width);
 	mandelInfo.shader.setInt("height", height);
-	mandelInfo.shader.set3f(mandelInfo.location.sun, mandelInfo.sun);
 
 	glfwSetWindowUserPointer(window, &mandelInfo);
 
@@ -149,24 +148,26 @@ int main()
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// this aint cheap
+		// Deltatime
 		float time = static_cast<float>(glfwGetTime());
 		float deltaTime = (time -lastTime);
+		lastTime = time;
 		mandelInfo.deltaTime = deltaTime;
 
+		// Set the window title to our fps
 		glfwSetWindowTitle(window, std::to_string(1 / deltaTime).c_str());
-		lastTime = time;
+		// Set time in shader
 		glUniform1f(timeLocation, lastTime);
 
 		
+		// Move sun in shader
+		mandelInfo.shader.set3f(mandelInfo.location.sun, glm::normalize(
+			glm::vec3(sin(time * 0.25),
+				std::abs(sin(time * 0.1)) * -1,
+				cos(time * 0.25))));
 
-		mandelInfo.shader.set3f(mandelInfo.location.sun, glm::normalize(glm::vec3(sin(time * 0.25), sin(time * 0.1), cos(time * 0.25))));
 
-
-		// render
-		//glClear(GL_COLOR_BUFFER_BIT);
-
-
+		// render, we use ray marching inside the fragment shader
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
@@ -201,7 +202,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::FORWARD, mandel->deltaTime);
+		mandel->camera.ProcessKeyboard(Camera_Movement::forward, mandel->deltaTime);
 		/*glm::vec3 front(0, 0, 0);
 		mandel->camera.position += front * mandel->deltaTime;*/
 
@@ -210,19 +211,31 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::BACKWARD, mandel->deltaTime);
+		mandel->camera.ProcessKeyboard(Camera_Movement::back, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::LEFT, mandel->deltaTime);
+		mandel->camera.ProcessKeyboard(Camera_Movement::left, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->camera.ProcessKeyboard(Camera_Movement::RIGHT, mandel->deltaTime);
+		mandel->camera.ProcessKeyboard(Camera_Movement::right, mandel->deltaTime);
+		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
+	}
+
+	if (key == GLFW_KEY_SPACE && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->camera.ProcessKeyboard(Camera_Movement::up, mandel->deltaTime);
+		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
+	}
+
+	if (key == GLFW_KEY_LEFT_SHIFT && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->camera.ProcessKeyboard(Camera_Movement::down, mandel->deltaTime);
 		mandel->shader.set3f(mandel->location.eye, mandel->camera.position);
 	}
 
@@ -254,6 +267,18 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	{
 		mandel->normalEffect /= 0.9f;
 		mandel->shader.setFloat("normalEffect", mandel->normalEffect);
+	}
+
+	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->shadowSoftness /= 0.9f;
+		mandel->shader.setFloat("shadowSoftness", mandel->shadowSoftness);
+	}
+
+	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->shadowSoftness *= 0.9f;
+		mandel->shader.setFloat("shadowSoftness", mandel->shadowSoftness);
 	}
 
 	if (key == GLFW_KEY_V && (action == GLFW_REPEAT || action == GLFW_PRESS))
