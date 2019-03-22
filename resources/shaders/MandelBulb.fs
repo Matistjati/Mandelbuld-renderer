@@ -11,6 +11,8 @@ uniform float genericParameter = 1;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
+uniform mat2 rollMatrix;
+uniform mat4 rotationMatrix;
 uniform vec3 sun;
 
 uniform vec3 eye;
@@ -246,6 +248,8 @@ void main()
 
 	direction.xz *= yawMatrix;
 	direction.y *= worldFlip;
+	
+	direction.xy *= rollMatrix;
 	
 	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
 
