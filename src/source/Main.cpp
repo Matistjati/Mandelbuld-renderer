@@ -1,4 +1,5 @@
-#include <Windows.h>
+#include <windows.h>
+#include <Shlwapi.h>
 #include <glew.h>
 #include <GLFW/glfw3.h>
 
@@ -8,7 +9,7 @@
 #include "headers/Camera.h"
 #include "headers/shader.h"
 
-constexpr unsigned int width = 1920;
+constexpr unsigned int width = 1080;
 constexpr unsigned int height = 1080;
 constexpr int startPower = 8;
 
@@ -40,17 +41,39 @@ struct MandelInfo
 	float genericParameter;
 };
 
+inline std::string GetWorkingDirectory()
+{
+	const int bufferSize = 256;
+	char path[bufferSize];
+	GetCurrentDirectory(bufferSize, path);
+	return std::string(path);
+}
 
 int main()
 {
-	// glfw: initialize and configure
+	std::string workingDir = GetWorkingDirectory();
+#if _DEBUG
+	std::cout << "Initial working directory: " << workingDir << std::endl;
+#endif
+
+	workingDir = workingDir.substr(0, workingDir.find_last_of("/\\"));
+#if _DEBUG
+	std::cout << "New working directory: " << workingDir << std::endl;
+#endif
+
+	if (!SetCurrentDirectory(workingDir.c_str()))
+	{
+		std::cout << "Error setting working directory";
+	}
+
+	// glfw initialization
 	if (!glfwInit())
 	{
 		return -1;
 	}
 
 	// glfw window creation
-	GLFWwindow* window = glfwCreateWindow(width, height, "Hai", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Mandelbulb", NULL, NULL);
 	if (!window)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -111,7 +134,7 @@ int main()
 	Camera camera(glm::vec3(1.8, 0.8, -0.6), 169, -14, 0);
 	camera.MouseSensitivity = 0.1f;
 	camera.MovementSpeed = 3;
-	camera.rollSpeed = 40;
+	camera.rollSpeed = 200;
 
 	MandelInfo mandelInfo{ startPower, 0, -1, glm::vec2(), 0, true, mainShader, camera, Locations{}, 1. };
 
@@ -155,11 +178,10 @@ int main()
 		lastTime = time;
 		mandelInfo.deltaTime = deltaTime;
 
+#if _DEBUG
 		// Set the window title to our fps
 		glfwSetWindowTitle(window, std::to_string(1 / deltaTime).c_str());
-		// Set time in shader
-		glUniform1f(timeLocation, lastTime);
-
+#endif
 		
 		// Move sun in shader
 		mandelInfo.shader.set3f(mandelInfo.location.sun, glm::normalize(

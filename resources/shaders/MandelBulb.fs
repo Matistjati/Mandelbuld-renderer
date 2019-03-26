@@ -59,8 +59,8 @@ float Map(vec3 start, out vec4 resColor)
         w.y = start.y + -16.0*y2*k3*k4*k4 + k1*k1;
         w.z = start.z +  -power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
 #else
-        dz = power * pow(sqrt(m), power - 1) * dz + 1.0;
-		//dz = power*pow(m,power*0.5)*dz + 1.0;
+        dz = (power * pow(sqrt(m), power - 1)) * dz + 1.0;
+		//dz = power*pow(m,(power-1)*0.5)*dz + 1.0;
         
         float r = length(w);
         float phi = power * acos(w.y / r);
@@ -247,9 +247,9 @@ void main()
 	direction.zy *= pitchMatrix;
 
 	direction.xz *= yawMatrix;
+	direction.xy *= rollMatrix;
 	direction.y *= worldFlip;
 	
-	direction.xy *= rollMatrix;
 	
 	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
 

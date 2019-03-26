@@ -61,6 +61,10 @@ public:
 
 	glm::mat2 GetRollMatrix2();
 
+	glm::vec3 GetWorldUp();
+
+	glm::vec3 GetWorldForward();
+
 	// For moving forward or backward
 	glm::vec3 GetForwardVector();
 
