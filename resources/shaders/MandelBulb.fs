@@ -30,7 +30,7 @@ struct Ray
 	vec3 dir;
 };
 
-float Map(vec3 start, out vec4 resColor)
+float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 {
 	vec3 w = start;
     float m = dot(w,w);
@@ -44,29 +44,30 @@ float Map(vec3 start, out vec4 resColor)
 #if 0
         float m2 = m*m;
         float m4 = m2*m2;
-		dz = power*sqrt(m4*m2*m)*dz + 1.0;
+		dz = Power*sqrt(m4*m2*m)*dz + 1.0;
 
         float x = w.x; float x2 = x*x; float x4 = x2*x2;
         float y = w.y; float y2 = y*y; float y4 = y2*y2;
         float z = w.z; float z2 = z*z; float z4 = z2*z2;
 
         float k3 = x2 + z2;
-        float k2 = inversesqrt( pow(k3, power - 1) );
+        float k2 = inversesqrt( pow(k3, Power - 1) );
         float k1 = x4 + y4 + z4 - 6.0*y2*z2 - 6.0*x2*y2 + 2.0*z2*x2;
         float k4 = x2 - y2 + z2;
 
         w.x = start.x +  64.0*x*y*z*(x2-z2)*k4*(x4-6.0*x2*z2+z4)*k1*k2;
         w.y = start.y + -16.0*y2*k3*k4*k4 + k1*k1;
-        w.z = start.z +  -power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
+        w.z = start.z +  -Power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
 #else
-        dz = (power * pow(sqrt(m), power - 1)) * dz + 1.0;
-		//dz = power*pow(m,(power-1)*0.5)*dz + 1.0;
+        dz = (Power * pow(sqrt(m), Power - 1)) * dz + 1.0;
+		//dz = Power*pow(m,(Power-1)*0.5)*dz + 1.0;
         
         float r = length(w);
-        float phi = power * acos(w.y / r);
-        float theta = power * atan(w.x, w.z);
-
-        w = start + pow(r, power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
+        float theta = Power * atan(w.x, w.z);
+        float phi = Power * acos(w.y / r);
+		
+		// Fun alternative: reverse sin and cos
+        w = start + pow(r, Power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
 #endif
         
         trap = min(trap, vec4(abs(w),m));
@@ -78,7 +79,31 @@ float Map(vec3 start, out vec4 resColor)
 	
 	resColor = vec4(m,trap.yzw);
 
-    return 0.25* log(m)*sqrt(m)/dz;
+    return 0.4* log(m)*sqrt(m)/dz;
+}
+
+float Map(vec3 start, out vec4 resColor)
+{
+#if 1
+	return DistanceEstimator(start, resColor, power);
+#else
+	vec4 trap1;
+	vec4 trap2;
+
+	float dist1 = DistanceEstimator(start, trap1, power);
+	float dist2 = DistanceEstimator(start, trap2, power / log(power));
+
+	if (dist1 < dist2)
+	{
+		resColor = trap1;
+		return dist1;
+	}
+	else
+	{
+		resColor = trap2;
+		return dist2;
+	}
+#endif
 }
 
 vec2 isphere(vec4 sph, vec3 origin, vec3 ray)
@@ -96,7 +121,7 @@ vec2 isphere(vec4 sph, vec3 origin, vec3 ray)
     return -b + vec2(-h,h);
 }
 
-float trace(Ray ray, out vec4 trapOut, in float px)
+float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 {
     float res = -1.0;
 
@@ -125,7 +150,10 @@ float trace(Ray ray, out vec4 trapOut, in float px)
         }
 		t += h;
     }
-    
+
+	percentSteps = float(i) / maxSteps;
+    percentSteps *= (percentSteps * 4); // Smoothing out, making the circle thing disappear
+
     if(t < dis.y)
     {
         trapOut = trap;
@@ -173,8 +201,9 @@ vec3 render(Ray ray)
 	const float zoom = .01;
 	float px = 2.0 / (height * zoom);
 	vec4 trap;
+	float steps;
 
-	float t = trace(ray, trap, zoom);
+	float t = trace(ray, trap, zoom, steps);
 
 	vec3 col;
 
@@ -182,10 +211,15 @@ vec3 render(Ray ray)
 	if(t < 0.0)
     {
 		// Sky gradient
+		// Blue sky
      	col = vec3(0.8, 0.95, 1.0) * (0.6 + 0.4 * ray.dir.y);
+		// Cave
+     	//col = vec3(0.2, 0.05, 0.0) * (0.4 + 0.6 * ray.dir.y);
 
 		// Sun
 		col += sunBrightness * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
+
+		col += vec3(0.556, 0.843, 0.415) * steps;
 	}
 	else
 	{

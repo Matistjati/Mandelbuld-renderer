@@ -59,6 +59,7 @@ public:
 	// Rotation on the y axis
 	glm::mat2 GetPitchMatrix2();
 
+	// Rotation on the z axis
 	glm::mat2 GetRollMatrix2();
 
 	glm::vec3 GetWorldUp();

@@ -54,7 +54,7 @@ glm::vec3 Camera::GetWorldUp()
 // Forward vector independent of roll
 glm::vec3 Camera::GetWorldForward()
 {
-	return glm::normalize(glm::vec3(-abs(cos(glm::radians(roll))) * -movementReverse, 0, 0));
+	return glm::normalize(glm::vec3(abs(cos(glm::radians(roll))) * movementReverse, 0, 0));
 }
 
 
@@ -67,7 +67,7 @@ glm::vec3 Camera::GetForwardVector()
 		rads / M_PI_2 :
 		(M_PI - rads) / M_PI_2);
 
-	//std::cout << std::to_string(glm::radians(roll)) << std::endl;
+
 	// Vertical movement
 	glm::vec3 up = GetWorldUp();
 	out += up * cos(glm::radians(pitch) + static_cast<float>(M_PI_2)) * -movementReverse;// *percentNotLookingMiddle;// -sin(glm::radians(roll));
@@ -75,15 +75,20 @@ glm::vec3 Camera::GetForwardVector()
 	// Horizontal movement
 	glm::vec2 verticalFront = GetWorldForward();
 
-	verticalFront = GetYawMatrix2() * verticalFront;// *GetRollMatrix2();
+	verticalFront = GetYawMatrix2() * verticalFront;
 
 	// If we face up, we wanna move slower horizontally
 	float percentLookingMiddle = static_cast<float>(abs(rads - M_PI_2) / M_PI_2);
 
-	out += glm::vec3(verticalFront.x, 0, verticalFront.y) * percentLookingMiddle;
+	out += glm::vec3(verticalFront.x, 0, verticalFront.y) *percentLookingMiddle;
 
+	/*glm::vec2 xy(out.x, out.y);
+	xy = GetRollMatrix2() * xy;
+	out.x = xy.x;
+	out.y = xy.y;
+*/
 #ifdef _DEBUG
-	std::cout << ToString::toString(out) << std::endl;
+	//std::cout << ToString::toString(out) << std::endl;
 #endif
 
 	return glm::normalize(out);
@@ -102,7 +107,7 @@ void Camera::ProcessMovement(Camera_Movement direction, float deltaTime)
 	if (direction == forward)
 		position += GetForwardVector() * velocity;
 	if (direction == back)
-		position -= GetWorldForward() * velocity;
+		position -= GetForwardVector() * velocity;
 
 	if (direction == right)
 		position += GetRightVector() * velocity;
@@ -136,4 +141,5 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset)
 	//float percentLookingMiddle = static_cast<float>(abs(rads - M_PI_2) / M_PI_2);
 
 	//std::cout << std::to_string(percentLookingMiddle) << std::endl;
+	//std::cout << std::to_string(glm::radians(yaw)) << std::endl;
 }
