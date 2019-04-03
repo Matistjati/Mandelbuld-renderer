@@ -11,6 +11,7 @@ class Shader
 public:
 	// the program ID
 	unsigned int id;
+	unsigned int *uniforms;
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath);

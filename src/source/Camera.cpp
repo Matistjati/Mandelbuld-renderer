@@ -7,7 +7,7 @@
 #include <string>
 #include "headers/ToString.h"
 
-Camera::Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED)
+Camera::Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(1)
 {
 	position = Position;
 	yaw = Yaw;
@@ -15,7 +15,18 @@ Camera::Camera(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW
 	roll = Roll;
 }
 
-Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED)
+Camera::Camera(glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : movementReverse(1), worldFlip(1)
+{
+	position = Position;
+	yaw = Yaw;
+	pitch = Pitch;
+	roll = Roll;
+	mouseSensitivity = MouseSensitivity;
+	movementSpeed = MovementSpeed;
+	rollSpeed = RollSpeed;
+}
+
+Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(1)
 {
 	position = glm::vec3(posX, posY, posZ);
 	yaw = Yaw;
@@ -102,7 +113,7 @@ glm::vec3 Camera::GetRightVector()
 
 void Camera::ProcessMovement(Camera_Movement direction, float deltaTime)
 {
-	float velocity = MovementSpeed * deltaTime;
+	float velocity = movementSpeed * deltaTime;
 
 	if (direction == forward)
 		position += GetForwardVector() * velocity;
@@ -120,9 +131,10 @@ void Camera::ProcessMovement(Camera_Movement direction, float deltaTime)
 		position -= GetWorldUp() * velocity;
 }
 
-void Camera::ProcessRoll(float offset)
+// Give a positive or negative float representing the change you want to see
+void Camera::ProcessRoll(float delta)
 {
-	roll = offset;
+	roll += delta;
 
 #if _DEBUG
 	std::cout << "cos: " << std::to_string(cos(glm::radians(roll))) << std::endl;
@@ -131,8 +143,8 @@ void Camera::ProcessRoll(float offset)
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset)
 {
-	xoffset *= MouseSensitivity;
-	yoffset *= MouseSensitivity;
+	xoffset *= mouseSensitivity;
+	yoffset *= mouseSensitivity;
 
 	yaw += xoffset;
 	pitch += yoffset;

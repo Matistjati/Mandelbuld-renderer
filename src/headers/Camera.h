@@ -31,6 +31,9 @@ public:
 	// -1 or 1, for moving inside our outside of the bulb
 	float movementReverse;
 
+	// -1 or 1, flipping the world upside up
+	int worldFlip;
+
 	// Camera Attributes
 	glm::vec3 position;
 
@@ -40,15 +43,16 @@ public:
 	float roll;
 
 	// Camera options
-	float MovementSpeed;
-	float MouseSensitivity;
+	float movementSpeed;
+	float mouseSensitivity;
 	float rollSpeed;
 
 	// Used for orientation
 	const glm::vec3 worldUp = glm::vec3(0, 1, 0);
 	
 	// Constructor with vectors
-	Camera(glm::vec3 Position, float Yaw, float Pitch, float roll);
+	Camera(glm::vec3 Position, float Yaw, float Pitch, float Roll);
+	Camera(glm::vec3 Position, float Yaw, float Pitch, float Roll, float mouseSensitivity, float movementSpeed, float rollSpeed);
 
 	// Constructor with scalar values
 	Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float roll);

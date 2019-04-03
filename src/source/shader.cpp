@@ -44,6 +44,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 Shader::~Shader()
 {
 	glDeleteProgram(id);
+	delete[] uniforms;
 }
 
 void Shader::use()

@@ -16,7 +16,7 @@ uniform vec3 sun;
 
 uniform vec3 eye;
 const float epsilon = 0.001;
-const int maxIterations = 4;
+const int maxIterations = 200;
 const int maxSteps = 100;
 const float bailout = 1.15;
 const float sunBrightness = 1.0;

@@ -27,6 +27,12 @@
     <ClCompile Include="src/source/Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src/source/Mandelbulb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/source/Time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/shader.h">
@@ -36,6 +42,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src/headers/ToString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/headers/Mandelbulb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/headers/Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
