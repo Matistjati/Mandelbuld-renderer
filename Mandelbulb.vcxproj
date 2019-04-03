@@ -124,7 +124,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/NODEFAULTLIB:LIBCMT</AdditionalOptions>
+      <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>

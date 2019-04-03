@@ -108,8 +108,8 @@ int main()
 	Shader renderShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulbRender.fs");
 	//renderShader.uniforms = new unsigned int[Locations::count];
 
-	Camera camera = (Camera(glm::vec3(1.8, 0.8, -0.6), // Position
-		169, -14, 0.001, // Yaw, pitch, roll
+	Camera camera = (Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
+		169, -14, 0.001f, // Yaw, pitch, roll
 		0.1f, 3, 200) // mouseSensitivity, movementSpeed, rollSpeed
 		);
 
@@ -190,29 +190,29 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 		// WASD movement
 	case GLFW_KEY_W:
-		mandel->camera.ProcessMovement(Camera_Movement::forward, mandel->time.deltaTime);
+		mandel->camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(mandel->time.deltaTime));
 		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_S:
-		mandel->camera.ProcessMovement(Camera_Movement::back, mandel->time.deltaTime);
+		mandel->camera.ProcessMovement(Camera_Movement::back, static_cast<float>(mandel->time.deltaTime));
 		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_A:
-		mandel->camera.ProcessMovement(Camera_Movement::left, mandel->time.deltaTime);
+		mandel->camera.ProcessMovement(Camera_Movement::left, static_cast<float>(mandel->time.deltaTime));
 		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_D:
-		mandel->camera.ProcessMovement(Camera_Movement::right, mandel->time.deltaTime);
+		mandel->camera.ProcessMovement(Camera_Movement::right, static_cast<float>(mandel->time.deltaTime));
 		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 
 		// Up and down
 	case GLFW_KEY_SPACE:
-		mandel->camera.ProcessMovement(Camera_Movement::up, mandel->time.deltaTime);
+		mandel->camera.ProcessMovement(Camera_Movement::up, static_cast<float>(mandel->time.deltaTime));
 		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_LEFT_SHIFT:
-		mandel->camera.ProcessMovement(Camera_Movement::down, mandel->time.deltaTime);
+		mandel->camera.ProcessMovement(Camera_Movement::down, static_cast<float>(mandel->time.deltaTime));
 		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 
@@ -239,11 +239,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	
 		// Camera roll
 	case GLFW_KEY_Q:
-		mandel->camera.ProcessRoll(mandel->camera.rollSpeed * mandel->time.deltaTime);
+		mandel->camera.ProcessRoll(static_cast<float>(mandel->camera.rollSpeed * mandel->time.deltaTime));
 		mandel->explorationShader.setMat2(mandel->explorationShader.uniforms[Locations::rollMatrix], mandel->camera.GetRollMatrix2());
 		break;
 	case GLFW_KEY_E:
-		mandel->camera.ProcessRoll(-(mandel->camera.rollSpeed * mandel->time.deltaTime));
+		mandel->camera.ProcessRoll(-static_cast<float>(mandel->camera.rollSpeed * mandel->time.deltaTime));
 		mandel->explorationShader.setMat2(mandel->explorationShader.uniforms[Locations::rollMatrix], mandel->camera.GetRollMatrix2());
 		break;
 
@@ -267,7 +267,9 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	// Ctrl s
 	if (key == GLFW_KEY_S && (mods && GLFW_MOD_CONTROL) == 1)
 	{
-
+		mandel->renderShader.use();
+		mandel->SetUniforms(mandel->renderShader);
+		mandel->SetUniforms(mandel->renderShader);
 	}
 }
 

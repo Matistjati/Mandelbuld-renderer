@@ -6,7 +6,7 @@
 #include <glew.h>
 
 Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec2 ScreenSize, Time time)
-	: explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), screenSize(ScreenSize), time(time)
+	: explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), screenSize(ScreenSize), time(time), genericParameter(1)
 {
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
@@ -16,7 +16,7 @@ Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderSha
 }
 
 Mandelbulb::Mandelbulb(float power, Shader & explorationShader, Shader & renderShader, Camera & camera) 
-	: screenSize(glm::vec2(DefaultWidth, DefaultHeight)), time(Time()),	explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power)
+	: screenSize(glm::vec2(DefaultWidth, DefaultHeight)), time(Time()),	explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), genericParameter(1)
 {
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
@@ -34,12 +34,12 @@ void Mandelbulb::ProcessMouse(glm::vec2 newPos)
 		firstMouse = false;
 	}
 
-	double xoffset = newPos.x - mouseOffset.x;
-	double yoffset = mouseOffset.y - newPos.y; // reversed since y-coordinates go from bottom to top
+	float xoffset = newPos.x - mouseOffset.x;
+	float yoffset = mouseOffset.y - newPos.y; // reversed since y-coordinates go from bottom to top
 
 	mouseOffset = newPos;
 
-	camera.ProcessMouseMovement(static_cast<float>(xoffset), static_cast<float>(yoffset));
+	camera.ProcessMouseMovement(xoffset, yoffset);
 
 	explorationShader.setMat2(explorationShader.uniforms[Locations::pitchMatrix], camera.GetPitchMatrix2());
 	explorationShader.setMat2(explorationShader.uniforms[Locations::yawMatrix], camera.GetYawMatrix2());

@@ -39,6 +39,8 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+
+	uniforms = 0;
 }
 
 Shader::~Shader()
