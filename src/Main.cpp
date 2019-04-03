@@ -20,8 +20,31 @@ struct MandelInfo
 	Shader shader;
 };
 
+inline std::string GetWorkingDirectory()
+{
+	const int bufferSize = 256;
+	char path[bufferSize];
+	GetCurrentDirectory(bufferSize, path);
+	return std::string(path);
+}
+
 int main()
 {
+	std::string workingDir = GetWorkingDirectory();
+
+	workingDir = workingDir.substr(0, workingDir.find_last_of("/\\"));
+
+	if (!SetCurrentDirectory(workingDir.c_str()))
+	{
+		std::cout << "Error setting working directory";
+	}
+
+	// glfw initialization
+	if (!glfwInit())
+	{
+		return -1;
+	}
+
 	// glfw: initialize and configure
 	if (!glfwInit())
 	{
@@ -86,7 +109,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandelWeird.fs");
+	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
 
 	MandelInfo mandelInfo{ 0, 0, 1, 4096, mainShader };
 
