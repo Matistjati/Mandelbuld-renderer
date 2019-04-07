@@ -85,12 +85,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;C:\Users\Matis\source\repos\Mandelbulb\Image\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\Image\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -112,7 +112,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;C:\Users\Matis\source\repos\Mandelbulb\Image\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <UndefinePreprocessorDefinitions>
@@ -122,8 +122,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16.lib;zlib.lib;zlibstatrelease.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\Image\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src/source/Image.cpp" />
     <ClCompile Include="src/source/Mandelbulb.cpp" />
     <ClCompile Include="src/source/Camera.cpp" />
     <ClCompile Include="src/source/Main.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="src/source/Time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src/headers/Image.h" />
     <ClInclude Include="src/headers/Mandelbulb.h" />
     <ClInclude Include="src/headers/Camera.h" />
     <ClInclude Include="src/headers/shader.h" />

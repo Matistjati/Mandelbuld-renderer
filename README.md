@@ -7,7 +7,7 @@ A mandelbulb renderer written using opengl.<br/>
 **X**: flip forward and backward movement<br/>
 **C/V**: Increase/decrease the power used for the set.<br/>
 
-## **Dependencies**: GLFW3, glew, glm<br/>
+## **Dependencies**: GLFW3, glew, glm, zlib, libpng<br/>
 ## **Resources**: <br/>
 An implementation: https://www.shadertoy.com/view/ltfSWn<br/>
 General on estimatores and shading: http://blog.hvidtfeldts.net/index.php/2011/06/distance-estimated-3d-fractals-part-i/<br/>

@@ -1,3 +1,39 @@
+//static int pix(int value, int max)
+//{
+//	if (value < 0)
+//		return 0;
+//	return (int)(256.0 *((double)(value) / (double)max));
+//}
+//
+//int main()
+//{
+//	bitmap fruit;
+//	int x;
+//	int y;
+//
+//	/* Create an image. */
+//
+//	fruit.width = 100;
+//	fruit.height = 100;
+//
+//	fruit.pixels = (pixel*)calloc(sizeof(pixel), fruit.width * fruit.height);
+//
+//	for (y = 0; y < fruit.height; y++) {
+//		for (x = 0; x < fruit.width; x++) {
+//			pixel * pixel = pixel_at(&fruit, x, y);
+//			pixel->red = 255;
+//			pixel->green = pix(y, fruit.height);
+//			pixel->alpha = pix(x, fruit.width);
+//		}
+//	}
+//
+//	/* Write the image to a file 'fruit.png'. */
+//
+//	save_png_to_file(&fruit, "fruit.png");
+//
+//	return 0;
+//}
+
 #include <windows.h>
 #include <Shlwapi.h>
 #include <glew.h>
@@ -9,6 +45,7 @@
 #include "headers/Camera.h"
 #include "headers/shader.h"
 #include "headers/Mandelbulb.h"
+#include "headers/Image.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -269,7 +306,21 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	{
 		mandel->renderShader.use();
 		mandel->SetUniforms(mandel->renderShader);
-		mandel->SetUniforms(mandel->renderShader);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		Pixel *data = (Pixel*)malloc(mandel->screenSize.x * mandel->screenSize.y * 4);
+		glReadPixels(0, 0, mandel->screenSize.x, mandel->screenSize.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+
+		Image image(mandel->screenSize.x, mandel->screenSize.y, data);
+		image.FlipVertically();
+		image.Rotate180();
+
+
+		// TODO: system for not overwriting files
+		image.Save("dab8b.png");
+
+		mandel->explorationShader.use();
 	}
 }
 

@@ -35,7 +35,7 @@ public:
 	Shader &explorationShader;
 	Shader &renderShader;
 	float power;
-	glm::vec2 screenSize;
+	glm::ivec2 screenSize;
 	Time time;
 	float genericParameter;
 

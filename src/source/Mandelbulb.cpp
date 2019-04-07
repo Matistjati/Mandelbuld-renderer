@@ -4,6 +4,7 @@
 #include "headers/camera.h"
 #include <windows.h>
 #include <glew.h>
+#include <iostream>
 
 Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec2 ScreenSize, Time time)
 	: explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), screenSize(ScreenSize), time(time), genericParameter(1)
@@ -56,6 +57,14 @@ void Mandelbulb::SetUniforms(Shader &shader)
 	shader.setMat2(shader.uniforms[Locations::rollMatrix], camera.GetRollMatrix2());
 	shader.setInt("width", static_cast<int>(screenSize.x));
 	shader.setInt("height", static_cast<int>(screenSize.y));
+	shader.setInt("worldFlip", camera.worldFlip);
+
+#if _DEBUG
+	if (glGetError() != GL_NO_ERROR)
+	{
+		std::cout << "Opengl error: " << std::to_string(glGetError()) << std::endl;
+	}
+#endif
 }
 
 void Mandelbulb::SetUniformLocations(Shader &shader)
@@ -67,4 +76,11 @@ void Mandelbulb::SetUniformLocations(Shader &shader)
 	shader.uniforms[Locations::power]		= glGetUniformLocation(shader.id, "power");
 	shader.uniforms[Locations::eye]			= glGetUniformLocation(shader.id, "eye");
 	shader.uniforms[Locations::sun]			= glGetUniformLocation(shader.id, "sun");
+
+#if _DEBUG
+	if (glGetError() != GL_NO_ERROR)
+	{
+		std::cout << "Opengl error: " << std::to_string(glGetError()) << std::endl;
+	}
+#endif
 }
