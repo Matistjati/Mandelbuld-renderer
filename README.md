@@ -1,5 +1,6 @@
 # Mandelbuld-renderer
 A mandelbulb renderer written using opengl.<br/>
+An example image rendered in realtime with a 1070 ti (a higher iteration count was used for this one, but the difference isn't that big)<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 ## **Controls**<br/>
 **WASD**: normal movement<br/>
