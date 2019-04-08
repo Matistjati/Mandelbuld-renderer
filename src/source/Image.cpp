@@ -112,6 +112,8 @@ void Image::Save(const char * path)
 		png_free(png_ptr, row_pointers[y]);
 	}
 	png_free(png_ptr, row_pointers);
+
+	fclose(fp);
 }
 
 void Image::FlipVertically()

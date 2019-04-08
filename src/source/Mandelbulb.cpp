@@ -6,8 +6,8 @@
 #include <glew.h>
 #include <iostream>
 
-Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec2 ScreenSize, Time time)
-	: explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), screenSize(ScreenSize), time(time), genericParameter(1)
+Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
+	: explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), screenSize(screenSize), time(time), genericParameter(1), sun(sun)
 {
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
@@ -16,8 +16,18 @@ Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderSha
 	SetUniforms(renderShader);
 }
 
-Mandelbulb::Mandelbulb(float power, Shader & explorationShader, Shader & renderShader, Camera & camera) 
-	: screenSize(glm::vec2(DefaultWidth, DefaultHeight)), time(Time()),	explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), genericParameter(1)
+Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun)
+	: screenSize(glm::dvec2(DefaultWidth, DefaultHeight)), time(Time()), explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), genericParameter(1), sun(sun)
+{
+	SetUniformLocations(explorationShader);
+	SetUniforms(explorationShader);
+
+	SetUniformLocations(renderShader);
+	SetUniforms(renderShader);
+}
+
+Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera)
+	: screenSize(glm::dvec2(DefaultWidth, DefaultHeight)), time(Time()), explorationShader(explorationShader), renderShader(renderShader), camera(camera), power(power), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
 {
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
@@ -35,29 +45,29 @@ void Mandelbulb::ProcessMouse(glm::vec2 newPos)
 		firstMouse = false;
 	}
 
-	float xoffset = newPos.x - mouseOffset.x;
-	float yoffset = mouseOffset.y - newPos.y; // reversed since y-coordinates go from bottom to top
+	camera.ProcessMouseMovement(static_cast<float>(newPos.x - mouseOffset.x),
+		static_cast<float>(mouseOffset.y - newPos.y) // reversed since y-coordinates go from bottom to top
+	);
 
 	mouseOffset = newPos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
-
-	explorationShader.setMat2(explorationShader.uniforms[Locations::pitchMatrix], camera.GetPitchMatrix2());
-	explorationShader.setMat2(explorationShader.uniforms[Locations::yawMatrix], camera.GetYawMatrix2());
+	explorationShader.SetMat2(explorationShader.uniforms[Locations::pitchMatrix], camera.GetPitchMatrix2());
+	explorationShader.SetMat2(explorationShader.uniforms[Locations::yawMatrix], camera.GetYawMatrix2());
 }
 
-void Mandelbulb::SetUniforms(Shader &shader)
+void Mandelbulb::SetUniforms(Shader & shader)
 {
 	shader.use();
 
-	shader.setFloat(shader.uniforms[Locations::power], power);
-	shader.set3f(shader.uniforms[Locations::eye], camera.position);
-	shader.setMat2(shader.uniforms[Locations::yawMatrix], camera.GetYawMatrix2());
-	shader.setMat2(shader.uniforms[Locations::pitchMatrix], camera.GetPitchMatrix2());
-	shader.setMat2(shader.uniforms[Locations::rollMatrix], camera.GetRollMatrix2());
-	shader.setInt("width", static_cast<int>(screenSize.x));
-	shader.setInt("height", static_cast<int>(screenSize.y));
-	shader.setInt("worldFlip", camera.worldFlip);
+	shader.SetFloat(shader.uniforms[Locations::power], power);
+	shader.Set3f(shader.uniforms[Locations::eye], camera.position);
+	shader.Set3f(shader.uniforms[Locations::sun], sun);
+	shader.SetMat2(shader.uniforms[Locations::yawMatrix], camera.GetYawMatrix2());
+	shader.SetMat2(shader.uniforms[Locations::pitchMatrix], camera.GetPitchMatrix2());
+	shader.SetMat2(shader.uniforms[Locations::rollMatrix], camera.GetRollMatrix2());
+	shader.SetInt("width", static_cast<int>(screenSize.x));
+	shader.SetInt("height", static_cast<int>(screenSize.y));
+	shader.SetInt("worldFlip", camera.worldFlip);
 
 #if _DEBUG
 	if (glGetError() != GL_NO_ERROR)

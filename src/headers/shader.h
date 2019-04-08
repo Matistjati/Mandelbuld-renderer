@@ -19,18 +19,18 @@ public:
 	// use/activate the shader
 	void use();
 	// utility uniform functions
-	void setBool(const std::string &name, bool value) const;
-	void setInt(const std::string &name, int value) const;
-	void setFloat(const std::string &name, float value) const;
-	void setFloat(int location, float value) const;
-	void set3f(const std::string &name, float x, float y, float z) const;
-	void set3f(int location, float x, float y, float z) const;
-	void set3f(const std::string &name, glm::vec3 vector) const;
-	void set3f(int location, glm::vec3 vector) const;
-	void set4f(const std::string &name, float x, float y, float z, float w) const;
-	void setMat2(const std::string &name, const glm::mat2 &mat) const;
-	void setMat2(int location, const glm::mat2 &mat) const;
-	void setMat4(const std::string &name, const glm::mat4 &mat) const;
+	void SetBool(const std::string &name, bool value) const;
+	void SetInt(const std::string &name, int value) const;
+	void SetFloat(const std::string &name, float value) const;
+	void SetFloat(int location, float value) const;
+	void Set3f(const std::string &name, float x, float y, float z) const;
+	void Set3f(int location, float x, float y, float z) const;
+	void Set3f(const std::string &name, glm::vec3 vector) const;
+	void Set3f(int location, glm::vec3 vector) const;
+	void Set4f(const std::string &name, float x, float y, float z, float w) const;
+	void SetMat2(const std::string &name, const glm::mat2 &mat) const;
+	void SetMat2(int location, const glm::mat2 &mat) const;
+	void SetMat4(const std::string &name, const glm::mat4 &mat) const;
 
 private:
 	std::string ParseShader(const std::string& file);

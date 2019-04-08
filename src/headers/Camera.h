@@ -57,13 +57,13 @@ public:
 	// Constructor with scalar values
 	Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float roll);
 
-	// Rotation on the x axis
+	// Rotation around the x axis
 	glm::mat2 GetYawMatrix2();
 
-	// Rotation on the y axis
+	// Rotation around the y axis
 	glm::mat2 GetPitchMatrix2();
 
-	// Rotation on the z axis
+	// Rotation around the z axis
 	glm::mat2 GetRollMatrix2();
 
 	glm::vec3 GetWorldUp();

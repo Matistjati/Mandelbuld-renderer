@@ -1,11 +1,14 @@
 # Mandelbuld-renderer
 A mandelbulb renderer written using opengl.<br/>
+![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 ## **Controls**<br/>
 **WASD**: normal movement<br/>
 **Space/shift**: Up/down<br/>
 **Z**: flip the world<br/>
 **X**: flip forward and backward movement<br/>
 **C/V**: Increase/decrease the power used for the set.<br/>
+**Q/E**: Tilt the world. Navigation is subpar when doing this<br/>
+**Ctrl+s**: Save the image<br/>
 
 ## **Dependencies**: GLFW3, glew, glm, zlib, libpng<br/>
 ## **Resources**: <br/>

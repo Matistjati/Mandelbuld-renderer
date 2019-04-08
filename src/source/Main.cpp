@@ -1,39 +1,3 @@
-//static int pix(int value, int max)
-//{
-//	if (value < 0)
-//		return 0;
-//	return (int)(256.0 *((double)(value) / (double)max));
-//}
-//
-//int main()
-//{
-//	bitmap fruit;
-//	int x;
-//	int y;
-//
-//	/* Create an image. */
-//
-//	fruit.width = 100;
-//	fruit.height = 100;
-//
-//	fruit.pixels = (pixel*)calloc(sizeof(pixel), fruit.width * fruit.height);
-//
-//	for (y = 0; y < fruit.height; y++) {
-//		for (x = 0; x < fruit.width; x++) {
-//			pixel * pixel = pixel_at(&fruit, x, y);
-//			pixel->red = 255;
-//			pixel->green = pix(y, fruit.height);
-//			pixel->alpha = pix(x, fruit.width);
-//		}
-//	}
-//
-//	/* Write the image to a file 'fruit.png'. */
-//
-//	save_png_to_file(&fruit, "fruit.png");
-//
-//	return 0;
-//}
-
 #include <windows.h>
 #include <Shlwapi.h>
 #include <glew.h>
@@ -143,7 +107,6 @@ int main()
 	Shader explorationShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulb.fs");
 
 	Shader renderShader("resources/shaders/Vertex.vs", "resources/shaders/MandelBulbRender.fs");
-	//renderShader.uniforms = new unsigned int[Locations::count];
 
 	Camera camera = (Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
@@ -176,10 +139,11 @@ int main()
 		
 		// Move sun in shader
 		double time = glfwGetTime();
-		mandel.explorationShader.set3f(explorationShader.uniforms[Locations::sun], glm::normalize(
-			glm::vec3(sin(time * 0.25),
+		mandel.sun = glm::normalize(glm::vec3(sin(time * 0.25),
 				std::abs(sin(time * 0.1)) * -1,
-				cos(time * 0.25))));
+				cos(time * 0.25)));
+
+		mandel.explorationShader.Set3f(explorationShader.uniforms[Locations::sun], mandel.sun);
 
 
 		// render, we use ray marching inside the fragment shader
@@ -201,12 +165,35 @@ int main()
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	Mandelbulb *mandel = (Mandelbulb*)glfwGetWindowUserPointer(window);
-	mandel->explorationShader.setInt("width", width);
-	mandel->explorationShader.setInt("height", height);
+	mandel->explorationShader.SetInt("width", width);
+	mandel->explorationShader.SetInt("height", height);
+	mandel->screenSize.x = width;
+	mandel->screenSize.y = height;
 
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
+}
+
+void ProcessCTRL(int key, Mandelbulb* mandel)
+{
+	mandel->renderShader.use();
+	mandel->SetUniforms(mandel->renderShader);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	Pixel* data = (Pixel*)malloc(mandel->screenSize.x * mandel->screenSize.y * 4);
+	glReadPixels(0, 0, mandel->screenSize.x, mandel->screenSize.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+
+	Image image(mandel->screenSize.x, mandel->screenSize.y, data);
+	image.FlipVertically();
+	image.Rotate180();
+
+
+	// TODO: system for not overwriting files
+	image.Save("sample.png");
+
+	mandel->explorationShader.use();
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -218,6 +205,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	Mandelbulb *mandel = (Mandelbulb*)glfwGetWindowUserPointer(window);
 
+	if (key == GLFW_KEY_S && (mods && GLFW_MOD_CONTROL) == 1)
+	{
+		ProcessCTRL(key, mandel);
+		return;
+	}
+
 	switch (key)
 	{
 		// Exit
@@ -228,35 +221,35 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		// WASD movement
 	case GLFW_KEY_W:
 		mandel->camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(mandel->time.deltaTime));
-		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
+		mandel->explorationShader.Set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_S:
 		mandel->camera.ProcessMovement(Camera_Movement::back, static_cast<float>(mandel->time.deltaTime));
-		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
+		mandel->explorationShader.Set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_A:
 		mandel->camera.ProcessMovement(Camera_Movement::left, static_cast<float>(mandel->time.deltaTime));
-		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
+		mandel->explorationShader.Set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_D:
 		mandel->camera.ProcessMovement(Camera_Movement::right, static_cast<float>(mandel->time.deltaTime));
-		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
+		mandel->explorationShader.Set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 
 		// Up and down
 	case GLFW_KEY_SPACE:
 		mandel->camera.ProcessMovement(Camera_Movement::up, static_cast<float>(mandel->time.deltaTime));
-		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
+		mandel->explorationShader.Set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 	case GLFW_KEY_LEFT_SHIFT:
 		mandel->camera.ProcessMovement(Camera_Movement::down, static_cast<float>(mandel->time.deltaTime));
-		mandel->explorationShader.set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
+		mandel->explorationShader.Set3f(mandel->explorationShader.uniforms[Locations::eye], mandel->camera.position);
 		break;
 
 		// World stuff
 	case GLFW_KEY_Z:
 		mandel->camera.worldFlip *= -1;
-		mandel->explorationShader.setInt("worldFlip", mandel->camera.worldFlip);
+		mandel->explorationShader.SetInt("worldFlip", mandel->camera.worldFlip);
 		break;
 	case GLFW_KEY_X:
 		mandel->camera.movementReverse *= -1;
@@ -266,22 +259,22 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		// Changing the power of the fractal
 	case GLFW_KEY_C:
 		mandel->power += 0.03f;
-		mandel->explorationShader.setFloat(mandel->explorationShader.uniforms[Locations::power], mandel->power);
+		mandel->explorationShader.SetFloat(mandel->explorationShader.uniforms[Locations::power], mandel->power);
 		break;
 	case GLFW_KEY_V:
 		mandel->power -= 0.03f;
-		mandel->explorationShader.setFloat(mandel->explorationShader.uniforms[Locations::power], mandel->power);
+		mandel->explorationShader.SetFloat(mandel->explorationShader.uniforms[Locations::power], mandel->power);
 		break;
 	
 	
 		// Camera roll
 	case GLFW_KEY_Q:
 		mandel->camera.ProcessRoll(static_cast<float>(mandel->camera.rollSpeed * mandel->time.deltaTime));
-		mandel->explorationShader.setMat2(mandel->explorationShader.uniforms[Locations::rollMatrix], mandel->camera.GetRollMatrix2());
+		mandel->explorationShader.SetMat2(mandel->explorationShader.uniforms[Locations::rollMatrix], mandel->camera.GetRollMatrix2());
 		break;
 	case GLFW_KEY_E:
 		mandel->camera.ProcessRoll(-static_cast<float>(mandel->camera.rollSpeed * mandel->time.deltaTime));
-		mandel->explorationShader.setMat2(mandel->explorationShader.uniforms[Locations::rollMatrix], mandel->camera.GetRollMatrix2());
+		mandel->explorationShader.SetMat2(mandel->explorationShader.uniforms[Locations::rollMatrix], mandel->camera.GetRollMatrix2());
 		break;
 
 
@@ -299,28 +292,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	default:
 		break;
-	}
-
-	// Ctrl s
-	if (key == GLFW_KEY_S && (mods && GLFW_MOD_CONTROL) == 1)
-	{
-		mandel->renderShader.use();
-		mandel->SetUniforms(mandel->renderShader);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		Pixel *data = (Pixel*)malloc(mandel->screenSize.x * mandel->screenSize.y * 4);
-		glReadPixels(0, 0, mandel->screenSize.x, mandel->screenSize.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-
-		Image image(mandel->screenSize.x, mandel->screenSize.y, data);
-		image.FlipVertically();
-		image.Rotate180();
-
-
-		// TODO: system for not overwriting files
-		image.Save("dab8b.png");
-
-		mandel->explorationShader.use();
 	}
 }
 

@@ -25,7 +25,8 @@ public:
 	static const int DefaultWidth = 1080;
 	static const int DefaultHeight = 1080;
 
-	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec2 screenSize, Time time);
+	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time);
+	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun);
 	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera);
 	void ProcessMouse(glm::vec2 offset);
 	void SetUniforms(Shader &shader);
@@ -38,6 +39,7 @@ public:
 	glm::ivec2 screenSize;
 	Time time;
 	float genericParameter;
+	glm::vec3 sun;
 
 private:
 	glm::vec2 mouseOffset;

@@ -8,8 +8,8 @@
 class ToString
 {
 public:
-	static std::string toString(glm::vec2 vector);
-	static std::string toString(glm::vec3 vector);
+	static std::string toString(glm::dvec2 vector);
+	static std::string toString(glm::dvec3 vector);
 private:
 	ToString() { };
 	~ToString() { };

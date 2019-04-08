@@ -91,7 +91,7 @@ glm::vec3 Camera::GetForwardVector()
 	// If we face up, we wanna move slower horizontally
 	float percentLookingMiddle = static_cast<float>(abs(rads - M_PI_2) / M_PI_2);
 
-	out += glm::vec3(verticalFront.x, 0, verticalFront.y) *percentLookingMiddle;
+	out += glm::vec3(verticalFront.x, 0, verticalFront.y) * percentLookingMiddle;
 
 	/*glm::vec2 xy(out.x, out.y);
 	xy = GetRollMatrix2() * xy;

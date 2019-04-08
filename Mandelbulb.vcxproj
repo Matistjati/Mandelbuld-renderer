@@ -91,8 +91,7 @@
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\Image\lib</AdditionalLibraryDirectories>
-      <AdditionalOptions>
-      </AdditionalOptions>
+      <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /LTCG /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -124,7 +123,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16.lib;zlib.lib;zlibstatrelease.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\Image\lib</AdditionalLibraryDirectories>
-      <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098</AdditionalOptions>
+      <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /LTCG /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
