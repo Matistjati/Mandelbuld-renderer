@@ -66,7 +66,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
         float phi = Power * acos(w.y / r);
 		
 		// Fun alternative: reverse sin and cos
-        w = start + pow(r, Power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
+        w = start + pow(r, Power) * vec3(cos(phi) * cos(theta), sin(phi), cos(phi) * sin(theta));
 #endif
         
         trap = min(trap, vec4(abs(w),m));
@@ -83,9 +83,10 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
 float Map(vec3 start, out vec4 resColor)
 {
-#if 1
+#if 0
 	return DistanceEstimator(start, resColor, power);
 #else
+
 	vec4 trap1;
 	vec4 trap2;
 

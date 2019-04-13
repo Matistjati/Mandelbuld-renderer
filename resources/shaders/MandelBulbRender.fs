@@ -83,9 +83,10 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
 float Map(vec3 start, out vec4 resColor)
 {
-#if 1
+#if 0
 	return DistanceEstimator(start, resColor, power);
 #else
+
 	vec4 trap1;
 	vec4 trap2;
 
@@ -95,12 +96,12 @@ float Map(vec3 start, out vec4 resColor)
 	if (dist1 < dist2)
 	{
 		resColor = trap1;
-		return dist1;
+		return min(dist1, dist2);
 	}
 	else
 	{
 		resColor = trap2;
-		return dist2;
+		return min(dist1, dist2);
 	}
 #endif
 }
