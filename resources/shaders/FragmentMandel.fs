@@ -4,11 +4,13 @@
 layout(location = 0) out vec4 color;
 in vec4 pos;
 
-uniform int maxIterations = 4096;
+uniform int maxIterations = 1024;
 uniform float iterationLog = log(float(4096));
 uniform float offsetX = 0;
 uniform float offsetY = 0;
 uniform float zoom = 1;
+uniform float power = 2;
+uniform float escapeRadius = 4;
 
 vec4 GetColor(float iterations)
 {
@@ -41,26 +43,37 @@ void main()
 {
 	vec2 npos = vec2((offsetX) + pos.x * zoom, (offsetY) + pos.y * zoom);
 
-	float x = 0;
-	float y = 0;
+	float real = 0;
+	float imag = 0;
 
-	float y2;
-	float x2;
+	float modulo;
+	float angle;
+
+	// Polar iteration
+	vec2 trap = vec2(0,0);
 
 	int i = maxIterations;
 	for (; i > 0; i--)
 	{
-		y2 = y * y;
-		x2 = x * x;
+		modulo = length(vec2(real, imag));
+		angle = atan(imag, real);
 
-		if (x2 + y2 > 4)
+		modulo = pow(modulo, power);
+		angle = angle * power;
+
+		if (modulo > escapeRadius)
 		{
 			break;
 		}
 
-		y = 2 * x * y + npos.y;
-		x = x2 - y2 + npos.x;
+		real = cos(angle) * modulo;
+		imag = sin(angle) * modulo;
+
+		real += npos.x;
+		imag += npos.y;
+		trap.x = (max(real, trap.x) + sinh(trap.x))*0.5;
+		trap.y = (max(imag, trap.y) - tanh(trap.y))*0.5;
 	}
 
-	color = GetColor(float(maxIterations - i));
+	color = vec4(trap.xy, length(trap)*0.5, 1);//GetColor(float(maxIterations - i));
 };
