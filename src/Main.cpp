@@ -18,7 +18,6 @@ float t = 0.1;
 struct MandelInfo
 {
 	float power;
-	float escapeRadius;
 	float offsetX;
 	float offsetY;
 	float zoom;
@@ -118,7 +117,7 @@ int main()
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
 
-	MandelInfo mandelInfo{ 2, 4, 0, 0, 1, 1024, mainShader };
+	MandelInfo mandelInfo{ 2, 0, 0, 1, 1024, mainShader };
 
 	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
 
@@ -226,16 +225,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power -= 0.025;
+		mandel->power -= 0.025*sqrt(sqrt(mandel->zoom));
 		mandel->shader.setFloat("power", mandel->power);
-		mandel->shader.setFloat("escapeRadius", pow(2, mandel->power));
 	}
 
 	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power += 0.025;
+		mandel->power += 0.025*sqrt(sqrt(mandel->zoom));
 		mandel->shader.setFloat("power", mandel->power);
-		mandel->shader.setFloat("escapeRadius", pow(2, mandel->power));
 	}
 #pragma warning(pop)
 #pragma warning(pop)
