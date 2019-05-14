@@ -12,15 +12,20 @@ constexpr unsigned int width = 1080;
 constexpr unsigned int height = 1080;
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
 float t = 0.1;
+
+struct UniformFloat
+{
+	float val;
+	int location;
+};
 
 struct MandelInfo
 {
-	float power;
-	float offsetX;
-	float offsetY;
-	float zoom;
+	UniformFloat power;
+	UniformFloat offsetX;
+	UniformFloat offsetY;
+	UniformFloat zoom;
 	int maxIterations;
 	Shader shader;
 };
@@ -117,7 +122,19 @@ int main()
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
 
-	MandelInfo mandelInfo{ 2, 0, 0, 1, 1024, mainShader };
+	MandelInfo mandelInfo{ {2,-1}, {0,-1}, {0,-1}, {1,-1}, 1024, mainShader };
+
+	int cursorLocation1;
+	int cursorLocation2;
+	int cursorLocation3;
+
+	mandelInfo.power.location = glGetUniformLocation(mainShader.id, "power");
+	cursorLocation1 = glGetUniformLocation(mainShader.id, "cursor1");
+	cursorLocation2 = glGetUniformLocation(mainShader.id, "cursor2");
+	cursorLocation3 = glGetUniformLocation(mainShader.id, "cursor3");
+	mandelInfo.offsetX.location = glGetUniformLocation(mainShader.id, "offsetX");
+	mandelInfo.offsetY.location = glGetUniformLocation(mainShader.id, "offsetY");
+	mandelInfo.zoom.location = glGetUniformLocation(mainShader.id, "zoom");
 
 	mandelInfo.shader.setInt("maxIterations", mandelInfo.maxIterations);
 
@@ -134,12 +151,31 @@ int main()
 	double startTime = lastTime;
 	int tLocation = glGetUniformLocation(mainShader.id, "t");
 
+	float angle = 0;
+
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		angle += 0.01;
 		//float timeValue = glfwGetTime();
 		//float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		float sinv = sin(2*angle + 1) + sin(4 * angle + 1) + sin(6 * angle + 1);
+		float cosv = cos(2 * angle + 1) + cos(4 * angle + 1) + cos(6 * angle + 1);
+		glUniform2f(cursorLocation1, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
+
+		sinv = sin(angle - 1) + sin(3 * angle - 1) + sin(5 * angle - 1);
+		cosv = cos(angle + 1) + cos(3 * angle + 1) + cos(5 * angle + 1);
+		glUniform2f(cursorLocation2, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
+
+		sinv = sin(angle + 1) + sin(angle + 1) + sin(6 * angle + 1);
+		cosv = cos(angle + 1) + cos(angle + 1) + cos(6 * angle + 1);
+		glUniform2f(cursorLocation3, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
+
+
+
+
+		//glUniform1f(mandelInfo.power.location, (glfwGetTime()-startTime)/5);
 
 		glUniform1f(tLocation, glfwGetTime() - startTime);
 
@@ -175,38 +211,38 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetY += mandel->zoom * 0.1;
-		mandel->shader.setFloat("offsetY", mandel->offsetY);
+		mandel->offsetY.val += mandel->zoom.val * 0.1;
+		glUniform1f(mandel->offsetY.location, mandel->offsetY.val);
 	}
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetY -= mandel->zoom * 0.1;
-		mandel->shader.setFloat("offsetY", mandel->offsetY);
+		mandel->offsetY.val -= mandel->zoom.val * 0.1;
+		glUniform1f(mandel->offsetY.location, mandel->offsetY.val);
 	}
 
 	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetX -= mandel->zoom * 0.1;
-		mandel->shader.setFloat("offsetX", mandel->offsetX);
+		mandel->offsetX.val -= mandel->zoom.val * 0.1;
+		glUniform1f(mandel->offsetX.location, mandel->offsetX.val);
 	}
 
 	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->offsetX += mandel->zoom * 0.1;
-		mandel->shader.setFloat("offsetX", mandel->offsetX);
+		mandel->offsetX.val += mandel->zoom.val * 0.1;
+		glUniform1f(mandel->offsetX.location, mandel->offsetX.val);
 	}
 
 	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->zoom *= 0.95;
-		mandel->shader.setFloat("zoom", mandel->zoom);
+		mandel->zoom.val *= 0.95;
+		glUniform1f(mandel->zoom.location, mandel->zoom.val);
 	}
 
 	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->zoom /= 0.95;
-		mandel->shader.setFloat("zoom", mandel->zoom);
+		mandel->zoom.val /= 0.95;
+		glUniform1f(mandel->zoom.location, mandel->zoom.val);
 	}
 
 	if (key == GLFW_KEY_Z && (action == GLFW_REPEAT || action == GLFW_PRESS))
@@ -225,14 +261,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power -= 0.025*sqrt(sqrt(mandel->zoom));
-		mandel->shader.setFloat("power", mandel->power);
+		mandel->power.val -= 0.025*sqrt(sqrt(mandel->zoom.val));
+		glUniform1f(mandel->power.location, mandel->power.val);
 	}
 
 	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power += 0.025*sqrt(sqrt(mandel->zoom));
-		mandel->shader.setFloat("power", mandel->power);
+		mandel->power.val += 0.025*sqrt(sqrt(mandel->zoom.val));
+		glUniform1f(mandel->power.location, mandel->power.val);
 	}
 #pragma warning(pop)
 #pragma warning(pop)

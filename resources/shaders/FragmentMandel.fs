@@ -10,6 +10,10 @@ uniform float offsetX = 0;
 uniform float offsetY = 0;
 uniform float zoom = 1;
 uniform float power = 2;
+uniform vec2 cursor1 = vec2(0.3, -0.3);
+uniform vec2 cursor2 = vec2(0.47282399071, -0.91782235329);
+uniform vec2 cursor3 = vec2(0.39699134473, 0.80443820146);
+
 
 vec4 GetColor(float iterations)
 {
@@ -59,7 +63,9 @@ void main()
 	float angle;
 
 	// Polar iteration
-	vec2 trap = vec2(abs(npos));
+	vec3 trap = vec3(10000, 10000, 10000);
+	//vec2 trap = vec2(abs(npos));
+
 
 	int i = maxIterations;
 	for (; i > 0; i--)
@@ -69,31 +75,36 @@ void main()
 
 		angle = atan(z.y, z.x) * power;
 		modulo = pow(modulo, power);
+
 		if (modulo > 2)
 		{
 			break;
 		}
-
 		z = npos + modulo * vec2(cos(angle), sin(angle));
 		//z = complexTan(z);
 		
 		//trap.x = (max(z.x, trap.x) + sinh(trap.x))*0.5; // change break position
 		//trap.y = (max(z.y, trap.y) - tanh(trap.y))*0.5;
+		float len = length(z-cursor1);
+		trap.x = min(trap.x, len * len);
+		len = length(z-cursor2);
+		trap.y = min(trap.y, len * len);
+		len = length(z-cursor3);
+		trap.z = min(trap.z, len * len);
 
-		//trap = max(z, abs(z));
 		/*if (z.x < npos.x + zoom * 0.1 && z.x > npos.x - zoom * 0.1)
 		{
 			trap = z;
 		}*/
 
 		
-		float epsilon = pow(0.001,zoom);
+		/*float epsilon = pow(0.001,zoom);
 		if (z.x < npos.x + epsilon && z.x > npos.x - epsilon)
 		{
 			//trap = mix(z,trap, 0.99);
 
 			trap = z;
-		}
+		}*/
 		
 		
 		/*float epsilon = pow(0.001,zoom);
@@ -130,8 +141,16 @@ void main()
 		x = x2 - y2 + npos.x;
 	}
 #endif
-	color = vec4(trap.xy, length(trap)*0.5, 1);
+	
+	//color = vec4(trap.xy, length(trap)*0.5, 1);
+	//color = vec4(trap.xy, cos(angle), 1);
+	//color = vec4((npos.x - trap.x)/2, (npos.y - trap.y)/2, (length(trap)-length(npos))/2, 1);
+	//color = vec4((npos.x + trap.x)/2, (npos.y + trap.y)/2, (length(trap)+length(npos))/2, 1);
+	//color = vec4(distance(z, trap), distance(z, trap)/2, distance(z, trap)/4, 1);
+	color = sqrt(sqrt(vec4(trap.xyz, 1)));
+
 
 	//color = mix(vec4(trap.xy, length(trap)*0.5, 1), GetColor(float(maxIterations - i)), 0.5);
+	//color = GetColor(float(maxIterations - i));
 	//color = vec4(distance(trap, vec2(real, imag)), 0, 0, 1);
 };
