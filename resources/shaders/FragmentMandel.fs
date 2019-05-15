@@ -13,7 +13,8 @@ uniform float power = 2;
 uniform vec2 cursor1 = vec2(0.3, -0.3);
 uniform vec2 cursor2 = vec2(0.47282399071, -0.91782235329);
 uniform vec2 cursor3 = vec2(0.39699134473, 0.80443820146);
-
+uniform float param = 30;
+uniform float t;
 
 vec4 GetColor(float iterations)
 {
@@ -64,8 +65,10 @@ void main()
 
 	// Polar iteration
 	vec3 trap = vec3(10000, 10000, 10000);
+	vec3 trap2 = vec3(10000, 10000, 10000);
 	//vec2 trap = vec2(abs(npos));
 
+	float deformation;
 
 	int i = maxIterations;
 	for (; i > 0; i--)
@@ -76,21 +79,33 @@ void main()
 		angle = atan(z.y, z.x) * power;
 		modulo = pow(modulo, power);
 
+		deformation = (sin(2*modulo) + sin(5*modulo) - cos(0.9*modulo))/3;
+
 		if (modulo > 2)
 		{
 			break;
 		}
 		z = npos + modulo * vec2(cos(angle), sin(angle));
-		//z = complexTan(z);
+		z = complexTan(z);
 		
 		//trap.x = (max(z.x, trap.x) + sinh(trap.x))*0.5; // change break position
 		//trap.y = (max(z.y, trap.y) - tanh(trap.y))*0.5;
-		float len = length(z-cursor1);
-		trap.x = min(trap.x, len * len);
-		len = length(z-cursor2);
-		trap.y = min(trap.y, len * len);
+
+		float dist = ((-param)*z.x+2*z.y)/length(z);
+		trap.x = min(trap.x, dist * dist);
+		
+		dist = ((-50)*z.x+64*z.y)/length(z);
+		trap.y = min(trap.y, dist * dist);
+		
+		dist = min(((-448+(deformation*200))*z.x+-(490+(deformation*-300))*z.y), ((-112+deformation*150)*z.x)+(param*z.y))/length(z);
+		trap.z = min(trap.z, dist * dist);
+
+		float len = length(z-(cursor1 + deformation));
+		trap2.x = min(trap2.x, len * len);
+		len = length(z-cursor2 - deformation);
+		trap2.y = min(trap2.y, len * len);
 		len = length(z-cursor3);
-		trap.z = min(trap.z, len * len);
+		trap2.z = min(trap2.z, len * len);
 
 		/*if (z.x < npos.x + zoom * 0.1 && z.x > npos.x - zoom * 0.1)
 		{
@@ -147,7 +162,10 @@ void main()
 	//color = vec4((npos.x - trap.x)/2, (npos.y - trap.y)/2, (length(trap)-length(npos))/2, 1);
 	//color = vec4((npos.x + trap.x)/2, (npos.y + trap.y)/2, (length(trap)+length(npos))/2, 1);
 	//color = vec4(distance(z, trap), distance(z, trap)/2, distance(z, trap)/4, 1);
-	color = sqrt(sqrt(vec4(trap.xyz, 1)));
+	
+	//color = sqrt(sqrt(vec4(trap.xyz, 1)));
+	color = vec4(trap2.x, trap2.y, mix(mix(trap2.z, trap.z, 0.5), trap.x, 0.5), 1);
+	//color = mix(vec4(trap.x, trap.x/2,trap.x*2, 1);
 
 
 	//color = mix(vec4(trap.xy, length(trap)*0.5, 1), GetColor(float(maxIterations - i)), 0.5);

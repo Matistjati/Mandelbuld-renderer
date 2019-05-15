@@ -26,6 +26,7 @@ struct MandelInfo
 	UniformFloat offsetX;
 	UniformFloat offsetY;
 	UniformFloat zoom;
+	UniformFloat parameter;
 	int maxIterations;
 	Shader shader;
 };
@@ -122,13 +123,14 @@ int main()
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
 
-	MandelInfo mandelInfo{ {2,-1}, {0,-1}, {0,-1}, {1,-1}, 1024, mainShader };
+	MandelInfo mandelInfo{ {2,-1}, {0,-1}, {0,-1}, {1,-1}, {20, -1}, 1024, mainShader };
 
 	int cursorLocation1;
 	int cursorLocation2;
 	int cursorLocation3;
 
 	mandelInfo.power.location = glGetUniformLocation(mainShader.id, "power");
+	mandelInfo.parameter.location = glGetUniformLocation(mainShader.id, "param");
 	cursorLocation1 = glGetUniformLocation(mainShader.id, "cursor1");
 	cursorLocation2 = glGetUniformLocation(mainShader.id, "cursor2");
 	cursorLocation3 = glGetUniformLocation(mainShader.id, "cursor3");
@@ -160,6 +162,7 @@ int main()
 		//float timeValue = glfwGetTime();
 		//float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		float sinv = sin(2*angle + 1) + sin(4 * angle + 1) + sin(6 * angle + 1);
 		float cosv = cos(2 * angle + 1) + cos(4 * angle + 1) + cos(6 * angle + 1);
 		glUniform2f(cursorLocation1, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
@@ -235,13 +238,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->zoom.val *= 0.95;
+		mandel->zoom.val *= 0.97;
 		glUniform1f(mandel->zoom.location, mandel->zoom.val);
 	}
 
 	if (key == GLFW_KEY_E && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->zoom.val /= 0.95;
+		mandel->zoom.val /= 0.97;
 		glUniform1f(mandel->zoom.location, mandel->zoom.val);
 	}
 
@@ -269,6 +272,18 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	{
 		mandel->power.val += 0.025*sqrt(sqrt(mandel->zoom.val));
 		glUniform1f(mandel->power.location, mandel->power.val);
+	}
+
+	if (key == GLFW_KEY_G && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->parameter.val++;
+		glUniform1f(mandel->parameter.location, mandel->parameter.val);
+	}
+
+	if (key == GLFW_KEY_T && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	{
+		mandel->parameter.val--;
+		glUniform1f(mandel->parameter.location, mandel->parameter.val);
 	}
 #pragma warning(pop)
 #pragma warning(pop)
