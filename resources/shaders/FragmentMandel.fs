@@ -54,6 +54,32 @@ vec2 complexTan(vec2 v)
 	return vec2(sin(d.x)/denominator, sinh(d.y)/denominator);
 }
 
+float distFromCurve(vec2 p, float k)
+{
+	float x = 1;
+	for	(int i = 0; i < 8; i++)
+	{
+		float xdelta = x - p.x;
+		xdelta *= xdelta;
+
+		float ydelta = ((k * x * x) - 2) - p.y;
+		// 	kx^2 - 2
+		ydelta *= ydelta;
+
+
+		float top = 2*x-p.x + (4*k*x*(k*x*x-2-p.y));
+
+		float a = x - p.x;
+		a *= a;
+		float b = k*x*x-2-p.y;
+		b *= b;
+
+		x -= sqrt(xdelta + ydelta)/(top/(2*sqrt(a+b)));
+	}
+
+	return x;
+}
+
 void main()
 {
 	vec2 npos = vec2((offsetX) + pos.x * zoom, (offsetY) + pos.y * zoom);
@@ -68,7 +94,11 @@ void main()
 	vec3 trap2 = vec3(10000, 10000, 10000);
 	//vec2 trap = vec2(abs(npos));
 
-	float deformation;
+	float deformation = 0;
+
+	/*float trap3 = 0;
+	float trap4 = 0;
+	float trap5 = 0;*/
 
 	int i = maxIterations;
 	for (; i > 0; i--)
@@ -86,26 +116,42 @@ void main()
 			break;
 		}
 		z = npos + modulo * vec2(cos(angle), sin(angle));
-		z = complexTan(z);
-		
+		//z = complexTan(z);
+
 		//trap.x = (max(z.x, trap.x) + sinh(trap.x))*0.5; // change break position
 		//trap.y = (max(z.y, trap.y) - tanh(trap.y))*0.5;
 
-		float dist = ((-param)*z.x+2*z.y)/length(z);
+		/*float dist = ((-param)*z.x+2*z.y)/length(z);
+		//deformation = dist; // Mandelbrot through lines
 		trap.x = min(trap.x, dist * dist);
 		
 		dist = ((-50)*z.x+64*z.y)/length(z);
 		trap.y = min(trap.y, dist * dist);
 		
 		dist = min(((-448+(deformation*200))*z.x+-(490+(deformation*-300))*z.y), ((-112+deformation*150)*z.x)+(param*z.y))/length(z);
-		trap.z = min(trap.z, dist * dist);
+		trap.z = min(trap.z, dist * dist);*/
 
-		float len = length(z-(cursor1 + deformation));
+		
+		/*//float len = length(z-(cursor1 + deformation));
+
 		trap2.x = min(trap2.x, len * len);
 		len = length(z-cursor2 - deformation);
 		trap2.y = min(trap2.y, len * len);
 		len = length(z-cursor3);
+		trap2.z = min(trap2.z, len * len);*/
+		
+		float len = distFromCurve(z, deformation);
+
+		trap2.x = min(trap2.x, len * len);
+		len = distFromCurve(z, cursor1.x);
+		trap2.y = min(trap2.y, len * len);
+		len = distFromCurve(z, cursor2.x);
 		trap2.z = min(trap2.z, len * len);
+
+
+		/*trap3 += distance(z, vec2(param, cursor1.y));
+		trap4 += distance(z, vec2(cursor2.x, param));
+		trap5 += distance(z, cursor3);*/
 
 		/*if (z.x < npos.x + zoom * 0.1 && z.x > npos.x - zoom * 0.1)
 		{
@@ -164,8 +210,10 @@ void main()
 	//color = vec4(distance(z, trap), distance(z, trap)/2, distance(z, trap)/4, 1);
 	
 	//color = sqrt(sqrt(vec4(trap.xyz, 1)));
-	color = vec4(trap2.x, trap2.y, mix(mix(trap2.z, trap.z, 0.5), trap.x, 0.5), 1);
+	color = sqrt(sqrt(vec4(trap2.xyz, 1)));
+	//color = vec4(trap2.x, trap2.y, mix(mix(trap2.z, trap.z, 0.5), trap.x, 0.5), 1);
 	//color = mix(vec4(trap.x, trap.x/2,trap.x*2, 1);
+	//color = vec4(trap3/(maxIterations - i), trap4/(maxIterations - i), trap5/(maxIterations - i), 1);
 
 
 	//color = mix(vec4(trap.xy, length(trap)*0.5, 1), GetColor(float(maxIterations - i)), 0.5);

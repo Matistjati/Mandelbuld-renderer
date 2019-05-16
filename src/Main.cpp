@@ -123,7 +123,7 @@ int main()
 
 	Shader mainShader("resources/shaders/Vertex.vs", "resources/shaders/FragmentMandel.fs");
 
-	MandelInfo mandelInfo{ {2,-1}, {0,-1}, {0,-1}, {1,-1}, {20, -1}, 1024, mainShader };
+	MandelInfo mandelInfo{ {2,-1}, {0,-1}, {0,-1}, {1,-1}, {0.01, -1}, 1024, mainShader };
 
 	int cursorLocation1;
 	int cursorLocation2;
@@ -276,13 +276,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_G && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->parameter.val++;
+		mandel->parameter.val+=0.01;
 		glUniform1f(mandel->parameter.location, mandel->parameter.val);
 	}
 
 	if (key == GLFW_KEY_T && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->parameter.val--;
+		mandel->parameter.val-=0.01;
 		glUniform1f(mandel->parameter.location, mandel->parameter.val);
 	}
 #pragma warning(pop)
