@@ -54,9 +54,21 @@ vec2 complexTan(vec2 v)
 	return vec2(sin(d.x)/denominator, sinh(d.y)/denominator);
 }
 
+float firstDerivative(float x, vec2 p, float k)
+{
+	return 2*(-p.x-2*(p.y+2)*k*x+2*k*k*x*x*x+x);
+}
+
+float secondDerivative(float x, vec2 p, float k)
+{
+	return -4*k*(p.y+2)+12*k*k*x*x+2;
+}
+
+
 float distFromCurve(vec2 p, float k)
 {
-	float x = 1;
+	// Incorrect but cool
+	/*float x = 1;
 	for	(int i = 0; i < 8; i++)
 	{
 		float xdelta = x - p.x;
@@ -76,8 +88,29 @@ float distFromCurve(vec2 p, float k)
 
 		x -= sqrt(xdelta + ydelta)/(top/(2*sqrt(a+b)));
 	}
-
 	return x;
+	*/
+	
+	float x = 0;
+	for	(int i = 0; i < 5; i++)
+	{
+		x -= firstDerivative(x, p, k)/secondDerivative(x, p, k);
+	}
+
+	// Did we hit the right extreme point?
+	if (secondDerivative(x, p, k) > 0)
+	{
+		return x;
+	}
+	else
+	{
+		x = -1;
+		for	(int i = 0; i < 5; i++)
+		{
+			x -= firstDerivative(x, p, k)/secondDerivative(x, p, k);
+		}
+		return x;
+	}
 }
 
 void main()
