@@ -264,13 +264,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power.val -= 0.025*sqrt(sqrt(mandel->zoom.val));
+		mandel->power.val -= 0.0025;
 		glUniform1f(mandel->power.location, mandel->power.val);
 	}
 
 	if (key == GLFW_KEY_F && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power.val += 0.025*sqrt(sqrt(mandel->zoom.val));
+		mandel->power.val += 0.0025;
 		glUniform1f(mandel->power.location, mandel->power.val);
 	}
 

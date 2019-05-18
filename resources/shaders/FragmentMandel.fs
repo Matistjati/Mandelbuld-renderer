@@ -54,6 +54,17 @@ vec2 complexTan(vec2 v)
 	return vec2(sin(d.x)/denominator, sinh(d.y)/denominator);
 }
 
+vec2 complexSin(vec2 v)
+{
+	return vec2(sin(v.x)*cosh(v.y), cos(v.x)*sinh(v.y));
+}
+
+vec2 complexMul(vec2 a, vec2 b)
+{
+	float realPart = a.x*b.x-a.y*b.y;
+	return vec2(realPart, (a.x+a.y)*(b.x+b.y)-realPart);
+}
+
 float firstDerivative(float x, vec2 p, float k)
 {
 	return 2*(-p.x-2*(p.y+2)*k*x+2*k*k*x*x*x+x);
@@ -68,7 +79,7 @@ float secondDerivative(float x, vec2 p, float k)
 float distFromCurve(vec2 p, float k)
 {
 	// Incorrect but cool
-	/*float x = 1;
+	float x = 1;
 	for	(int i = 0; i < 8; i++)
 	{
 		float xdelta = x - p.x;
@@ -89,8 +100,8 @@ float distFromCurve(vec2 p, float k)
 		x -= sqrt(xdelta + ydelta)/(top/(2*sqrt(a+b)));
 	}
 	return x;
-	*/
 	
+	/*
 	float x = 0;
 	for	(int i = 0; i < 5; i++)
 	{
@@ -110,7 +121,7 @@ float distFromCurve(vec2 p, float k)
 			x -= firstDerivative(x, p, k)/secondDerivative(x, p, k);
 		}
 		return x;
-	}
+	}*/
 }
 
 void main()
@@ -150,6 +161,9 @@ void main()
 		}
 		z = npos + modulo * vec2(cos(angle), sin(angle));
 		//z = complexTan(z);
+		//z = complexSin(z);
+		z = complexMul(complexTan(z)+vec2(angle, 0), complexSin(z)+vec2(angle, 0)); // Power between 0 and 1 are interesting
+		z = complexMul(complexTan(z), complexSin(z));
 
 		//trap.x = (max(z.x, trap.x) + sinh(trap.x))*0.5; // change break position
 		//trap.y = (max(z.y, trap.y) - tanh(trap.y))*0.5;
