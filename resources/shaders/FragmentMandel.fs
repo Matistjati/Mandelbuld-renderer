@@ -13,8 +13,9 @@ uniform float power = 2;
 uniform vec2 cursor1 = vec2(0.3, -0.3);
 uniform vec2 cursor2 = vec2(0.47282399071, -0.91782235329);
 uniform vec2 cursor3 = vec2(0.39699134473, 0.80443820146);
-uniform float param = 30;
+uniform float param = 0.7;
 uniform float t;
+uniform float r = 0.1;
 
 vec4 GetColor(float iterations)
 {
@@ -65,21 +66,32 @@ vec2 complexMul(vec2 a, vec2 b)
 	return vec2(realPart, (a.x+a.y)*(b.x+b.y)-realPart);
 }
 
-float firstDerivative(float x, vec2 p, float k)
+float firstDerivativeA(float x, vec2 p, float k)
 {
 	return 2*(-p.x-2*(p.y+2)*k*x+2*k*k*x*x*x+x);
 }
 
-float secondDerivative(float x, vec2 p, float k)
+float secondDerivativeA(float x, vec2 p, float k)
 {
 	return -4*k*(p.y+2)+12*k*k*x*x+2;
+}
+
+float firstDerivativeB(float x, vec2 p, float k)
+{
+	return -2*(p.x+p.y*k*cos(k*k)-0.5*k*sin(2*k*x)-x);
+}
+
+float secondDerivativeB(float x, vec2 p, float k)
+{
+	float kk = k*k;
+	return 2*(p.y*kk*sin(k*x)+kk*cos(2*k*x)+1);
 }
 
 
 float distFromCurve(vec2 p, float k)
 {
-	// Incorrect but cool
-	float x = 1;
+	// Incorrect but cool parabola
+	/*float x = 1;
 	for	(int i = 0; i < 8; i++)
 	{
 		float xdelta = x - p.x;
@@ -99,13 +111,14 @@ float distFromCurve(vec2 p, float k)
 
 		x -= sqrt(xdelta + ydelta)/(top/(2*sqrt(a+b)));
 	}
-	return x;
+	return x;*/
 	
 	/*
+	// parabola correct
 	float x = 0;
 	for	(int i = 0; i < 5; i++)
 	{
-		x -= firstDerivative(x, p, k)/secondDerivative(x, p, k);
+		x -= firstDerivativeA(x, p, k)/secondDerivativeA(x, p, k);
 	}
 
 	// Did we hit the right extreme point?
@@ -122,6 +135,17 @@ float distFromCurve(vec2 p, float k)
 		}
 		return x;
 	}*/
+
+	float x = 0;
+	for	(int i = 0; i < 8; i++)
+	{
+		/*float d1 = x-p.x;
+		float d2 = sin(x*k)-p.y;
+		x-=sqrt(d1+d2)/firstDerivativeB(x, p, k);*/
+
+		x-=firstDerivativeB(x, p, k)/secondDerivativeB(x, p, k);
+	}
+	return x;
 }
 
 void main()
@@ -149,21 +173,39 @@ void main()
 	{
 		modulo = length(z);
 
+		deformation = (sin(2*modulo) + sin(5*modulo) - cos(0.9*modulo))/3;
 
-		angle = atan(z.y, z.x) * power;
+		/*float def = abs(deformation*6);
+		// Space folding
+		z = clamp(z,-def,def)*2.0-z;
+		if (length(z) > def)
+		{
+			z=z*def*def/(modulo*modulo);
+		}*/
+
+
+
 		modulo = pow(modulo, power);
 
-		deformation = (sin(2*modulo) + sin(5*modulo) - cos(0.9*modulo))/3;
+
 
 		if (modulo > 2)
 		{
 			break;
 		}
+
+		//angle = atan(z.y, modulo) * power;
+		angle = atan(z.y, z.x) * power;
+
+
 		z = npos + modulo * vec2(cos(angle), sin(angle));
-		//z = complexTan(z);
+		//z = npos + modulo * vec2(sin(angle), cos(angle));
+
+
+		z = complexTan(z);
 		//z = complexSin(z);
-		z = complexMul(complexTan(z)+vec2(angle, 0), complexSin(z)+vec2(angle, 0)); // Power between 0 and 1 are interesting
-		z = complexMul(complexTan(z), complexSin(z));
+		//z = complexMul(complexTan(z)+vec2(angle, 0), complexSin(z)+vec2(angle, 0)); // Power between 0 and 1 are interesting
+		//z = complexMul(complexTan(z), complexSin(z));
 
 		//trap.x = (max(z.x, trap.x) + sinh(trap.x))*0.5; // change break position
 		//trap.y = (max(z.y, trap.y) - tanh(trap.y))*0.5;
@@ -179,7 +221,7 @@ void main()
 		trap.z = min(trap.z, dist * dist);*/
 
 		
-		/*//float len = length(z-(cursor1 + deformation));
+		/*float len = length(z-(cursor1 + deformation));
 
 		trap2.x = min(trap2.x, len * len);
 		len = length(z-cursor2 - deformation);
@@ -258,7 +300,7 @@ void main()
 	
 	//color = sqrt(sqrt(vec4(trap.xyz, 1)));
 	color = sqrt(sqrt(vec4(trap2.xyz, 1)));
-	//color = vec4(trap2.x, trap2.y, mix(mix(trap2.z, trap.z, 0.5), trap.x, 0.5), 1);
+	//color = sqrt(vec4(trap2.x, trap2.y, mix(mix(trap2.z, trap.z, 0.5), trap.x, 0.5), 1));
 	//color = mix(vec4(trap.x, trap.x/2,trap.x*2, 1);
 	//color = vec4(trap3/(maxIterations - i), trap4/(maxIterations - i), trap5/(maxIterations - i), 1);
 
