@@ -128,12 +128,18 @@ int main()
 	int cursorLocation1;
 	int cursorLocation2;
 	int cursorLocation3;
+	int cursorLocation4;
+	int cursorLocation5;
+	int cursorLocation6;
 
 	mandelInfo.power.location = glGetUniformLocation(mainShader.id, "power");
 	mandelInfo.parameter.location = glGetUniformLocation(mainShader.id, "param");
 	cursorLocation1 = glGetUniformLocation(mainShader.id, "cursor1");
 	cursorLocation2 = glGetUniformLocation(mainShader.id, "cursor2");
 	cursorLocation3 = glGetUniformLocation(mainShader.id, "cursor3");
+	cursorLocation4 = glGetUniformLocation(mainShader.id, "cursor4");
+	cursorLocation5 = glGetUniformLocation(mainShader.id, "cursor5");
+	cursorLocation6 = glGetUniformLocation(mainShader.id, "cursor6");
 	mandelInfo.offsetX.location = glGetUniformLocation(mainShader.id, "offsetX");
 	mandelInfo.offsetY.location = glGetUniformLocation(mainShader.id, "offsetY");
 	mandelInfo.zoom.location = glGetUniformLocation(mainShader.id, "zoom");
@@ -171,9 +177,22 @@ int main()
 		cosv = cos(angle + 1) + cos(3 * angle + 1) + cos(5 * angle + 1);
 		glUniform2f(cursorLocation2, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
 
-		sinv = sin(angle + 1) + sin(angle + 1) + sin(6 * angle + 1);
+		sinv = sin(angle+1) * 2 + sin(6 * angle + 1);
 		cosv = cos(angle + 1) + cos(angle + 1) + cos(6 * angle + 1);
 		glUniform2f(cursorLocation3, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
+
+
+		sinv = (sin(angle) + sin(angle*4))*cos(-2*angle);
+		cosv = (cos(angle) - 0.5*sin(2*angle) + sin(4*angle));
+		glUniform2f(cursorLocation4, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
+
+		sinv = sin(angle) + sin(angle * 2) + sin(6 * angle);
+		cosv = cos(angle *3) + sin(angle * 0.5) - cos(0.1*angle);
+		glUniform2f(cursorLocation5, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
+
+		sinv = sin(angle * 8)*0.1 + sin(angle)*2 - sin(angle);
+		cosv = cos(angle * 7)*0.5 - sin(angle *0.5)*2;
+		glUniform2f(cursorLocation6, (width/2 + cosv*width / 4) /width, (height/2 + sinv*height/4)/height);
 
 
 
@@ -264,7 +283,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (key == GLFW_KEY_R && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		mandel->power.val -= 0.0025;
+		mandel->power.val -= 0.025;
 		glUniform1f(mandel->power.location, mandel->power.val);
 	}
 

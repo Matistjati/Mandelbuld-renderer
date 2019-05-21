@@ -13,6 +13,9 @@ uniform float power = 2;
 uniform vec2 cursor1 = vec2(0.3, -0.3);
 uniform vec2 cursor2 = vec2(0.47282399071, -0.91782235329);
 uniform vec2 cursor3 = vec2(0.39699134473, 0.80443820146);
+uniform vec2 cursor4 = vec2(0.39699134473, 0.80443820146);
+uniform vec2 cursor5 = vec2(0.39699134473, 0.80443820146);
+uniform vec2 cursor6 = vec2(0.39699134473, 0.80443820146);
 uniform float param = 0.7;
 uniform float t;
 uniform float r = 0.1;
@@ -148,6 +151,39 @@ float distFromCurve(vec2 p, float k)
 	return x;
 }
 
+vec4 quatMul(vec4 q1, vec4 q2)
+{
+	return vec4(q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x,
+    -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y,
+    q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z,
+    -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w);
+}
+
+float distanceFromJulia(vec4 p, vec4 s)
+{
+	vec4 z = p;
+    float dr = 1.0;
+    float r = 0.0;
+    
+    for (int i = 0; i < 8; i++)
+    {
+    	r = length(z);
+        if (r>2.) break;
+        
+        dr =  r*2*dr + 1.0;
+
+        
+        z = quatMul(z,z);
+        z += s;
+        
+        
+    }
+    
+    
+    
+	return 0.5*log(r)*r/dr;
+}
+
 void main()
 {
 	vec2 npos = vec2((offsetX) + pos.x * zoom, (offsetY) + pos.y * zoom);
@@ -173,7 +209,7 @@ void main()
 	{
 		modulo = length(z);
 
-		deformation = (sin(2*modulo) + sin(5*modulo) - cos(0.9*modulo))/3;
+		//deformation = (sin(2*modulo) + sin(5*modulo) - cos(0.9*modulo))/3;
 
 		/*float def = abs(deformation*6);
 		// Space folding
@@ -202,7 +238,7 @@ void main()
 		//z = npos + modulo * vec2(sin(angle), cos(angle));
 
 
-		z = complexTan(z);
+		//z = complexTan(z);
 		//z = complexSin(z);
 		//z = complexMul(complexTan(z)+vec2(angle, 0), complexSin(z)+vec2(angle, 0)); // Power between 0 and 1 are interesting
 		//z = complexMul(complexTan(z), complexSin(z));
@@ -229,12 +265,22 @@ void main()
 		len = length(z-cursor3);
 		trap2.z = min(trap2.z, len * len);*/
 		
-		float len = distFromCurve(z, deformation);
+		/*float len = distFromCurve(z, deformation);
 
 		trap2.x = min(trap2.x, len * len);
 		len = distFromCurve(z, cursor1.x);
 		trap2.y = min(trap2.y, len * len);
 		len = distFromCurve(z, cursor2.x);
+		trap2.z = min(trap2.z, len * len);*/
+		
+		//float len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor1.xy, length(cursor1), atan(cursor1.y, cursor1.x)));
+		float len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor1.xy, cursor2.xy));
+
+
+		trap2.x = min(trap2.x, len * len);
+		len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor3.xy, cursor4.xy));
+		trap2.y = min(trap2.y, len * len);
+		len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor5.xy, cursor6.xy));
 		trap2.z = min(trap2.z, len * len);
 
 
@@ -300,6 +346,7 @@ void main()
 	
 	//color = sqrt(sqrt(vec4(trap.xyz, 1)));
 	color = sqrt(sqrt(vec4(trap2.xyz, 1)));
+	//color = vec4(trap2.xyz, 1);
 	//color = sqrt(vec4(trap2.x, trap2.y, mix(mix(trap2.z, trap.z, 0.5), trap.x, 0.5), 1));
 	//color = mix(vec4(trap.x, trap.x/2,trap.x*2, 1);
 	//color = vec4(trap3/(maxIterations - i), trap4/(maxIterations - i), trap5/(maxIterations - i), 1);
