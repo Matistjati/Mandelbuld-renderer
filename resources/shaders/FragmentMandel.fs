@@ -165,12 +165,18 @@ float distanceFromJulia(vec4 p, vec4 s)
     float dr = 1.0;
     float r = 0.0;
     
+    
+
     for (int i = 0; i < 8; i++)
     {
     	r = length(z);
         if (r>2.) break;
         
-        dr =  r*2*dr + 1.0;
+        //dr = (power * pow(sqrt(r), power - 1)) * dr + 1.0;
+        dr = (power * pow(r, power - 1)) * dr + 1.0;
+        
+		//dr = sqrt(r) * 2 * dr + 1.0;
+        //dr = r * 2 * dr + 1.0;
 
         
         z = quatMul(z,z);
@@ -187,7 +193,7 @@ float distanceFromJulia(vec4 p, vec4 s)
 void main()
 {
 	vec2 npos = vec2((offsetX) + pos.x * zoom, (offsetY) + pos.y * zoom);
-#if 1
+#ifndef normal
 	vec2 z = vec2(0,0);
 
 	float modulo;
@@ -211,6 +217,7 @@ void main()
 
 		//deformation = (sin(2*modulo) + sin(5*modulo) - cos(0.9*modulo))/3;
 
+
 		/*float def = abs(deformation*6);
 		// Space folding
 		z = clamp(z,-def,def)*2.0-z;
@@ -233,12 +240,13 @@ void main()
 		//angle = atan(z.y, modulo) * power;
 		angle = atan(z.y, z.x) * power;
 
+		//deformation = (sin(2*angle) + sin(5*angle) - cos(0.9*angle))/3;
 
 		z = npos + modulo * vec2(cos(angle), sin(angle));
 		//z = npos + modulo * vec2(sin(angle), cos(angle));
 
 
-		//z = complexTan(z);
+		z = complexTan(z);
 		//z = complexSin(z);
 		//z = complexMul(complexTan(z)+vec2(angle, 0), complexSin(z)+vec2(angle, 0)); // Power between 0 and 1 are interesting
 		//z = complexMul(complexTan(z), complexSin(z));
@@ -274,13 +282,16 @@ void main()
 		trap2.z = min(trap2.z, len * len);*/
 		
 		//float len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor1.xy, length(cursor1), atan(cursor1.y, cursor1.x)));
-		float len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor1.xy, cursor2.xy));
+		vec4 a = vec4(cursor1.xy, cursor2.xy);
+		vec4 b = vec4(cursor3.xy, cursor4.xy);
+		vec4 c = vec4(cursor5.xy, cursor6.xy);
+		float len = distanceFromJulia(vec4(z.xy, modulo, angle), mix(a, b, deformation));
 
 
 		trap2.x = min(trap2.x, len * len);
-		len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor3.xy, cursor4.xy));
+		len = distanceFromJulia(vec4(z.xy, modulo, angle), mix(b, c, deformation));
 		trap2.y = min(trap2.y, len * len);
-		len = distanceFromJulia(vec4(z.xy, modulo, angle), vec4(cursor5.xy, cursor6.xy));
+		len = distanceFromJulia(vec4(z.xy, modulo, angle), mix(c, a, deformation));
 		trap2.z = min(trap2.z, len * len);
 
 
