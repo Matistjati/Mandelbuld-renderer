@@ -65,7 +65,7 @@
     <ClInclude Include="src\headers\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\headers\Uniform.h">
+    <ClInclude Include="src/headers/Uniform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
