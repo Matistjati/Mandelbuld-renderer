@@ -5,33 +5,45 @@
 
 #include <string>
 #include <glm.hpp>
+#include "headers/Uniform.h"
+#include "headers/Fractal.h"
+
+template<typename T>
+struct Uniform;
 
 class Shader
 {
 public:
 	// the program ID
 	unsigned int id;
-	unsigned int *uniforms;
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath);
-	Shader(const std::string& computePath);
 	~Shader();
 	// use/activate the shader
 	void use();
 	// utility uniform functions
-	void SetBool(const std::string &name, bool value) const;
-	void SetInt(const std::string &name, int value) const;
-	void SetFloat(const std::string &name, float value) const;
-	void SetFloat(int location, float value) const;
-	void Set3f(const std::string &name, float x, float y, float z) const;
-	void Set3f(int location, float x, float y, float z) const;
-	void Set3f(const std::string &name, glm::vec3 vector) const;
-	void Set3f(int location, glm::vec3 vector) const;
-	void Set4f(const std::string &name, float x, float y, float z, float w) const;
-	void SetMat2(const std::string &name, const glm::mat2 &mat) const;
-	void SetMat2(int location, const glm::mat2 &mat) const;
-	void SetMat4(const std::string &name, const glm::mat4 &mat) const;
+	void SetUniform(Uniform<float> value) const;
+	void SetUniform(Uniform<int> value) const;
+	void SetUniform(Uniform<bool> value) const;
+	void SetUniform(Uniform<glm::ivec2> vector) const;
+	void SetUniform(Uniform<glm::vec2> vector) const;
+	void SetUniform(Uniform<glm::vec3> vector) const;
+	void SetUniform(Uniform<glm::vec4> vector) const;
+	void SetUniform(Uniform<glm::mat2> &mat) const;
+	void SetUniform(unsigned int id, float x, float y, float z) const;
+	void SetUniform(unsigned int id, int value) const;
+	void SetUniformStr(Uniform<glm::vec2> vector) const;
+	void SetUniformStr(Uniform<glm::vec3> vector) const;
+	void SetUniformStr(Uniform<glm::vec4> vector) const;
+	void SetUniformStr(Uniform<glm::mat2> &mat) const;
+	void SetUniformStr(Uniform<glm::mat4> &mat) const;
+	void SetUniformStr(Uniform<bool> value) const;
+	void SetUniformStr(Uniform<int> value) const;
+	void SetUniformStr(Uniform<float> value) const;
+	void SetUniformStr(const std::string &name, float x, float y) const;
+	void SetUniformStr(const std::string &name, float x, float y, float z) const;
+	void SetUniformStr(const std::string &name, float x, float y, float z, float w) const;
 
 private:
 	std::string ParseShader(const std::string& file);

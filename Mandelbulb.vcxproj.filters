@@ -18,9 +18,6 @@
     <ClCompile Include="src/source/Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/source/shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src/source/ToString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,11 +33,17 @@
     <ClCompile Include="src/source/Image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\source\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/source/Fractal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/source/Uniform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src/headers/shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src/headers/Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -54,6 +57,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src/headers/Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/headers/Fractal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\Uniform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

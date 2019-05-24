@@ -2,8 +2,7 @@
 
 layout(location = 0) out vec4 color;
 
-uniform int width = 1080;
-uniform int height = 1080;
+uniform vec2 screenSize = vec2(1080, 1080);
 uniform float power = 8;
 uniform int worldFlip = -1;
 
@@ -66,7 +65,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
         float phi = Power * acos(w.y / r);
 		
 		// Fun alternative: reverse sin and cos
-        w = start + pow(r, Power) * vec3(cos(phi) * cos(theta), sin(phi), cos(phi) * sin(theta));
+        w = start + pow(r, Power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
 #endif
         
         trap = min(trap, vec4(abs(w),m));
@@ -83,7 +82,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
 float Map(vec3 start, out vec4 resColor)
 {
-#if 0
+#if 1
 	return DistanceEstimator(start, resColor, power);
 #else
 
@@ -199,7 +198,7 @@ float SoftShadow(Ray ray, float k)
 vec3 render(Ray ray)
 {
 	const float zoom = .01;
-	float px = 2.0 / (height * zoom);
+	float px = 2.0 / (screenSize.y * zoom);
 	vec4 trap;
 	float steps;
 
@@ -271,10 +270,10 @@ vec3 render(Ray ray)
 
 void main()
 {
-	vec2 uv = (gl_FragCoord.xy / vec2(width, height));
+	vec2 uv = gl_FragCoord.xy / screenSize;
 	uv = uv * 2.0 - 1.0;
 
-	uv.x *= float(width) / height;
+	uv.x *= float(screenSize.x) / float(screenSize.y);
 
 	vec3 direction = normalize(vec3(uv.xy, 1));
 

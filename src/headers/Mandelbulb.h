@@ -5,41 +5,32 @@
 #include "shader.h"
 #include "Time.h"
 #include "Camera.h"
+#include "headers/Fractal.h"
 
-enum Locations
-{
-	yawMatrix   = 0,
-	pitchMatrix = 1,
-	rollMatrix  = 2,
-	eye         = 3,
-	power       = 4,
-	sun         = 5,
-	count		= sun + 1,
-}; 
-
-
-class Mandelbulb
+class Mandelbulb : public Fractal
 {
 public:
 	static const int defaultPower = 8;
-	static const int DefaultWidth = 1080;
-	static const int DefaultHeight = 1080;
 
 	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time);
 	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun);
 	Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera);
-	void ProcessMouse(glm::vec2 offset);
-	void SetUniforms(Shader &shader);
-	void SetUniformLocations(Shader &shader);
+	Mandelbulb(Shader &explorationShader, Shader &renderShader);
+	void MouseCallback(GLFWwindow* window, double x, double y) override;
+	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+	void FramebufferSizeCallback(GLFWwindow * window, int width, int height) override;
+	void SetUniforms(Shader& shader) override;
+	void SetUniformLocations(Shader& shader) override;
+	void SetUniformNames() override;
+	void Update() override;
+	void SaveImage(const std::string path) override;
+
 
 	Camera &camera;
-	Shader &explorationShader;
-	Shader &renderShader;
-	float power;
-	glm::ivec2 screenSize;
+	Uniform<float> power;
 	Time time;
-	float genericParameter;
-	glm::vec3 sun;
+	Uniform<float> genericParameter;
+	Uniform<glm::vec3> sun;
 
 private:
 	glm::vec2 mouseOffset;

@@ -142,21 +142,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src/source/Uniform.cpp" />
+    <ClCompile Include="src/source/Fractal.cpp" />
     <ClCompile Include="src/source/Image.cpp" />
     <ClCompile Include="src/source/Mandelbulb.cpp" />
     <ClCompile Include="src/source/Camera.cpp" />
     <ClCompile Include="src/source/Main.cpp" />
-    <ClCompile Include="src/source/shader.cpp" />
+    <ClCompile Include="src\source\Shader.cpp" />
     <ClCompile Include="src/source/ToString.cpp" />
     <ClCompile Include="src/source/Time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src/headers/Fractal.h" />
     <ClInclude Include="src/headers/Image.h" />
     <ClInclude Include="src/headers/Mandelbulb.h" />
     <ClInclude Include="src/headers/Camera.h" />
-    <ClInclude Include="src/headers/shader.h" />
+    <ClInclude Include="src\headers\Shader.h" />
     <ClInclude Include="src/headers/ToString.h" />
     <ClInclude Include="src/headers/Time.h" />
+    <ClInclude Include="src/headers/Uniform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

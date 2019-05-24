@@ -4,6 +4,7 @@
 #define CAMERA_H
 
 #include <glm.hpp>
+#include "headers/Fractal.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement
@@ -32,15 +33,22 @@ public:
 	float movementReverse;
 
 	// -1 or 1, flipping the world upside up
-	int worldFlip;
+	Uniform<int> worldFlip;
 
 	// Camera Attributes
-	glm::vec3 position;
+	Uniform<glm::vec3> position;
 
-	// Euler Angles
-	float yaw;
-	float pitch;
-	float roll;
+	// Matrices
+	Uniform<glm::mat2> yawMatrix;
+	Uniform<glm::mat2> pitchMatrix;
+	Uniform<glm::mat2> rollMatrix;
+
+	float GetYaw();
+	float GetRoll();
+	float GetPitch();
+	void SetYaw(float v);
+	void SetRoll(float v);
+	void SetPitch(float v);
 
 	// Camera options
 	float movementSpeed;
@@ -51,20 +59,12 @@ public:
 	const glm::vec3 worldUp = glm::vec3(0, 1, 0);
 	
 	// Constructor with vectors
-	Camera(glm::vec3 Position, float Yaw, float Pitch, float Roll);
-	Camera(glm::vec3 Position, float Yaw, float Pitch, float Roll, float mouseSensitivity, float movementSpeed, float rollSpeed);
+	Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll);
+	Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float mouseSensitivity, float movementSpeed, float rollSpeed);
 
 	// Constructor with scalar values
 	Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float roll);
 
-	// Rotation around the x axis
-	glm::mat2 GetYawMatrix2();
-
-	// Rotation around the y axis
-	glm::mat2 GetPitchMatrix2();
-
-	// Rotation around the z axis
-	glm::mat2 GetRollMatrix2();
 
 	glm::vec3 GetWorldUp();
 
@@ -84,5 +84,19 @@ public:
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(float xoffset, float yoffset);
+private:
+	// Euler Angles
+	float yaw;
+	float pitch;
+	float roll;
+
+	// Rotation around the x axis
+	void SetYawMatrix();
+
+	// Rotation around the y axis
+	void SetPitchMatrix();
+
+	// Rotation around the z axis
+	void SetRollMatrix();
 };
 #endif

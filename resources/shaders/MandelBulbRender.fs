@@ -2,8 +2,7 @@
 
 layout(location = 0) out vec4 color;
 
-uniform int width = 1080;
-uniform int height = 1080;
+uniform vec2 screenSize = vec2(1080, 1080);
 uniform float power = 8;
 uniform int worldFlip = -1;
 
@@ -22,6 +21,7 @@ const float bailout = 1.15;
 const float sunBrightness = 1.0;
 const float sunTightness = 16.0;
 const vec3 light = vec3( -0.707, 0.000,  0.707 );
+const float antiAliasing = 3;
 
 struct Ray
 {
@@ -78,12 +78,12 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 	
 	resColor = vec4(m,trap.yzw);
 
-    return 0.4* log(m)*sqrt(m)/dz;
+    return 0.25* log(m)*sqrt(m)/dz;
 }
 
 float Map(vec3 start, out vec4 resColor)
 {
-#if 0
+#if 1
 	return DistanceEstimator(start, resColor, power);
 #else
 
@@ -96,12 +96,12 @@ float Map(vec3 start, out vec4 resColor)
 	if (dist1 < dist2)
 	{
 		resColor = trap1;
-		return min(dist1, dist2);
+		return dist1;
 	}
 	else
 	{
 		resColor = trap2;
-		return min(dist1, dist2);
+		return dist2;
 	}
 #endif
 }
@@ -199,7 +199,7 @@ float SoftShadow(Ray ray, float k)
 vec3 render(Ray ray)
 {
 	const float zoom = .01;
-	float px = 2.0 / (height * zoom);
+	float px = 2.0 / (screenSize.y * zoom);
 	vec4 trap;
 	float steps;
 
@@ -271,21 +271,34 @@ vec3 render(Ray ray)
 
 void main()
 {
-	vec2 uv = (gl_FragCoord.xy / vec2(width, height));
-	uv = uv * 2.0 - 1.0;
+	vec3 col = vec3(0.0);
+	for (int i = 0; i < antiAliasing; i++)
+	{
+		for (int j = 0; j < antiAliasing; j++)
+		{
+			vec2 frag = gl_FragCoord.xy;
+			frag.x += float(i)/antiAliasing;
+			frag.y += float(j)/antiAliasing;
+			vec2 uv = frag / screenSize;
+			uv = uv * 2.0 - 1.0;
+			uv.x *= float(screenSize.x) / float(screenSize.y);
 
-	uv.x *= float(width) / height;
+			vec3 direction = normalize(vec3(uv.xy, 1));
 
-	vec3 direction = normalize(vec3(uv.xy, 1));
+			direction.zy *= pitchMatrix;
 
-	direction.zy *= pitchMatrix;
-
-	direction.xz *= yawMatrix;
-	direction.xy *= rollMatrix;
-	direction.y *= worldFlip;
+			direction.xz *= yawMatrix;
+			direction.xy *= rollMatrix;
+			direction.y *= worldFlip;
 	
+
+			Ray	ray = Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz);
+			col += render(ray);
 	
-	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
+			//vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
+		}
+	}
+	col /= float(antiAliasing*antiAliasing);
 
     color = vec4(col.xyz, 1.0);
 }
