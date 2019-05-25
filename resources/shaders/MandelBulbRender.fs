@@ -6,7 +6,7 @@ uniform vec2 screenSize = vec2(1080, 1080);
 uniform float power = 8;
 uniform int worldFlip = -1;
 
-uniform float genericParameter = 1;
+//uniform float genericParameter = 1;
 
 uniform mat2 yawMatrix;
 uniform mat2 pitchMatrix;
@@ -15,13 +15,13 @@ uniform vec3 sun;
 
 uniform vec3 eye;
 const float epsilon = 0.001;
-const int maxIterations = 8192;
+const int maxIterations = 4095;
 const int maxSteps = 100;
 const float bailout = 1.15;
 const float sunBrightness = 1.0;
 const float sunTightness = 16.0;
 const vec3 light = vec3( -0.707, 0.000,  0.707 );
-const float antiAliasing = 3;
+const float antiAliasing = 1;
 
 struct Ray
 {
@@ -70,6 +70,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 #endif
         
         trap = min(trap, vec4(abs(w),m));
+
 
         m = dot(w,w);
 		if( m > 256.0 )
@@ -271,6 +272,23 @@ vec3 render(Ray ray)
 
 void main()
 {
+	vec2 uv = gl_FragCoord.xy / screenSize;
+	uv = uv * 2.0 - 1.0;
+
+	uv.x *= float(screenSize.x) / float(screenSize.y);
+
+	vec3 direction = normalize(vec3(uv.xy, 1));
+
+	direction.zy *= pitchMatrix;
+
+	direction.xz *= yawMatrix;
+	direction.xy *= rollMatrix;
+	direction.y *= worldFlip;
+	
+	
+	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
+	color = vec4(col.xyz, 1.0);
+	/*
 	vec3 col = vec3(0.0);
 	for (int i = 0; i < antiAliasing; i++)
 	{
@@ -300,5 +318,5 @@ void main()
 	}
 	col /= float(antiAliasing*antiAliasing);
 
-    color = vec4(col.xyz, 1.0);
+    color = vec4(col.xyz, 1.0);*/
 }

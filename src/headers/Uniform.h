@@ -11,10 +11,13 @@ struct Uniform
 	unsigned int id;
 	T value;
 	void operator=(const T &other);
+#pragma warning(push)
+#pragma warning(disable : 26495)
 	Uniform(T val)
 	{
 		value = val;
 	}
+#pragma warning(pop)
 	Uniform()
 	{
 		value = T();

@@ -33,13 +33,13 @@
     <ClCompile Include="src/source/Image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\source\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src/source/Fractal.cpp">
+    <ClCompile Include="src/source/Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src/source/Uniform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/source/Fractal3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,10 +62,16 @@
     <ClInclude Include="src/headers/Fractal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\headers\Shader.h">
+    <ClInclude Include="src/headers/Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src/headers/Uniform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/headers/Fractal3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/headers/GlError.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

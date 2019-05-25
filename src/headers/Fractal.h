@@ -15,13 +15,14 @@ class Shader;
 class Fractal
 {
 public:
-	static const int DefaultWidth = 1080;
-	static const int DefaultHeight = 1080;
+	static const int DefaultWidth = 1920;
+	static const int DefaultHeight = 1040;
 
 	Shader &explorationShader;
 	Shader &renderShader;
 	Uniform<glm::ivec2> screenSize;
-	Fractal(Shader &explorationShader, Shader &renderShader, Uniform<glm::ivec2> screenSize);
+	Fractal(Shader &explorationShader, Shader &renderShader, Uniform<glm::ivec2> screenSize) : explorationShader(explorationShader), renderShader(renderShader), screenSize(screenSize)
+	{}
 
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
