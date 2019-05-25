@@ -5,20 +5,32 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "headers/GlError.h"
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {
-	std::string vertexCode = ParseShader(vertexPath);
-	std::string fragmentCode = ParseShader(fragmentPath);
+	const char* vShaderCode;
+	const char* fShaderCode;
+	if (path)
+	{
+		std::string vertexCode = ParseShader(vertexPath);
+		std::string fragmentCode = ParseShader(fragmentPath);
 
-	const char* vShaderCode = vertexCode.c_str();
-	const char* fShaderCode = fragmentCode.c_str();
+		vShaderCode = vertexCode.c_str();
+		fShaderCode = fragmentCode.c_str();
+	}
+	else
+	{
+		vShaderCode = vertexPath.c_str();
+		fShaderCode = fragmentPath.c_str();
+	}
+
 
 
 
 	id = glCreateProgram();
-	unsigned int vertex = CompileShader(GL_VERTEX_SHADER, vertexCode);
-	unsigned int fragment = CompileShader(GL_FRAGMENT_SHADER, fragmentCode);
+	unsigned int vertex = CompileShader(GL_VERTEX_SHADER, vShaderCode);
+	unsigned int fragment = CompileShader(GL_FRAGMENT_SHADER, fShaderCode);
 
 	glAttachShader(id, vertex);
 	glAttachShader(id, fragment);
@@ -39,6 +51,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	GlErrorCheck();
 }
 
 Shader::~Shader()

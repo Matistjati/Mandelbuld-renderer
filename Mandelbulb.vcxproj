@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Fractal.cpp" />
     <ClCompile Include="src/source/Fractal3d.cpp" />
     <ClCompile Include="src/source/Uniform.cpp" />
     <ClCompile Include="src/source/Image.cpp" />

@@ -42,6 +42,9 @@
     <ClCompile Include="src/source/Fractal3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Fractal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/Camera.h">

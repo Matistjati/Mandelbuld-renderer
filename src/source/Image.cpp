@@ -125,6 +125,7 @@ void Image::FlipVertically()
 			Swap(&pixels[(i * width) + j], &pixels[(i * width) + (width - 1 - j)]);
 		}
 	}
+
 }
 
 void Image::Rotate180()
@@ -135,7 +136,7 @@ void Image::Rotate180()
 	ReverseColumns();
 }
 
-Pixel* Image::PixelAt(int x, int y)
+inline Pixel* Image::PixelAt(int x, int y)
 {
 	return pixels + width * y + x;
 }

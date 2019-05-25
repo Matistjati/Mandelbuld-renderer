@@ -119,13 +119,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	Shader explorationShader("resources/shaders/Rectangle.vert", "resources/shaders/MandelBulb.fs");
-
-	Shader renderShader("resources/shaders/Rectangle.vert", "resources/shaders/MandelBulbRender.fs");
-
-
-
-	FractalType fractal = FractalType(explorationShader, renderShader);
+	FractalType fractal = FractalType("resources/shaders/Rectangle.glsl", "resources/shaders/3DFractalbase.fs");
 
 
 	glfwSetWindowUserPointer(window, &fractal);
@@ -138,7 +132,7 @@ int main()
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
-	explorationShader.use();
+	fractal.explorationShader.use();
 
 #if _DEBUG
 	Time t = Time();

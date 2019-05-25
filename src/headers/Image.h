@@ -33,7 +33,7 @@ public:
 	int width;
 	int height;
 private:
-	Pixel* PixelAt(int x, int y);
+	inline Pixel* PixelAt(int x, int y);
 	void Transpose();
 	void ReverseColumns();
 

@@ -2,6 +2,12 @@
 #include "headers/Image.h"
 #include "headers/GlError.h"
 
+inline bool fileExists(const std::string& name)
+{
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
+}
+
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action != GLFW_REPEAT && action != GLFW_PRESS)
@@ -14,14 +20,14 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		bool foundEmptyFile = false;
 		const std::string baseName = "image";
 		int count = 0;
-		struct stat buffer;
 		while (!foundEmptyFile)
 		{
-			if ((stat((baseName + std::to_string(count) + ".png").c_str(), &buffer) == 0))
+			if (!fileExists((baseName + std::to_string(count) + ".png")))
 			{
 				foundEmptyFile = true;
 				SaveImage(baseName + std::to_string(count) + ".png");
 			}
+			count++;
 		}
 		return;
 	}

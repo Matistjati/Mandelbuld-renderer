@@ -12,11 +12,28 @@
 
 class Shader;
 
+struct Section
+{
+	std::string start;
+	std::string end;
+	int startIndex1;
+	int endIndex1;
+	int startIndex2;
+	Section(std::string name)
+	{
+		start = "%" + name + "%";
+		end = "%/" + name + "%";
+		startIndex1 = 0;
+		endIndex1 = 0;
+		startIndex2 = 0;
+	}
+};
+
 class Fractal
 {
 public:
 	static const int DefaultWidth = 1920;
-	static const int DefaultHeight = 1040;
+	static const int DefaultHeight = 1080;
 
 	Shader &explorationShader;
 	Shader &renderShader;
@@ -32,6 +49,9 @@ public:
 	virtual void SetUniformLocations(Shader& shader) = 0;
 	virtual void Update() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
+
+	static bool replace(std::string& str, const std::string& from, const std::string& to);
+	static void replaceSection(Section section, std::string& origin, std::string& dest);
 };
 
 #endif

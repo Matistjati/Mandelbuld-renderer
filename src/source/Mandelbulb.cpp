@@ -8,9 +8,11 @@
 #include "headers/Image.h"
 #include <sys/stat.h>
 #include "headers/GlError.h"
+#include <string>
+#include <fstream>
 
-Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
-	: Fractal3D(explorationShader, renderShader, camera, screenSize, time), power(power), genericParameter(1), sun(sun)
+Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
+	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, screenSize, time), power(power), genericParameter(1), sun(sun)
 {
 	SetUniformNames();
 
@@ -19,8 +21,8 @@ Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderSha
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera, glm::vec3 sun)
-	: Fractal3D(explorationShader, renderShader, camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(sun)
+Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera, glm::vec3 sun)
+	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(sun)
 {
 	SetUniformNames();
 
@@ -29,8 +31,8 @@ Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderSha
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderShader, Camera &camera)
-	: Fractal3D(explorationShader, renderShader, camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
+Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera)
+	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
 {
 	SetUniformNames();
 
@@ -39,8 +41,8 @@ Mandelbulb::Mandelbulb(float power, Shader &explorationShader, Shader &renderSha
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(Shader & explorationShader, Shader & renderShader)
-	: Fractal3D(explorationShader, renderShader), power(defaultPower), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
+Mandelbulb::Mandelbulb(std::string vertex, std::string shaderBase)
+	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true)), power(defaultPower), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
 {
 	SetUniformNames();
 
@@ -122,4 +124,51 @@ void Mandelbulb::Update()
 	genericParameter.value = (float)(abs(cos(time * 0.025) * 0.5 - sin(time * 0.01) * 2));
 	explorationShader.SetUniform(sun);
 	explorationShader.SetUniform(genericParameter);
+}
+
+
+Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string fragmentBasePath, bool highQuality)
+{
+	std::ifstream t(MandelSourcePath);
+	std::string mandel((std::istreambuf_iterator<char>(t)),
+		std::istreambuf_iterator<char>());
+
+	t = std::ifstream(fragmentBasePath);
+	std::string fragmentBase((std::istreambuf_iterator<char>(t)),
+		std::istreambuf_iterator<char>());
+
+	Section Uniforms = Section("uniforms");
+	replaceSection(Uniforms, mandel, fragmentBase);
+
+	Section Const = Section("constants");
+	replaceSection(Const, mandel, fragmentBase);
+
+	Section DE = Section("DE");
+	replaceSection(DE, mandel, fragmentBase);
+
+	Section Color = Section("Color");
+	replaceSection(Color, mandel, fragmentBase);
+
+	if (highQuality)
+	{
+		Section main = Section("mainAA");
+		replace(fragmentBase, "%maxIter%", "4095");
+		replace(fragmentBase, "%main%", "");
+		replaceSection(main, mandel, fragmentBase);
+	}
+	else
+	{
+		Section main = Section("main");
+		replace(fragmentBase, "%maxIter%", "4");
+		replace(fragmentBase, "%mainAA%", "");
+		replaceSection(main, mandel, fragmentBase);
+	}
+	
+
+	std::cout << fragmentBase;
+	t = std::ifstream(vertex);
+	std::string vertexSource((std::istreambuf_iterator<char>(t)),
+		std::istreambuf_iterator<char>());
+
+	return *(new Shader(vertexSource, fragmentBase, false));
 }
