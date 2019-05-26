@@ -94,23 +94,6 @@ col *= 0.5;
 %/main%
 
 %mainAA%
-	vec2 uv = gl_FragCoord.xy / screenSize;
-	uv = uv * 2.0 - 1.0;
-
-	uv.x *= float(screenSize.x) / float(screenSize.y);
-
-	vec3 direction = normalize(vec3(uv.xy, 1));
-
-	direction.zy *= pitchMatrix;
-
-	direction.xz *= yawMatrix;
-	direction.xy *= rollMatrix;
-	direction.y *= worldFlip;
-	
-	
-	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
-	color = vec4(col.xyz, 1.0);
-	/*
 	vec3 col = vec3(0.0);
 	for (int i = 0; i < antiAliasing; i++)
 	{
@@ -140,5 +123,5 @@ col *= 0.5;
 	}
 	col /= float(antiAliasing*antiAliasing);
 
-    color = vec4(col.xyz, 1.0);*/
+    color = vec4(col.xyz, 1.0);
 %/mainAA%

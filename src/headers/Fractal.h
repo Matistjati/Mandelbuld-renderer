@@ -35,6 +35,8 @@ public:
 	static const int DefaultWidth = 1920;
 	static const int DefaultHeight = 1080;
 
+	
+
 	Shader &explorationShader;
 	Shader &renderShader;
 	Uniform<glm::ivec2> screenSize;

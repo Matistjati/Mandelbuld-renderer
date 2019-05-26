@@ -1,5 +1,5 @@
+#include "headers/Mandelbox.h"
 #include <windows.h>
-#include "headers/Mandelbulb.h"
 #include "glm.hpp"
 #include "headers/shader.h"
 #include "headers/camera.h"
@@ -11,7 +11,7 @@
 #include <string>
 #include <fstream>
 
-Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
+Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
 	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, screenSize, time), power(power), genericParameter(1), sun(sun)
 {
 	SetUniformNames();
@@ -21,7 +21,7 @@ Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, 
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera, glm::vec3 sun)
+Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera, glm::vec3 sun)
 	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(sun)
 {
 	SetUniformNames();
@@ -31,7 +31,7 @@ Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, 
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera)
+Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera)
 	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
 {
 	SetUniformNames();
@@ -41,7 +41,7 @@ Mandelbulb::Mandelbulb(float power, std::string vertex, std::string shaderBase, 
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(std::string vertex, std::string shaderBase)
+Mandelbox::Mandelbox(std::string vertex, std::string shaderBase)
 	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true)), power(defaultPower), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
 {
 	SetUniformNames();
@@ -51,7 +51,7 @@ Mandelbulb::Mandelbulb(std::string vertex, std::string shaderBase)
 	GlErrorCheck();
 }
 
-void Mandelbulb::KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
+void Mandelbox::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	Fractal3D::KeyCallback(window, key, scancode, action, mods);
 
@@ -76,7 +76,7 @@ void Mandelbulb::KeyCallback(GLFWwindow * window, int key, int scancode, int act
 		genericParameter.value -= 0.1f;
 		explorationShader.SetUniform(genericParameter);
 		break;
-		
+
 
 	default:
 		break;
@@ -84,7 +84,7 @@ void Mandelbulb::KeyCallback(GLFWwindow * window, int key, int scancode, int act
 	GlErrorCheck();
 }
 
-void Mandelbulb::SetUniforms(Shader& shader)
+void Mandelbox::SetUniforms(Shader& shader)
 {
 	shader.use();
 
@@ -94,7 +94,7 @@ void Mandelbulb::SetUniforms(Shader& shader)
 	Fractal3D::SetUniforms(shader);
 }
 
-void Mandelbulb::SetUniformLocations(Shader &shader)
+void Mandelbox::SetUniformLocations(Shader& shader)
 {
 	power.id = glGetUniformLocation(shader.id, power.name.c_str());
 	sun.id = glGetUniformLocation(shader.id, sun.name.c_str());
@@ -102,15 +102,16 @@ void Mandelbulb::SetUniformLocations(Shader &shader)
 	Fractal3D::SetUniformLocations(shader);
 }
 
-void Mandelbulb::SetUniformNames()
+void Mandelbox::SetUniformNames()
 {
 	sun.name = "sun";
 	power.name = "power";
 	genericParameter.name = "genericParameter";
+	genericParameter.value = 2;
 	Fractal3D::SetUniformNames();
 }
 
-void Mandelbulb::Update()
+void Mandelbox::Update()
 {
 	time.PollTime();
 
@@ -121,13 +122,13 @@ void Mandelbulb::Update()
 		std::abs(sin(time * 0.1)) * -1,
 		cos(time * 0.25)));
 
-	genericParameter.value = (float)(abs(cos(time * 0.025) * 0.5 - sin(time * 0.01) * 2));
+	//genericParameter.value = (float)(abs(cos(time * 0.025) * 0.5 - sin(time * 0.01) * 2));
 	explorationShader.SetUniform(sun);
 	explorationShader.SetUniform(genericParameter);
 }
 
 
-Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string fragmentBasePath, bool highQuality)
+Shader& Mandelbox::ParseShader(const std::string vertex, const std::string fragmentBasePath, bool highQuality)
 {
 	std::ifstream t(SourcePath);
 	std::string mandel((std::istreambuf_iterator<char>(t)),
@@ -163,7 +164,7 @@ Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string frag
 		replace(fragmentBase, "%mainAA%", "");
 		replaceSection(main, mandel, fragmentBase);
 	}
-	
+
 
 	std::cout << fragmentBase;
 	t = std::ifstream(vertex);

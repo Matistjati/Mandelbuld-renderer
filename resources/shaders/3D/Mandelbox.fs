@@ -1,35 +1,14 @@
-#version 330 core
-
-#define fractal 1
-
-layout(location = 0) out vec4 color;
-
-uniform vec2 screenSize = vec2(1080, 1080);
-uniform float power = 8;
-uniform int worldFlip = -1;
-
+%uniforms%
+uniform float power = 1;
 uniform float genericParameter = 1;
-
-uniform mat2 yawMatrix;
-uniform mat2 pitchMatrix;
-uniform mat2 rollMatrix;
 uniform vec3 sun;
+%/uniforms%
 
-uniform vec3 eye;
-const float epsilon = 0.001;
-const int maxIterations = 4;
-const int maxSteps = 100;
-const float bailout = 1.15;
-const float sunBrightness = 1.0;
-const float sunTightness = 16.0;
-const vec3 light = vec3( -0.707, 0.000,  0.707 );
+%constants%
+const float antiAliasing = 2;
+%/constants%
 
-struct Ray
-{
-	vec3 origin;
-	vec3 dir;
-};
-#if fractal == 1
+%DE%
 void sphereFold(inout vec3 z, inout float dz)
 {
 	float minRadius2 = power/2;
@@ -52,9 +31,9 @@ void boxFold(inout vec3 z, inout float dz) {
 	float foldingLimit =power/2;
 	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
 }
-float DistanceEstimator(vec3 z, out vec4 resColor ,float p)
+float DistanceEstimator(vec3 z, out vec4 resColor, float ignore)
 {
-	const float Scale = 2;
+	float Scale = genericParameter;
 	vec3 offset = z;
 	float dr = 1.0;
 	float m;
@@ -75,62 +54,78 @@ float DistanceEstimator(vec3 z, out vec4 resColor ,float p)
 	float r = length(z);
 	return r/abs(dr);
 }
-#endif
-#if fractal == 0
-float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
-{
-	vec3 w = start;
-    float m = dot(w,w);
+%/DE%
 
-    vec4 trap = vec4(abs(w),m);
-	float dz = 1.0;
-    
-    
-	for(int i = 0; i < maxIterations; i++)
-    {
-#if 0
-        float m2 = m*m;
-        float m4 = m2*m2;
-		dz = Power*sqrt(m4*m2*m)*dz + 1.0;
+%Color%
+col = vec3(0.01);
+col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
+col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
+col = mix(col, vec3(0.78, 0.5, 0.13), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
+col *= 0.5;
+%/Color%
 
-        float x = w.x; float x2 = x*x; float x4 = x2*x2;
-        float y = w.y; float y2 = y*y; float y4 = y2*y2;
-        float z = w.z; float z2 = z*z; float z4 = z2*z2;
+%main%
+	vec2 uv = gl_FragCoord.xy / screenSize;
+	uv = uv * 2.0 - 1.0;
 
-        float k3 = x2 + z2;
-        float k2 = inversesqrt( pow(k3, Power - 1) );
-        float k1 = x4 + y4 + z4 - 6.0*y2*z2 - 6.0*x2*y2 + 2.0*z2*x2;
-        float k4 = x2 - y2 + z2;
+	uv.x *= float(screenSize.x) / float(screenSize.y);
 
-        w.x = start.x +  64.0*x*y*z*(x2-z2)*k4*(x4-6.0*x2*z2+z4)*k1*k2;
-        w.y = start.y + -16.0*y2*k3*k4*k4 + k1*k1;
-        w.z = start.z +  -Power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
-#else
-        dz = (Power * pow(sqrt(m), Power - 1)) * dz + 1.0;
-		//dz = Power*pow(m,(Power-1)*0.5)*dz + 1.0;
-        
-        float r = length(w);
-        float theta = power * atan(w.x, w.z);
-        float phi = power * acos(w.y / r);
+	vec3 direction = normalize(vec3(uv.xy, 1));
 
-		// Fun alternative: reverse sin and cos
-        w = start + pow(r, Power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
-#endif
-		//w = complexTan(w);
-        trap = min(trap, vec4(abs(w),m));
-		//vec2 len = distCurve(w, genericParameter);
-        //trap = min(trap, vec4(abs(len), atan(len.y,len.x),m));
+	direction.zy *= pitchMatrix;
 
-        m = dot(w,w);
-		if( m > 256.0 )
-            break;
-	}
+	direction.xz *= yawMatrix;
+	direction.xy *= rollMatrix;
+	direction.y *= worldFlip;
 	
-	resColor = vec4(m,trap.yzw);
+	
+	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
 
-    return 0.25* log(m)*sqrt(m)/dz;
-}
-#endif
+    color = vec4(col.xyz, 1.0);
+%/main%
+
+%mainAA%
+
+	vec3 col = vec3(0.0);
+	for (int i = 0; i < antiAliasing; i++)
+	{
+		for (int j = 0; j < antiAliasing; j++)
+		{
+			vec2 frag = gl_FragCoord.xy;
+			frag.x += float(i)/antiAliasing;
+			frag.y += float(j)/antiAliasing;
+			vec2 uv = frag / screenSize;
+			uv = uv * 2.0 - 1.0;
+			uv.x *= float(screenSize.x) / float(screenSize.y);
+
+			vec3 direction = normalize(vec3(uv.xy, 1));
+
+			direction.zy *= pitchMatrix;
+
+			direction.xz *= yawMatrix;
+			direction.xy *= rollMatrix;
+			direction.y *= worldFlip;
+	
+
+			Ray	ray = Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz);
+			col += render(ray);
+	
+			//vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
+		}
+	}
+	col /= float(antiAliasing*antiAliasing);
+
+    color = vec4(col.xyz, 1.0);
+%/mainAA%
+
+struct Ray
+{
+	vec3 origin;
+	vec3 dir;
+};
+
+%DE%
+// Distance estimator
 
 float Map(vec3 start, out vec4 resColor)
 {
@@ -315,16 +310,9 @@ vec3 render(Ray ray)
 	}
 	else
 	{
-		col = vec3(0.01);
-		col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
-	 	col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
-		#if fractal == 0
-        col = mix(col, vec3(0.15, 0.4, 0.04), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
-		#endif
-		#if fractal == 1
-        col = mix(col, vec3(0.78, 0.5, 0.13), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
-		#endif
-        col *= 0.5;
+		%Color%
+
+		// Lighting
 
 		// The end position of the ray
 		vec3 pos = (ray.origin + ray.dir * t);
@@ -368,21 +356,6 @@ vec3 render(Ray ray)
 
 void main()
 {
-	vec2 uv = gl_FragCoord.xy / screenSize;
-	uv = uv * 2.0 - 1.0;
-
-	uv.x *= float(screenSize.x) / float(screenSize.y);
-
-	vec3 direction = normalize(vec3(uv.xy, 1));
-
-	direction.zy *= pitchMatrix;
-
-	direction.xz *= yawMatrix;
-	direction.xy *= rollMatrix;
-	direction.y *= worldFlip;
-	
-	
-	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
-
-    color = vec4(col.xyz, 1.0);
+	%main%
+	%mainAA%
 }

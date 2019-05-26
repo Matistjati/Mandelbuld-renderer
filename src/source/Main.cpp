@@ -10,8 +10,9 @@
 #include "headers/shader.h"
 #include "headers/Mandelbulb.h"
 #include "headers/Image.h"
+#include "headers/Mandelbox.h"
 
-#define FractalType Mandelbulb
+#define FractalType Mandelbox
 
 inline std::string GetWorkingDirectory()
 {
@@ -119,7 +120,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	FractalType fractal = FractalType("resources/shaders/Rectangle.glsl", "resources/shaders/3DFractalbase.fs");
+	FractalType fractal = FractalType("resources/shaders/Rectangle.glsl", "resources/shaders/3D/3DFractalbase.fs");
 
 
 	glfwSetWindowUserPointer(window, &fractal);

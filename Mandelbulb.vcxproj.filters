@@ -42,7 +42,10 @@
     <ClCompile Include="src/source/Fractal3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Fractal.cpp">
+    <ClCompile Include="src/source/Fractal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/source/Mandelbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src/headers/GlError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/headers/Mandelbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -142,7 +142,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Fractal.cpp" />
+    <ClCompile Include="src/source/Mandelbox.cpp" />
+    <ClCompile Include="src/source/Fractal.cpp" />
     <ClCompile Include="src/source/Fractal3d.cpp" />
     <ClCompile Include="src/source/Uniform.cpp" />
     <ClCompile Include="src/source/Image.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src/source/Time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src/headers/Mandelbox.h" />
     <ClInclude Include="src/headers/GlError.h" />
     <ClInclude Include="src/headers/Fractal3d.h" />
     <ClInclude Include="src/headers/Fractal.h" />

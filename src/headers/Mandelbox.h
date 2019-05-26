@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MANDELBULB_H
-#define MANDELBULB_H
+#ifndef Mandelbox_H
+#define Mandelbox_H
 
 #include "shader.h"
 #include "Time.h"
@@ -8,15 +8,15 @@
 #include "headers/Fractal.h"
 #include "headers/Fractal3d.h"
 
-class Mandelbulb : public Fractal3D
+class Mandelbox : public Fractal3D
 {
 public:
-	static const int defaultPower = 8;
+	static const int defaultPower = 1;
 
-	Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time);
-	Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera, glm::vec3 sun);
-	Mandelbulb(float power, std::string vertex, std::string shaderBase, Camera &camera);
-	Mandelbulb(std::string vertex, std::string shaderBase);
+	Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time);
+	Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera, glm::vec3 sun);
+	Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera);
+	Mandelbox(std::string vertex, std::string shaderBase);
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void SetUniforms(Shader& shader) override;
 	void SetUniformLocations(Shader& shader) override;
@@ -28,7 +28,7 @@ public:
 	Uniform<float> genericParameter;
 	Uniform<glm::vec3> sun;
 private:
-	static constexpr const char* SourcePath = "resources/shaders/3D/Mandelbulb.fs";
+	static constexpr const char* SourcePath = "resources/shaders/3D/Mandelbox.fs";
 };
 
 #endif
