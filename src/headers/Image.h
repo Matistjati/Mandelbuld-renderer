@@ -22,21 +22,16 @@ struct Pixel
 class Image
 {
 public:
-	Image(int width, int height);
 	Image(int width, int height, Pixel* pixels);
 	~Image();
 	void Save(const char *path);
 	void FlipVertically();
-	void Rotate180();
 
 	Pixel* pixels;
 	int width;
 	int height;
 private:
 	inline Pixel* PixelAt(int x, int y);
-	void Transpose();
-	void ReverseColumns();
-
 	inline void Swap(Pixel* a, Pixel* b);
 };
 

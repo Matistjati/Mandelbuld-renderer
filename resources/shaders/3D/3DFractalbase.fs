@@ -27,8 +27,8 @@ struct Ray
 	vec3 dir;
 };
 
-%DE%
 // Distance estimator
+%DE%
 
 float Map(vec3 start, out vec4 resColor)
 {

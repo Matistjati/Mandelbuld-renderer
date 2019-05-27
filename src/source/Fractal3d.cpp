@@ -8,6 +8,8 @@ inline bool fileExists(const std::string& name)
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
+// Life is hard right now: the girl i'm in love with has a boyfriend. I guess it's part of growing up, but still frustrating
+
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action != GLFW_REPEAT && action != GLFW_PRESS)
@@ -18,14 +20,16 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	if (key == GLFW_KEY_S && (mods && GLFW_MOD_CONTROL) == 1)
 	{
 		bool foundEmptyFile = false;
-		const std::string baseName = "image";
+		const std::string baseName = "TestImage/image";
 		int count = 0;
 		while (!foundEmptyFile)
 		{
 			if (!fileExists((baseName + std::to_string(count) + ".png")))
 			{
 				foundEmptyFile = true;
+
 				SaveImage(baseName + std::to_string(count) + ".png");
+
 			}
 			count++;
 		}
@@ -180,8 +184,8 @@ void Fractal3D::SaveImage(const std::string path)
 
 
 	Image image(screenSize.value.x, screenSize.value.y, data);
+
 	image.FlipVertically();
-	image.Rotate180();
 
 	image.Save(path.c_str());
 

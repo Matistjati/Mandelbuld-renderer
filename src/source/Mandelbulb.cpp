@@ -155,6 +155,7 @@ Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string frag
 		replace(fragmentBase, "%maxIter%", "4095");
 		replace(fragmentBase, "%main%", "");
 		replaceSection(main, mandel, fragmentBase);
+		std::cout << fragmentBase;
 	}
 	else
 	{
@@ -165,7 +166,6 @@ Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string frag
 	}
 	
 
-	std::cout << fragmentBase;
 	t = std::ifstream(vertex);
 	std::string vertexSource((std::istreambuf_iterator<char>(t)),
 		std::istreambuf_iterator<char>());

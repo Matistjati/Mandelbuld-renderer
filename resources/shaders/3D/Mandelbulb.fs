@@ -10,6 +10,29 @@ const float antiAliasing = 2;
 
 %DE%
 
+void sphereFold(inout vec3 z, inout float dz)
+{
+	float minRadius2 = power/2;
+	float fixedRadius2 = power * 2;
+	float r2 = dot(z,z);
+	if (r2<minRadius2) { 
+		// linear inner scaling
+		float temp = (fixedRadius2/minRadius2);
+		z *= temp;
+		dz*= temp;
+	} else if (r2<fixedRadius2) { 
+		// this is the actual sphere inversion
+		float temp =(fixedRadius2/r2);
+		z *= temp;
+		dz*= temp;
+	}
+}
+
+void boxFold(inout vec3 z, inout float dz) {
+	float foldingLimit =power/2;
+	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+}
+
 float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 {
 	vec3 w = start;
@@ -46,8 +69,25 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
         float theta = power * atan(w.x, w.z);
         float phi = power * acos(w.y / r);
 
+
 		// Fun alternative: reverse sin and cos
         w = start + pow(r, Power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
+
+		//boxFold(w,dz);
+		//sphereFold(w,dz);   
+
+		//w.x = sin(w.x);
+		//w.x = sinh(w.x)*cos(w.x);
+		//w.y = cos(w.y)*sin(w.y);
+		//w.y = atan(w.y, w.z)/sin(w.x);
+		
+		//w.x = atan(w.y, w.x);
+		
+		//w.x = tan(w.x);
+		//w.y = tan(w.y);
+		//w.z = tan(w.z);
+
+		
 #endif
 		//w = complexTan(w);
         trap = min(trap, vec4(abs(w),m));
