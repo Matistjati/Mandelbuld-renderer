@@ -12,7 +12,7 @@
 #include "headers/Image.h"
 #include "headers/Mandelbox.h"
 
-#define FractalType Mandelbulb
+#define FractalType Mandelbox
 
 inline std::string GetWorkingDirectory()
 {

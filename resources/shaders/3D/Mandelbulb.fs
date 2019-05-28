@@ -5,7 +5,7 @@ uniform vec3 sun;
 %/uniforms%
 
 %constants%
-const float antiAliasing = 2;
+const float antiAliasing = 3;
 %/constants%
 
 %DE%
@@ -71,7 +71,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
 
 		// Fun alternative: reverse sin and cos
-        w = start + pow(r, Power) * vec3(sin(phi) * sin(theta), cos(phi), sin(phi) * cos(theta));
+        w = start + pow(r, Power) * vec3(sin(theta*phi) * sin(sin(theta)), cos(cos(phi)), sin(sin(phi)) * cos(cos(theta)));
 
 		//boxFold(w,dz);
 		//sphereFold(w,dz);   

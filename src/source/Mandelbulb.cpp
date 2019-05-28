@@ -73,7 +73,7 @@ void Mandelbulb::KeyCallback(GLFWwindow * window, int key, int scancode, int act
 		explorationShader.SetUniform(genericParameter);
 		break;
 	case GLFW_KEY_F:
-		genericParameter.value -= 0.1f;
+		genericParameter.value -= 0.05f;
 		explorationShader.SetUniform(genericParameter);
 		break;
 		
@@ -152,7 +152,8 @@ Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string frag
 	if (highQuality)
 	{
 		Section main = Section("mainAA");
-		replace(fragmentBase, "%maxIter%", "4095");
+		replace(fragmentBase, "%maxIter%", "512");
+		replace(fragmentBase, "%maxStep%", "1000");
 		replace(fragmentBase, "%main%", "");
 		replaceSection(main, mandel, fragmentBase);
 		std::cout << fragmentBase;
@@ -161,6 +162,7 @@ Shader& Mandelbulb::ParseShader(const std::string vertex, const std::string frag
 	{
 		Section main = Section("main");
 		replace(fragmentBase, "%maxIter%", "4");
+		replace(fragmentBase, "%maxStep%", "100");
 		replace(fragmentBase, "%mainAA%", "");
 		replaceSection(main, mandel, fragmentBase);
 	}

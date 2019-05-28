@@ -153,7 +153,9 @@ Shader& Mandelbox::ParseShader(const std::string vertex, const std::string fragm
 	if (highQuality)
 	{
 		Section main = Section("mainAA");
-		replace(fragmentBase, "%maxIter%", "4095");
+		replace(fragmentBase, "%maxIter%", "512");
+		replace(fragmentBase, "%maxStep%", "1000");
+		replace(fragmentBase, "%maxDist%", "power*20");
 		replace(fragmentBase, "%main%", "");
 		replaceSection(main, mandel, fragmentBase);
 	}
@@ -161,6 +163,8 @@ Shader& Mandelbox::ParseShader(const std::string vertex, const std::string fragm
 	{
 		Section main = Section("main");
 		replace(fragmentBase, "%maxIter%", "4");
+		replace(fragmentBase, "%maxStep%", "100");
+		replace(fragmentBase, "%maxDist%", "power*4");
 		replace(fragmentBase, "%mainAA%", "");
 		replaceSection(main, mandel, fragmentBase);
 	}

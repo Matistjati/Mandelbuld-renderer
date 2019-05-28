@@ -14,7 +14,7 @@ uniform vec3 eye;
 %uniforms%
 
 const int maxIterations = %maxIter%;
-const int maxSteps = 100;
+const int maxSteps = %maxStep%;
 const float sunBrightness = 1.0;
 const float sunTightness = 16.0;
 const vec3 light = vec3( -0.707, 0.000,  0.707 );
@@ -140,7 +140,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 
 	percentSteps = 0;
 
-	if (t < power*4)
+	if (t < %maxDist%)
 	{
 	trapOut = trap;
         res = t;

@@ -11,8 +11,8 @@ const float antiAliasing = 2;
 %DE%
 void sphereFold(inout vec3 z, inout float dz)
 {
-	float minRadius2 = power/2;
-	float fixedRadius2 = power * 2;
+	float minRadius2 = power - genericParameter;
+	float fixedRadius2 = power + genericParameter;
 	float r2 = dot(z,z);
 	if (r2<minRadius2) { 
 		// linear inner scaling
@@ -28,12 +28,12 @@ void sphereFold(inout vec3 z, inout float dz)
 }
 
 void boxFold(inout vec3 z, inout float dz) {
-	float foldingLimit =power/2;
+	float foldingLimit = power;
 	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
 }
 float DistanceEstimator(vec3 z, out vec4 resColor, float _)
 {
-	float Scale = genericParameter;
+	float Scale = 2;
 	vec3 c = z;
 	float dr = 1.0;
 	float m;
@@ -126,135 +126,3 @@ col *= 0.5;
 
     color = vec4(col.xyz, 1.0);
 %/mainAA%
-
-struct Ray
-{
-	vec3 origin;
-	vec3 dir;
-};
-
-%DE%
-// Distance estimator
-
-float Map(vec3 start, out vec4 resColor)
-{
-#if 1
-	vec4 trap;
-	float t = DistanceEstimator(start, trap, power);
-	resColor = trap;
-	return t;
-#else
-
-	vec4 trap1;
-	vec4 trap2;
-
-	float dist1 = DistanceEstimator(start, trap1, power);
-	float dist2 = DistanceEstimator(start, trap2, power / log(power));
-
-	if (dist1 < dist2)
-	{
-		resColor = trap1;
-		return dist1;
-	}
-	else
-	{
-		resColor = trap2;
-		return dist2;
-	}
-#endif
-}
-
-vec2 isphere(vec4 sph, vec3 origin, vec3 ray)
-{
-    vec3 oc = origin - sph.xyz;
-    
-	float b = dot(oc,ray);
-	float c = dot(oc,oc) - sph.w*sph.w;
-    float h = b*b - c;
-    
-    if( h<0.0 ) return vec2(-1.0);
-
-    h = sqrt( h );
-
-    return -b + vec2(-h,h);
-}
-
-#if fractal == 0
-float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
-{
-    float res = -1.0;
-
-    //bounding sphere
-    vec2 dis = isphere( vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
-    if(dis.y < 0.0)
-        return -1.0;
-
-    dis.x = max(dis.x, 0.0);
-    dis.y = min(dis.y, 10.0);
-
-    // raymarch fractal distance field
-	vec4 trap;
-
-	float t = dis.x;
-	int i = 0;
-	for(; i<maxSteps; i++  )
-    { 
-        vec3 pos = ray.origin + ray.dir * t;
-		float h = Map(pos, trap);
-        float th = 0.25 * px * t;
-
-		if(t>dis.y || h < th)
-		{
-			break;
-        }
-		t += h;
-    }
-
-	percentSteps = float(i) / maxSteps;
-    percentSteps *= (percentSteps * 4); // Smoothing out, making the circle thing disappear
-	percentSteps = 1;
-    if(t < dis.y)
-    {
-        trapOut = trap;
-        res = t;
-    }
-
-    return res;
-}
-#endif
-#if fractal == 1
-float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
-{
-    float res = -1.0;
-
-	vec4 trap;
-
-	float t = 0;
-	int i = 0;
-	for(; i<maxSteps; i++)
-    { 
-        vec3 pos = ray.origin + ray.dir * t;
-		float h = Map(pos, trap);
-        float th = 0.25 * px * t;
-
-		if(h<th || h>power*4)
-		{
-			break;
-        }
-		t += h;
-    }
-
-	percentSteps = 0;
-
-	if (t < power*8)
-	{
-	trapOut = trap;
-        res = t;
-	}
-	else
-	{
-		res = -1;
-	}
-
-    return res;
-}
