@@ -90,15 +90,12 @@ vec3 render(Ray ray)
 		// Sun
 		col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
 
-		col += vec3(0.556, 0.843, 0.415) * steps; // Edge glow
+		%edgeGlow%
 	}
 	else
 	{
-		col = vec3(0.01);
-		col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
-		col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
-		col = mix(col, vec3(0.15, 0.4, 0.04), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
-		col *= 0.5;
+		%color%
+
 		// Lighting
 
 		// The end position of the ray
@@ -110,7 +107,7 @@ vec3 render(Ray ray)
 		float fakeSSS = clamp(1.0+dot(ray.dir,normal),0.0,1.0);
 
 		// Sun
-		float shadow = SoftShadow(fractalToSun, 32.);
+		float shadow = SoftShadow(fractalToSun, %shadowSoftness%);
 		float diffuse = clamp(dot(sun, normal), 0.0, 1.0 ) * shadow;
 		float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1.0), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
 

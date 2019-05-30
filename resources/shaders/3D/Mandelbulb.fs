@@ -1,5 +1,6 @@
 %maxIterations%4%/maxIterations%
 %maxSteps%60%/maxSteps%
+%shadowSoftness%4%/shadowSoftness% // Higher = harder shadow
 %maxIterationsRelease%512%/maxIterationsRelease%
 %maxStepsRelease%1000%/maxStepsRelease%
 
@@ -91,7 +92,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
 
 		// Fun alternative: reverse sin and cos
-        w = start + pow(r, Power) * vec3(sin(theta*phi) * cos(phi), sin(theta) * sin(phi) , cos(theta));
+        w = start + pow(r, Power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
 
 		//boxFold(w,dz);
 		//sphereFold(w,dz);   
@@ -125,13 +126,13 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 }
 %/distanceEstimator%
 
-%Color%
+%color%
 col = vec3(0.01);
 col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
 col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
 col = mix(col, vec3(0.15, 0.4, 0.04), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
 col *= 0.5;
-%/Color%
+%/color%
 
 %trace%
 float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
@@ -139,7 +140,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
     float res = -1.0;
 
     //bounding sphere
-    vec2 dis = boundingSphere(vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
+    vec2 dis = boundingSphere( vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
     if(dis.y < 0.0)
         return -1.0;
 
@@ -165,8 +166,8 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
     }
 
 	percentSteps = float(i) / maxSteps;
-    percentSteps *= (percentSteps * 4); // Smoothing out, making the circle thing disappear
-	percentSteps = 1;
+    percentSteps *= (percentSteps); // Smoothing out, making the circle thing disappear
+
     if(t < dis.y)
     {
         trapOut = trap;
@@ -176,3 +177,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
     return res;
 }
 %/trace%
+
+%edgeGlow%
+col += vec3(0.556, 0.843, 0.415) * steps;
+%/edgeGlow%

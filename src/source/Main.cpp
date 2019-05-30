@@ -13,6 +13,8 @@
 #include "headers/Mandelbox.h"
 
 #define FractalType Mandelbox
+constexpr auto mode = 0;
+// 0: exploration, 1: movie
 
 inline std::string GetWorkingDirectory()
 {

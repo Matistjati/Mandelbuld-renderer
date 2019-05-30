@@ -1,5 +1,6 @@
 %maxIterations%4%/maxIterations%
 %maxSteps%100%/maxSteps%
+%shadowSoftness%32%/shadowSoftness%
 %maxIterationsRelease%512%/maxIterationsRelease%
 %maxStepsRelease%1000%/maxStepsRelease%
 
@@ -15,8 +16,10 @@ const float antiAliasing = 2;
 %distanceEstimator%
 void sphereFold(inout vec3 z, inout float dz)
 {
-	float minRadius2 = power - 1;
-	float fixedRadius2 = power + 1;
+	float minRadius2 = power - distance(z,sun);
+	float fixedRadius2 = power + distance(z, sun);
+	//float minRadius2 = power - 1;
+	//float fixedRadius2 = power + 1;
 	float r2 = dot(z,z);
 	if (r2<minRadius2) { 
 		// linear inner scaling
@@ -37,7 +40,7 @@ void boxFold(inout vec3 z, inout float dz) {
 }
 float DistanceEstimator(vec3 z, out vec4 resColor, float _)
 {
-	float Scale = 2;
+	float Scale = genericParameter;
 	vec3 c = z;
 	float dr = 1.0;
 	float m;
@@ -91,7 +94,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 		t += h;
     }
 
-	//percentSteps = float(i)/float(maxSteps);
+	percentSteps = float(i)/float(maxSteps);
 
 	if (t < %maxDist%)
 	{
@@ -107,10 +110,18 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 }
 %/trace%
 
-%Color%
+%color%
 col = vec3(0.01);
-col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
-col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
-col = mix(col, vec3(0.78, 0.5, 0.13), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
-col *= 0.5;
-%/Color%
+//col = mix(col, vec3(0.78, 0.5, 0.13), clamp(pow(trap.w,6.0),0.0,1.0));
+//col = mix(col, vec3(0.9, 0.15, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
+//col = mix(col, vec3(0.5, 0, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
+col = mix(col, vec3(1, 0, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
+//col = mix(col, vec3(0.5, 0.5, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
+//col = mix(col, vec3(0.3, 0.3, 0.3), clamp(pow(trap.w,6.0),0.0,1.0));
+//col = mix(col, vec3(0.5, 0.65, 0.15), clamp(pow(trap.w,6.0),0.0,1.0));
+//col *= 0.5;
+%/color%
+
+%edgeGlow%
+col += vec3(0.1, 0.1, 0.1) * steps; // Fog
+%/edgeGlow%

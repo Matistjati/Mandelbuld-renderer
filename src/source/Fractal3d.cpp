@@ -236,7 +236,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	for (size_t i = 0; i < constSize; i++)
 	{
 		Section s("");
-		if (highQuality)
+		if (highQuality && constants[i].releaseName != "")
 		{
 			s = Section(constants[i].releaseName);
 		}
@@ -246,6 +246,22 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		}
 
 		replaceSection(s, Section(constants[i].name), source, final);
+	}
+
+	const size_t postShaderSize = std::extent<decltype(postShaderSections)>::value;
+	for (size_t i = 0; i < postShaderSize; i++)
+	{
+		Section s("");
+		if (highQuality && postShaderSections[i].releaseName != "")
+		{
+			s = Section(postShaderSections[i].releaseName);
+		}
+		else
+		{
+			s = Section(postShaderSections[i].name);
+		}
+
+		replaceSection(s, Section(postShaderSections[i].name), source, final);
 	}
 }
 
@@ -259,23 +275,17 @@ void Fractal3D::ParseShader(std::string source, std::string & final, bool highQu
 		ShaderSection c = shaderSections[i];
 		Section s = Section("");
 		sections[c] = false;
-		if (c.releaseName != "")
+
+		if (highQuality && c.releaseName != "")
 		{
-			if (highQuality)
-			{
-				s = Section(c.releaseName);
-			}
-			else
-			{
-				s = Section(c.name);
-			}
-			sections[shaderSections[i]] = replaceSection(s, Section(shaderSections[i].name), source, final);
+			s = Section(c.releaseName);
 		}
 		else
 		{
 			s = Section(c.name);
-			sections[c] = replaceSection(s, source, final);
 		}
+		sections[shaderSections[i]] = replaceSection(s, Section(shaderSections[i].name), source, final);
+
 	}
 	ParseShaderDefault(sections, source, final, highQuality);
 }
