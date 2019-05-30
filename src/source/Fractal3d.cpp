@@ -2,6 +2,7 @@
 #include "headers/Image.h"
 #include "headers/GlError.h"
 #include <map>
+#include <algorithm>
 
 inline bool fileExists(const std::string& name)
 {
@@ -208,7 +209,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	// Bool in sections is for done or not
 
 	std::string defaultSource = readFile(default3DFractal);
-
+	// Default code for sections not implemented
 	for (auto const& x : sections)
 	{
 		if (!x.first.optional && !x.second) // Not done
@@ -232,6 +233,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		}
 	}
 	
+	// Constants
 	const size_t constSize = std::extent<decltype(constants)>::value;
 	for (size_t i = 0; i < constSize; i++)
 	{
@@ -251,6 +253,34 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		}
 	}
 
+
+
+
+	Section help("helperFunctions");
+	std::string functions = getSection(help, source);
+
+
+	Section include("include");
+	std::string includes = getSection(include, source);
+
+	if (includes != "")
+	{
+		includes.erase(std::remove(includes.begin(), includes.end(), '\n'), includes.end());
+		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
+
+		std::vector<std::string> includeList = Fractal::split(includes, ',');
+
+		std::string helperFunctions = readFile(Fractal3D::helperFunctions);
+		
+		for (size_t i = 0; i < includeList.size(); i++)
+		{
+			functions += getSection(Section(includeList[i]), helperFunctions);
+		}
+	}
+
+	replace(final, help.start, functions);
+
+	// Do this last, various reasons
 	const size_t postShaderSize = std::extent<decltype(postShaderSections)>::value;
 	for (size_t i = 0; i < postShaderSize; i++)
 	{

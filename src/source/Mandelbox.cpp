@@ -1,9 +1,9 @@
-#include "headers/Mandelbox.h"
 #include <windows.h>
+#include "headers/Mandelbox.h"
+#include <glew.h>
 #include "glm.hpp"
 #include "headers/shader.h"
 #include "headers/camera.h"
-#include <glew.h>
 #include <iostream>
 #include "headers/Image.h"
 #include "headers/GlError.h"

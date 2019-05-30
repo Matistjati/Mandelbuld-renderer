@@ -25,7 +25,7 @@ struct ShaderSection
 	}
 };
 
-const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("helperFunctions", true),
+const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
 										ShaderSection("distanceEstimator"), ShaderSection("sceneDistance"), ShaderSection("trace"),
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
 										ShaderSection("lightingFunctions", false)};
@@ -59,6 +59,7 @@ public:
 
 	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";
+	static const constexpr char* helperFunctions = "resources/shaders/3D/HelperFunctions.fs";
 
 private:
 	glm::vec2 mouseOffset;

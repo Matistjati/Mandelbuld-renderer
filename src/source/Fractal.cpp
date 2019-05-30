@@ -1,6 +1,8 @@
 #include "headers/Fractal.h"
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 bool Fractal::replace(std::string& str, const std::string& from, const std::string& to)
  {
@@ -37,9 +39,35 @@ bool Fractal::replaceSection(Section section, std::string& origin, std::string& 
 	return replace(dest, section.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
 
+std::string Fractal::getSection(Section s, std::string from)
+{
+	int startIndex = from.find(s.start);
+	int endIndex = from.find(s.end);
+	if (startIndex == std::string::npos || endIndex == std::string::npos)
+	{
+		return "";
+	}
+	startIndex += s.start.length();
+
+	return from.substr(startIndex, endIndex - startIndex);
+}
+
 std::string Fractal::readFile(std::string path)
 {
 	std::ifstream t(path);
 	return std::string((std::istreambuf_iterator<char>(t)),
 		std::istreambuf_iterator<char>());
+}
+
+std::vector<std::string> Fractal::split(std::string str, char splitBy)
+{
+	std::stringstream test(str);
+	std::string segment;
+	std::vector<std::string> seglist;
+
+	while (std::getline(test, segment, splitBy))
+	{
+		seglist.push_back(segment);
+	}
+	return seglist;
 }

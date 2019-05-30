@@ -9,6 +9,7 @@
 #include "headers/Uniform.h"
 #include "headers/Shader.h"
 #include "glm.hpp"
+#include <vector>
 
 class Shader;
 
@@ -53,7 +54,9 @@ protected:
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
 	static bool replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool replaceSection(Section section, std::string& origin, std::string& dest);
+	static std::string getSection(Section s, std::string from);
 	static std::string readFile(std::string path);
+	static std::vector<std::string> split(std::string str, char splitBy);
 };
 
 #endif

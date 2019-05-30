@@ -12,7 +12,7 @@
 #include "headers/Image.h"
 #include "headers/Mandelbox.h"
 
-#define FractalType Mandelbulb
+#define FractalType Mandelbox
 constexpr auto mode = 0;
 // 0: exploration, 1: movie
 

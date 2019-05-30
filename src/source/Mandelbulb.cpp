@@ -1,9 +1,9 @@
+#include <glew.h>
 #include <windows.h>
 #include "headers/Mandelbulb.h"
 #include "glm.hpp"
 #include "headers/shader.h"
 #include "headers/camera.h"
-#include <glew.h>
 #include <iostream>
 #include "headers/Image.h"
 #include "headers/GlError.h"
@@ -132,6 +132,8 @@ Shader& Mandelbulb::ParseShader(bool highQuality)
 	Fractal3D::ParseShader(source, base, highQuality);
 
 	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
+
+	std::cout << base;
 
 	return *(new Shader(vertexSource, base, false));
 }
