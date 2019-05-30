@@ -30,10 +30,10 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
 										ShaderSection("lightingFunctions", false)};
 
-const ShaderSection postShaderSections[] = { ShaderSection("color"), ShaderSection("edgeGlow") };
+const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow"), ShaderSection("color", false), };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
-									ShaderSection("shadowSoftness", false) };
+									ShaderSection("shadowSoftness", false), };
 
 class Fractal3D : public Fractal
 {

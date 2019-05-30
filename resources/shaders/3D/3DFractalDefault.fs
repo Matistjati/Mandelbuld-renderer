@@ -1,3 +1,9 @@
+%maxIterations%4%/maxIterations%
+%maxSteps%60%/maxSteps%
+%shadowSoftness%4%/shadowSoftness% // Higher = harder shadow
+%maxIterationsRelease%512%/maxIterationsRelease%
+%maxStepsRelease%1000%/maxStepsRelease%
+
 %sceneDistance%
 float sceneDistance(vec3 position, out vec4 resColor)
 {
@@ -27,7 +33,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
     }
 
 	percentSteps = float(i)/float(maxSteps);
-
+	trapOut = trap;
     return res;
 }
 %/trace%
@@ -94,7 +100,7 @@ vec3 render(Ray ray)
 	}
 	else
 	{
-		%color%
+		%coloring%
 
 		// Lighting
 

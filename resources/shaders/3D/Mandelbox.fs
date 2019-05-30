@@ -1,6 +1,5 @@
 %maxIterations%4%/maxIterations%
 %maxSteps%100%/maxSteps%
-%shadowSoftness%32%/shadowSoftness%
 %maxIterationsRelease%512%/maxIterationsRelease%
 %maxStepsRelease%1000%/maxStepsRelease%
 
@@ -111,17 +110,21 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 %/trace%
 
 %color%
-col = vec3(0.01);
-//col = mix(col, vec3(0.78, 0.5, 0.13), clamp(pow(trap.w,6.0),0.0,1.0));
-//col = mix(col, vec3(0.9, 0.15, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
-//col = mix(col, vec3(0.5, 0, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
-col = mix(col, vec3(1, 0, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
-//col = mix(col, vec3(0.5, 0.5, 0.5), clamp(pow(trap.w,6.0),0.0,1.0));
-//col = mix(col, vec3(0.3, 0.3, 0.3), clamp(pow(trap.w,6.0),0.0,1.0));
-//col = mix(col, vec3(0.5, 0.65, 0.15), clamp(pow(trap.w,6.0),0.0,1.0));
-//col *= 0.5;
+//vec3(0.78, 0.5, 0.13)
+//vec3(0.9, 0.15, 0.5)
+//vec3(0.5, 0, 0.5)
+//vec3(0.5, 0.5, 0.5)
+//vec3(0.3, 0.3, 0.3)
+//vec3(0.5, 0.65, 0.15)
+vec3(1, 0, 1)
+
 %/color%
 
+%coloring%
+col = mix(col, %color%, clamp(pow(trap.w,6.0),0.0,1.0));
+//col *= 0.5;
+%/coloring%
+
 %edgeGlow%
-col += vec3(0.1, 0.1, 0.1) * steps; // Fog
+col += %color% * steps * 0.5; // Fog
 %/edgeGlow%

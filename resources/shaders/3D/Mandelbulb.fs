@@ -126,13 +126,13 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 }
 %/distanceEstimator%
 
-%color%
+%coloring%
 col = vec3(0.01);
 col = mix(col, vec3(0.54,0.3,0.07), clamp(trap.y,0.0,1.0)); // Inner
 col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
 col = mix(col, vec3(0.15, 0.4, 0.04), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
 col *= 0.5;
-%/color%
+%/coloring%
 
 %trace%
 float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)

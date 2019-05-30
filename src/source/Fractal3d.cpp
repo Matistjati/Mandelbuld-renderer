@@ -245,7 +245,10 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			s = Section(constants[i].name);
 		}
 
-		replaceSection(s, Section(constants[i].name), source, final);
+		if (!replaceSection(s, Section(constants[i].name), source, final))
+		{
+			replaceSection(s, Section(constants[i].name), defaultSource, final);
+		}
 	}
 
 	const size_t postShaderSize = std::extent<decltype(postShaderSections)>::value;
@@ -261,7 +264,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			s = Section(postShaderSections[i].name);
 		}
 
-		replaceSection(s, Section(postShaderSections[i].name), source, final);
+		while(replaceSection(s, Section(postShaderSections[i].name), source, final)) {}
 	}
 }
 
