@@ -16,16 +16,11 @@ struct Section
 {
 	std::string start;
 	std::string end;
-	int startIndex1;
-	int endIndex1;
-	int startIndex2;
+
 	Section(std::string name)
 	{
 		start = "%" + name + "%";
 		end = "%/" + name + "%";
-		startIndex1 = 0;
-		endIndex1 = 0;
-		startIndex2 = 0;
 	}
 };
 
@@ -52,8 +47,13 @@ public:
 	virtual void Update() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
 
+	static const constexpr char* pathRectangleVertexshader = "resources/shaders/Rectangle.glsl";
+
+protected:
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
-	static void replaceSection(Section section, std::string& origin, std::string& dest);
+	static bool replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
+	static bool replaceSection(Section section, std::string& origin, std::string& dest);
+	static std::string readFile(std::string path);
 };
 
 #endif

@@ -5,14 +5,41 @@
 #include "headers/Fractal.h"
 #include "headers/Camera.h"
 #include "headers/Time.h"
+#include <map>
+
+struct ShaderSection
+{
+	std::string name;
+	bool optional;
+	std::string releaseName;
+	ShaderSection(std::string name) : name(name), optional(false), releaseName("")
+	{}
+	ShaderSection(std::string name, bool optional) : name(name), optional(optional), releaseName("")
+	{}
+	ShaderSection(std::string name, bool optional, std::string releaseName) : name(name), optional(optional), releaseName(releaseName)
+	{}
+
+	bool operator<(const ShaderSection& c2) const
+	{
+		return this->name[0] < c2.name[0];
+	}
+};
+
+const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("helperFunctions", true),
+										ShaderSection("distanceEstimator"), ShaderSection("sceneDistance"), ShaderSection("trace"),
+										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
+										ShaderSection("lightingFunctions", false)};
+
+const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease")};
 
 class Fractal3D : public Fractal
 {
 public:
 	Camera& camera;
 	Time time;
+	Uniform<glm::vec3> sun;
 
-	Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time);
+	Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time, glm::vec3 sun);
 	Fractal3D(Shader& explorationShader, Shader& renderShader);
 
 
@@ -24,7 +51,11 @@ public:
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void Update() override;
+	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, bool highQuality);
+	static void ParseShader(std::string source, std::string& final, bool highQuality);
 
+	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
+	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";
 
 private:
 	glm::vec2 mouseOffset;

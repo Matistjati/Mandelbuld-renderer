@@ -205,6 +205,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	if (success == GL_FALSE)
 	{
 
+		std::cout << source << std::endl;
 		glGetShaderInfoLog(id, 256, NULL, infoLog);
 		std::cout << "failed to compile " <<
 			((type == GL_VERTEX_SHADER) ? " vertex " : " fragment ") << " shader.\nError: " << infoLog << std::endl;

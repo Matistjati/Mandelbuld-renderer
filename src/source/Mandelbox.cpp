@@ -6,13 +6,12 @@
 #include <glew.h>
 #include <iostream>
 #include "headers/Image.h"
-#include <sys/stat.h>
 #include "headers/GlError.h"
 #include <string>
 #include <fstream>
 
-Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
-	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, screenSize, time), power(power), genericParameter(1), sun(sun)
+Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
+	: Fractal3D(ParseShader(false), ParseShader(true), camera, screenSize, time, sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -21,8 +20,8 @@ Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Ca
 	GlErrorCheck();
 }
 
-Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera, glm::vec3 sun)
-	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(sun)
+Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun)
+	: Fractal3D(ParseShader(false), ParseShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -31,8 +30,8 @@ Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Ca
 	GlErrorCheck();
 }
 
-Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Camera& camera)
-	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time()), power(power), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
+Mandelbox::Mandelbox(float power, Camera& camera)
+	: Fractal3D(ParseShader(false), ParseShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::vec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -41,8 +40,8 @@ Mandelbox::Mandelbox(float power, std::string vertex, std::string shaderBase, Ca
 	GlErrorCheck();
 }
 
-Mandelbox::Mandelbox(std::string vertex, std::string shaderBase)
-	: Fractal3D(ParseShader(vertex, shaderBase, false), ParseShader(vertex, shaderBase, true)), power(defaultPower), genericParameter(1), sun(glm::normalize(glm::dvec3(0.577, 0.577, 0.577)))
+Mandelbox::Mandelbox()
+	: Fractal3D(ParseShader(false), ParseShader(true)), power(defaultPower), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -89,7 +88,6 @@ void Mandelbox::SetUniforms(Shader& shader)
 	shader.use();
 
 	shader.SetUniform(power);
-	shader.SetUniform(sun);
 	shader.SetUniform(genericParameter);
 	Fractal3D::SetUniforms(shader);
 }
@@ -97,14 +95,12 @@ void Mandelbox::SetUniforms(Shader& shader)
 void Mandelbox::SetUniformLocations(Shader& shader)
 {
 	power.id = glGetUniformLocation(shader.id, power.name.c_str());
-	sun.id = glGetUniformLocation(shader.id, sun.name.c_str());
 	genericParameter.id = glGetUniformLocation(shader.id, genericParameter.name.c_str());
 	Fractal3D::SetUniformLocations(shader);
 }
 
 void Mandelbox::SetUniformNames()
 {
-	sun.name = "sun";
 	power.name = "power";
 	genericParameter.name = "genericParameter";
 	genericParameter.value = 2;
@@ -128,52 +124,24 @@ void Mandelbox::Update()
 }
 
 
-Shader& Mandelbox::ParseShader(const std::string vertex, const std::string fragmentBasePath, bool highQuality)
+Shader& Mandelbox::ParseShader(bool highQuality)
 {
-	std::ifstream t(SourcePath);
-	std::string mandel((std::istreambuf_iterator<char>(t)),
-		std::istreambuf_iterator<char>());
+	std::string source = readFile(SourcePath);
 
-	t = std::ifstream(fragmentBasePath);
-	std::string fragmentBase((std::istreambuf_iterator<char>(t)),
-		std::istreambuf_iterator<char>());
+	std::string base = readFile(Fractal3D::path3DBase);
 
-	Section Uniforms = Section("uniforms");
-	replaceSection(Uniforms, mandel, fragmentBase);
-
-	Section Const = Section("constants");
-	replaceSection(Const, mandel, fragmentBase);
-
-	Section DE = Section("DE");
-	replaceSection(DE, mandel, fragmentBase);
-
-	Section Color = Section("Color");
-	replaceSection(Color, mandel, fragmentBase);
+	Fractal3D::ParseShader(source, base, highQuality);
 
 	if (highQuality)
 	{
-		Section main = Section("mainAA");
-		replace(fragmentBase, "%maxIter%", "512");
-		replace(fragmentBase, "%maxStep%", "1000");
-		replace(fragmentBase, "%maxDist%", "power*20");
-		replace(fragmentBase, "%main%", "");
-		replaceSection(main, mandel, fragmentBase);
+		replace(base, "%maxDist%", "power*20");
 	}
 	else
 	{
-		Section main = Section("main");
-		replace(fragmentBase, "%maxIter%", "4");
-		replace(fragmentBase, "%maxStep%", "100");
-		replace(fragmentBase, "%maxDist%", "power*4");
-		replace(fragmentBase, "%mainAA%", "");
-		replaceSection(main, mandel, fragmentBase);
+		replace(base, "%maxDist%", "power*4");
 	}
 
+	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
 
-	std::cout << fragmentBase;
-	t = std::ifstream(vertex);
-	std::string vertexSource((std::istreambuf_iterator<char>(t)),
-		std::istreambuf_iterator<char>());
-
-	return *(new Shader(vertexSource, fragmentBase, false));
+	return *(new Shader(vertexSource, base, false));
 }

@@ -1,15 +1,35 @@
+%maxIterations%4%/maxIterations%
+%maxSteps%60%/maxSteps%
+%maxIterationsRelease%512%/maxIterationsRelease%
+%maxStepsRelease%1000%/maxStepsRelease%
+
 %uniforms%
 uniform float power = 8;
 uniform float genericParameter = 1;
-uniform vec3 sun;
 %/uniforms%
 
 %constants%
 const float antiAliasing = 3;
 %/constants%
 
-%DE%
+%helperFunctions%
+vec2 boundingSphere(vec4 sph, vec3 origin, vec3 ray)
+{
+    vec3 oc = origin - sph.xyz;
+    
+	float b = dot(oc,ray);
+	float c = dot(oc,oc) - sph.w*sph.w;
+    float h = b*b - c;
+    
+    if( h<0.0 ) return vec2(-1.0);
 
+    h = sqrt( h );
+
+    return -b + vec2(-h,h);
+}
+%/helperFunctions%
+
+%distanceEstimator%
 void sphereFold(inout vec3 z, inout float dz)
 {
 	float minRadius2 = power/2;
@@ -71,7 +91,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
 
 		// Fun alternative: reverse sin and cos
-        w = start + pow(r, Power) * vec3(sin(theta*phi) * sin(sin(theta)), cos(cos(phi)), sin(sin(phi)) * cos(cos(theta)));
+        w = start + pow(r, Power) * vec3(sin(theta*phi) * cos(phi), sin(theta) * sin(phi) , cos(theta));
 
 		//boxFold(w,dz);
 		//sphereFold(w,dz);   
@@ -103,7 +123,7 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 
     return 0.25* log(m)*sqrt(m)/dz;
 }
-%/DE%
+%/distanceEstimator%
 
 %Color%
 col = vec3(0.01);
@@ -113,55 +133,46 @@ col = mix(col, vec3(0.15, 0.4, 0.04), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripe
 col *= 0.5;
 %/Color%
 
-%main%
-	vec2 uv = gl_FragCoord.xy / screenSize;
-	uv = uv * 2.0 - 1.0;
+%trace%
+float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
+{
+    float res = -1.0;
 
-	uv.x *= float(screenSize.x) / float(screenSize.y);
+    //bounding sphere
+    vec2 dis = boundingSphere(vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
+    if(dis.y < 0.0)
+        return -1.0;
 
-	vec3 direction = normalize(vec3(uv.xy, 1));
+    dis.x = max(dis.x, 0.0);
+    dis.y = min(dis.y, 10.0);
 
-	direction.zy *= pitchMatrix;
+    // raymarch fractal distance field
+	vec4 trap;
 
-	direction.xz *= yawMatrix;
-	direction.xy *= rollMatrix;
-	direction.y *= worldFlip;
-	
-	
-	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
+	float t = dis.x;
+	int i = 0;
+	for(; i<maxSteps; i++  )
+    { 
+        vec3 pos = ray.origin + ray.dir * t;
+		float h = sceneDistance(pos, trap);
+        float th = 0.25 * px * t;
 
-    color = vec4(col.xyz, 1.0);
-%/main%
-
-%mainAA%
-	vec3 col = vec3(0.0);
-	for (int i = 0; i < antiAliasing; i++)
-	{
-		for (int j = 0; j < antiAliasing; j++)
+		if(t>dis.y || h < th)
 		{
-			vec2 frag = gl_FragCoord.xy;
-			frag.x += float(i)/antiAliasing;
-			frag.y += float(j)/antiAliasing;
-			vec2 uv = frag / screenSize;
-			uv = uv * 2.0 - 1.0;
-			uv.x *= float(screenSize.x) / float(screenSize.y);
+			break;
+        }
+		t += h;
+    }
 
-			vec3 direction = normalize(vec3(uv.xy, 1));
+	percentSteps = float(i) / maxSteps;
+    percentSteps *= (percentSteps * 4); // Smoothing out, making the circle thing disappear
+	percentSteps = 1;
+    if(t < dis.y)
+    {
+        trapOut = trap;
+        res = t;
+    }
 
-			direction.zy *= pitchMatrix;
-
-			direction.xz *= yawMatrix;
-			direction.xy *= rollMatrix;
-			direction.y *= worldFlip;
-	
-
-			Ray	ray = Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz);
-			col += render(ray);
-	
-			//vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
-		}
-	}
-	col /= float(antiAliasing*antiAliasing);
-
-    color = vec4(col.xyz, 1.0);
-%/mainAA%
+    return res;
+}
+%/trace%

@@ -1,18 +1,22 @@
+%maxIterations%4%/maxIterations%
+%maxSteps%100%/maxSteps%
+%maxIterationsRelease%512%/maxIterationsRelease%
+%maxStepsRelease%1000%/maxStepsRelease%
+
 %uniforms%
 uniform float power = 1;
 uniform float genericParameter = 1;
-uniform vec3 sun;
 %/uniforms%
 
 %constants%
 const float antiAliasing = 2;
 %/constants%
 
-%DE%
+%distanceEstimator%
 void sphereFold(inout vec3 z, inout float dz)
 {
-	float minRadius2 = power - genericParameter;
-	float fixedRadius2 = power + genericParameter;
+	float minRadius2 = power - 1;
+	float fixedRadius2 = power + 1;
 	float r2 = dot(z,z);
 	if (r2<minRadius2) { 
 		// linear inner scaling
@@ -60,10 +64,48 @@ float DistanceEstimator(vec3 z, out vec4 resColor, float _)
 		m = dot(z,z);
 	}
 	resColor = trap;
-	float r = length(z);
-	return r/abs(dr);
+
+	return length(z)/abs(dr);
 }
-%/DE%
+%/distanceEstimator%
+
+%trace%
+float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
+{
+	float res = -1.0;
+
+	vec4 trap;
+
+	float t = 0;
+	int i = 0;
+	for(; i<maxSteps; i++)
+    { 
+        vec3 pos = ray.origin + ray.dir * t;
+		float h = sceneDistance(pos, trap);
+        float th = 0.25 * px * t;
+
+		if(h<th || h>power*8)
+		{
+			break;
+        }
+		t += h;
+    }
+
+	//percentSteps = float(i)/float(maxSteps);
+
+	if (t < %maxDist%)
+	{
+	trapOut = trap;
+        res = t;
+	}
+	else
+	{
+		res = -1;
+	}
+
+    return res;
+}
+%/trace%
 
 %Color%
 col = vec3(0.01);
@@ -72,57 +114,3 @@ col = mix(col, vec3(0.02,0.4,0.30), clamp(trap.z*trap.z,0.0,1.0));
 col = mix(col, vec3(0.78, 0.5, 0.13), clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
 col *= 0.5;
 %/Color%
-
-%main%
-	vec2 uv = gl_FragCoord.xy / screenSize;
-	uv = uv * 2.0 - 1.0;
-
-	uv.x *= float(screenSize.x) / float(screenSize.y);
-
-	vec3 direction = normalize(vec3(uv.xy, 1));
-
-	direction.zy *= pitchMatrix;
-
-	direction.xz *= yawMatrix;
-	direction.xy *= rollMatrix;
-	direction.y *= worldFlip;
-	
-	
-	vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
-
-    color = vec4(col.xyz, 1.0);
-%/main%
-
-%mainAA%
-
-	vec3 col = vec3(0.0);
-	for (int i = 0; i < antiAliasing; i++)
-	{
-		for (int j = 0; j < antiAliasing; j++)
-		{
-			vec2 frag = gl_FragCoord.xy;
-			frag.x += float(i)/antiAliasing;
-			frag.y += float(j)/antiAliasing;
-			vec2 uv = frag / screenSize;
-			uv = uv * 2.0 - 1.0;
-			uv.x *= float(screenSize.x) / float(screenSize.y);
-
-			vec3 direction = normalize(vec3(uv.xy, 1));
-
-			direction.zy *= pitchMatrix;
-
-			direction.xz *= yawMatrix;
-			direction.xy *= rollMatrix;
-			direction.y *= worldFlip;
-	
-
-			Ray	ray = Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz);
-			col += render(ray);
-	
-			//vec3 col = render(Ray(vec3(eye.z, eye.y * worldFlip, eye.x), direction.xyz));
-		}
-	}
-	col /= float(antiAliasing*antiAliasing);
-
-    color = vec4(col.xyz, 1.0);
-%/mainAA%

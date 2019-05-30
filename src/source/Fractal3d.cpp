@@ -1,14 +1,13 @@
 #include "headers/Fractal3d.h"
 #include "headers/Image.h"
 #include "headers/GlError.h"
+#include <map>
 
 inline bool fileExists(const std::string& name)
 {
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
 }
-
-// Life is hard right now: the girl i'm in love with has a boyfriend. I guess it's part of growing up, but still frustrating
 
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -97,15 +96,16 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 }
 
 
-Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time)
-	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera)
+Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time, glm::vec3 sun)
+	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera), sun(sun)
 {
 }
 
 Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader)
 	: Fractal(explorationShader, renderShader, glm::ivec2(DefaultWidth, DefaultHeight)), time(Time()), camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
-		0.1f, 3, 200))) // mouseSensitivity, movementSpeed, rollSpeed
+		0.1f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
+		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
 {}
 
 void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
@@ -148,6 +148,7 @@ void Fractal3D::SetUniforms(Shader& shader)
 	shader.SetUniform(camera.rollMatrix);
 	shader.SetUniform(camera.worldFlip);
 	shader.SetUniform(screenSize);
+	shader.SetUniform(sun);
 	GlErrorCheck();
 }
 
@@ -159,6 +160,7 @@ void Fractal3D::SetUniformLocations(Shader& shader)
 	camera.position.id = glGetUniformLocation(shader.id, camera.position.name.c_str());
 	camera.worldFlip.id = glGetUniformLocation(shader.id, camera.worldFlip.name.c_str());
 	screenSize.id = glGetUniformLocation(shader.id, screenSize.name.c_str());
+	sun.id = glGetUniformLocation(shader.id, sun.name.c_str());
 	GlErrorCheck();
 }
 
@@ -167,9 +169,10 @@ void Fractal3D::SetUniformNames()
 	camera.pitchMatrix.name = "pitchMatrix";
 	camera.yawMatrix.name = "yawMatrix";
 	camera.rollMatrix.name = "rollMatrix";
-	camera.position.name = "eye";
+	camera.position.name = "position";
 	camera.worldFlip.name = "worldFlip";
 	screenSize.name = "screenSize";
+	sun.name = "sun";
 }
 
 void Fractal3D::SaveImage(const std::string path)
@@ -198,4 +201,81 @@ void Fractal3D::SaveImage(const std::string path)
 void Fractal3D::Update()
 {
 	time.PollTime();
+}
+
+void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, bool highQuality)
+{
+	// Bool in sections is for done or not
+
+	std::string defaultSource = readFile(default3DFractal);
+
+	for (auto const& x : sections)
+	{
+		if (!x.first.optional && !x.second) // Not done
+		{
+
+			Section s(""); 
+			
+			if (highQuality && x.first.releaseName != "")
+			{
+				s = Section(x.first.releaseName);
+			}
+			else
+			{
+				s = Section(x.first.name);
+			}
+			replaceSection(s, Section(x.first.name), defaultSource, final);
+		}
+		else
+		{
+			replace(final, Section(x.first.name).start, "");
+		}
+	}
+	
+	const size_t constSize = std::extent<decltype(constants)>::value;
+	for (size_t i = 0; i < constSize; i++)
+	{
+		Section s("");
+		if (highQuality)
+		{
+			s = Section(constants[i].releaseName);
+		}
+		else
+		{
+			s = Section(constants[i].name);
+		}
+
+		replaceSection(s, Section(constants[i].name), source, final);
+	}
+}
+
+void Fractal3D::ParseShader(std::string source, std::string & final, bool highQuality)
+{
+	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
+
+	const size_t sectionSize = std::extent<decltype(shaderSections)>::value;
+	for (size_t i = 0; i < sectionSize; i++)
+	{
+		ShaderSection c = shaderSections[i];
+		Section s = Section("");
+		sections[c] = false;
+		if (c.releaseName != "")
+		{
+			if (highQuality)
+			{
+				s = Section(c.releaseName);
+			}
+			else
+			{
+				s = Section(c.name);
+			}
+			sections[shaderSections[i]] = replaceSection(s, Section(shaderSections[i].name), source, final);
+		}
+		else
+		{
+			s = Section(c.name);
+			sections[c] = replaceSection(s, source, final);
+		}
+	}
+	ParseShaderDefault(sections, source, final, highQuality);
 }
