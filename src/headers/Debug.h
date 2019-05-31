@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <intrin.h>
+#include <string>
 
 inline void GlErrorCheck()
 {
@@ -16,6 +17,13 @@ inline void GlErrorCheck()
 		std::cout << "Opengl error: " << std::to_string(err) << std::endl;
 		__debugbreak();
 	}
+#endif
+}
+
+inline void DebugPrint(std::string content)
+{
+#if _DEBUG
+	std::cout << content << std::endl;
 #endif
 }
 

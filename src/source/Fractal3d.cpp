@@ -1,8 +1,9 @@
 #include "headers/Fractal3d.h"
 #include "headers/Image.h"
-#include "headers/GlError.h"
+#include "headers/Debug.h"
 #include <map>
 #include <algorithm>
+#include <thread>
 
 inline bool fileExists(const std::string& name)
 {
@@ -19,21 +20,17 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 
 	if (key == GLFW_KEY_S && (mods && GLFW_MOD_CONTROL) == 1)
 	{
-		bool foundEmptyFile = false;
 		const std::string baseName = "TestImage/image";
 		int count = 0;
-		while (!foundEmptyFile)
+		while (1)
 		{
 			if (!fileExists((baseName + std::to_string(count) + ".png")))
 			{
-				foundEmptyFile = true;
-
 				SaveImage(baseName + std::to_string(count) + ".png");
-
+				return;
 			}
 			count++;
 		}
-		return;
 	}
 
 	switch (key)
@@ -45,29 +42,29 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 
 		// WASD movement
 	case GLFW_KEY_W:
-		camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.deltaTime));
+		camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.deltaTime) * parameterChangeRate);
 		explorationShader.SetUniform(camera.position);
 		break;
 	case GLFW_KEY_S:
-		camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.deltaTime));
+		camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.deltaTime) * parameterChangeRate);
 		explorationShader.SetUniform(camera.position);
 		break;
 	case GLFW_KEY_A:
-		camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.deltaTime));
+		camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.deltaTime) * parameterChangeRate);
 		explorationShader.SetUniform(camera.position);
 		break;
 	case GLFW_KEY_D:
-		camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.deltaTime));
+		camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.deltaTime) * parameterChangeRate);
 		explorationShader.SetUniform(camera.position);
 		break;
 
 		// Up and down
 	case GLFW_KEY_SPACE:
-		camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.deltaTime));
+		camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.deltaTime) * parameterChangeRate);
 		explorationShader.SetUniform(camera.position);
 		break;
 	case GLFW_KEY_LEFT_SHIFT:
-		camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.deltaTime));
+		camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.deltaTime) * parameterChangeRate);
 		explorationShader.SetUniform(camera.position);
 		break;
 
@@ -80,13 +77,23 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		camera.movementReverse *= -1;
 		break;
 
+		// Variable change rate
+	case GLFW_KEY_G:
+		parameterChangeRate += 0.01f;
+		parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+		break;
+	case GLFW_KEY_T:
+		parameterChangeRate -= 0.01f;
+		parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+		break;
+
 		// Camera roll
 	case GLFW_KEY_Q:
-		camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime));
+		camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
 		explorationShader.SetUniform(camera.rollMatrix);
 		break;
 	case GLFW_KEY_E:
-		camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime));
+		camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
 		explorationShader.SetUniform(camera.rollMatrix);
 		break;
 
@@ -132,13 +139,11 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	screenSize.value = glm::ivec2(width, height);
-	Fractal::explorationShader.SetUniform(screenSize.id, width);
-	Fractal::explorationShader.SetUniform(screenSize.id, height);
+	explorationShader.SetUniform(screenSize);
 
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
-	GlErrorCheck();
 }
 
 void Fractal3D::SetUniforms(Shader& shader)
@@ -181,22 +186,33 @@ void Fractal3D::SaveImage(const std::string path)
 	renderShader.use();
 	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
+
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
 
 	Pixel* data = (Pixel*)malloc(screenSize.value.x * screenSize.value.y * 4);
 	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
+	explorationShader.use();
+	SetUniformLocations(explorationShader);
+	SetUniforms(explorationShader);
+	GlErrorCheck();
 
 	Image image(screenSize.value.x, screenSize.value.y, data);
 
 	image.FlipVertically();
 
-	image.Save(path.c_str());
-
-	SetUniformLocations(explorationShader);
-	SetUniforms(explorationShader);
-	explorationShader.use();
-	GlErrorCheck();
+	try
+	{
+		image.Save(path.c_str());
+		DebugPrint("Successfully saved image \"" + getFileName(path) + "\"");
+	}
+	catch (const std::exception& e)
+	{
+		DebugPrint("Error saving image: " + *e.what());
+		return;
+	}
 }
 
 void Fractal3D::Update()

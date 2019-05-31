@@ -17,11 +17,11 @@ struct Uniform
 	{
 		value = val;
 	}
-#pragma warning(pop)
 	Uniform()
 	{
 		value = T();
 	}
+#pragma warning(pop)
 
 	operator T() const;
 };

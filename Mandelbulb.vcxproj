@@ -91,7 +91,7 @@
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\Image\lib</AdditionalLibraryDirectories>
-      <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /LTCG /ignore:4075</AdditionalOptions>
+      <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -156,7 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/Mandelbox.h" />
-    <ClInclude Include="src/headers/GlError.h" />
+    <ClInclude Include="src/headers/Debug.h" />
     <ClInclude Include="src/headers/Fractal3d.h" />
     <ClInclude Include="src/headers/Fractal.h" />
     <ClInclude Include="src/headers/Image.h" />

@@ -32,7 +32,7 @@ public:
 	static const int DefaultHeight = 1080;
 
 	
-
+	float parameterChangeRate = 1;
 	Shader &explorationShader;
 	Shader &renderShader;
 	Uniform<glm::ivec2> screenSize;
@@ -55,6 +55,7 @@ protected:
 	static bool replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool replaceSection(Section section, std::string& origin, std::string& dest);
 	static std::string getSection(Section s, std::string from);
+	static std::string getFileName(std::string path);
 	static std::string readFile(std::string path);
 	static std::vector<std::string> split(std::string str, char splitBy);
 };

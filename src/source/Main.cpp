@@ -11,6 +11,7 @@
 #include "headers/Mandelbulb.h"
 #include "headers/Image.h"
 #include "headers/Mandelbox.h"
+#include "headers/Debug.h"
 
 #define FractalType Mandelbox
 constexpr auto mode = 0;
@@ -42,14 +43,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 int main()
 {
 	std::string workingDir = GetWorkingDirectory();
-#if _DEBUG
-	std::cout << "Initial working directory: " << workingDir << std::endl;
-#endif
+
+	DebugPrint("Initial working directory: " + workingDir);
+
 
 	workingDir = workingDir.substr(0, workingDir.find_last_of("/\\"));
-#if _DEBUG
-	std::cout << "New working directory: " << workingDir << std::endl;
-#endif
+
+	DebugPrint("New working directory: " + workingDir);
+
 
 	if (!SetCurrentDirectory(workingDir.c_str()))
 	{
@@ -58,22 +59,20 @@ int main()
 
 	if (!glfwInit())
 	{
-#if _DEBUG
-		std::cout << "Error: Glfw failed to initialize" << std::endl;
-#endif		
+		DebugPrint("Error: Glfw failed to initialize");
 		return -1;
 	}
 
 	// glfw window creation
-	GLFWwindow* window = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", NULL, NULL);
-	if (!window)
+	GLFWwindow* mainWindow = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", NULL, NULL);
+	if (!mainWindow)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
 
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(mainWindow);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -87,9 +86,9 @@ int main()
 	const float vertices1[12] =
 	{
 		// Positions
-			1.f,  1.f, 0.0f,  // top right
-			1.f, -1.f, 0.0f,  // bottom right
-			-1.f,  1.f, 0.0f, // top left,
+		1.f,  1.f, 0.0f,  // top right
+		1.f, -1.f, 0.0f,  // bottom right
+		-1.f,  1.f, 0.0f, // top left,
 		-1.f, -1.f, 0.0f,  // bottom left
 	};
 
@@ -125,37 +124,41 @@ int main()
 	FractalType fractal = FractalType();
 
 
-	glfwSetWindowUserPointer(window, &fractal);
+	glfwSetWindowUserPointer(mainWindow, &fractal);
 
 
-	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
-	glfwSetCursorPosCallback(window, MouseCallback);
-	glfwSetKeyCallback(window, KeyCallback);
+	glfwSetFramebufferSizeCallback(mainWindow, FrameBufferSizeCallback);
+	glfwSetCursorPosCallback(mainWindow, MouseCallback);
+	glfwSetKeyCallback(mainWindow, KeyCallback);
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
 	fractal.explorationShader.use();
+
+	GlErrorCheck();
 
 #if _DEBUG
 	Time t = Time();
 #endif
 
 	// render loop
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(mainWindow))
 	{
 #if _DEBUG
 		// Set the window title to our fps
 		t.PollTime();
-		glfwSetWindowTitle(window, std::to_string(1 / t.deltaTime).c_str());
+		glfwSetWindowTitle(mainWindow, std::to_string(1 / t.deltaTime).c_str());
 #endif
 		fractal.Update();
+
 
 		// render, we use ray marching inside the fragment shader
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
 	}
 

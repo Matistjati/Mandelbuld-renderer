@@ -10,7 +10,7 @@ uniform float genericParameter = 1;
 %/uniforms%
 
 %constants%
-const float antiAliasing = 3;
+const float antiAliasing = 4;
 %/constants%
 
 %include%
@@ -84,8 +84,8 @@ float DistanceEstimator(vec3 start, out vec4 resColor, float Power)
 		//boxFold(w,dz);
 		//sphereFold(w,dz);   
 
-		//w.x = sin(w.x);
-		//w.x = sinh(w.x)*cos(w.x);
+		w.x = sin(w.x);
+		w.x = sinh(w.x)*sin(w.x);
 		//w.y = cos(w.y)*sin(w.y);
 		//w.y = atan(w.y, w.z)/sin(w.x);
 		

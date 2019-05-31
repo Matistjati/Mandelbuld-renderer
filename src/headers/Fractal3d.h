@@ -6,6 +6,7 @@
 #include "headers/Camera.h"
 #include "headers/Time.h"
 #include <map>
+#include <thread>
 
 struct ShaderSection
 {

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "headers/GlError.h"
+#include "headers/Debug.h"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {

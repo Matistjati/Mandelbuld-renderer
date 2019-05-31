@@ -6,12 +6,12 @@
 #include "headers/camera.h"
 #include <iostream>
 #include "headers/Image.h"
-#include "headers/GlError.h"
+#include "headers/Debug.h"
 #include <string>
 #include <fstream>
 
 Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
-	: Fractal3D(ParseShader(false), ParseShader(true), camera, screenSize, time, sun), power(power), genericParameter(1)
+	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, screenSize, time, sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -21,7 +21,7 @@ Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 scre
 }
 
 Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun)
-	: Fractal3D(ParseShader(false), ParseShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
+	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -31,7 +31,7 @@ Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun)
 }
 
 Mandelbox::Mandelbox(float power, Camera& camera)
-	: Fractal3D(ParseShader(false), ParseShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::vec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
+	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::vec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -41,7 +41,7 @@ Mandelbox::Mandelbox(float power, Camera& camera)
 }
 
 Mandelbox::Mandelbox()
-	: Fractal3D(ParseShader(false), ParseShader(true)), power(defaultPower), genericParameter(1)
+	: Fractal3D(GenerateShader(false), GenerateShader(true)), power(defaultPower), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -58,21 +58,21 @@ void Mandelbox::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	{
 		// Changing the power of the fractal
 	case GLFW_KEY_C:
-		power.value += 0.03f;
+		power.value += 0.03f * parameterChangeRate;
 		explorationShader.SetUniform(power);
 		break;
 	case GLFW_KEY_V:
-		power.value -= 0.03f;
+		power.value -= 0.03f * parameterChangeRate;
 		explorationShader.SetUniform(power);
 		break;
 
 		// Debugging
 	case GLFW_KEY_R:
-		genericParameter.value += 0.1f;
+		genericParameter.value += 0.1f * parameterChangeRate;
 		explorationShader.SetUniform(genericParameter);
 		break;
 	case GLFW_KEY_F:
-		genericParameter.value -= 0.1f;
+		genericParameter.value -= 0.1f * parameterChangeRate;
 		explorationShader.SetUniform(genericParameter);
 		break;
 
@@ -124,8 +124,10 @@ void Mandelbox::Update()
 }
 
 
-Shader& Mandelbox::ParseShader(bool highQuality)
+Shader& Mandelbox::GenerateShader(bool highQuality)
 {
+	GlErrorCheck();
+
 	std::string source = readFile(SourcePath);
 
 	std::string base = readFile(Fractal3D::path3DBase);

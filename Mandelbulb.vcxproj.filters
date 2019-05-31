@@ -77,7 +77,7 @@
     <ClInclude Include="src/headers/Fractal3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src/headers/GlError.h">
+    <ClInclude Include="src/headers/Debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src/headers/Mandelbox.h">

@@ -52,6 +52,20 @@ std::string Fractal::getSection(Section s, std::string from)
 	return from.substr(startIndex, endIndex - startIndex);
 }
 
+std::string Fractal::getFileName(std::string path)
+{
+	int lastPos = path.find('\\');
+	if (lastPos == std::string::npos)
+	{
+		lastPos = path.find('/');
+		if (lastPos == std::string::npos)
+		{
+			return path;
+		}
+	}
+	return path.substr(lastPos + 1);
+}
+
 std::string Fractal::readFile(std::string path)
 {
 	std::ifstream t(path);

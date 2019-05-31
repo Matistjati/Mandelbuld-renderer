@@ -13,13 +13,16 @@ const float antiAliasing = 2;
 %/constants%
 
 %distanceEstimator%
-void sphereFold(inout vec3 z, inout float dz)
+void sphereFold(inout vec3 z, inout float dz, float r2)
 {
-	float minRadius2 = power - distance(z,sun);
-	float fixedRadius2 = power + distance(z, sun);
+	//float minRadius2 = power - distance(z,sun);
+	//float fixedRadius2 = power + distance(z, sun);
 	//float minRadius2 = power - 1;
 	//float fixedRadius2 = power + 1;
-	float r2 = dot(z,z);
+	
+	float minRadius2 = power / genericParameter/2;
+	float fixedRadius2 = power * genericParameter*2;
+
 	if (r2<minRadius2) { 
 		// linear inner scaling
 		float temp = (fixedRadius2/minRadius2);
@@ -46,15 +49,20 @@ float DistanceEstimator(vec3 z, out vec4 resColor, float _)
 	vec4 trap = vec4(0,0,0,0);
 	for (int n = 0; n < 8; n++) 
 	{
-		boxFold(z,dr);     
-		sphereFold(z,dr);
-		
+		boxFold(z,dr);
+		m = dot(z,z);
+		sphereFold(z,dr,m);
+
 		//boxFold(z,dr);     
 		//sphereFold(z,dr);  
  		
         z=Scale*z + c;  // Scale & Translate
 		
-		//z.x *= cos(z.x);
+		
+
+
+		//z.x = sin(z.x);
+		//z.x = sinh(z.x)*sin(z.x);
 		
 		//z.z = cos(z.z)*sin(z.z);
 		//z.y = cos(z.y)*sin(z.y);
@@ -62,8 +70,6 @@ float DistanceEstimator(vec3 z, out vec4 resColor, float _)
         dr = dr*abs(Scale)+1.0;
 
 		trap = max(trap, vec4(abs(z), m));
-
-		m = dot(z,z);
 	}
 	resColor = trap;
 
@@ -126,5 +132,6 @@ col = mix(col, %color%, clamp(pow(trap.w,6.0),0.0,1.0));
 %/coloring%
 
 %edgeGlow%
-col += %color% * steps * 0.5; // Fog
+col += %color% * steps * steps * 0.45; // Fog
+// If you only want edge, i sugges disabling the sun and sky gradient
 %/edgeGlow%

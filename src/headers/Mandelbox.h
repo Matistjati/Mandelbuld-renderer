@@ -22,7 +22,7 @@ public:
 	void SetUniformLocations(Shader& shader) override;
 	void SetUniformNames() override;
 	void Update() override;
-	static Shader& ParseShader(bool highQuality);
+	static Shader& GenerateShader(bool highQuality);
 
 	Uniform<float> power;
 	Uniform<float> genericParameter;
