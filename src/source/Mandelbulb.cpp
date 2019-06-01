@@ -10,8 +10,8 @@
 #include <string>
 #include <fstream>
 
-Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
-	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, screenSize, time, sun), power(power), genericParameter(1)
+Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, screenSize, time, sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -20,8 +20,8 @@ Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 sc
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun)
-	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
+Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -30,8 +30,8 @@ Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun)
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb(float power, Camera &camera)
-	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::dvec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
+Mandelbulb::Mandelbulb(float power, Camera &camera, int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::dvec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -40,8 +40,8 @@ Mandelbulb::Mandelbulb(float power, Camera &camera)
 	GlErrorCheck();
 }
 
-Mandelbulb::Mandelbulb()
-	: Fractal3D(GenerateShader(false), GenerateShader(true)), power(defaultPower), genericParameter(1)
+Mandelbulb::Mandelbulb(int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex)), power(defaultPower), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -125,7 +125,7 @@ void Mandelbulb::Update()
 }
 
 
-Shader& Mandelbulb::GenerateShader(bool highQuality)
+Shader& Mandelbulb::GenerateShader(bool highQuality, int specIndex)
 {
 	GlErrorCheck();
 
@@ -133,7 +133,9 @@ Shader& Mandelbulb::GenerateShader(bool highQuality)
 
 	std::string base = readFile(Fractal3D::path3DBase);
 
-	Fractal3D::ParseShader(source, base, highQuality);
+	std::string specification = readFile(SpecificationPath);
+
+	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex);
 
 	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
 

@@ -13,21 +13,22 @@ class Mandelbox : public Fractal3D
 public:
 	static const int defaultPower = 1;
 
-	Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time);
-	Mandelbox(float power, Camera& camera, glm::vec3 sun);
-	Mandelbox(float power, Camera& camera);
-	Mandelbox();
+	Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex);
+	Mandelbox(float power, Camera& camera, glm::vec3 sun, int specIndex);
+	Mandelbox(float power, Camera& camera, int specIndex);
+	Mandelbox(int specIndex);
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void SetUniforms(Shader& shader) override;
 	void SetUniformLocations(Shader& shader) override;
 	void SetUniformNames() override;
 	void Update() override;
-	static Shader& GenerateShader(bool highQuality);
+	static Shader& GenerateShader(bool highQuality, int specIndex);
 
 	Uniform<float> power;
 	Uniform<float> genericParameter;
 private:
 	static constexpr const char* SourcePath = "resources/shaders/3D/Mandelbox.fs";
+	static constexpr const char* SpecificationPath = "resources/shaders/3D/MandelboxSpecs.fs";
 };
 
 #endif

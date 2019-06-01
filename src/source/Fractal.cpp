@@ -85,3 +85,74 @@ std::vector<std::string> Fractal::split(std::string str, char splitBy)
 	}
 	return seglist;
 }
+
+std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, char opener, char closer)
+{
+	std::vector<std::string> result;
+
+	int level = 0;
+	int lastIndex = 0;
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] == splitBy && level == 0)
+		{
+			if (lastIndex == 0)
+			{
+				lastIndex = i;
+				continue;
+			}
+			else
+			{
+				result.push_back(str.substr(lastIndex + 1, i - lastIndex));
+				lastIndex = i;
+			}
+		}
+		else if (str[i] == opener) level++;
+		else if (str[i] == closer) level--;
+	}
+	return result;
+}
+
+std::string Fractal::GetSpecificationByIndex(std::string specification, int index)
+{
+	int bracketCount = 0;
+	int bracketLevel = 0;
+	int startIndex = 0;
+	for (size_t i = 0; i < specification.length(); i++)
+	{
+		if (specification[i] == '{')
+		{
+			if (bracketCount == index)
+			{
+				startIndex = i + 1;
+				break;
+			}
+			bracketCount++;
+			bracketLevel;
+		}
+		else if (specification[i] == '}')
+		{
+			bracketLevel--;
+			if (bracketLevel < 0)
+			{
+				std::cout << "Invalid format: more closing than opening brackets" << std::endl;
+				return "";
+			}
+		}
+	}
+	
+
+	if (startIndex == 0)
+	{
+		return "";
+	}
+
+	int endIndex = specification.find('}', startIndex);
+
+	if (endIndex == std::string::npos)
+	{
+		return "";
+	}
+
+	return specification.substr(startIndex, endIndex - startIndex);
+}

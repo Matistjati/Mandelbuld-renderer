@@ -121,7 +121,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	FractalType fractal = FractalType();
+	FractalType fractal = FractalType(0);
 
 
 	glfwSetWindowUserPointer(mainWindow, &fractal);

@@ -10,8 +10,8 @@
 #include <string>
 #include <fstream>
 
-Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time)
-	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, screenSize, time, sun), power(power), genericParameter(1)
+Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, screenSize, time, sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -20,8 +20,8 @@ Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, glm::ivec2 scre
 	GlErrorCheck();
 }
 
-Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun)
-	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
+Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun, int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -30,8 +30,8 @@ Mandelbox::Mandelbox(float power, Camera& camera, glm::vec3 sun)
 	GlErrorCheck();
 }
 
-Mandelbox::Mandelbox(float power, Camera& camera)
-	: Fractal3D(GenerateShader(false), GenerateShader(true), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::vec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
+Mandelbox::Mandelbox(float power, Camera& camera, int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::vec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -40,8 +40,8 @@ Mandelbox::Mandelbox(float power, Camera& camera)
 	GlErrorCheck();
 }
 
-Mandelbox::Mandelbox()
-	: Fractal3D(GenerateShader(false), GenerateShader(true)), power(defaultPower), genericParameter(1)
+Mandelbox::Mandelbox(int specIndex)
+	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex)), power(defaultPower), genericParameter(1)
 {
 	SetUniformNames();
 
@@ -124,7 +124,7 @@ void Mandelbox::Update()
 }
 
 
-Shader& Mandelbox::GenerateShader(bool highQuality)
+Shader& Mandelbox::GenerateShader(bool highQuality, int specIndex)
 {
 	GlErrorCheck();
 
@@ -132,7 +132,9 @@ Shader& Mandelbox::GenerateShader(bool highQuality)
 
 	std::string base = readFile(Fractal3D::path3DBase);
 
-	Fractal3D::ParseShader(source, base, highQuality);
+	std::string specification = readFile(SpecificationPath);
+
+	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex);
 
 	if (highQuality)
 	{

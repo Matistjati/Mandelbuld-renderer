@@ -13,21 +13,22 @@ class Mandelbulb : public Fractal3D
 public:
 	static const int defaultPower = 8;
 
-	Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time);
-	Mandelbulb(float power, Camera &camera, glm::vec3 sun);
-	Mandelbulb(float power, Camera &camera);
-	Mandelbulb();
+	Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex);
+	Mandelbulb(float power, Camera &camera, glm::vec3 sun, int specIndex);
+	Mandelbulb(float power, Camera &camera, int specIndex);
+	Mandelbulb(int specIndex);
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void SetUniforms(Shader& shader) override;
 	void SetUniformLocations(Shader& shader) override;
 	void SetUniformNames() override;
 	void Update() override;
-	static Shader& GenerateShader(bool highQuality);
+	static Shader& GenerateShader(bool highQuality, int specIndex);
 
 	Uniform<float> power;
 	Uniform<float> genericParameter;
 private:
 	static constexpr const char* SourcePath = "resources/shaders/3D/Mandelbulb.fs";
+	static constexpr const char* SpecificationPath = "resources/shaders/3D/MandelbulbSpecs.fs";
 };
 
 #endif

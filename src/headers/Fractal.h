@@ -58,6 +58,8 @@ protected:
 	static std::string getFileName(std::string path);
 	static std::string readFile(std::string path);
 	static std::vector<std::string> split(std::string str, char splitBy);
+	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
+	static std::string GetSpecificationByIndex(std::string specification, int index);
 };
 
 #endif

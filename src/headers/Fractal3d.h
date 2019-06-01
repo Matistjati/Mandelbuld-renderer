@@ -13,11 +13,14 @@ struct ShaderSection
 	std::string name;
 	bool optional;
 	std::string releaseName;
-	ShaderSection(std::string name) : name(name), optional(false), releaseName("")
+	bool multiple;
+	ShaderSection(std::string name) : name(name), optional(false), releaseName(""), multiple(false)
 	{}
-	ShaderSection(std::string name, bool optional) : name(name), optional(optional), releaseName("")
+	ShaderSection(std::string name, bool optional) : name(name), optional(optional), releaseName(""), multiple(false)
 	{}
-	ShaderSection(std::string name, bool optional, std::string releaseName) : name(name), optional(optional), releaseName(releaseName)
+	ShaderSection(std::string name, bool optional, std::string releaseName) : name(name), optional(optional), releaseName(releaseName), multiple(false)
+	{}
+	ShaderSection(std::string name, bool optional, std::string releaseName, bool multiple) : name(name), optional(optional), releaseName(releaseName), multiple(multiple)
 	{}
 
 	bool operator<(const ShaderSection& c2) const
@@ -31,7 +34,7 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
 										ShaderSection("lightingFunctions"), };
 
-const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true), ShaderSection("color"), };
+const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true), ShaderSection("color", false, "", true), };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
 									ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
@@ -55,8 +58,8 @@ public:
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void Update() override;
-	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, bool highQuality);
-	static void ParseShader(std::string source, std::string& final, bool highQuality);
+	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, std::string specification, bool highQuality);
+	static void ParseShader(std::string source, std::string& final, std::string spec, bool highQuality, int specIndex);
 
 	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";

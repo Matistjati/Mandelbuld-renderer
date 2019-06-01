@@ -1,11 +1,11 @@
 %maxIterations%4%/maxIterations%
 %maxSteps%100%/maxSteps%
 %maxIterationsRelease%512%/maxIterationsRelease%
-%maxStepsRelease%1000%/maxStepsRelease%
+%maxStepsRelease%5000%/maxStepsRelease%
 %antiAliasing%2%/antiAliasing%
 
 %maxDist%power*4%/maxDist%
-%maxDistRelease%power*20%/maxDistRelease%
+%maxDistRelease%power*10%/maxDistRelease%
 
 
 %uniforms%
@@ -21,15 +21,18 @@ void sphereFold(inout vec3 z, inout float dz, float r2)
 	//float minRadius2 = power - 1;
 	//float fixedRadius2 = power + 1;
 	
-	float minRadius2 = power / genericParameter/2;
-	float fixedRadius2 = power * genericParameter*2;
+	float minRadius2 = 0;
+	float fixedRadius2 = 1;
 
-	if (r2<minRadius2) { 
+	if (r2<minRadius2)
+	{ 
 		// linear inner scaling
 		float temp = (fixedRadius2/minRadius2);
 		z *= temp;
 		dz*= temp;
-	} else if (r2<fixedRadius2) { 
+	}
+	else if (r2<fixedRadius2)
+	{ 
 		// this is the actual sphere inversion
 		float temp =(fixedRadius2/r2);
 		z *= temp;
@@ -37,13 +40,14 @@ void sphereFold(inout vec3 z, inout float dz, float r2)
 	}
 }
 
-void boxFold(inout vec3 z, inout float dz) {
-	float foldingLimit = power;
+void boxFold(inout vec3 z, inout float dz)
+{
+	float foldingLimit = 1;
 	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
 }
 float DistanceEstimator(vec3 z, out vec4 resColor, float _)
 {
-	float Scale = genericParameter;
+	float Scale = -1.7;
 	vec3 c = z;
 	float dr = 1.0;
 	float m;
@@ -58,7 +62,6 @@ float DistanceEstimator(vec3 z, out vec4 resColor, float _)
 		//sphereFold(z,dr);  
  		
         z=Scale*z + c;  // Scale & Translate
-		
 		
 
 
@@ -117,14 +120,14 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 %/trace%
 
 %color%
-//vec3(0.78, 0.5, 0.13)
-//vec3(0.9, 0.15, 0.5)
-//vec3(0.5, 0, 0.5)
-//vec3(0.5, 0.5, 0.5)
-//vec3(0.3, 0.3, 0.3)
-//vec3(0.5, 0.65, 0.15)
-//vec3(1, 0, 0.3)
-vec3(0.8, 0.2, 0.8)
+<vec3(0.78, 0.5, 0.13)>,
+<vec3(0.9, 0.15, 0.5)>,
+<vec3(0.5, 0, 0.5)>,
+<vec3(0.5, 0.5, 0.5)>,
+<vec3(0.3, 0.3, 0.3)>,
+<vec3(0.5, 0.65, 0.15)>,
+<vec3(1, 0, 0.3)>,
+<vec3(0.8, 0.2, 0.8)>,
 %/color%
 
 %coloring%

@@ -220,7 +220,7 @@ void Fractal3D::Update()
 	time.PollTime();
 }
 
-void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, bool highQuality)
+void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, std::string specification, bool highQuality)
 {
 	// Bool in sections is for done or not
 
@@ -310,19 +310,28 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 		s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
 		
-		if (source.find(s.start) == std::string::npos)
+		std::string sectionString;
+		if (c.multiple)
 		{
-			while (replaceSection(s, Section(postShaderSections[i].name), defaultSource, final)) {}
+			std::vector<std::string> versions;
+			
+			versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, defaultSource), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
+			std::string index = getSection(s, specification);
+			sectionString = versions[std::stoi(index)];
+			sectionString = sectionString.substr(2, sectionString.length() - 4); // FIX
 		}
 		else
 		{
-			while(replaceSection(s, Section(postShaderSections[i].name), source, final)) {}
+			sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, defaultSource) : getSection(s, source);
 		}
+
+
+		while(replace(final, s.start, sectionString)) {}
 	}
 	std::cout << final;
 }
 
-void Fractal3D::ParseShader(std::string source, std::string & final, bool highQuality)
+void Fractal3D::ParseShader(std::string source, std::string & final, std::string spec, bool highQuality, int specIndex)
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
@@ -344,5 +353,12 @@ void Fractal3D::ParseShader(std::string source, std::string & final, bool highQu
 		sections[shaderSections[i]] = replaceSection(s, Section(shaderSections[i].name), source, final);
 
 	}
-	ParseShaderDefault(sections, source, final, highQuality);
+	std::string specSection = GetSpecificationByIndex(spec, specIndex);
+	if (specSection == "")
+	{
+		std::cout << "Specification error" << std::endl;
+		return;
+	}
+
+	ParseShaderDefault(sections, source, final, specSection, highQuality);
 }
