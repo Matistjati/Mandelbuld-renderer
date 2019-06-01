@@ -136,11 +136,11 @@ Shader& Mandelbox::GenerateShader(bool highQuality)
 
 	if (highQuality)
 	{
-		replace(base, "%maxDist%", "power*20");
+		replaceSection(Section("maxDistRelease"), Section("maxDist"), source, base);
 	}
 	else
 	{
-		replace(base, "%maxDist%", "power*4");
+		replaceSection(Section("maxDist"), Section("maxDist"), source, base);
 	}
 
 	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);

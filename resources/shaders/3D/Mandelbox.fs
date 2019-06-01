@@ -2,15 +2,16 @@
 %maxSteps%100%/maxSteps%
 %maxIterationsRelease%512%/maxIterationsRelease%
 %maxStepsRelease%1000%/maxStepsRelease%
+%antiAliasing%2%/antiAliasing%
+
+%maxDist%power*4%/maxDist%
+%maxDistRelease%power*20%/maxDistRelease%
+
 
 %uniforms%
 uniform float power = 1;
 uniform float genericParameter = 1;
 %/uniforms%
-
-%constants%
-const float antiAliasing = 2;
-%/constants%
 
 %distanceEstimator%
 void sphereFold(inout vec3 z, inout float dz, float r2)
@@ -122,16 +123,16 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 //vec3(0.5, 0.5, 0.5)
 //vec3(0.3, 0.3, 0.3)
 //vec3(0.5, 0.65, 0.15)
-vec3(1, 0, 1)
-
+//vec3(1, 0, 0.3)
+vec3(0.8, 0.2, 0.8)
 %/color%
 
 %coloring%
 col = mix(col, %color%, clamp(pow(trap.w,6.0),0.0,1.0));
-//col *= 0.5;
+col *= 0.5;
 %/coloring%
 
 %edgeGlow%
 col += %color% * steps * steps * 0.45; // Fog
-// If you only want edge, i sugges disabling the sun and sky gradient
+// If you only want edge, i suggest disabling the sun and sky gradient
 %/edgeGlow%

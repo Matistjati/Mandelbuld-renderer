@@ -3,15 +3,12 @@
 %shadowSoftness%4%/shadowSoftness% // Higher = harder shadow
 %maxIterationsRelease%512%/maxIterationsRelease%
 %maxStepsRelease%1000%/maxStepsRelease%
+%antiAliasing%3%/antiAliasing%
 
 %uniforms%
 uniform float power = 8;
 uniform float genericParameter = 1;
 %/uniforms%
-
-%constants%
-const float antiAliasing = 4;
-%/constants%
 
 %include%
 boundingSphere
@@ -153,7 +150,6 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
     }
 
 	percentSteps = float(i) / maxSteps;
-    percentSteps *= (percentSteps); // Smoothing out, making the circle thing disappear
 
     if(t < dis.y)
     {
@@ -166,5 +162,5 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 %/trace%
 
 %edgeGlow%
-col += vec3(0.556, 0.843, 0.415) * steps;
+col += vec3(0.556, 0.843, 0.415) * steps * steps;
 %/edgeGlow%

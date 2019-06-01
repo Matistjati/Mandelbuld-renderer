@@ -83,7 +83,7 @@ int main()
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 
-	const float vertices1[12] =
+	const float vertices[12] =
 	{
 		// Positions
 		1.f,  1.f, 0.0f,  // top right
@@ -105,7 +105,7 @@ int main()
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertices1, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);

@@ -14,9 +14,10 @@ uniform vec3 sun;
 
 const int maxIterations = %maxIterations%;
 const int maxSteps = %maxSteps%;
+const float antiAliasing = %antiAliasing%;
 const float sunSize = 1.0;
 const float sunTightness = 16.0; // Probably has some physical name, the amount the sun "spreads"
-const vec3 light = vec3( -0.707, 0.000,  0.707 );
+const vec3 light = vec3(-0.707107, 0.000, 0.707107);
 
 %constants%
 

@@ -29,12 +29,12 @@ struct ShaderSection
 const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
 										ShaderSection("distanceEstimator"), ShaderSection("sceneDistance"), ShaderSection("trace"),
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
-										ShaderSection("lightingFunctions", false)};
+										ShaderSection("lightingFunctions"), };
 
-const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow"), ShaderSection("color", false), };
+const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true), ShaderSection("color"), };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
-									ShaderSection("shadowSoftness", false), };
+									ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
 
 class Fractal3D : public Fractal
 {

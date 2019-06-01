@@ -3,6 +3,7 @@
 %shadowSoftness%4%/shadowSoftness% // Higher = harder shadow
 %maxIterationsRelease%512%/maxIterationsRelease%
 %maxStepsRelease%1000%/maxStepsRelease%
+%antiAliasing%2%antiAliasing%
 
 %sceneDistance%
 float sceneDistance(vec3 position, out vec4 resColor)
@@ -10,6 +11,14 @@ float sceneDistance(vec3 position, out vec4 resColor)
 	return DistanceEstimator(position, resColor, power);
 }
 %/sceneDistance%
+
+%sky%
+col += vec3(0.8, 0.95, 1.0) * (0.6 + 0.4 * ray.dir.y);
+%/sky%
+
+%sun%
+col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
+%/sun%
 
 %trace%
 float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
@@ -82,19 +91,17 @@ vec3 render(Ray ray)
 
 	float t = trace(ray, trap, zoom, steps);
 
-	vec3 col;
+	vec3 col = vec3(0);
 
 	// Color the sky if we don't hit the fractal
 	if(t < 0.0)
     {
 		// Sky gradient
-		// Blue sky
-     	col = vec3(0.8, 0.95, 1.0) * (0.6 + 0.4 * ray.dir.y);
-		// Cave
-     	//col = vec3(0.2, 0.05, 0.0) * (0.4 + 0.6 * ray.dir.y);
+		%sky%
+     	
 
 		// Sun
-		col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
+		%sun%
 
 		%edgeGlow%
 	}
