@@ -332,9 +332,16 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			std::string index = getSection(s, specification);
 			if (index == "")
 			{
-				DebugPrint("Error: index was error at postshader at section " + s.start);
-				replace(final, s.start, "");
-				continue;
+				if (s.start.find("color") != std::string::npos)
+				{
+					index = "0";
+				}
+				else
+				{
+					DebugPrint("Error: index was error at postshader at section " + s.start);
+					replace(final, s.start, "");
+					continue;
+				}
 			}
 			sectionString = versions[std::stoi(index)];
 			// Clean string
@@ -346,8 +353,14 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, defaultSource) : getSection(s, source);
 		}
 
-		while(replace(final, s.start, sectionString)) {}
-		std::cout << final;
+		if (c.releaseName != "")
+		{
+			while (replace(final, Section(c.name).start, sectionString)) {}
+		}
+		else
+		{
+			while(replace(final, s.start, sectionString)) {}
+		}
 	}
 }
 
@@ -398,6 +411,16 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 
 				versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, source), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
 				std::string index = getSection(s, specSection);
+				if (s.start.find("color") != std::string::npos)
+				{
+					index = "0";
+				}
+				else
+				{
+					DebugPrint("Error: index was error at postshader at section " + s.start);
+					replace(final, s.start, "");
+					continue;
+				}
 				sectionString = versions[std::stoi(index)];
 				// Clean string
 				sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());

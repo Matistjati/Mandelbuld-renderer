@@ -5,9 +5,6 @@
 	<scale>1</scale>,
 	<foldingLimit>1</foldingLimit>,
 </variables>
-<indices>
-	<color>1</color>
-</indices>
 }
 
 {

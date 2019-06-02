@@ -120,7 +120,7 @@
 		float res = -1.0;
 
 		//bounding sphere
-		vec2 dis = boundingSphere( vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
+		vec2 dis = boundingSphere(vec4(0.0,0.0,0.0,1.25), ray.origin, ray.dir);
 		if(dis.y < 0.0)
 			return -1.0;
 

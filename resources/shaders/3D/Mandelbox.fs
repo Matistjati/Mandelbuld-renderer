@@ -110,7 +110,7 @@
 
 		percentSteps = float(i)/float(maxSteps);
 
-		if (t < maxDist)
+		if (t < <maxDist>)
 		{
 		trapOut = trap;
 			res = t;
