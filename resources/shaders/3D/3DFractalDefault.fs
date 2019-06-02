@@ -41,7 +41,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 		t += h;
     }
 
-	if (i < maxSteps-1)
+	if (t < maxDist)
 	{
 		trapOut = trap;
 		res = t;

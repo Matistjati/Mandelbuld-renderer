@@ -12,6 +12,7 @@ uniform vec3 sun;
 
 <uniforms>
 
+const float maxDist = <maxDist>;
 const int maxIterations = <maxIterations>;
 const int maxSteps = <maxSteps>;
 const float antiAliasing = <antiAliasing>;

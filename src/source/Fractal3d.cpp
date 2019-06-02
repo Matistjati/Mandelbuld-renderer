@@ -291,6 +291,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	if (includes != "")
 	{
 		includes.erase(std::remove(includes.begin(), includes.end(), '\n'), includes.end());
+		includes.erase(std::remove(includes.begin(), includes.end(), '\t'), includes.end());
 		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
 
 		std::vector<std::string> includeList = Fractal::split(includes, ',');
@@ -331,7 +332,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			std::string index = getSection(s, specification);
 			if (index == "")
 			{
-				DebugPrint("Error: index was error at postshader");
+				DebugPrint("Error: index was error at postshader at section " + s.start);
 				replace(final, s.start, "");
 				continue;
 			}
@@ -345,8 +346,8 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, defaultSource) : getSection(s, source);
 		}
 
-
 		while(replace(final, s.start, sectionString)) {}
+		std::cout << final;
 	}
 }
 

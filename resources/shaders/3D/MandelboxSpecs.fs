@@ -1,4 +1,16 @@
 {
+<variables>
+	<innerRadius>0.1</innerRadius>,
+	<outerRadius>1</outerRadius>,
+	<scale>1</scale>,
+	<foldingLimit>1</foldingLimit>,
+</variables>
+<indices>
+	<color>1</color>
+</indices>
+}
+
+{
 <flags>
 	<skyOff>
 	<sunOff>
@@ -41,7 +53,7 @@
 {
 <indices>
 	<color>1</color>
-	<deformation>2</deformation>
+	<deformation>1</deformation>
 </indices>
 <cpuVariables>
 	<position>[0.0449852236, 0.0743116215, -0.930447638]</position>,
@@ -53,7 +65,7 @@
 {
 <indices>
 	<color>1</color>
-	<deformation>2</deformation>
+	<deformation>1</deformation>
 </indices>
 <cpuVariables>
 	<genericParameter>0.363999933</genericParameter>,

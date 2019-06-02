@@ -8,7 +8,7 @@
 #include "headers/Fractal.h"
 #include "headers/Fractal3d.h"
 
-const ShaderSection mandelBoxShaderSections[] = { ShaderSection("maxDist", false, "maxDistRelease"), ShaderSection("innerRadius"), ShaderSection("outerRadius"),
+const ShaderSection mandelBoxShaderSections[] = { ShaderSection("innerRadius"), ShaderSection("outerRadius"),
 												  ShaderSection("foldingLimit"), ShaderSection("scale") };
 
 

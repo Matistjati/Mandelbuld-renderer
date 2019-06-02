@@ -1,4 +1,12 @@
 {
+<indices>
+	<color>0</color>,
+	<colorB>0</colorB>,
+	<colorC>0</colorC>,
+</indices>
+}
+
+{
 <flags>
 	<traceDefault>
 </flags>
@@ -6,8 +14,6 @@
 	<color>0</color>,
 	<colorB>0</colorB>,
 	<colorC>0</colorC>,
-	<deformation>2</deformation>,
+	<deformation>1</deformation>,
 </indices>
-<cpuVariables>
-</cpuVariables>
 }

@@ -5,18 +5,20 @@
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>3</antiAliasing>
 
+<maxDist>20</maxDist>
+<maxDistRelease>100</maxDistRelease>
+
 <uniforms>
-uniform float power = 8;
-uniform float genericParameter = 1;
+	uniform float power = 8;
+	uniform float genericParameter = 1;
 </uniforms>
 
 <include>
-boundingSphere, sphereFold, boxFold
+	boundingSphere, sphereFold, boxFold
 </include>
 
 
 <deformation>
-	<>,
 	<boxFold(w,dz,power/2);
 	sphereFold(w,dz,power,power*2);>,
 	  

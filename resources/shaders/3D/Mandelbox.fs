@@ -18,7 +18,6 @@
 </uniforms>
 
 <deformation>
-	<>,
 	<w.x = sin(w.x);
 	w.x = sinh(w.x)*sin(w.x);>,
 			
@@ -111,14 +110,10 @@
 
 		percentSteps = float(i)/float(maxSteps);
 
-		if (t < <maxDist>)
+		if (t < maxDist)
 		{
 		trapOut = trap;
 			res = t;
-		}
-		else
-		{
-			res = -1;
 		}
 
 		return res;

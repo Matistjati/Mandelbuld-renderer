@@ -35,10 +35,10 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("lightingFunctions"), };
 
 const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
-											 ShaderSection("color", false, "", true), ShaderSection("deformation", true, "", true) };
+											 ShaderSection("color", false, "", true), ShaderSection("deformation", true, "", true),};
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
-									ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
+									ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), ShaderSection("maxDist", false, "maxDistRelease"), };
 
 const ShaderSection cpuVariables[] = { ShaderSection("position"), ShaderSection("sun", false, "maxStepsRelease"),
 										ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
