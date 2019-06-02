@@ -1,7 +1,46 @@
 {
-%color%3%/color%
+<flags>
+	<skyOff>
+	<sunOff>
+</flags>
+<variables>
+	<maxDist>0</maxDist>,
+	<maxDistRelease>0</maxDistRelease>,
+	<maxSteps>100</maxSteps>,
+	<maxStepsRelease>100</maxStepsRelease>,
+</variables>
+<indices>
+	<color>0</color>
+</indices>
 }
 
 {
-%color%1%/color%
+<variables>
+	<innerRadius>0.1</innerRadius>,
+	<outerRadius>1</outerRadius>,
+	<scale>1</scale>,
+	<foldingLimit>1</foldingLimit>,
+</variables>
+<indices>
+	<color>1</color>
+</indices>
+}
+
+{
+<variables>
+	<innerRadius>0.1</innerRadius>,
+	<outerRadius>1</outerRadius>,
+	<scale>-1.7</scale>,
+	<foldingLimit>1</foldingLimit>,
+</variables>
+<indices>
+	<color>1</color>
+</indices>
+}
+
+{
+<indices>
+	<color>1</color>
+	<deformation>1</deformation>
+</indices>
 }

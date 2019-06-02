@@ -20,8 +20,8 @@ struct Section
 
 	Section(std::string name)
 	{
-		start = "%" + name + "%";
-		end = "%/" + name + "%";
+		start = "<" + name + ">";
+		end = "</" + name + ">";
 	}
 };
 
@@ -56,10 +56,14 @@ protected:
 	static bool replaceSection(Section section, std::string& origin, std::string& dest);
 	static std::string getSection(Section s, std::string from);
 	static std::string getFileName(std::string path);
+	static std::string getSectionName(std::string str);
+	static std::string getSectionValue(std::string str);
 	static std::string readFile(std::string path);
+	static void cleanString(std::string& str, std::vector<char> chars);
 	static std::vector<std::string> split(std::string str, char splitBy);
 	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
 	static std::string GetSpecificationByIndex(std::string specification, int index);
+	static void Print(std::string c); // For debugging
 };
 
 #endif

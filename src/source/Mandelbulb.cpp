@@ -135,7 +135,8 @@ Shader& Mandelbulb::GenerateShader(bool highQuality, int specIndex)
 
 	std::string specification = readFile(SpecificationPath);
 
-	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex);
+	const size_t length = std::extent<decltype(mandelBulbShaderSections)>::value;
+	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, mandelBulbShaderSections, length);
 
 	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
 

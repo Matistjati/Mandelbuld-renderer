@@ -220,9 +220,25 @@ void Fractal3D::Update()
 	time.PollTime();
 }
 
-void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, std::string specification, bool highQuality)
+void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality)
 {
-	// Bool in sections is for done or not
+	// Bool in sections is for done or not 
+	if (specification.find(Section("variables").start) != std::string::npos)
+	{
+		std::vector<std::string> variables = splitNotInChar(getSection(Section("variables"), specification), ',', '<', '>');
+		for (size_t i = 0; i < variables.size(); i++)
+		{
+			
+			std::string sectionName = getSectionName(variables[i]);
+			Section c = Section(sectionName);
+			std::string from = c.start + getSection(Section(sectionName), source) + c.end;
+
+			if (!replace(source, from, variables[i]))
+			{
+				DebugPrint("Could not replace variable from specification");
+			}
+		}
+	}
 
 	std::string defaultSource = readFile(default3DFractal);
 	// Default code for sections not implemented
@@ -248,7 +264,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			replace(final, Section(x.first.name).start, "");
 		}
 	}
-	
+
 	// Constants
 	const size_t constSize = std::extent<decltype(constants)>::value;
 	for (size_t i = 0; i < constSize; i++)
@@ -265,8 +281,6 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			replaceSection(s, Section(constants[i].name), defaultSource, final);
 		}
 	}
-
-
 
 
 	Section help("helperFunctions");
@@ -294,7 +308,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	replace(final, help.start, functions);
 
 
-
+	std::string flags = getSection(Section("flags"), specification);
 
 	// Do this last, various reasons
 	const size_t postShaderSize = std::extent<decltype(postShaderSections)>::value;
@@ -302,7 +316,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	{
 		Section s("");
 		ShaderSection c = postShaderSections[i];
-		if (c.optional && source.find("%" + c.name + "Off%") != std::string::npos)
+		if (c.optional && (source.find("<" + c.name + "Off>") != std::string::npos || flags.find("<" + c.name + "Off>") != std::string::npos))
 		{
 			replace(final, Section(c.name).start, "");
 			continue;
@@ -311,14 +325,22 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
 		
 		std::string sectionString;
-		if (c.multiple)
+		if (c.multiple && source.find(s.start) != std::string::npos)
 		{
 			std::vector<std::string> versions;
 			
 			versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, defaultSource), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
 			std::string index = getSection(s, specification);
+			if (index == "")
+			{
+				DebugPrint("Error: index was error at postshader");
+				replace(final, s.start, "");
+				continue;
+			}
 			sectionString = versions[std::stoi(index)];
-			sectionString = sectionString.substr(2, sectionString.length() - 4); // FIX
+			// Clean string
+			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());
+			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '>'), sectionString.end());
 		}
 		else
 		{
@@ -328,10 +350,9 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 		while(replace(final, s.start, sectionString)) {}
 	}
-	std::cout << final;
 }
 
-void Fractal3D::ParseShader(std::string source, std::string & final, std::string spec, bool highQuality, int specIndex)
+void Fractal3D::ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[], size_t length)
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
@@ -339,20 +360,14 @@ void Fractal3D::ParseShader(std::string source, std::string & final, std::string
 	for (size_t i = 0; i < sectionSize; i++)
 	{
 		ShaderSection c = shaderSections[i];
-		Section s = Section("");
 		sections[c] = false;
 
-		if (highQuality && c.releaseName != "")
-		{
-			s = Section(c.releaseName);
-		}
-		else
-		{
-			s = Section(c.name);
-		}
+		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
+
 		sections[shaderSections[i]] = replaceSection(s, Section(shaderSections[i].name), source, final);
 
 	}
+
 	std::string specSection = GetSpecificationByIndex(spec, specIndex);
 	if (specSection == "")
 	{
@@ -360,5 +375,37 @@ void Fractal3D::ParseShader(std::string source, std::string & final, std::string
 		return;
 	}
 
+
 	ParseShaderDefault(sections, source, final, specSection, highQuality);
+
+	if (extraSections != nullptr)
+	{
+		for (size_t i = 0; i < length; i++)
+		{
+			ShaderSection c = extraSections[i];
+			
+			Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
+
+			std::string sectionString;
+			if (c.multiple && source.find(s.start) != std::string::npos)
+			{
+				std::vector<std::string> versions;
+
+				versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, source), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
+				std::string index = getSection(s, specSection);
+				sectionString = versions[std::stoi(index)];
+				// Clean string
+				sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());
+				sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '>'), sectionString.end());
+				while (replace(final, s.start, sectionString)) {}
+			}
+			else
+			{
+				sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, source) : getSection(s, source);
+				while (replace(final, Section(c.name).start, sectionString)) {}
+			}
+
+		}
+	}
+	std::cout << final;
 }

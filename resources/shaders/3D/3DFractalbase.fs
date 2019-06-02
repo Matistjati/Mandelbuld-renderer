@@ -10,16 +10,16 @@ uniform mat2 rollMatrix;
 uniform vec3 position;
 uniform vec3 sun;
 
-%uniforms%
+<uniforms>
 
-const int maxIterations = %maxIterations%;
-const int maxSteps = %maxSteps%;
-const float antiAliasing = %antiAliasing%;
+const int maxIterations = <maxIterations>;
+const int maxSteps = <maxSteps>;
+const float antiAliasing = <antiAliasing>;
 const float sunSize = 1.0;
 const float sunTightness = 16.0; // Probably has some physical name, the amount the sun "spreads"
 const vec3 light = vec3(-0.707107, 0.000, 0.707107);
 
-%constants%
+<constants>
 
 struct Ray
 {
@@ -28,23 +28,23 @@ struct Ray
 };
 
 // Helper functions
-%helperFunctions%
+<helperFunctions>
 
 // Distance estimator
-%distanceEstimator%
+<distanceEstimator>
 
 // Stuff like multiple distance estimators
-%sceneDistance%
+<sceneDistance>
 
 // The actual ray marching, implement things like bounding geometry
-%trace%
+<trace>
 
-%lightingFunctions%
+<lightingFunctions>
 
 // Transforming some inputs, calling trace and calculating color and shadow
-%render%
+<render>
 
 void main()
 {
-	%main%
+	<main>
 }

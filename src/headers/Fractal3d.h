@@ -34,7 +34,8 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
 										ShaderSection("lightingFunctions"), };
 
-const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true), ShaderSection("color", false, "", true), };
+const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
+											 ShaderSection("color", false, "", true), ShaderSection("deformation", true, "", true) };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
 									ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
@@ -58,8 +59,8 @@ public:
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void Update() override;
-	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string source, std::string& final, std::string specification, bool highQuality);
-	static void ParseShader(std::string source, std::string& final, std::string spec, bool highQuality, int specIndex);
+	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
+	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[] = nullptr, size_t length = 0);
 
 	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";

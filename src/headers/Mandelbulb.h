@@ -8,6 +8,9 @@
 #include "headers/Fractal.h"
 #include "headers/Fractal3d.h"
 
+const ShaderSection mandelBulbShaderSections[] = { ShaderSection("colorB", false, "", true), ShaderSection("colorC", false, "", true) };
+
+
 class Mandelbulb : public Fractal3D
 {
 public:

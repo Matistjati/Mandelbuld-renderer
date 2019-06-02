@@ -134,16 +134,8 @@ Shader& Mandelbox::GenerateShader(bool highQuality, int specIndex)
 
 	std::string specification = readFile(SpecificationPath);
 
-	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex);
-
-	if (highQuality)
-	{
-		replaceSection(Section("maxDistRelease"), Section("maxDist"), source, base);
-	}
-	else
-	{
-		replaceSection(Section("maxDist"), Section("maxDist"), source, base);
-	}
+	const size_t length = std::extent<decltype(mandelBoxShaderSections)>::value;
+	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, mandelBoxShaderSections, length);
 
 	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
 
