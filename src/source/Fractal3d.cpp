@@ -100,7 +100,6 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	default:
 		break;
 	}
-	GlErrorCheck();
 }
 
 
@@ -133,7 +132,6 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 
 	explorationShader.SetUniform(camera.pitchMatrix);
 	explorationShader.SetUniform(camera.yawMatrix);
-	GlErrorCheck();
 }
 
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -407,5 +405,39 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 
 		}
 	}
-	std::cout << final;
+}
+
+// This is really nasty, be careful
+inline void Fractal3D::SetVariable(std::string name, std::string value)
+{
+	if (name == "position")
+	{
+		std::vector<std::string> components = split(value, ',');
+		camera.position.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
+	}
+	else if (name == "yaw")
+	{
+		camera.SetYaw(std::stof(value));
+	}
+	else if (name == "pitch")
+	{
+		camera.SetPitch(std::stof(value));
+	}
+	else if (name == "roll")
+	{
+		camera.SetRoll(std::stof(value));
+	}
+	else if (name == "sun")
+	{
+		std::vector<std::string> components = split(value, ',');
+		sun.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
+	}
+	else if (name == "movementReverse")
+	{
+		camera.movementReverse = std::stof(value);
+	}
+	else if (name == "worldFlip")
+	{
+		camera.worldFlip.value = std::stoi(value);
+	}
 }

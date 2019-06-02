@@ -26,6 +26,8 @@ public:
 	void SetUniformNames() override;
 	void Update() override;
 	static Shader& GenerateShader(bool highQuality, int specIndex);
+	void SetVariablesFromSpec(int index);
+	void SetVariable(std::string name, std::string value) override;
 
 	Uniform<float> power;
 	Uniform<float> genericParameter;

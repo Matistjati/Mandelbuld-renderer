@@ -47,6 +47,8 @@ public:
 	virtual void SetUniformLocations(Shader& shader) = 0;
 	virtual void Update() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
+	virtual void SetVariablesFromSpec(int index) = 0;
+	virtual void SetVariable(std::string name, std::string value) = 0;
 
 	static const constexpr char* pathRectangleVertexshader = "resources/shaders/Rectangle.glsl";
 

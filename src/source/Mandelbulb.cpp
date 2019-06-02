@@ -13,6 +13,7 @@
 Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex)
 	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, screenSize, time, sun), power(power), genericParameter(1)
 {
+	SetVariablesFromSpec(specIndex);
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);
@@ -23,6 +24,7 @@ Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, glm::ivec2 sc
 Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, int specIndex)
 	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), sun), power(power), genericParameter(1)
 {
+	SetVariablesFromSpec(specIndex);
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);
@@ -33,6 +35,7 @@ Mandelbulb::Mandelbulb(float power, Camera &camera, glm::vec3 sun, int specIndex
 Mandelbulb::Mandelbulb(float power, Camera &camera, int specIndex)
 	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex), camera, glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight), Time(), glm::normalize(glm::dvec3(0.577, 0.577, 0.577))), power(power), genericParameter(1)
 {
+	SetVariablesFromSpec(specIndex);
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);
@@ -43,6 +46,7 @@ Mandelbulb::Mandelbulb(float power, Camera &camera, int specIndex)
 Mandelbulb::Mandelbulb(int specIndex)
 	: Fractal3D(GenerateShader(false, specIndex), GenerateShader(true, specIndex)), power(defaultPower), genericParameter(1)
 {
+	SetVariablesFromSpec(specIndex);
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);
@@ -80,7 +84,6 @@ void Mandelbulb::KeyCallback(GLFWwindow * window, int key, int scancode, int act
 	default:
 		break;
 	}
-	GlErrorCheck();
 }
 
 void Mandelbulb::SetUniforms(Shader& shader)
@@ -141,4 +144,36 @@ Shader& Mandelbulb::GenerateShader(bool highQuality, int specIndex)
 	std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
 
 	return *(new Shader(vertexSource, base, false));
+}
+
+void Mandelbulb::SetVariablesFromSpec(int index)
+{
+	std::string specSection = GetSpecificationByIndex(readFile(SpecificationPath), index);
+	std::string variables = getSection(Section("cpuVariables"), specSection);
+	if (variables != "")
+	{
+		std::vector<std::string> variablesList = splitNotInChar(variables, ',', '[', ']');
+		for (size_t i = 0; i < variablesList.size(); i++)
+		{
+			std::string value = getSectionValue(variablesList[i]);
+			cleanString(value, { '[', ']' });
+			SetVariable(getSectionName(variablesList[i]), value);
+		}
+	}
+}
+
+void Mandelbulb::SetVariable(std::string name, std::string value)
+{
+	if (name == "power")
+	{
+		power.value = std::stof(value);
+	}
+	else if (name == "genericParameter")
+	{
+		genericParameter.value = std::stof(value);
+	}
+	else
+	{
+		Fractal3D::SetVariable(name, value);
+	}
 }

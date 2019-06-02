@@ -41,6 +41,21 @@
 {
 <indices>
 	<color>1</color>
-	<deformation>1</deformation>
+	<deformation>2</deformation>
 </indices>
+<cpuVariables>
+	<position>[0.0449852236, 0.0743116215, -0.930447638]</position>,
+	<yaw>268.699890</position>,
+	<pitch>-3.00000954</pitch>,
+</cpuVariables>
+}
+
+{
+<indices>
+	<color>1</color>
+	<deformation>2</deformation>
+</indices>
+<cpuVariables>
+	<genericParameter>0.363999933</genericParameter>,
+</cpuVariables>
 }

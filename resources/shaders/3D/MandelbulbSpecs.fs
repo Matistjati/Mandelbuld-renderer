@@ -5,4 +5,7 @@
 	<colorC>0</colorC>,
 	<deformation>2</deformation>,
 </indices>
+<cpuVariables>
+	<power>2</power>
+</cpuVariables>
 }

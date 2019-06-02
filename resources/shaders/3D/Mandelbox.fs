@@ -22,9 +22,9 @@
 	<w.x = sin(w.x);
 	w.x = sinh(w.x)*sin(w.x);>,
 			
-		
-			//w.z = cos(w.z)*sin(w.z);
-			//w.y = cos(w.y)*sin(w.y);
+	<w.z = cos(w.z)*sin(w.z);
+	w.y = cos(w.y)*sin(w.y);>,
+
 </deformation>
 
 <distanceEstimator>

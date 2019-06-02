@@ -40,6 +40,9 @@ const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSe
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
 									ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
 
+const ShaderSection cpuVariables[] = { ShaderSection("position"), ShaderSection("sun", false, "maxStepsRelease"),
+										ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
+
 class Fractal3D : public Fractal
 {
 public:
@@ -59,6 +62,7 @@ public:
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void Update() override;
+	void SetVariable(std::string name, std::string value) override;
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
 	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[] = nullptr, size_t length = 0);
 
