@@ -1,4 +1,7 @@
 {
+<flags>
+	<traceDefault>
+</flags>
 <indices>
 	<color>0</color>,
 	<colorB>0</colorB>,
@@ -6,6 +9,5 @@
 	<deformation>2</deformation>,
 </indices>
 <cpuVariables>
-	<power>2</power>
 </cpuVariables>
 }

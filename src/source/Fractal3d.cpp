@@ -354,6 +354,15 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
+	std::string specSection = GetSpecificationByIndex(spec, specIndex);
+	if (specSection == "")
+	{
+		std::cout << "Specification error" << std::endl;
+		return;
+	}
+
+	std::string flags = getSection(Section("flags"), specSection);
+
 	const size_t sectionSize = std::extent<decltype(shaderSections)>::value;
 	for (size_t i = 0; i < sectionSize; i++)
 	{
@@ -362,16 +371,13 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 
 		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
 
-		sections[shaderSections[i]] = replaceSection(s, Section(shaderSections[i].name), source, final);
-
+		if (flags.find("<" + getSectionName(s.start) + "Default>") == std::string::npos)
+		{
+			sections[c] = replaceSection(s, Section(c.name), source, final);
+		}
 	}
 
-	std::string specSection = GetSpecificationByIndex(spec, specIndex);
-	if (specSection == "")
-	{
-		std::cout << "Specification error" << std::endl;
-		return;
-	}
+
 
 
 	ParseShaderDefault(sections, source, final, specSection, highQuality);
