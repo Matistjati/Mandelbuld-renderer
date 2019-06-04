@@ -1,9 +1,5 @@
 {
 <variables>
-	<innerRadius>0.1</innerRadius>,
-	<outerRadius>1</outerRadius>,
-	<scale>1</scale>,
-	<foldingLimit>1</foldingLimit>,
 </variables>
 }
 
@@ -19,8 +15,11 @@
 	<maxStepsRelease>100</maxStepsRelease>,
 </variables>
 <indices>
-	<color>0</color>
+	<color>2</color>
 </indices>
+<cpuVariables>
+	<position>[-1.40337825, 4.03520060, -0.485743016]</position>,
+</cpuVariables>
 }
 
 {

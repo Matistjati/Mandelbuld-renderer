@@ -65,6 +65,8 @@ public:
 	void SetVariable(std::string name, std::string value) override;
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
 	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[] = nullptr, size_t length = 0);
+	virtual float DistanceEstimator(glm::vec3 start, glm::vec4 resColor, float Power) = 0;
+
 
 	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";

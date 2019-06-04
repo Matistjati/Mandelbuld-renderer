@@ -1,9 +1,9 @@
 <maxIterations>4</maxIterations>
 <maxSteps>60</maxSteps>
 <shadowSoftness>4</shadowSoftness> // Higher = harder shadow
-<maxIterationsRelease>512</maxIterationsRelease>
+<maxIterationsRelease>128</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
-<antiAliasing>3</antiAliasing>
+<antiAliasing>2</antiAliasing>
 
 <maxDist>20</maxDist>
 <maxDistRelease>100</maxDistRelease>

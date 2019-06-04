@@ -29,6 +29,7 @@ public:
 	static Shader& GenerateShader(bool highQuality, int specIndex);
 	void SetVariablesFromSpec(int index);
 	void SetVariable(std::string name, std::string value) override;
+	float DistanceEstimator(glm::vec3 start, glm::vec4 resColor, float Power) { return 0; };
 
 	Uniform<float> power;
 	Uniform<float> genericParameter;

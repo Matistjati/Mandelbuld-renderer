@@ -26,7 +26,7 @@
 
 </deformation>
 
-<distanceEstimator>
+<helperFunctions>
 	void sphereFold(inout vec3 w, inout float dz, float r2)
 	{
 		//float minRadius2 = power - distance(w,sun);
@@ -58,7 +58,10 @@
 		float foldingLimit = <foldingLimit>;
 		w = clamp(w, -foldingLimit, foldingLimit) * 2.0 - w;
 	}
+</helperFunctions>
 
+
+<distanceEstimator>
 	float DistanceEstimator(vec3 w, out vec4 resColor, float _)
 	{
 		float Scale = <scale>;
@@ -71,12 +74,20 @@
 			boxFold(w,dr);
 			m = dot(w,w);
 			sphereFold(w,dr,m);
- 		
+			
+			boxFold(w,dr);
+			m = dot(w,w);
+			sphereFold(w,dr,m);
+
+ 			w.y = sin(w.y);
+ 			//w.y = sin(w.y)*sinh(w.y);
+			//w.x = (w.y);
+
 			w=Scale*w + c;  // Scale & Translate
 		
-			<deformation>
 
-			dr = dr*abs(Scale)+1.0;
+			dr = dr*abs(Scale)+0.0;
+			<deformation>
 
 			trap = max(trap, vec4(abs(w), m));
 		}
@@ -123,6 +134,7 @@
 <color>
 	<vec3(1, 0, 0.3)>,
 	<vec3(1, 0, 1)>,
+	<vec3(0, 1, 1)>,
 	<vec3(0.78, 0.5, 0.13)>,
 	<vec3(0.9, 0.15, 0.5)>,
 	<vec3(0.5, 0, 0.5)>,

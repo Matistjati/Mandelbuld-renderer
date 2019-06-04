@@ -1,5 +1,7 @@
 {
-
+<flags>
+	<traceDefault>
+</flags>
 }
 
 {
