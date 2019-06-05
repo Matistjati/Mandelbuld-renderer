@@ -368,7 +368,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
-	std::string specSection = GetSpecificationByIndex(spec, specIndex);
+	std::string specSection = GetSpecificationByIndex(spec, specIndex, readFile(presetSpec));
 	if (specSection == "")
 	{
 		std::cout << "Specification error" << std::endl;

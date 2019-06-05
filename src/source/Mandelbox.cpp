@@ -146,7 +146,7 @@ Shader& Mandelbox::GenerateShader(bool highQuality, int specIndex)
 
 void Mandelbox::SetVariablesFromSpec(int index)
 {
-	std::string specSection = GetSpecificationByIndex(readFile(SpecificationPath), index);
+	std::string specSection = GetSpecificationByIndex(readFile(SpecificationPath), index, readFile(presetSpec));
 	std::string variables = getSection(Section("cpuVariables"), specSection);
 	if (variables != "")
 	{

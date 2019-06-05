@@ -1,6 +1,18 @@
 {
-<variables>
-</variables>
+
+}
+
+{
+<include>
+FogIteration
+</include>
+
+<indices>
+	<color>2</color>
+</indices>
+<cpuVariables>
+	<position>[-1.40337825, 4.03520060, -0.485743016]</position>,
+</cpuVariables>
 }
 
 {
@@ -15,10 +27,29 @@
 	<maxStepsRelease>100</maxStepsRelease>,
 </variables>
 <indices>
-	<color>2</color>
+	<color>3</color>
 </indices>
 <cpuVariables>
-	<position>[-1.40337825, 4.03520060, -0.485743016]</position>,
+	<position>[-0.974210978, -0.814095318, -3.66229343]</position>,
+</cpuVariables>
+}
+
+{
+<flags>
+	<skyOff>
+	<sunOff>
+</flags>
+<variables>
+	<maxDist>0</maxDist>,
+	<maxDistRelease>0</maxDistRelease>,
+	<maxSteps>100</maxSteps>,
+	<maxStepsRelease>100</maxStepsRelease>,
+</variables>
+<indices>
+	<color>4</color>
+</indices>
+<cpuVariables>
+	<position>[-1.01426327, -0.817652643, -3.69670177]</position>,
 </cpuVariables>
 }
 

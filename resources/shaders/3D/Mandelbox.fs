@@ -4,7 +4,7 @@
 <maxStepsRelease>5000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
-<maxDist>power*4</maxDist>
+<maxDist>power*2</maxDist>
 <maxDistRelease>power*10</maxDistRelease>
 
 <innerRadius>power-1</innerRadius>
@@ -79,7 +79,9 @@
 			m = dot(w,w);
 			sphereFold(w,dr,m);
 
- 			w.y = sin(w.y);
+			w.y = sin(w.y);
+ 			//w.x = asinh(w.x);
+
  			//w.y = sin(w.y)*sinh(w.y);
 			//w.x = (w.y);
 
@@ -135,6 +137,8 @@
 	<vec3(1, 0, 0.3)>,
 	<vec3(1, 0, 1)>,
 	<vec3(0, 1, 1)>,
+	<vec3(0, 1, 0)>,
+	<vec3(1, 1, 1)>,
 	<vec3(0.78, 0.5, 0.13)>,
 	<vec3(0.9, 0.15, 0.5)>,
 	<vec3(0.5, 0, 0.5)>,
@@ -149,6 +153,6 @@
 </coloring>
 
 <edgeGlow>
-	col += <color> * steps * steps * 0.45; // Fog
+	col += <color> * (steps * steps-0.25) * 0.45; // Fog
 	// If you only want edge, i suggest disabling the sun and sky gradient
 </edgeGlow>

@@ -71,6 +71,7 @@ public:
 	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";
 	static const constexpr char* helperFunctions = "resources/shaders/3D/HelperFunctions.fs";
+	static const constexpr char* presetSpec = "resources/shaders/3D/PresetSpecs.fs";
 
 private:
 	glm::vec2 mouseOffset;

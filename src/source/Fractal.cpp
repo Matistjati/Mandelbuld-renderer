@@ -96,6 +96,25 @@ void Fractal::cleanString(std::string& str, std::vector<char> chars)
 	}
 }
 
+bool Fractal::RemoveOuterSection(std::string& str)
+{
+	int sectionStart = str.find('<');
+	int sectionEnd = str.find('>', sectionStart);
+	std::string name = str.substr(sectionStart + 1, sectionEnd - sectionStart - 1);
+
+	if (name != "")
+	{
+		Section s(name);
+		replace(str, s.start, "");
+		replace(str, s.end, "");
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 std::vector<std::string> Fractal::split(std::string str, char splitBy)
 {
 	std::stringstream test(str);
@@ -117,7 +136,6 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 
 	int level = 0;
 	int lastIndex = 0;
-	bool open;
 	for (size_t i = 0; i < str.length(); i++)
 	{
 		if (str[i] == splitBy && level == 0)
@@ -140,7 +158,7 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 	return result;
 }
 
-std::string Fractal::GetSpecificationByIndex(std::string specification, int index)
+std::string Fractal::GetSpecificationByIndex(std::string specification, int index, const std::string presets)
 {
 	size_t n = std::count(specification.begin(), specification.end(), '{');
 	int bracketCount = 0;
@@ -182,10 +200,78 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int inde
 		return "";
 	}
 
-	return specification.substr(startIndex, endIndex - startIndex);
+	std::string section = specification.substr(startIndex, endIndex - startIndex);
+	if (section.find(Section("include").start) != std::string::npos)
+	{
+		std::vector<std::string> includes = split(getSectionValue(getSection(Section("include"), section)), ',');
+		if (includes.size() != 0)
+		{
+			for (size_t i = 0; i < includes.size(); i++)
+			{
+				cleanString(includes[i], { '\n' });
+				std::string preset = getSection(Section(includes[i]), presets);
+				LinkSpecification(preset, section);
+			}
+		}
+	}
+	return section;
 }
 
-void Fractal::Print(std::string c)
+void Fractal::LinkSpecification(std::string& source, std::string& target)
 {
-	std::cout << c << std::endl;
+	std::vector<std::string> sections = GetOuterSections(source);
+
+	for (size_t i = 0; i < sections.size(); i++)
+	{
+		std::string sectionName = getSectionName(sections[i]);  
+		if (target.find(sectionName) == std::string::npos)
+		{
+			target += sections[i];
+		}
+		else
+		{
+			RemoveOuterSection(sections[i]);
+			std::vector<std::string> innerSections = splitNotInChar(sections[i], ',', '[', ']');
+			int sectionStart = target.find(sectionName) + sectionName.length();
+			for (size_t i = 0; i < innerSections.size(); i++)
+			{
+				if (target.find(getSectionName(innerSections[i])) == std::string::npos)
+				{
+					target.insert(sectionStart + 1, innerSections[i]);
+				}
+				else
+				{
+					// Don't overwrite
+				}
+			}
+		}
+	}
+}
+
+std::vector<std::string> Fractal::GetOuterSections(std::string& source)
+{
+	std::vector<std::string> sections(0);
+	cleanString(source, { '\n', '\t' });
+
+	int sectionStart = -1;
+	int sectionEnd = -1;
+	std::string sectionName;
+	for (size_t i = 0; i < source.length(); i++)
+	{
+		if (source[i] == '<')
+		{
+			sectionStart = i;
+			sectionEnd = source.find('>', i);
+			sectionName = source.substr(i + 1, sectionEnd - i - 1);
+
+			std::string end = "</" + sectionName + ">";
+			int sectionCloserIndex = source.find(end, sectionEnd);
+			if (sectionCloserIndex != std::string::npos)
+			{
+				sections.push_back(source.substr(i, sectionCloserIndex + (sectionName.length() + 3) - i));
+				i = sectionCloserIndex + sectionName.length();
+			}
+		}
+	}
+	return sections;
 }

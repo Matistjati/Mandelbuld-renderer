@@ -62,10 +62,12 @@ protected:
 	static std::string getSectionValue(std::string str);
 	static std::string readFile(std::string path);
 	static void cleanString(std::string& str, std::vector<char> chars);
+	static bool RemoveOuterSection(std::string& str);
 	static std::vector<std::string> split(std::string str, char splitBy);
 	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
-	static std::string GetSpecificationByIndex(std::string specification, int index);
-	static void Print(std::string c); // For debugging
+	static std::string GetSpecificationByIndex(std::string specification, int index, const std::string presets);
+	static void LinkSpecification(std::string& source, std::string& target);
+	static std::vector<std::string> GetOuterSections(std::string& source);
 };
 
 #endif
