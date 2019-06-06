@@ -160,6 +160,7 @@ int main()
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
+		fractal.HandleKeyInput();
 	}
 
 	glDeleteVertexArrays(1, &VAO);

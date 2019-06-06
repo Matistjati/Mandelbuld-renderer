@@ -13,96 +13,40 @@ inline bool fileExists(const std::string& name)
 
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (action != GLFW_REPEAT && action != GLFW_PRESS)
-	{
-		return;
-	}
+	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
 
-	if (key == GLFW_KEY_S && (mods && GLFW_MOD_CONTROL) == 1)
-	{
-		const std::string baseName = "TestImage/image";
-		int count = 0;
-		while (1)
-		{
-			if (!fileExists((baseName + std::to_string(count) + ".png")))
-			{
-				SaveImage(baseName + std::to_string(count) + ".png");
-				return;
-			}
-			count++;
-		}
-	}
-
-	if (key == GLFW_KEY_D && (mods && GLFW_MOD_CONTROL) == 1)
-	{
-		__debugbreak();
-	}
+	// Handle input actions in separate function
+	if (action == GLFW_PRESS) keys[key] = true;
+	else if (action == GLFW_RELEASE) keys[key] = false;
 
 	switch (key)
 	{
-		// Exit
 	case GLFW_KEY_ESCAPE:
-		glfwSetWindowShouldClose(window, 1);
+		if (action == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
 		break;
 
-		// WASD movement
-	case GLFW_KEY_W:
-		camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.deltaTime) * parameterChangeRate);
-		explorationShader.SetUniform(camera.position);
-		break;
+		// Ctrl key handling
 	case GLFW_KEY_S:
-		camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.deltaTime) * parameterChangeRate);
-		explorationShader.SetUniform(camera.position);
+		if ((mods && GLFW_MOD_CONTROL) == 1 && action == GLFW_PRESS)
+		{
+			const std::string baseName = "TestImage/image";
+			int count = 0;
+			while (1)
+			{
+				if (!fileExists((baseName + std::to_string(count) + ".png")))
+				{
+					SaveImage(baseName + std::to_string(count) + ".png");
+					return;
+				}
+				count++;
+			}
+		}
 		break;
-	case GLFW_KEY_A:
-		camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.deltaTime) * parameterChangeRate);
-		explorationShader.SetUniform(camera.position);
-		break;
+
 	case GLFW_KEY_D:
-		camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.deltaTime) * parameterChangeRate);
-		explorationShader.SetUniform(camera.position);
-		break;
-
-		// Up and down
-	case GLFW_KEY_SPACE:
-		camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.deltaTime) * parameterChangeRate);
-		explorationShader.SetUniform(camera.position);
-		break;
-	case GLFW_KEY_LEFT_SHIFT:
-		camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.deltaTime) * parameterChangeRate);
-		explorationShader.SetUniform(camera.position);
-		break;
-
-		// World stuff
-	case GLFW_KEY_Z:
-		camera.worldFlip.value *= -1;
-		explorationShader.SetUniform(camera.worldFlip);
-		break;
-	case GLFW_KEY_X:
-		camera.movementReverse *= -1;
-		break;
-
-		// Variable change rate
-	case GLFW_KEY_G:
-		parameterChangeRate += 0.01f;
-		parameterChangeRate = std::max(parameterChangeRate, 0.01f);
-		break;
-	case GLFW_KEY_T:
-		parameterChangeRate -= 0.01f;
-		parameterChangeRate = std::max(parameterChangeRate, 0.01f);
-		break;
-
-		// Camera roll
-	case GLFW_KEY_Q:
-		camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-		explorationShader.SetUniform(camera.rollMatrix);
-		break;
-	case GLFW_KEY_E:
-		camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-		explorationShader.SetUniform(camera.rollMatrix);
-		break;
-
-	default:
+		if ((mods && GLFW_MOD_CONTROL) == 1 && action == GLFW_PRESS)
+			__debugbreak();
 		break;
 	}
 }
@@ -480,5 +424,77 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	else if (name == "worldFlip")
 	{
 		camera.worldFlip.value = std::stoi(value);
+	}
+}
+
+void Fractal3D::HandleKeyInput()
+{
+	for (auto const& key : keys)
+	{
+		if (key.second)
+		{
+			switch (key.first)
+			{
+				// WASD movement
+			case GLFW_KEY_W:
+				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				explorationShader.SetUniform(camera.position);
+				break;
+			case GLFW_KEY_S:
+				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				explorationShader.SetUniform(camera.position);
+				break;
+			case GLFW_KEY_A:
+				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				explorationShader.SetUniform(camera.position);
+				break;
+			case GLFW_KEY_D:
+				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				explorationShader.SetUniform(camera.position);
+				break;
+
+				// Up and down
+			case GLFW_KEY_SPACE:
+				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				explorationShader.SetUniform(camera.position);
+				break;
+			case GLFW_KEY_LEFT_SHIFT:
+				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				explorationShader.SetUniform(camera.position);
+				break;
+
+				// World stuff
+			case GLFW_KEY_Z:
+				camera.worldFlip.value *= -1;
+				explorationShader.SetUniform(camera.worldFlip);
+				break;
+			case GLFW_KEY_X:
+				camera.movementReverse *= -1;
+				break;
+
+				// Variable change rate
+			case GLFW_KEY_G:
+				parameterChangeRate += 0.01f;
+				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+				break;
+			case GLFW_KEY_T:
+				parameterChangeRate -= 0.01f;
+				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+				break;
+
+				// Camera roll
+			case GLFW_KEY_Q:
+				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
+				explorationShader.SetUniform(camera.rollMatrix);
+				break;
+			case GLFW_KEY_E:
+				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
+				explorationShader.SetUniform(camera.rollMatrix);
+				break;
+
+			default:
+				break;
+			}
+		}
 	}
 }

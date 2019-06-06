@@ -49,6 +49,8 @@ public:
 	Camera& camera;
 	Time time;
 	Uniform<glm::vec3> sun;
+	
+	std::map<int, bool> keys;
 
 	Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time, glm::vec3 sun);
 	Fractal3D(Shader& explorationShader, Shader& renderShader);
@@ -63,6 +65,7 @@ public:
 	void SaveImage(const std::string path) override;
 	void Update() override;
 	void SetVariable(std::string name, std::string value) override;
+	void HandleKeyInput();
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
 	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[] = nullptr, size_t length = 0);
 	virtual float DistanceEstimator(glm::vec3 start, glm::vec4 resColor, float Power) = 0;
