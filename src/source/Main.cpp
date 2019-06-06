@@ -54,7 +54,7 @@ int main()
 
 	if (!SetCurrentDirectory(workingDir.c_str()))
 	{
-		std::cout << "Error setting working directory";
+		DebugPrint("Error setting working directory");
 	}
 
 	if (!glfwInit())
@@ -67,7 +67,7 @@ int main()
 	GLFWwindow* mainWindow = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", NULL, NULL);
 	if (!mainWindow)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		DebugPrint("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -76,7 +76,7 @@ int main()
 
 	if (glewInit() != GLEW_OK)
 	{
-		std::cout << "Glew error" << std::endl;
+		DebugPrint("Glew error");
 		return -1;
 	}
 

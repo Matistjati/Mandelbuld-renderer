@@ -33,6 +33,11 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		}
 	}
 
+	if (key == GLFW_KEY_D && (mods && GLFW_MOD_CONTROL) == 1)
+	{
+		__debugbreak();
+	}
+
 	switch (key)
 	{
 		// Exit
@@ -338,12 +343,19 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 				}
 				else
 				{
-					DebugPrint("Error: index was error at postshader at section " + s.start);
 					replace(final, s.start, "");
 					continue;
 				}
 			}
-			sectionString = versions[std::stoi(index)];
+			size_t indexInt = std::stoi(index);
+			if (indexInt > versions.size() - 1)
+			{
+				DebugPrint("Index was " + std::to_string(indexInt) + ", which is out of bounds at " + c.name);
+				BreakIfDebug();
+				continue;
+			}
+			sectionString = versions[indexInt];
+
 			// Clean string
 			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());
 			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '>'), sectionString.end());
@@ -371,7 +383,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 	std::string specSection = GetSpecificationByIndex(spec, specIndex, readFile(presetSpec));
 	if (specSection == "")
 	{
-		std::cout << "Specification error" << std::endl;
+		DebugPrint("Specification error");
 		return;
 	}
 
@@ -417,7 +429,6 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 				}
 				else
 				{
-					DebugPrint("Error: index was error at postshader at section " + s.start);
 					replace(final, s.start, "");
 					continue;
 				}

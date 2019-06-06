@@ -1,4 +1,5 @@
 #include "headers/Fractal.h"
+#include "headers/Debug.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -147,7 +148,15 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 		else if (str[i] == closer) level--;
 	}
 
-	result.push_back(str.substr(lastIndex));
+	std::string end = str.substr(lastIndex);
+	if (end.length() == 1 && end[0] == splitBy)
+	{
+		return result;
+	}
+	else
+	{
+		result.push_back(end);
+	}
 
 	return result;
 }
@@ -175,7 +184,7 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int inde
 			bracketLevel--;
 			if (bracketLevel < 0)
 			{
-				std::cout << "Invalid format: more closing than opening brackets" << std::endl;
+				DebugPrint("Invalid format: more closing than opening brackets");
 				return "";
 			}
 		}
@@ -195,7 +204,6 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int inde
 	}
 
 	std::string section = specification.substr(startIndex, endIndex - startIndex);
-	std::cout << section;
 	if (section.find(Section("include").start) != std::string::npos)
 	{
 		std::vector<std::string> includes = split(getSectionValue(getSection(Section("include"), section)), ',');
@@ -232,7 +240,6 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 			{
 				if (target.find(getSectionName(innerSections[i])) == std::string::npos)
 				{
-					std::cout << target;
 					target.insert(sectionStart + 1, innerSections[i]+ ",");
 				}
 				else

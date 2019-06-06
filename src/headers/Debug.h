@@ -27,4 +27,11 @@ inline void DebugPrint(std::string content)
 #endif
 }
 
+inline void BreakIfDebug()
+{
+#if _DEBUG
+	__debugbreak();
+#endif
+}
+
 #endif

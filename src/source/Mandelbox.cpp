@@ -167,6 +167,11 @@ void Mandelbox::SetVariablesFromSpec(int index)
 						value.erase(value.length() - 1);
 					}
 					std::vector<std::string> values = splitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
+					if (index > values.size() - 1)
+					{
+						DebugPrint("Index was too large: " + std::to_string(index) + " at " + getSectionName(variables));
+						BreakIfDebug();
+					}
 					value = values[index];
 				}
 			}
