@@ -143,17 +143,11 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 			result.push_back(str.substr(lastIndex + ((lastIndex == 0) ? 0 : 1), i - lastIndex - ((lastIndex == 0) ? 0 : 1)));
 			lastIndex = i;
 		}
-		else if (str[i] == opener)
-		{
-			level++;
-		}
+		else if (str[i] == opener) level++;
 		else if (str[i] == closer) level--;
 	}
 
-	if (result.size() == 0)
-	{
-		result.push_back(str);
-	}
+	result.push_back(str.substr(lastIndex));
 
 	return result;
 }
@@ -201,6 +195,7 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int inde
 	}
 
 	std::string section = specification.substr(startIndex, endIndex - startIndex);
+	std::cout << section;
 	if (section.find(Section("include").start) != std::string::npos)
 	{
 		std::vector<std::string> includes = split(getSectionValue(getSection(Section("include"), section)), ',');
@@ -237,7 +232,8 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 			{
 				if (target.find(getSectionName(innerSections[i])) == std::string::npos)
 				{
-					target.insert(sectionStart + 1, innerSections[i]);
+					std::cout << target;
+					target.insert(sectionStart + 1, innerSections[i]+ ",");
 				}
 				else
 				{

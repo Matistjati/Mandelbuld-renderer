@@ -69,6 +69,7 @@
 		float dr = 1.0;
 		float m;
 		vec4 trap = vec4(0,0,0,0);
+
 		for (int n = 0; n < 8; n++) 
 		{
 			boxFold(w,dr);

@@ -154,7 +154,25 @@ void Mandelbox::SetVariablesFromSpec(int index)
 		for (size_t i = 0; i < variablesList.size(); i++)
 		{
 			std::string value = getSectionValue(variablesList[i]);
+
+			int indexStart = value.find('(');
+			if (indexStart != std::string::npos)
+			{
+				int indexEnd = value.find(')', indexStart);
+				if (indexEnd != std::string::npos)
+				{
+					int index = std::stoi(value.substr(indexStart + 1, indexEnd - 2));
+					if (value[value.length() -1] == ']' && value[value.length() - 2] == ']')
+					{
+						value.erase(value.length() - 1);
+					}
+					std::vector<std::string> values = splitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
+					value = values[index];
+				}
+			}
+
 			cleanString(value, { '[', ']' });
+			if (value[0] == ',') value[0] = '\n'; // Leading comma breaks stuff
 			SetVariable(getSectionName(variablesList[i]), value);
 		}
 	}
