@@ -1,3 +1,7 @@
+<extraSections>
+[innerRadius], [outerRadius], [foldingLimit], [scale]
+</extraSections>
+
 <maxIterations>4</maxIterations>
 <maxSteps>100</maxSteps>
 <maxIterationsRelease>512</maxIterationsRelease>
@@ -155,6 +159,6 @@
 </coloring>
 
 <edgeGlow>
-	col += <color> * (steps * steps-0.25) * 0.45; // Fog
+	col += <color> * (steps * steps+0.25) * 0.45; // Fog
 	// If you only want edge, i suggest disabling the sun and sky gradient
 </edgeGlow>

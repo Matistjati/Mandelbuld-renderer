@@ -4,14 +4,14 @@
 
 {
 <include>
-FogIteration
+FogIteration, MandelBox
 </include>
 
 <indices>
-	<color>11</color>
+	<color>2</color>
 </indices>
 <cpuVariables>
-	<position>[(1)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
+	<position>[(0)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
 </cpuVariables>
 }
 

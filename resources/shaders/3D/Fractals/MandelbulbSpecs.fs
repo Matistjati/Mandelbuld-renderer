@@ -1,10 +1,16 @@
 {
+<include>
+MandelBulb
+</include>
 <flags>
 	<traceDefault>
 </flags>
 }
 
 {
+<include>
+MandelBulb
+</include>
 <flags>
 	<traceDefault>
 </flags>

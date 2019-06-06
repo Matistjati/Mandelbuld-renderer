@@ -49,11 +49,14 @@ public:
 	Camera& camera;
 	Time time;
 	Uniform<glm::vec3> sun;
-	
+	Uniform<float> power;
+	Uniform<float> genericParameter;
+
 	std::map<int, bool> keys;
 
-	Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time, glm::vec3 sun);
-	Fractal3D(Shader& explorationShader, Shader& renderShader);
+
+	Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification);
+	Fractal3D(int specIndex, std::string specPath, std::string sourcePath);
 
 
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
@@ -65,18 +68,20 @@ public:
 	void SaveImage(const std::string path) override;
 	void Update() override;
 	void SetVariable(std::string name, std::string value) override;
+	void SetVariablesFromSpec(int index, std::string specification) override;
 	void HandleKeyInput();
+	static Shader& GenerateShader(bool highQuality, int specIndex, std::string specification, std::string source);
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
-	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[] = nullptr, size_t length = 0);
-	virtual float DistanceEstimator(glm::vec3 start, glm::vec4 resColor, float Power) = 0;
+	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const std::vector<ShaderSection> extraSections);
 
 
-	static const constexpr char* path3DBase = "resources/shaders/3D/3DFractalbase.fs";
-	static const constexpr char* default3DFractal = "resources/shaders/3D/3DFractalDefault.fs";
-	static const constexpr char* helperFunctions = "resources/shaders/3D/HelperFunctions.fs";
-	static const constexpr char* presetSpec = "resources/shaders/3D/PresetSpecs.fs";
+	static const constexpr char* path3DBase = "resources/shaders/3D/Base/3DFractalbase.fs";
+	static const constexpr char* default3DFractal = "resources/shaders/3D/Base/3DFractalDefault.fs";
+	static const constexpr char* helperFunctions = "resources/shaders/3D/Base/HelperFunctions.fs";
+	static const constexpr char* presetSpec = "resources/shaders/3D/Base/PresetSpecs.fs";
 
 private:
+	void Init(int specIndex, std::string specification);
 	glm::vec2 mouseOffset;
 	bool firstMouse = true;
 };

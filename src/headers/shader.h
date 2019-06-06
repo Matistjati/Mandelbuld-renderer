@@ -6,7 +6,6 @@
 #include <string>
 #include <glm.hpp>
 #include "headers/Uniform.h"
-#include "headers/Fractal.h"
 
 template<typename T>
 struct Uniform;

@@ -148,12 +148,8 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 		else if (str[i] == closer) level--;
 	}
 
-	std::string end = str.substr(lastIndex);
-	if (end.length() == 1 && end[0] == splitBy)
-	{
-		return result;
-	}
-	else
+	std::string end = str.substr(lastIndex + 1);
+	if (!(end.length() == 1 && end[0] == splitBy))
 	{
 		result.push_back(end);
 	}
@@ -211,7 +207,7 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int inde
 		{
 			for (size_t i = 0; i < includes.size(); i++)
 			{
-				cleanString(includes[i], { '\n' });
+				cleanString(includes[i], { '\n', '\t', ' ' });
 				std::string preset = getSection(Section(includes[i]), presets);
 				LinkSpecification(preset, section);
 			}
@@ -238,13 +234,10 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 			int sectionStart = target.find(sectionName) + sectionName.length();
 			for (size_t i = 0; i < innerSections.size(); i++)
 			{
+				// Don't overwrite
 				if (target.find(getSectionName(innerSections[i])) == std::string::npos)
 				{
 					target.insert(sectionStart + 1, innerSections[i]+ ",");
-				}
-				else
-				{
-					// Don't overwrite
 				}
 			}
 		}
@@ -277,4 +270,13 @@ std::vector<std::string> Fractal::GetOuterSections(std::string& source)
 		}
 	}
 	return sections;
+}
+
+bool Fractal::StringToBool(std::string str)
+{
+	if (str.length() == 0) return false;
+	else if (str.length() == 1) return str[0] != '0';
+	else if (str == "true") return true;
+	else if (str == "false") return false;
+	else return false;
 }

@@ -8,14 +8,11 @@
 
 #include "headers/Camera.h"
 #include "headers/shader.h"
-#include "headers/Mandelbulb.h"
 #include "headers/Image.h"
-#include "headers/Mandelbox.h"
+#include "headers/Fractal3d.h"
 #include "headers/Debug.h"
 
-#define FractalType Mandelbox
-constexpr auto mode = 0;
-// 0: exploration, 1: movie
+#define FractalType Fractal3D
 
 inline std::string GetWorkingDirectory()
 {
@@ -121,7 +118,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	FractalType fractal = FractalType(1);
+	Fractal3D fractal = Fractal3D(1, "resources/shaders/3D/Fractals/MandelboxSpecs.fs", "resources/shaders/3D/Fractals/Mandelbox.fs");
 
 
 	glfwSetWindowUserPointer(mainWindow, &fractal);

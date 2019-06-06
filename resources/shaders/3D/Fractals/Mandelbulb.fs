@@ -1,3 +1,7 @@
+<extraSections>
+[colorB, false, "", true], [colorC, false, "", true]
+</extraSections>
+
 <maxIterations>4</maxIterations>
 <maxSteps>60</maxSteps>
 <shadowSoftness>4</shadowSoftness> // Higher = harder shadow

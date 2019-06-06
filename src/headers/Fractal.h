@@ -47,7 +47,7 @@ public:
 	virtual void SetUniformLocations(Shader& shader) = 0;
 	virtual void Update() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
-	virtual void SetVariablesFromSpec(int index) = 0;
+	virtual void SetVariablesFromSpec(int index, std::string SpecificationPath) = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;
 
 	static const constexpr char* pathRectangleVertexshader = "resources/shaders/Rectangle.glsl";
@@ -68,6 +68,7 @@ protected:
 	static std::string GetSpecificationByIndex(std::string specification, int index, const std::string presets);
 	static void LinkSpecification(std::string& source, std::string& target);
 	static std::vector<std::string> GetOuterSections(std::string& source);
+	static bool StringToBool(std::string str);
 };
 
 #endif

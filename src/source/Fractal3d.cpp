@@ -51,18 +51,35 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	}
 }
 
-
+/*
 Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time, glm::vec3 sun)
 	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera), sun(sun)
 {
+}*/
+
+//Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader)
+//	: Fractal(explorationShader, renderShader, glm::ivec2(DefaultWidth, DefaultHeight)), time(Time()), camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
+//		169, -14, 0.001f, // Yaw, pitch, roll
+//		0.1f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
+//		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
+//{}
+
+Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification)
+	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera), sun(sun), power(power), genericParameter(1)
+{
+	Init(specIndex, specification);
 }
 
-Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader)
-	: Fractal(explorationShader, renderShader, glm::ivec2(DefaultWidth, DefaultHeight)), time(Time()), camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
+Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourcePath)
+	: Fractal(GenerateShader(false, specIndex, readFile(specification), readFile(sourcePath)), GenerateShader(true, specIndex, readFile(specification), readFile(sourcePath)), glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight)),
+	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
 		0.1f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
-		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
-{}
+		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
+	time(Time()), power(1), genericParameter(1)
+{
+	Init(specIndex, specification);
+}
 
 void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 {
@@ -95,6 +112,7 @@ void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 
 void Fractal3D::SetUniforms(Shader& shader)
 {
+	shader.use();
 	shader.SetUniform(camera.position);
 	shader.SetUniform(camera.yawMatrix);
 	shader.SetUniform(camera.pitchMatrix);
@@ -102,6 +120,8 @@ void Fractal3D::SetUniforms(Shader& shader)
 	shader.SetUniform(camera.worldFlip);
 	shader.SetUniform(screenSize);
 	shader.SetUniform(sun);
+	shader.SetUniform(power);
+	shader.SetUniform(genericParameter);
 	GlErrorCheck();
 }
 
@@ -114,6 +134,8 @@ void Fractal3D::SetUniformLocations(Shader& shader)
 	camera.worldFlip.id = glGetUniformLocation(shader.id, camera.worldFlip.name.c_str());
 	screenSize.id = glGetUniformLocation(shader.id, screenSize.name.c_str());
 	sun.id = glGetUniformLocation(shader.id, sun.name.c_str());
+	power.id = glGetUniformLocation(shader.id, power.name.c_str());
+	genericParameter.id = glGetUniformLocation(shader.id, genericParameter.name.c_str());
 	GlErrorCheck();
 }
 
@@ -126,6 +148,8 @@ void Fractal3D::SetUniformNames()
 	camera.worldFlip.name = "worldFlip";
 	screenSize.name = "screenSize";
 	sun.name = "sun";
+	power.name = "power";
+	genericParameter.name = "genericParameter";
 }
 
 void Fractal3D::SaveImage(const std::string path)
@@ -320,7 +344,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	}
 }
 
-void Fractal3D::ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const ShaderSection extraSections[], size_t length)
+void Fractal3D::ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const std::vector<ShaderSection> extraSections)
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
@@ -352,49 +376,63 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 
 	ParseShaderDefault(sections, source, final, specSection, highQuality);
 
-	if (extraSections != nullptr)
+	for (size_t i = 0; i < extraSections.size(); i++)
 	{
-		for (size_t i = 0; i < length; i++)
-		{
-			ShaderSection c = extraSections[i];
+		ShaderSection c = extraSections[i];
 			
-			Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
+		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
 
-			std::string sectionString;
-			if (c.multiple && source.find(s.start) != std::string::npos)
+		std::string sectionString;
+		if (c.multiple && source.find(s.start) != std::string::npos)
+		{
+			std::vector<std::string> versions;
+
+			versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, source), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
+			std::string index = getSection(s, specSection);
+			if (s.start.find("color") != std::string::npos)
 			{
-				std::vector<std::string> versions;
-
-				versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, source), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
-				std::string index = getSection(s, specSection);
-				if (s.start.find("color") != std::string::npos)
-				{
-					index = "0";
-				}
-				else
-				{
-					replace(final, s.start, "");
-					continue;
-				}
-				sectionString = versions[std::stoi(index)];
-				// Clean string
-				sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());
-				sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '>'), sectionString.end());
-				while (replace(final, s.start, sectionString)) {}
+				index = "0";
 			}
 			else
 			{
-				sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, source) : getSection(s, source);
-				while (replace(final, Section(c.name).start, sectionString)) {}
+				replace(final, s.start, "");
+				continue;
 			}
-
+			sectionString = versions[std::stoi(index)];
+			// Clean string
+			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());
+			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '>'), sectionString.end());
+			while (replace(final, s.start, sectionString)) {}
+		}
+		else
+		{
+			sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, source) : getSection(s, source);
+			while (replace(final, Section(c.name).start, sectionString)) {}
 		}
 	}
+}
+
+void Fractal3D::Init(int specIndex, std::string specification)
+{
+	SetVariablesFromSpec(specIndex, specification);
+	SetUniformNames();
+
+	SetUniformLocations(explorationShader);
+	SetUniforms(explorationShader);
+	GlErrorCheck();
 }
 
 // This is really nasty, be careful
 inline void Fractal3D::SetVariable(std::string name, std::string value)
 {
+	if (name == "power")
+	{
+		power.value = std::stof(value);
+	}
+	else if (name == "genericParameter")
+	{
+		genericParameter.value = std::stof(value);
+	}
 	if (name == "position")
 	{
 		std::vector<std::string> components = split(value, ',');
@@ -424,6 +462,45 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	else if (name == "worldFlip")
 	{
 		camera.worldFlip.value = std::stoi(value);
+	}
+}
+
+void Fractal3D::SetVariablesFromSpec(int index, std::string SpecificationPath)
+{
+	std::string specSection = GetSpecificationByIndex(readFile(SpecificationPath), index, readFile(presetSpec));
+	std::string variables = getSection(Section("cpuVariables"), specSection);
+	if (variables != "")
+	{
+		std::vector<std::string> variablesList = splitNotInChar(variables, ',', '[', ']');
+		for (size_t i = 0; i < variablesList.size(); i++)
+		{
+			std::string value = getSectionValue(variablesList[i]);
+
+			int indexStart = value.find('(');
+			if (indexStart != std::string::npos)
+			{
+				int indexEnd = value.find(')', indexStart);
+				if (indexEnd != std::string::npos)
+				{
+					size_t index = std::stoi(value.substr(indexStart + 1, indexEnd - 2));
+					if (value[value.length() - 1] == ']' && value[value.length() - 2] == ']')
+					{
+						value.erase(value.length() - 1);
+					}
+					std::vector<std::string> values = splitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
+					if (index > values.size() - 1)
+					{
+						DebugPrint("Index was too large: " + std::to_string(index) + " at " + getSectionName(variables));
+						BreakIfDebug();
+					}
+					value = values[index];
+				}
+			}
+
+			cleanString(value, { '[', ']' });
+			if (value[0] == ',') value[0] = '\n'; // Leading comma breaks stuff
+			SetVariable(getSectionName(variablesList[i]), value);
+		}
 	}
 }
 
@@ -474,11 +551,11 @@ void Fractal3D::HandleKeyInput()
 
 				// Variable change rate
 			case GLFW_KEY_G:
-				parameterChangeRate += 0.01f;
+				parameterChangeRate += 0.5f * static_cast<float>(time.deltaTime);
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 			case GLFW_KEY_T:
-				parameterChangeRate -= 0.01f;
+				parameterChangeRate -= 0.5f * static_cast<float>(time.deltaTime);
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
@@ -492,9 +569,61 @@ void Fractal3D::HandleKeyInput()
 				explorationShader.SetUniform(camera.rollMatrix);
 				break;
 
+				// Changing the power of the fractal
+			case GLFW_KEY_C:
+				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				explorationShader.SetUniform(power);
+				break;
+			case GLFW_KEY_V:
+				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				explorationShader.SetUniform(power);
+				break;
+
+			case GLFW_KEY_R:
+				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				explorationShader.SetUniform(genericParameter);
+				break;
+			case GLFW_KEY_F:
+				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				explorationShader.SetUniform(genericParameter);
+				break;
+
+
 			default:
 				break;
 			}
 		}
 	}
+}
+
+Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string specification, std::string source)
+{
+	GlErrorCheck();
+
+	std::string base = readFile(Fractal3D::path3DBase);
+
+	std::vector<ShaderSection> sections{};
+
+	Section extraSects = Section("extraSections");
+	size_t extraSectionIndex = source.find(extraSects.start);
+	if (extraSectionIndex != std::string::npos)
+	{
+		size_t extraSectionEnd = source.find(extraSects.end);
+		std::vector<std::string> sectionContents = splitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
+		for (size_t i = 0; i < sectionContents.size(); i++)
+		{
+			cleanString(sectionContents[i], {'\n', '\t', ' ', '[', ']', '\"'});
+			std::vector<std::string> value = split(sectionContents[i], ',');
+			if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
+			else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
+			else if (value.size() == 3) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2]));
+			else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2], StringToBool(value[3])));
+			std::cout << StringToBool("0");
+		}
+	}
+
+	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, sections);
+
+	const static std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
+	return *(new Shader(vertexSource, base, false));
 }
