@@ -1,5 +1,4 @@
 #include <windows.h>
-#include <Shlwapi.h>
 #include <glew.h>
 #include <GLFW/glfw3.h>
 
@@ -14,13 +13,6 @@
 
 #define FractalType Fractal3D
 
-inline std::string GetWorkingDirectory()
-{
-	const int bufferSize = 256;
-	char path[bufferSize];
-	GetCurrentDirectory(bufferSize, path);
-	return std::string(path);
-}
 
 void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -39,21 +31,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 int main()
 {
-	std::string workingDir = GetWorkingDirectory();
-
-	DebugPrint("Initial working directory: " + workingDir);
-
-
-	workingDir = workingDir.substr(0, workingDir.find_last_of("/\\"));
-
-	DebugPrint("New working directory: " + workingDir);
-
-
-	if (!SetCurrentDirectory(workingDir.c_str()))
-	{
-		DebugPrint("Error setting working directory");
-	}
-
 	if (!glfwInit())
 	{
 		DebugPrint("Error: Glfw failed to initialize");

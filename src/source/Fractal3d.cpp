@@ -1,9 +1,12 @@
 #include "headers/Fractal3d.h"
 #include "headers/Image.h"
 #include "headers/Debug.h"
+#include "headers/FileManager.h"
 #include <map>
 #include <algorithm>
 #include <thread>
+
+std::string Fractal3D::default3DSource = FileManager::readFile(default3DFractal);
 
 inline bool fileExists(const std::string& name)
 {
@@ -73,7 +76,7 @@ Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShade
 }
 
 Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourcePath)
-	: Fractal(GenerateShader(false, specIndex, readFile(specification), readFile(sourcePath)), GenerateShader(true, specIndex, readFile(specification), readFile(sourcePath)), glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight)),
+	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GenerateShader(true, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight)),
 	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
 		0.1f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
@@ -179,7 +182,7 @@ void Fractal3D::SaveImage(const std::string path)
 	try
 	{
 		image.Save(path.c_str());
-		DebugPrint("Successfully saved image \"" + getFileName(path) + "\"");
+		DebugPrint("Successfully saved image \"" + FileManager::getFileName(path) + "\"");
 	}
 	catch (const std::exception& e)
 	{
@@ -213,7 +216,9 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		}
 	}
 
-	std::string defaultSource = readFile(default3DFractal);
+	std::string defaultSource = default3DSource;
+	defaultSource += "+";
+	std::cout << defaultSource.back() << default3DSource.back();
 	// Default code for sections not implemented
 	for (auto const& x : sections)
 	{
@@ -271,7 +276,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 		std::vector<std::string> includeList = Fractal::split(includes, ',');
 
-		std::string helperFunctions = readFile(Fractal3D::helperFunctions);
+		std::string helperFunctions = FileManager::readFile(Fractal3D::helperFunctions);
 		
 		for (size_t i = 0; i < includeList.size(); i++)
 		{
@@ -350,7 +355,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
-	std::string specSection = GetSpecificationByIndex(spec, specIndex, readFile(presetSpec));
+	std::string specSection = GetSpecificationByIndex(spec, specIndex, FileManager::readFile(presetSpec));
 	if (specSection == "")
 	{
 		DebugPrint("Specification error");
@@ -469,7 +474,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 
 void Fractal3D::SetVariablesFromSpec(int index, std::string SpecificationPath)
 {
-	std::string specSection = GetSpecificationByIndex(readFile(SpecificationPath), index, readFile(presetSpec));
+	std::string specSection = GetSpecificationByIndex(FileManager::readFile(SpecificationPath), index, FileManager::readFile(presetSpec));
 	std::string variables = getSection(Section("cpuVariables"), specSection);
 	if (variables != "")
 	{
@@ -545,11 +550,11 @@ void Fractal3D::HandleKeyInput()
 				// Variable change rate
 			case GLFW_KEY_G:
 				parameterChangeRate += 0.5f * static_cast<float>(time.deltaTime);
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+				parameterChangeRate = max(parameterChangeRate, 0.01f);
 				break;
 			case GLFW_KEY_T:
 				parameterChangeRate -= 0.5f * static_cast<float>(time.deltaTime);
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+				parameterChangeRate = max(parameterChangeRate, 0.01f);
 				break;
 
 				// Camera roll
@@ -593,7 +598,7 @@ Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string s
 {
 	GlErrorCheck();
 
-	std::string base = readFile(Fractal3D::path3DBase);
+	std::string base = FileManager::readFile(Fractal3D::path3DBase);
 
 	std::vector<ShaderSection> sections{};
 
@@ -618,6 +623,6 @@ Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string s
 	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, sections);
 
 	std::cout << base;
-	const static std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
+	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
 	return *(new Shader(vertexSource, base, false));
 }

@@ -151,6 +151,7 @@
     <ClCompile Include="src/source/Shader.cpp" />
     <ClCompile Include="src/source/ToString.cpp" />
     <ClCompile Include="src/source/Time.cpp" />
+    <ClCompile Include="src\source\FileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/Debug.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="src/headers/ToString.h" />
     <ClInclude Include="src/headers/Time.h" />
     <ClInclude Include="src/headers/Uniform.h" />
+    <ClInclude Include="src\headers\FileManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

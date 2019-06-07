@@ -81,6 +81,7 @@ public:
 	static const constexpr char* presetSpec = "resources/shaders/3D/Base/PresetSpecs.fs";
 
 private:
+	static std::string default3DSource;
 	void Init(int specIndex, std::string specification);
 	glm::vec2 mouseOffset;
 	bool firstMouse = true;

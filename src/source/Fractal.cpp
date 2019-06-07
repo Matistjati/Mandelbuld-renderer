@@ -23,7 +23,7 @@ bool Fractal::replaceSection(Section originSection, Section destSection, std::st
 		return false;
 	}
 	int startOrigin = index + originSection.start.length();
-	int endOrigin = origin.find(originSection.end);
+	int endOrigin = origin.find(originSection.end, startOrigin);
 
 	return replace(dest, destSection.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
@@ -36,7 +36,7 @@ bool Fractal::replaceSection(Section section, std::string& origin, std::string& 
 		return false;
 	}
 	int startOrigin = index + section.start.length();
-	int endOrigin = origin.find(section.end);
+	int endOrigin = origin.find(section.end, startOrigin);
 
 	return replace(dest, section.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
@@ -44,7 +44,7 @@ bool Fractal::replaceSection(Section section, std::string& origin, std::string& 
 std::string Fractal::getSection(Section s, std::string from)
 {
 	int startIndex = from.find(s.start);
-	int endIndex = from.find(s.end);
+	int endIndex = from.find(s.end, startIndex);
 	if (startIndex == std::string::npos || endIndex == std::string::npos)
 	{
 		return "";
@@ -54,24 +54,10 @@ std::string Fractal::getSection(Section s, std::string from)
 	return from.substr(startIndex, endIndex - startIndex);
 }
 
-std::string Fractal::getFileName(std::string path)
-{
-	int lastPos = path.find('\\');
-	if (lastPos == std::string::npos)
-	{
-		lastPos = path.find('/');
-		if (lastPos == std::string::npos)
-		{
-			return path;
-		}
-	}
-	return path.substr(lastPos + 1);
-}
-
 std::string Fractal::getSectionName(std::string str)
 {
 	int startIndex = str.find('<') + 1;
-	int endIndex = str.find('>');
+	int endIndex = str.find('>', startIndex);
 	return str.substr(startIndex, endIndex - startIndex);
 }
 
@@ -80,13 +66,6 @@ std::string Fractal::getSectionValue(std::string str)
 	int startIndex = str.find('>') + 1;
 	int endIndex = str.find('<', startIndex);
 	return str.substr(startIndex, endIndex - startIndex);
-}
-
-std::string Fractal::readFile(std::string path)
-{
-	std::ifstream t(path);
-	return std::string((std::istreambuf_iterator<char>(t)),
-		std::istreambuf_iterator<char>());
 }
 
 void Fractal::cleanString(std::string& str, std::vector<char> chars)
