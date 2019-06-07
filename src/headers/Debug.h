@@ -2,11 +2,11 @@
 #ifndef GLERROR_H
 #define GLERROR_H
 
-#include "GLFW/glfw3.h"
 #include <iostream>
 #include <string>
 #include <intrin.h>
 #include <string>
+#include "GLFW/glfw3.h"
 
 inline void GlErrorCheck()
 {

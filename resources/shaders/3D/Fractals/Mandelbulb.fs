@@ -18,12 +18,12 @@
 </uniforms>
 
 <include>
-	boundingSphere, sphereFold, boxFold
+	boundingSphere, sphereFold, boxFold, triplexPow
 </include>
 
 
 <deformation>
-	<boxFold(w,dz,power/2);
+	<boxFold(w,power/2);
 	sphereFold(w,dz,power,power*2);>,
 	  
 	<w.x = sin(w.x);
@@ -90,15 +90,10 @@
 			w.y = start.y + -16.0*y2*k3*k4*k4 + k1*k1;
 			w.z = start.z +  -Power*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
 #else
-			dz = (Power * pow(sqrt(m), Power - 1)) * dz + 1.0;
 			//dz = Power*pow(m,(Power-1)*0.5)*dz + 1.0;
         
-			float r = length(w);
-			float theta = power * atan(w.x, w.z);
-			float phi = power * acos(w.y / r);
-
-			// Fun alternative: reverse sin and cos
-			w = start + pow(r, Power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
+			w = triplexPow(w, Power, dz, m);
+			w += start;
 #endif
 			<deformation>
 

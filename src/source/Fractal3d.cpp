@@ -1,7 +1,7 @@
+#include "headers/FileManager.h"
 #include "headers/Fractal3d.h"
 #include "headers/Image.h"
 #include "headers/Debug.h"
-#include "headers/FileManager.h"
 #include <map>
 #include <algorithm>
 #include <thread>
@@ -19,8 +19,8 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
 
 	// Handle input actions in separate function
-	if (action == GLFW_PRESS) keys[key] = true;
-	else if (action == GLFW_RELEASE) keys[key] = false;
+	if ((action == GLFW_PRESS) && (mods == 0 || key == GLFW_KEY_LEFT_SHIFT)) keys[key] = true;
+	else if ((action == GLFW_RELEASE) && (mods == 0 || key == GLFW_KEY_LEFT_SHIFT)) keys[key] = false;
 
 	switch (key)
 	{
@@ -550,11 +550,11 @@ void Fractal3D::HandleKeyInput()
 				// Variable change rate
 			case GLFW_KEY_G:
 				parameterChangeRate += 0.5f * static_cast<float>(time.deltaTime);
-				parameterChangeRate = max(parameterChangeRate, 0.01f);
+				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 			case GLFW_KEY_T:
 				parameterChangeRate -= 0.5f * static_cast<float>(time.deltaTime);
-				parameterChangeRate = max(parameterChangeRate, 0.01f);
+				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
 				// Camera roll

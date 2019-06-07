@@ -16,9 +16,8 @@
 </boundingSphere>
 
 <sphereFold>
-	void sphereFold(inout vec3 z, inout float dz, float innerRadius, float outerRadius)
+	void sphereFold(inout vec3 z, inout float dz, float r2, float innerRadius, float outerRadius)
 	{
-		float r2 = dot(z,z);
 		if (r2 < innerRadius)
 		{ 
 			// linear inner scaling
@@ -37,8 +36,22 @@
 </sphereFold>
 
 <boxFold>
-	void boxFold(inout vec3 w, inout float dz, float foldingLimit)
+	void boxFold(inout vec3 w, float foldingLimit)
 	{
 		w = clamp(w, -foldingLimit, foldingLimit) * 2.0 - w;
 	}
 </boxFold>
+
+<triplexPow>
+vec3 triplexPow(vec3 w, float power, inout float dw, float m)
+{
+	dw = (power * pow(sqrt(m), power - 1)) * dw + 1.0;
+
+	float r = length(w);
+	float theta = power * atan(w.x, w.z);
+	float phi = power * acos(w.y / r);
+
+	// Fun alternative: reverse sin and cos
+	return pow(r, power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
+}
+</triplexPow>

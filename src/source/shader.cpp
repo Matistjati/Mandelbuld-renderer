@@ -1,4 +1,3 @@
-#include <Windows.h>
 #include "headers/Shader.h"
 #include <glew.h>
 

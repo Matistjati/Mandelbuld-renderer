@@ -11,8 +11,8 @@
 <maxDist>power*2</maxDist>
 <maxDistRelease>power*10</maxDistRelease>
 
-<innerRadius>power-1</innerRadius>
-<outerRadius>power+1</outerRadius>
+<innerRadius>power-1</innerRadius> // power - distance(w, sun);
+<outerRadius>power+1</outerRadius> // power + distance(w, sun);
 <scale>genericParameter</scale>
 <foldingLimit>power</foldingLimit>
 
@@ -30,40 +30,9 @@
 
 </deformation>
 
-<helperFunctions>
-	void sphereFold(inout vec3 w, inout float dz, float r2)
-	{
-		//float minRadius2 = power - distance(w,sun);
-		//float fixedRadius2 = power + distance(w, sun);
-		//float minRadius2 = power - 1;
-		//float fixedRadius2 = power + 1;
-	
-		float innerRadius = <innerRadius>;
-		float outerRadius = <outerRadius>;
-
-		if (r2 < innerRadius)
-		{ 
-			// linear inner scaling
-			float temp = outerRadius / innerRadius;
-			w *= temp;
-			dz*= temp;
-		}
-		else if (r2 < outerRadius)
-		{ 
-			// this is the actual sphere inversion
-			float temp = outerRadius / r2;
-			w *= temp;
-			dz*= temp;
-		}
-	}
-
-	void boxFold(inout vec3 w, inout float dz)
-	{
-		float foldingLimit = <foldingLimit>;
-		w = clamp(w, -foldingLimit, foldingLimit) * 2.0 - w;
-	}
-</helperFunctions>
-
+<include>
+boxFold, sphereFold, triplexPow
+</include>
 
 <distanceEstimator>
 	float DistanceEstimator(vec3 w, out vec4 resColor, float _)
@@ -76,15 +45,16 @@
 
 		for (int n = 0; n < 8; n++) 
 		{
-			boxFold(w,dr);
-			m = dot(w,w);
-			sphereFold(w,dr,m);
+			boxFold(w, <foldingLimit>);
+			m = dot(w, w);
+			sphereFold(w, dr, m, <innerRadius>, <outerRadius>);
 			
-			boxFold(w,dr);
-			m = dot(w,w);
-			sphereFold(w,dr,m);
+			boxFold(w, <foldingLimit>);
+			m = dot(w, w);
+			sphereFold(w, dr, m, <innerRadius>, <outerRadius>);
 
 			w.y = sin(w.y);
+			w = triplexPow(w, _, dr, m);
  			//w.x = asinh(w.x);
 
  			//w.y = sin(w.y)*sinh(w.y);
@@ -144,6 +114,7 @@
 	<vec3(0, 1, 1)>,
 	<vec3(0, 1, 0)>,
 	<vec3(1, 1, 1)>,
+	<vec3(0.9, 0.8, 0.2)>,
 	<vec3(0.78, 0.5, 0.13)>,
 	<vec3(0.9, 0.15, 0.5)>,
 	<vec3(0.5, 0, 0.5)>,
