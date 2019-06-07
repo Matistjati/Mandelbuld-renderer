@@ -217,8 +217,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	}
 
 	std::string defaultSource = default3DSource;
-	defaultSource += "+";
-	std::cout << defaultSource.back() << default3DSource.back();
+
 	// Default code for sections not implemented
 	for (auto const& x : sections)
 	{
@@ -616,13 +615,11 @@ Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string s
 			else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
 			else if (value.size() == 3) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2]));
 			else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2], StringToBool(value[3])));
-			std::cout << StringToBool("0");
 		}
 	}
 
 	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, sections);
 
-	std::cout << base;
 	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
 	return *(new Shader(vertexSource, base, false));
 }

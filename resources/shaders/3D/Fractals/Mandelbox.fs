@@ -9,7 +9,7 @@
 <antiAliasing>2</antiAliasing>
 
 <maxDist>power*2</maxDist>
-<maxDistRelease>power*10</maxDistRelease>
+<maxDistRelease>power*20</maxDistRelease>
 
 <innerRadius>power-1</innerRadius> // power - distance(w, sun);
 <outerRadius>power+1</outerRadius> // power + distance(w, sun);
@@ -66,7 +66,7 @@ boxFold, sphereFold, triplexPow
 			dr = dr*abs(Scale)+0.0;
 			<deformation>
 
-			trap = max(trap, vec4(abs(w), m));
+			trap = mix(trap, vec4(w*w, m), 0.5);
 		}
 		resColor = trap;
 
@@ -125,8 +125,10 @@ boxFold, sphereFold, triplexPow
 </color>
 
 <coloring>
+	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0),0.0,1.0));
-	col *= 0.5;
+	col *= clamp(trap.x, 0, 1) * vec3(0., 0.3, 0.7);
+	col *= 1.2;
 </coloring>
 
 <edgeGlow>

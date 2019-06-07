@@ -4,7 +4,7 @@
 
 {
 <include>
-FogIteration, MandelBox
+MandelBox
 </include>
 
 <indices>
