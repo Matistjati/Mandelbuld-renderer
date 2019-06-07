@@ -12,8 +12,15 @@ MandelBulb
 MandelBulb
 </include>
 <flags>
-	<traceDefault>
+	<traceDefault>,
+	<edgeGlowOff>
 </flags>
+
+<variables>
+	<maxDistRelease>30</maxDistRelease>,
+	<antiAliasing>4</antiAliasing>,
+</variables>
+
 <indices>
 	<color>0</color>,
 	<colorB>0</colorB>,

@@ -136,7 +136,7 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 	cleanString(str, { '\n','\t', ' '});
 
 	int level = 0;
-	int lastIndex = 0;
+	size_t lastIndex = 0;
 	for (size_t i = 0; i < str.length(); i++)
 	{
 		if (str[i] == splitBy && level == 0)
@@ -148,7 +148,7 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 		else if (str[i] == closer) level--;
 	}
 
-	std::string end = str.substr(lastIndex + 1);
+	std::string end = str.substr(lastIndex + ((str.length() > lastIndex + 1) ? 1 : 0));
 	if (!(end.length() == 1 && end[0] == splitBy))
 	{
 		result.push_back(end);

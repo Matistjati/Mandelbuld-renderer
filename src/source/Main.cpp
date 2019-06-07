@@ -118,7 +118,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	Fractal3D fractal = Fractal3D(1, "resources/shaders/3D/Fractals/MandelboxSpecs.fs", "resources/shaders/3D/Fractals/Mandelbox.fs");
+	FractalType fractal = FractalType(1, "resources/shaders/3D/Fractals/MandelboxSpecs.fs", "resources/shaders/3D/Fractals/Mandelbox.fs");
 
 
 	glfwSetWindowUserPointer(mainWindow, &fractal);
@@ -135,20 +135,15 @@ int main()
 
 	GlErrorCheck();
 
-#if _DEBUG
-	Time t = Time();
-#endif
-
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))
 	{
-#if _DEBUG
-		// Set the window title to our fps
-		t.PollTime();
-		glfwSetWindowTitle(mainWindow, std::to_string(1 / t.deltaTime).c_str());
-#endif
 		fractal.Update();
 
+#if _DEBUG
+		// Set the window title to our fps
+		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal.time.deltaTime).c_str());
+#endif
 
 		// render, we use ray marching inside the fragment shader
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

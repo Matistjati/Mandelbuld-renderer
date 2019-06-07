@@ -113,7 +113,7 @@
 	
 		resColor = vec4(m,trap.yzw);
 
-		return 0.25* log(m)*sqrt(m)/dz;
+		return abs(0.25* log(m)*sqrt(m)/dz);
 	}
 </distanceEstimator>
 

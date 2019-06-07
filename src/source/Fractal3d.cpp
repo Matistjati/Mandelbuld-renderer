@@ -28,7 +28,7 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 
 		// Ctrl key handling
 	case GLFW_KEY_S:
-		if ((mods && GLFW_MOD_CONTROL) == 1 && action == GLFW_PRESS)
+		if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL && action == GLFW_PRESS)
 		{
 			const std::string baseName = "TestImage/image";
 			int count = 0;
@@ -45,24 +45,26 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		break;
 
 	case GLFW_KEY_D:
-		if ((mods && GLFW_MOD_CONTROL) == 1 && action == GLFW_PRESS)
+		if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL && action == GLFW_PRESS)
 			__debugbreak();
+		break;
+
+		// World stuff
+	case GLFW_KEY_Z:
+		if (action == GLFW_PRESS)
+		{
+			camera.worldFlip.value *= -1;
+			explorationShader.SetUniform(camera.worldFlip);
+		}
+		break;
+	case GLFW_KEY_X:
+		if (action == GLFW_PRESS)
+		{
+			camera.movementReverse *= -1;
+		}
 		break;
 	}
 }
-
-/*
-Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader, Camera& camera, glm::ivec2 screenSize, Time time, glm::vec3 sun)
-	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera), sun(sun)
-{
-}*/
-
-//Fractal3D::Fractal3D(Shader& explorationShader, Shader& renderShader)
-//	: Fractal(explorationShader, renderShader, glm::ivec2(DefaultWidth, DefaultHeight)), time(Time()), camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
-//		169, -14, 0.001f, // Yaw, pitch, roll
-//		0.1f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
-//		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
-//{}
 
 Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification)
 	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera), sun(sun), power(power), genericParameter(1)
@@ -540,15 +542,6 @@ void Fractal3D::HandleKeyInput()
 				explorationShader.SetUniform(camera.position);
 				break;
 
-				// World stuff
-			case GLFW_KEY_Z:
-				camera.worldFlip.value *= -1;
-				explorationShader.SetUniform(camera.worldFlip);
-				break;
-			case GLFW_KEY_X:
-				camera.movementReverse *= -1;
-				break;
-
 				// Variable change rate
 			case GLFW_KEY_G:
 				parameterChangeRate += 0.5f * static_cast<float>(time.deltaTime);
@@ -624,6 +617,7 @@ Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string s
 
 	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, sections);
 
+	std::cout << base;
 	const static std::string vertexSource = readFile(Fractal::pathRectangleVertexshader);
 	return *(new Shader(vertexSource, base, false));
 }

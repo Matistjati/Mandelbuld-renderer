@@ -16,16 +16,9 @@ FogIteration, MandelBox
 }
 
 {
-<flags>
-	<skyOff>
-	<sunOff>
-</flags>
-<variables>
-	<maxDist>0</maxDist>,
-	<maxDistRelease>0</maxDistRelease>,
-	<maxSteps>100</maxSteps>,
-	<maxStepsRelease>100</maxStepsRelease>,
-</variables>
+<include>
+FogIteration, MandelBox
+</include>
 <indices>
 	<color>3</color>
 </indices>
