@@ -43,6 +43,7 @@ public:
 	void SetUniformStr(const std::string &name, float x, float y) const;
 	void SetUniformStr(const std::string &name, float x, float y, float z) const;
 	void SetUniformStr(const std::string &name, float x, float y, float z, float w) const;
+	void SetUniformStr(const std::string &name, glm::vec3 vector) const;
 
 private:
 	std::string ParseShader(const std::string& file);

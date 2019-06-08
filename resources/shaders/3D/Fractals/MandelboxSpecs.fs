@@ -10,6 +10,9 @@ MandelBox
 <indices>
 	<color>2</color>
 </indices>
+<variables>
+	<zoom>.001</zoom>
+</variables>
 <cpuVariables>
 	<position>[(0)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
 </cpuVariables>

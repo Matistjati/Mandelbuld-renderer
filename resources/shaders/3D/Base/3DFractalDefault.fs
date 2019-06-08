@@ -4,6 +4,7 @@
 <maxIterationsRelease>512</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2<antiAliasing>
+<zoom>.01</zoom>
 
 <sceneDistance>
 	float sceneDistance(vec3 position, out vec4 resColor)
@@ -89,9 +90,8 @@ float SoftShadow(Ray ray, float k)
 </lightingFunctions>
 
 <render>
-	vec3 render(Ray ray)
+	vec3 render(Ray ray, vec2 uv)
 	{
-		const float zoom = .01;
 		float px = 2.0 / (screenSize.y * zoom);
 		vec4 trap;
 		float steps;
@@ -174,7 +174,7 @@ float SoftShadow(Ray ray, float k)
 	direction.y *= worldFlip;
 	
 	
-	vec3 col = render(Ray(vec3(position.z, position.y * worldFlip, position.x), direction.xyz));
+	vec3 col = render(Ray(vec3(position.z, position.y * worldFlip, position.x), direction), uv);
 
     color = vec4(col.xyz, 1.0);
 </main>
@@ -201,10 +201,8 @@ float SoftShadow(Ray ray, float k)
 			direction.y *= worldFlip;
 	
 
-			Ray	ray = Ray(vec3(position.z, position.y * worldFlip, position.x), direction.xyz);
-			col += render(ray);
-	
-			//vec3 col = render(Ray(vec3(position.z, position.y * worldFlip, position.x), direction.xyz));
+			Ray	ray = Ray(vec3(position.z, position.y * worldFlip, position.x), direction);
+			col += render(ray, uv);
 		}
 	}
 	col /= float(antiAliasing*antiAliasing);

@@ -168,6 +168,11 @@ void Shader::SetUniformStr(const std::string &name, float x, float y, float z, f
 	glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
 }
 
+void Shader::SetUniformStr(const std::string& name, glm::vec3 vector) const
+{
+	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);
+}
+
 std::string Shader::ParseShader(const std::string& file)
 {
 	std::ifstream stream;

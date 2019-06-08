@@ -15,6 +15,7 @@
 <outerRadius>power+1</outerRadius> // power + distance(w, sun);
 <scale>genericParameter</scale>
 <foldingLimit>power</foldingLimit>
+<zoom>.01</zoom>
 
 <uniforms>
 	uniform float power = 1;
@@ -61,9 +62,9 @@ boxFold, sphereFold, triplexPow
 			//w.x = (w.y);
 
 			w=Scale*w + c;  // Scale & Translate
+			dr = dr*abs(Scale)+1.0;
 		
 
-			dr = dr*abs(Scale)+0.0;
 			<deformation>
 
 			trap = mix(trap, vec4(w*w, m), 0.5);
@@ -126,9 +127,12 @@ boxFold, sphereFold, triplexPow
 
 <coloring>
 	col = vec3(0.1);
-	col = mix(col, <color>, clamp(pow(trap.w,6.0),0.0,1.0));
-	col *= clamp(trap.x, 0, 1) * vec3(0., 0.3, 0.7);
-	col *= 1.2;
+	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
+	col *= vec3(0., 0.15, 0.7);
+
+	//col *= steps;
+	//col *= 1 - length(uv); // Flashlight
+	col = sqrt(col);
 </coloring>
 
 <edgeGlow>
