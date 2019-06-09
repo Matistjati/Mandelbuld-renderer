@@ -4,11 +4,9 @@ layout(location = 0) out vec4 color;
 
 uniform vec2 screenSize = vec2(1080, 1080);
 uniform int worldFlip = -1;
-uniform mat2 yawMatrix;
-uniform mat2 pitchMatrix;
-uniform mat2 rollMatrix;
 uniform vec3 position;
 uniform vec3 sun;
+uniform mat3 rotation;
 
 <uniforms>
 

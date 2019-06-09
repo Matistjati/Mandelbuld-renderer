@@ -23,7 +23,7 @@ const float PITCH = 0.0f;
 const float ROLL = 0.0f;
 const float SPEED = 2.5f;
 const float ROLLSPEED = 1.0f;
-const float SENSITIVITY = 0.1f;
+const float SENSITIVITY = 0.005f;
 
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -39,9 +39,7 @@ public:
 	Uniform<glm::vec3> position;
 
 	// Matrices
-	Uniform<glm::mat2> yawMatrix;
-	Uniform<glm::mat2> pitchMatrix;
-	Uniform<glm::mat2> rollMatrix;
+	Uniform<glm::mat3> rotation;
 
 	float GetYaw();
 	float GetRoll();
@@ -90,13 +88,6 @@ private:
 	float pitch;
 	float roll;
 
-	// Rotation around the x axis
-	void SetYawMatrix();
-
-	// Rotation around the y axis
-	void SetPitchMatrix();
-
-	// Rotation around the z axis
-	void SetRollMatrix();
+	void SetRotationMatrix();
 };
 #endif

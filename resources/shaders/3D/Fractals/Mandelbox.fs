@@ -128,11 +128,11 @@ boxFold, sphereFold, triplexPow
 <coloring>
 	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
-	col *= vec3(0., 0.15, 0.7);
-
+	col *= vec3(0., 0.3, 0.1);
+	col *= 2;
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
-	col = sqrt(col);
+	//col = sqrt(col);
 </coloring>
 
 <edgeGlow>

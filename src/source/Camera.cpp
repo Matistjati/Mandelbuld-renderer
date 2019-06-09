@@ -26,19 +26,19 @@ float Camera::GetPitch()
 void Camera::SetYaw(float v)
 {
 	yaw = v;
-	SetYawMatrix();
+	SetRotationMatrix();
 }
 
 void Camera::SetRoll(float v)
 {
 	roll = v;
-	SetRollMatrix();
+	SetRotationMatrix();
 }
 
 void Camera::SetPitch(float v)
 {
 	pitch = v;
-	SetPitchMatrix();
+	SetRotationMatrix();
 }
 
 Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(-1)
@@ -68,26 +68,29 @@ Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float
 	roll = Roll;
 }
 
-void Camera::SetYawMatrix()
+void Camera::SetRotationMatrix()
 {
-	float rad = glm::radians(-yaw);
-	yawMatrix.value = glm::mat2(cos(rad), -sin(rad),
-					 sin(rad), cos(rad));
+	// The standard 3d rotation matrices
+	float y = glm::radians(-GetPitch());
+	glm::mat3 pitchM = glm::mat3(1, 0, 0,
+		0, cos(y), -sin(y),
+		0, sin(y), cos(y));
+
+
+	float p = glm::radians(GetYaw());
+	glm::mat3 yawM = glm::mat3(cos(p), 0, sin(p),
+		0, 1, 0,
+		-sin(p), 0, cos(p));
+
+
+	float r = glm::radians(-GetRoll());
+	glm::mat3 rollM = glm::mat3(cos(r), -sin(r), 0,
+		sin(r), cos(r), 0,
+		0, 0, 1);
+
+	rotation.value = pitchM * yawM * rollM;
 }
 
-void Camera::SetPitchMatrix()
-{
-	float rad = glm::radians(pitch);
-	pitchMatrix.value = glm::mat2(cos(rad), -sin(rad),
-					 sin(rad), cos(rad));
-}
-
-void Camera::SetRollMatrix()
-{
-	float rad = glm::radians(roll);
-	rollMatrix.value = glm::mat2(cos(rad), -sin(rad),
-					 sin(rad), cos(rad));
-}
 
 // Upwards vector independent of roll
 glm::vec3 Camera::GetWorldUp()
@@ -106,36 +109,16 @@ glm::vec3 Camera::GetWorldForward()
 glm::vec3 Camera::GetForwardVector()
 {
 	glm::vec3 out;
-
-	float rads = static_cast<float>(abs(fmod(glm::radians(GetPitch()), M_PI)));
-	float percentNotLookingMiddle = static_cast<float>((rads < M_PI_2) ?
-		rads / M_PI_2 :
-		(M_PI - rads) / M_PI_2);
-
-
 	// Vertical movement
-	glm::vec3 up = GetWorldUp();
-	out += up * cos(glm::radians(pitch) + static_cast<float>(M_PI_2)) * -movementReverse;// *percentNotLookingMiddle;// -sin(glm::radians(roll));
+	out.y = cos(glm::radians(pitch) + static_cast<float>(M_PI_2)) * -movementReverse;
 
-	// Horizontal movement
-	glm::vec2 verticalFront = GetWorldForward();
 
-	verticalFront = yawMatrix.value * verticalFront;
-
-	// If we face up, we wanna move slower horizontally
-	float percentLookingMiddle = static_cast<float>(abs(rads - M_PI_2) / M_PI_2);
-
-	out += glm::vec3(verticalFront.x, 0, verticalFront.y) * percentLookingMiddle;
-
-	/*glm::vec2 xy(out.x, out.y);
-	xy = GetRollMatrix2() * xy;
-	out.x = xy.x;
-	out.y = xy.y;
-*/
-#ifdef _DEBUG
-	//std::cout << ToString::toString(out) << std::endl;
-#endif
-
+	glm::vec3 forward = rotation.value * glm::vec3(1, 0, 0);
+	forward.y = 0;
+	float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
+	forward *= sin(rads);
+	out += forward;
+	
 	return glm::normalize(out);
 }
 
@@ -179,11 +162,19 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset)
 	yoffset *= mouseSensitivity;
 
 	SetYaw(yaw + xoffset);
-	SetPitch(pitch + yoffset);
 
-	//float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI)));
-	//float percentLookingMiddle = static_cast<float>(abs(rads - M_PI_2) / M_PI_2);
 
-	//std::cout << std::to_string(percentLookingMiddle) << std::endl;
-	//std::cout << std::to_string(glm::radians(yaw)) << std::endl;
+	// Lock horizontal movement (making an "impossible" turn breaks movement)
+	if (pitch + yoffset > 90)
+	{
+		SetPitch(90);
+	}
+	else if (pitch + yoffset < -90)
+	{
+		SetPitch(-90);
+	}
+	else
+	{
+		SetPitch(pitch + yoffset);
+	}
 }

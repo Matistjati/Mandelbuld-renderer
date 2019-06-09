@@ -167,10 +167,7 @@ float SoftShadow(Ray ray, float k)
 
 	vec3 direction = normalize(vec3(uv.xy, 1));
 
-	direction.zy *= pitchMatrix;
-
-	direction.xz *= yawMatrix;
-	direction.xy *= rollMatrix;
+	direction *= rotation;
 	direction.y *= worldFlip;
 	
 	
@@ -194,10 +191,7 @@ float SoftShadow(Ray ray, float k)
 
 			vec3 direction = normalize(vec3(uv.xy, 1));
 
-			direction.zy *= pitchMatrix;
-
-			direction.xz *= yawMatrix;
-			direction.xy *= rollMatrix;
+			direction *= rotation;
 			direction.y *= worldFlip;
 	
 

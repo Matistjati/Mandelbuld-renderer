@@ -103,6 +103,11 @@ void Shader::SetUniform(Uniform<glm::mat2> &mat) const
 	glUniformMatrix2fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
 }
 
+void Shader::SetUniform(Uniform<glm::mat3>& mat) const
+{
+	glUniformMatrix3fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
+}
+
 void Shader::SetUniform(unsigned int id, float x, float y, float z) const
 {
 	glUniform3f(id, x, y, z);
@@ -131,6 +136,11 @@ void Shader::SetUniformStr(Uniform<glm::vec4> vector) const
 void Shader::SetUniformStr(Uniform<glm::mat2> &mat) const
 {
 	glUniformMatrix2fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
+}
+
+void Shader::SetUniformStr(Uniform<glm::mat3> &mat) const
+{
+	glUniformMatrix3fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
 }
 
 void Shader::SetUniformStr(Uniform<glm::mat4> &mat) const

@@ -79,7 +79,7 @@ Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourc
 	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GenerateShader(true, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight)),
 	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
-		0.1f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
+		0.15f, 3, 2000))), // mouseSensitivity, movementSpeed, rollSpeed
 		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	time(Time()), power(1), genericParameter(1)
 {
@@ -101,8 +101,7 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 
 	mouseOffset = newPos;
 
-	explorationShader.SetUniform(camera.pitchMatrix);
-	explorationShader.SetUniform(camera.yawMatrix);
+	explorationShader.SetUniform(camera.rotation);
 }
 
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -119,9 +118,7 @@ void Fractal3D::SetUniforms(Shader& shader)
 {
 	shader.use();
 	shader.SetUniform(camera.position);
-	shader.SetUniform(camera.yawMatrix);
-	shader.SetUniform(camera.pitchMatrix);
-	shader.SetUniform(camera.rollMatrix);
+	shader.SetUniform(camera.rotation);
 	shader.SetUniform(camera.worldFlip);
 	shader.SetUniform(screenSize);
 	shader.SetUniform(sun);
@@ -132,9 +129,7 @@ void Fractal3D::SetUniforms(Shader& shader)
 
 void Fractal3D::SetUniformLocations(Shader& shader)
 {
-	camera.pitchMatrix.id = glGetUniformLocation(shader.id, camera.pitchMatrix.name.c_str());
-	camera.rollMatrix.id = glGetUniformLocation(shader.id, camera.rollMatrix.name.c_str());
-	camera.yawMatrix.id = glGetUniformLocation(shader.id, camera.yawMatrix.name.c_str());
+	camera.rotation.id = glGetUniformLocation(shader.id, camera.rotation.name.c_str());
 	camera.position.id = glGetUniformLocation(shader.id, camera.position.name.c_str());
 	camera.worldFlip.id = glGetUniformLocation(shader.id, camera.worldFlip.name.c_str());
 	screenSize.id = glGetUniformLocation(shader.id, screenSize.name.c_str());
@@ -146,9 +141,7 @@ void Fractal3D::SetUniformLocations(Shader& shader)
 
 void Fractal3D::SetUniformNames()
 {
-	camera.pitchMatrix.name = "pitchMatrix";
-	camera.yawMatrix.name = "yawMatrix";
-	camera.rollMatrix.name = "rollMatrix";
+	camera.rotation.name = "rotation";
 	camera.position.name = "position";
 	camera.worldFlip.name = "worldFlip";
 	screenSize.name = "screenSize";
@@ -569,11 +562,11 @@ void Fractal3D::HandleKeyInput()
 				// Camera roll
 			case GLFW_KEY_Q:
 				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-				explorationShader.SetUniform(camera.rollMatrix);
+				explorationShader.SetUniform(camera.rotation);
 				break;
 			case GLFW_KEY_E:
 				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-				explorationShader.SetUniform(camera.rollMatrix);
+				explorationShader.SetUniform(camera.rotation);
 				break;
 
 				// Changing the power of the fractal
