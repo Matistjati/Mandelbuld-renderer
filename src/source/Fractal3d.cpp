@@ -19,8 +19,8 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
 
 	// Handle input actions in separate function
-	if ((action == GLFW_PRESS) && (mods == 0 || key == GLFW_KEY_LEFT_SHIFT)) keys[key] = true;
-	else if ((action == GLFW_RELEASE) && (mods == 0 || key == GLFW_KEY_LEFT_SHIFT)) keys[key] = false;
+	if ((action == GLFW_PRESS) && (mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL) keys[key] = true;
+	else if ((action == GLFW_RELEASE) && (mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL) keys[key] = false;
 
 	switch (key)
 	{
@@ -159,9 +159,10 @@ void Fractal3D::SaveImage(const std::string path)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-
+	
 	Pixel* data = (Pixel*)malloc(screenSize.value.x * screenSize.value.y * 4);
 	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
 
 	explorationShader.use();
 	SetUniformLocations(explorationShader);

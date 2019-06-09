@@ -98,12 +98,15 @@ int main()
 	FractalType fractal = FractalType(1, "resources/shaders/3D/Fractals/MandelboxSpecs.fs", "resources/shaders/3D/Fractals/Mandelbox.fs");
 
 
+
 	glfwSetWindowUserPointer(mainWindow, &fractal);
 
 
 	glfwSetFramebufferSizeCallback(mainWindow, FrameBufferSizeCallback);
 	glfwSetCursorPosCallback(mainWindow, MouseCallback);
 	glfwSetKeyCallback(mainWindow, KeyCallback);
+
+	glViewport(0, 0, fractal.screenSize.value.x, fractal.screenSize.value.y);
 
 	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
