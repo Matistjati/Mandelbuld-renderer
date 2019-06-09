@@ -38,7 +38,7 @@ int main()
 	}
 
 	// glfw window creation
-	GLFWwindow* mainWindow = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", NULL, NULL);
+	GLFWwindow* mainWindow = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", glfwGetPrimaryMonitor(), NULL);
 	if (!mainWindow)
 	{
 		DebugPrint("Failed to create GLFW window");

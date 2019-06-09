@@ -260,3 +260,9 @@ bool Fractal::StringToBool(std::string str)
 	else if (str == "false") return false;
 	else return false;
 }
+
+glm::ivec2 Fractal::GetMonitorSize()
+{
+	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	return glm::ivec2(mode->width, mode->height);
+}

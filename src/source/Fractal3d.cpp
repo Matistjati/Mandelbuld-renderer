@@ -76,7 +76,7 @@ Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShade
 }
 
 Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourcePath)
-	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GenerateShader(true, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), glm::ivec2(Fractal::DefaultWidth, Fractal::DefaultHeight)),
+	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GenerateShader(true, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GetMonitorSize()),
 	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
 		0.15f, 3, 2000))), // mouseSensitivity, movementSpeed, rollSpeed

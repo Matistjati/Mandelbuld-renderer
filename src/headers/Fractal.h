@@ -67,6 +67,7 @@ protected:
 	static void LinkSpecification(std::string& source, std::string& target);
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static bool StringToBool(std::string str);
+	static glm::ivec2 GetMonitorSize();
 };
 
 #endif
