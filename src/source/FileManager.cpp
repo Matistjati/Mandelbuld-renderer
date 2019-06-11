@@ -1,6 +1,8 @@
 #include "headers/FileManager.h"
 #include "headers/Debug.h"
 #include <fstream>
+#include <Shlwapi.h>
+#include <sys/stat.h>
 
 bool FileManager::correctWorkingDir = FileManager::SetCorrectDirectory();
 
@@ -43,6 +45,12 @@ std::string FileManager::getFileName(std::string path)
 		}
 	}
 	return path.substr(lastPos + 1);
+}
+
+bool FileManager::fileExists(const std::string& name)
+{
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
 }
 
 bool FileManager::SetCorrectDirectory()

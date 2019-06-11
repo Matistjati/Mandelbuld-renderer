@@ -30,12 +30,12 @@ struct ShaderSection
 };
 
 const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
-										ShaderSection("distanceEstimator"), ShaderSection("sceneDistance"), ShaderSection("trace"),
+										ShaderSection("sceneDistance"), ShaderSection("trace"),
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
-										ShaderSection("lightingFunctions"), };
+										ShaderSection("lightingFunctions") };
 
 const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
-											 ShaderSection("color", false, "", true), ShaderSection("deformation", true, "", true), ShaderSection("maxDist", false, "maxDistRelease"), };
+											 ShaderSection("color", false, "", true), ShaderSection("maxDist", false, "maxDistRelease"), ShaderSection("distanceBody"), ShaderSection("trap") };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
 									ShaderSection("shadowSoftness"), ShaderSection("antiAliasing"), ShaderSection("zoom") };
@@ -81,7 +81,7 @@ public:
 	static const constexpr char* presetSpec = "resources/shaders/3D/Base/PresetSpecs.fs";
 
 private:
-	static std::string default3DSource;
+	const static std::string& default3DSource;
 	void Init(int specIndex, std::string specification);
 	glm::vec2 mouseOffset;
 	bool firstMouse = true;

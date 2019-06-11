@@ -15,6 +15,12 @@
 
 <MandelBox>
 {
+<distanceEstimator>
+	<distanceReturn>[mandelBoxDist]</distanceReturn>,
+	<distanceTrap>[defaultTrap]</distanceTrap>,
+	<distanceSetup>[scaleInit, defaultSetup]</distanceSetup>,
+	<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
+</distanceEstimator>
 <cpuVariables>
 	<power>1</power>,
 	<genericParameter>2</genericParameter>
@@ -24,6 +30,17 @@
 
 <MandelBulb>
 {
+<distanceEstimator>
+	<distanceReturn>[mandelBulbDist]</distanceReturn>,
+	<distanceTrap>[defaultTrap]</distanceTrap>,
+	<distanceSetup>[mandelBulbInit]</distanceSetup>,
+	<distanceTrapReturn>[mandelBulbTrapReturn]</distanceTrapReturn>,
+</distanceEstimator>
+<indices>
+	<color>0</color>,
+	<colorB>0</colorB>,
+	<colorC>0</colorC>,
+</indices>
 <cpuVariables>
 	<power>8</power>,
 </cpuVariables>

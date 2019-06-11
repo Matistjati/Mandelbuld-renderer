@@ -1,7 +1,7 @@
 <maxIterations>4</maxIterations>
 <maxSteps>60</maxSteps>
 <shadowSoftness>4</shadowSoftness> // Higher = harder shadow
-<maxIterationsRelease>512</maxIterationsRelease>
+<maxIterationsRelease>16</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2<antiAliasing>
 <zoom>.01</zoom>
@@ -21,38 +21,88 @@
 	col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
 </sun>
 
-<trace>
-float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
-{
-	float res = -1.0;
+<distanceSetup>
+	<scaleInit>float Scale = <scale>;</scaleInit>,
+	<defaultSetup>vec3 c = w; float m; vec4 trap = vec4(abs(w),m); float dr = 1.0;</defaultSetup>,
+	<mandelBulbInit>vec3 c = w; float m = dot(w,w); vec4 trap = vec4(abs(w),m); float dr = 1.0;</mandelBulbInit>,
+</distanceSetup>
 
-	vec4 trap;
+<operations>
+	<boxFold>boxFold(w, <foldingLimit>);</boxFold>,
+	<sphereFold>m = dot(w, w);	sphereFold(w, dr, m, <innerRadius>, <outerRadius>);</sphereFold>,
+	<triplexPow>w = triplexPow(w, power, dr, m);</triplexPow>,
+	<scaleAndTranslate>w=Scale*w + c;</scaleAndTranslate>,
+	<translate>w+=c;</translate>,
+	<mandelBoxDerivative>dr = dr*abs(Scale)+1.0;</mandelBoxDerivative>,
+	<sinY>w.y = sin(w.y);</sinY>,
+</operations>
 
-	float t = 0;
-	int i = 0;
-	for(; i<maxSteps; i++)
-	{ 
-		vec3 pos = ray.origin + ray.dir * t;
-		float h = sceneDistance(pos, trap);
-		float th = 0.25 * px * t;
+<distanceReturn>
+	<mandelBoxDist>length(w)/abs(dr);</mandelBoxDist>,
+	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dr);</mandelBulbDist>,
+</distanceReturn>
 
-		if(h<th || h>power*8)
-		{
-			break;
-		}
-		t += h;
-	}
+<distanceTrap>
+	<defaultTrap>m = dot(w,w);trap = min(trap, vec4(abs(w),m));</defaultTrap>
+</distanceTrap>
 
-	percentSteps = float(i)/float(maxSteps);
+<distanceTrapReturn>
+	<defaultTrapReturn>trap;</defaultTrapReturn>
+</distanceTrapReturn>
 
-	if (t < <maxDist>)
+<distanceEstimator>
+float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 	{
-	trapOut = trap;
-		res = t;
-	}
+		<distanceSetup>
 
-	return res;
-}
+		for(int i = 0; i < <maxIterations>; i++)
+		{
+			<distanceBody>
+
+			<distanceTrap>
+
+			if (m > 256) break;
+		}
+	
+		resColor = <distanceTrapReturn>
+
+		return <distanceReturn>
+	}
+</distanceEstimator>
+
+
+<trace>
+	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
+	{
+		float res = -1.0;
+
+		vec4 trap;
+
+		float t = 0;
+		int i = 0;
+		for(; i<maxSteps; i++)
+		{ 
+			vec3 pos = ray.origin + ray.dir * t;
+			float h = sceneDistance(pos, trap);
+			float th = 0.25 * px * t;
+
+			if(h<th || h>power*8)
+			{
+				break;
+			}
+			t += h;
+		}
+
+		percentSteps = float(i)/float(maxSteps);
+
+		if (t < <maxDist>)
+		{
+		trapOut = trap;
+			res = t;
+		}
+
+		return res;
+	}
 </trace>
 
 <lightingFunctions>

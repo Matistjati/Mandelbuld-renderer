@@ -2,9 +2,9 @@
 [innerRadius], [outerRadius], [foldingLimit], [scale]
 </extraSections>
 
-<maxIterations>4</maxIterations>
+<maxIterations>8</maxIterations>
 <maxSteps>100</maxSteps>
-<maxIterationsRelease>512</maxIterationsRelease>
+<maxIterationsRelease>16</maxIterationsRelease>
 <maxStepsRelease>5000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
@@ -35,79 +35,9 @@
 boxFold, sphereFold, triplexPow
 </include>
 
-<distanceEstimator>
-	float DistanceEstimator(vec3 w, out vec4 resColor, float _)
-	{
-		float Scale = <scale>;
-		vec3 c = w;
-		float dr = 1.0;
-		float m;
-		vec4 trap = vec4(0,0,0,0);
-
-		for (int n = 0; n < 8; n++) 
-		{
-			boxFold(w, <foldingLimit>);
-			m = dot(w, w);
-			sphereFold(w, dr, m, <innerRadius>, <outerRadius>);
-			
-			boxFold(w, <foldingLimit>);
-			m = dot(w, w);
-			sphereFold(w, dr, m, <innerRadius>, <outerRadius>);
-
-			w.y = sin(w.y);
-			w = triplexPow(w, _, dr, m);
- 			//w.x = asinh(w.x);
-
- 			//w.y = sin(w.y)*sinh(w.y);
-			//w.x = (w.y);
-
-			w=Scale*w + c;  // Scale & Translate
-			dr = dr*abs(Scale)+1.0;
-		
-
-			<deformation>
-
-			trap = mix(trap, vec4(w*w, m), 0.5);
-		}
-		resColor = trap;
-
-		return length(w)/abs(dr);
-	}
-</distanceEstimator>
-
-<trace>
-	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
-	{
-		float res = -1.0;
-
-		vec4 trap;
-
-		float t = 0;
-		int i = 0;
-		for(; i<maxSteps; i++)
-		{ 
-			vec3 pos = ray.origin + ray.dir * t;
-			float h = sceneDistance(pos, trap);
-			float th = 0.25 * px * t;
-
-			if(h<th || h>power*8)
-			{
-				break;
-			}
-			t += h;
-		}
-
-		percentSteps = float(i)/float(maxSteps);
-
-		if (t < <maxDist>)
-		{
-		trapOut = trap;
-			res = t;
-		}
-
-		return res;
-	}
-</trace>
+<distanceTrap>
+	<bulbForest>trap = mix(trap, vec4(w*w, m), 0.5);</bulbForest>
+</distanceTrap>
 
 <color>
 	<vec3(1, 0, 0.3)>,
@@ -128,8 +58,8 @@ boxFold, sphereFold, triplexPow
 <coloring>
 	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
-	col *= vec3(0., 0.3, 0.1);
-	col *= 2;
+	col += <color> * 0.1;
+	col *= <color> * (1-t*pow(steps,32));
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);

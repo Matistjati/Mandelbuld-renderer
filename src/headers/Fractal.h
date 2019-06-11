@@ -56,7 +56,7 @@ protected:
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
 	static bool replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool replaceSection(Section section, std::string& origin, std::string& dest);
-	static std::string getSection(Section s, std::string from);
+	static std::string getSection(Section s, std::string from, size_t start = 0);
 	static std::string getSectionName(std::string str);
 	static std::string getSectionValue(std::string str);
 	static void cleanString(std::string& str, std::vector<char> chars);
@@ -65,7 +65,9 @@ protected:
 	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
 	static std::string GetSpecificationByIndex(std::string specification, int index, const std::string presets);
 	static void LinkSpecification(std::string& source, std::string& target);
+	static void BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification);
 	static std::vector<std::string> GetOuterSections(std::string& source);
+	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);
 	static glm::ivec2 GetMonitorSize();
 };

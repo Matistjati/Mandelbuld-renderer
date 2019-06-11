@@ -6,13 +6,7 @@
 #include <algorithm>
 #include <thread>
 
-std::string Fractal3D::default3DSource = FileManager::readFile(default3DFractal);
-
-inline bool fileExists(const std::string& name)
-{
-	struct stat buffer;
-	return (stat(name.c_str(), &buffer) == 0);
-}
+const std::string& Fractal3D::default3DSource = FileManager::readFile(default3DFractal);
 
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -37,7 +31,7 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			int count = 0;
 			while (1)
 			{
-				if (!fileExists((baseName + std::to_string(count) + ".png")))
+				if (!FileManager::fileExists((baseName + std::to_string(count) + ".png")))
 				{
 					SaveImage(baseName + std::to_string(count) + ".png");
 					return;
@@ -247,19 +241,28 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 		s = Section(name);
 
-		if (!replaceSection(s, Section(constants[i].name), source, final))
+		std::string section = getSection(s, source);
+		if (section == "")
 		{
-			if (!replaceSection(s, Section(constants[i].name), defaultSource, final))
+			if ((section = getSection(s, defaultSource)) == "")
 			{
 				// Default to normal name if a different one for release doesn't exist
 				s = Section(c.name);
 
-				if (!replaceSection(s, Section(constants[i].name), source, final))
+				if ((section = getSection(s, source)) == "")
 				{
-					replaceSection(s, Section(constants[i].name), defaultSource, final);
+					section = getSection(s, defaultSource);
 				}
 			}
-			
+		}
+
+		if (c.releaseName != "")
+		{
+			while (replace(final, Section(c.name).start, section)) {}
+		}
+		else
+		{
+			while (replace(final, s.start, section)) {}
 		}
 	}
 
@@ -365,9 +368,11 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 		return;
 	}
 
+	BuildDistanceEstimator(source, default3DSource, final, specSection);
+
 	std::string flags = getSection(Section("flags"), specSection);
 
-	const size_t sectionSize = std::extent<decltype(shaderSections)>::value;
+	const static size_t sectionSize = std::extent<decltype(shaderSections)>::value;
 	for (size_t i = 0; i < sectionSize; i++)
 	{
 		ShaderSection c = shaderSections[i];
@@ -623,7 +628,7 @@ Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string s
 	}
 
 	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, sections);
-
+	DebugPrint(base);
 	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
 	return *(new Shader(vertexSource, base, false));
 }

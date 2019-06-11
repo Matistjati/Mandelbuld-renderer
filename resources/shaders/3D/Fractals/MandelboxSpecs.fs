@@ -1,21 +1,29 @@
 {
-
+	<distanceEstimator>
+		<distanceBody>[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+	</distanceEstimator>
 }
 
 {
-<include>
-MandelBox
-</include>
+	<include>
+		MandelBox
+	</include>
+	<distanceEstimator>
+		<distanceBody>[boxFold, sphereFold, boxFold, sphereFold, sinY, triplexPow, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceTrap>[bulbForest]</distanceTrap>,
+	</distanceEstimator>
 
-<indices>
-	<color>2</color>
-</indices>
-<variables>
-	<zoom>.001</zoom>
-</variables>
-<cpuVariables>
-	<position>[(0)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
-</cpuVariables>
+	<indices>
+		<color>1</color>
+	</indices>
+	<variables>
+		<zoom>.001</zoom>,
+		<maxIterationsRelease>8</maxIterationsRelease>,
+		<maxStepsRelease>1000</maxStepsRelease>,
+	</variables>
+	<cpuVariables>
+		<position>[(0)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
+	</cpuVariables>
 }
 
 {

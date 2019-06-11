@@ -41,9 +41,9 @@ bool Fractal::replaceSection(Section section, std::string& origin, std::string& 
 	return replace(dest, section.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
 
-std::string Fractal::getSection(Section s, std::string from)
+std::string Fractal::getSection(Section s, std::string from, size_t start)
 {
-	int startIndex = from.find(s.start);
+	int startIndex = from.find(s.start, start);
 	int endIndex = from.find(s.end, startIndex);
 	if (startIndex == std::string::npos || endIndex == std::string::npos)
 	{
@@ -224,6 +224,98 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 	}
 }
 
+void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification)
+{
+	const static Section distSect("distanceEstimator");
+	std::string distanceDeclaration;
+	size_t distanceStart = source.find(distSect.start);
+	if (distanceStart == std::string::npos)
+	{
+		distanceStart = defaultSource.find(distSect.start);
+		if (distanceStart == std::string::npos)
+		{
+			DebugPrint("Error building distance estimator: could not find distance estimator section");
+			return;
+		}
+		else
+		{
+			distanceDeclaration = getSection(distSect, defaultSource, distanceStart);
+		}
+	}
+	else
+	{
+		distanceDeclaration = getSection(distSect, source, distanceStart);
+	}
+	
+	if (!replace(target, distSect.start, distanceDeclaration))
+	{
+		DebugPrint("Could not insert distance estimator into target");
+		return;
+	}
+	std::vector<std::string> sourceSections = GetSections(distanceDeclaration);
+
+	sourceSections.erase(std::remove_if(
+		sourceSections.begin(), sourceSections.end(),
+		[](const std::string& x) 
+		{
+			return x.substr(1, 8) != "distance";
+		}),
+		sourceSections.end());
+
+	std::string distanceSpec = getSection(Section("distanceEstimator"), specification);
+	std::vector<std::string> distanceSections = splitNotInChar(distanceSpec, ',', '[', ']');
+
+	for (size_t k = 0; k < distanceSections.size(); k++)
+	{
+		cleanString(distanceSections[k], { '\n', '\t', ' ' });
+		std::string sectionName = getSectionName(distanceSections[k]);
+		for (size_t i = 0; i < sourceSections.size(); i++)
+		{
+			if (getSectionName(sourceSections[i]) == sectionName)
+			{
+				std::string sectionValue = getSectionValue(distanceSections[k]);
+				std::string final;
+
+				cleanString(sectionValue, { '[', ']' });
+				std::vector<std::string> toReplace = splitNotInChar(sectionValue, ',', '[', ']');
+
+				for (size_t j = 0; j < toReplace.size(); j++)
+				{
+					cleanString(toReplace[j], { '\n', '\t', ' ', '[', ']' });
+
+					Section c(toReplace[j]);
+					size_t start = source.find(c.start);
+
+					if (start != std::string::npos)
+					{
+						std::string newSection = getSection(Section(toReplace[j]), source, start);
+						if (newSection == "")
+						{
+							newSection = getSection(Section(toReplace[j]), source);
+						}
+						final += newSection;
+					}
+					else if ((start = defaultSource.find(c.start)) != std::string::npos)
+					{
+						std::string newSection = getSection(Section(toReplace[j]), defaultSource, start);
+						if (newSection == "")
+						{
+							newSection = getSection(Section(toReplace[j]), defaultSource);
+						}
+						final += newSection;
+					}
+					else
+					{
+						final += "";
+					}
+				}
+
+				replace(target, Section(sectionName).start, final);
+			}
+		}
+	}
+}
+
 std::vector<std::string> Fractal::GetOuterSections(std::string& source)
 {
 	std::vector<std::string> sections(0);
@@ -249,6 +341,35 @@ std::vector<std::string> Fractal::GetOuterSections(std::string& source)
 			}
 		}
 	}
+	return sections;
+}
+
+std::vector<std::string> Fractal::GetSections(std::string& source)
+{
+	std::vector<std::string> sections(0);
+	
+	size_t sectionEnd = -1;
+	std::string sectionName;
+	for (size_t i = 0; i < source.length(); i++)
+	{
+		if (source[i] == '<')
+		{
+			sectionEnd = source.find('>', i);
+			size_t nextOpener = source.find('<', i + 1);
+			if (nextOpener < sectionEnd) // Edge case, for example if (a < <someValue>)
+			{
+				i = nextOpener;
+			}
+
+
+			if (sectionEnd != std::string::npos)
+			{
+				sections.push_back(source.substr(i, sectionEnd - i + 1));
+				i = sectionEnd;
+			}
+		}
+	}
+
 	return sections;
 }
 
