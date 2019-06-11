@@ -37,6 +37,7 @@ boxFold, sphereFold, triplexPow
 
 <distanceTrap>
 	<bulbForest>trap = mix(trap, vec4(w*w, m), 0.5);</bulbForest>
+	<mandelBoxTrap>trap = max(trap, vec4(abs(w),m));</mandelBoxTrap>
 </distanceTrap>
 
 <color>

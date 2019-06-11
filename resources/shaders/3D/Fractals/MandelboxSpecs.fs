@@ -1,6 +1,10 @@
 {
+	<include>
+		MandelBox
+	</include>
 	<distanceEstimator>
 		<distanceBody>[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 }
 
