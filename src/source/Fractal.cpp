@@ -95,6 +95,25 @@ bool Fractal::RemoveOuterSection(std::string& str)
 	}
 }
 
+bool Fractal::RemoveOuterChars(std::string& str, char first, char last)
+{
+	size_t firstIndex = str.find(first);
+	if (firstIndex == std::string::npos)
+	{
+		return false;
+	}
+	str.erase(firstIndex, 1);
+
+	size_t endIndex = str.find_last_of(last);
+	if (endIndex == std::string::npos)
+	{
+		return false;
+	}
+	str.erase(endIndex, 1);
+
+	return true;
+}
+
 std::vector<std::string> Fractal::split(std::string str, char splitBy)
 {
 	std::stringstream test(str);
@@ -129,7 +148,7 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 
 	std::string end = str.substr(lastIndex);
 	if (end[0] == splitBy) end.erase(0, 1);
-	if (!(end.length() == 1 && end[0] == splitBy))
+	if (!(end.length() == 1 && end[0] == splitBy) && end != "")
 	{
 		result.push_back(end);
 	}
@@ -275,6 +294,20 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 			{
 				std::string sectionValue = getSectionValue(distanceSections[k]);
 				std::string final;
+
+				size_t parenthesisStart = sectionValue.find('(');
+				if (parenthesisStart != std::string::npos)
+				{
+					size_t parenthesisEnd = sectionValue.find(')', parenthesisStart);
+					if (parenthesisEnd != std::string::npos)
+					{
+						std::string index = sectionValue.substr(parenthesisStart + 1, parenthesisEnd - 2);
+						sectionValue.erase(parenthesisStart, parenthesisEnd);
+						RemoveOuterChars(sectionValue, '[', ']');
+						std::vector<std::string> sequences = splitNotInChar(sectionValue, ',', '[', ']');
+						sectionValue = sequences[std::stoi(index)];
+					}
+				}
 
 				cleanString(sectionValue, { '[', ']' });
 				std::vector<std::string> toReplace = splitNotInChar(sectionValue, ',', '[', ']');

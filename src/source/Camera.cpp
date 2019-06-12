@@ -26,22 +26,33 @@ float Camera::GetPitch()
 void Camera::SetYaw(float v)
 {
 	yaw = v;
-	SetRotationMatrix();
+	rotationMatrixIsCurrent = false;
 }
 
 void Camera::SetRoll(float v)
 {
 	roll = v;
-	SetRotationMatrix();
+	rotationMatrixIsCurrent = false;
 }
 
 void Camera::SetPitch(float v)
 {
 	pitch = v;
-	SetRotationMatrix();
+	rotationMatrixIsCurrent = false;
 }
 
-Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(-1)
+Uniform<glm::mat3>& Camera::GetRotationMatrix()
+{
+	if (!rotationMatrixIsCurrent)
+	{
+		SetRotationMatrix();
+		rotationMatrixIsCurrent = true;
+	}
+	return rotation;
+}
+
+Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
+	movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
 {
 	position.value = Position;
 	yaw = Yaw;
@@ -49,7 +60,7 @@ Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw
 	roll = Roll;
 }
 
-Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : movementReverse(1), worldFlip(-1)
+Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : movementReverse(1), worldFlip(-1), rotationMatrixIsCurrent(false)
 {
 	position.value = Position;
 	yaw = Yaw;
@@ -60,7 +71,8 @@ Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, flo
 	rollSpeed = RollSpeed;
 }
 
-Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(-1)
+Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1),
+	rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
 {
 	position.value = glm::vec3(posX, posY, posZ);
 	yaw = Yaw;
@@ -119,6 +131,11 @@ glm::vec3 Camera::GetForwardVector()
 	forward *= sin(rads);
 	out += forward;
 	
+	// Zero if very small
+	const static float epsilon = 0.00001f;
+	out.x = (abs(out.x) < epsilon) ? 0 : out.x;
+	out.y = (abs(out.y) < epsilon) ? 0 : out.y;
+
 	return glm::normalize(out);
 }
 
@@ -163,15 +180,15 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset)
 
 	SetYaw(yaw + xoffset);
 
-
+	const static float pitchLimit = 90.f;
 	// Lock horizontal movement (making an "impossible" turn breaks movement)
-	if (pitch + yoffset > 90)
+	if (pitch + yoffset > pitchLimit)
 	{
-		SetPitch(90);
+		SetPitch(pitchLimit); // Left and right motion inverts at excactly 90 degrees, so we stay right below that
 	}
-	else if (pitch + yoffset < -90)
+	else if (pitch + yoffset < -pitchLimit)
 	{
-		SetPitch(-90);
+		SetPitch(-pitchLimit);
 	}
 	else
 	{

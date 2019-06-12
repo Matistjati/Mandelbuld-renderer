@@ -39,7 +39,6 @@ public:
 	Uniform<glm::vec3> position;
 
 	// Matrices
-	Uniform<glm::mat3> rotation;
 
 	float GetYaw();
 	float GetRoll();
@@ -47,6 +46,7 @@ public:
 	void SetYaw(float v);
 	void SetRoll(float v);
 	void SetPitch(float v);
+	Uniform<glm::mat3>& GetRotationMatrix();
 
 	// Camera options
 	float movementSpeed;
@@ -87,6 +87,8 @@ private:
 	float yaw;
 	float pitch;
 	float roll;
+	bool rotationMatrixIsCurrent;
+	Uniform<glm::mat3> rotation;
 
 	void SetRotationMatrix();
 };

@@ -1,8 +1,8 @@
 #include "headers/FileManager.h"
-#include "headers/Debug.h"
-#include <fstream>
 #include <Shlwapi.h>
 #include <sys/stat.h>
+#include "headers/Debug.h"
+#include <fstream>
 
 bool FileManager::correctWorkingDir = FileManager::SetCorrectDirectory();
 

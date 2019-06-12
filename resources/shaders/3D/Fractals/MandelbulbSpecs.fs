@@ -1,10 +1,11 @@
+// Exterior renderings
 {
 	<include>
 		MandelBulb
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[triplexPow, translate]</distanceBody>,
+		<distanceBody>[(3)[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, mulYYXYYX], [triplexPow, translate, sinX]]</distanceBody>,
 	</distanceEstimator>
 
 	<flags>
@@ -12,6 +13,26 @@
 	</flags>
 }
 
+// Interior renderings
+{
+	<include>
+		MandelBulb
+	</include>
+
+	<distanceEstimator>
+		<distanceBody>[(1)[triplexPow, translate], [triplexPow, translate, mulYYXYYX]]</distanceBody>,
+	</distanceEstimator>
+
+	<cpuVariables>
+		<position>[(0)[,-0.301680839, 0, 0.435530365]]</position>,
+	</cpuVariables>
+
+	<flags>
+		<traceDefault>
+	</flags>
+}
+
+// Black region edge rendering
 {
 	<include>
 		MandelBulb
@@ -39,20 +60,29 @@
 	</cpuVariables>
 }
 
+
+// Interior/weird surface renderings
 {
 	<include>
 		MandelBulb
 	</include>
 	<distanceEstimator>
-		<distanceBody>[triplexPow, translate, sinX]</distanceBody>,
+		<distanceBody>[(1)[triplexPow, translate], [triplexPow, translate, subXfromY], [triplexPow, translate, tanY], [triplexPow, translate, xAtanYX],
+						  [triplexPow, translate, MulXY],]</distanceBody>,
+		<distanceSetup>[defaultSetup]</distanceSetup>,
 	</distanceEstimator>
 	<flags>
 		<traceDefault>,
 		<edgeGlowOff>,
 	</flags>
 
-	<variables>
-		<maxDistRelease>30</maxDistRelease>,
-		<antiAliasing>4</antiAliasing>,
-	</variables>
+	<cpuVariables>
+		<position>[(0)[,-0.301680839, 0, 0.435530365]]</position>,
+	</cpuVariables>
+
+	<indices>
+		<color>1</color>,
+		<colorB>1</colorB>,
+		<colorC>1</colorC>,
+	</indices>
 }

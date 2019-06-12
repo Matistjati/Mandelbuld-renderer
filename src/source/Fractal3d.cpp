@@ -95,7 +95,7 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 
 	mouseOffset = newPos;
 
-	explorationShader.SetUniform(camera.rotation);
+	explorationShader.SetUniform(camera.GetRotationMatrix());
 }
 
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -112,7 +112,7 @@ void Fractal3D::SetUniforms(Shader& shader)
 {
 	shader.use();
 	shader.SetUniform(camera.position);
-	shader.SetUniform(camera.rotation);
+	shader.SetUniform(camera.GetRotationMatrix());
 	shader.SetUniform(camera.worldFlip);
 	shader.SetUniform(screenSize);
 	shader.SetUniform(sun);
@@ -123,7 +123,7 @@ void Fractal3D::SetUniforms(Shader& shader)
 
 void Fractal3D::SetUniformLocations(Shader& shader)
 {
-	camera.rotation.id = glGetUniformLocation(shader.id, camera.rotation.name.c_str());
+	camera.GetRotationMatrix().id = glGetUniformLocation(shader.id, camera.GetRotationMatrix().name.c_str());
 	camera.position.id = glGetUniformLocation(shader.id, camera.position.name.c_str());
 	camera.worldFlip.id = glGetUniformLocation(shader.id, camera.worldFlip.name.c_str());
 	screenSize.id = glGetUniformLocation(shader.id, screenSize.name.c_str());
@@ -135,7 +135,7 @@ void Fractal3D::SetUniformLocations(Shader& shader)
 
 void Fractal3D::SetUniformNames()
 {
-	camera.rotation.name = "rotation";
+	camera.GetRotationMatrix().name = "rotation";
 	camera.position.name = "position";
 	camera.worldFlip.name = "worldFlip";
 	screenSize.name = "screenSize";
@@ -404,15 +404,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 
 			versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, default3DSource), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
 			std::string index = getSection(s, specSection);
-			if (s.start.find("color") != std::string::npos)
-			{
-				index = "0";
-			}
-			else
-			{
-				replace(final, s.start, "");
-				continue;
-			}
+
 			sectionString = versions[std::stoi(index)];
 			// Clean string
 			sectionString.erase(std::remove(sectionString.begin(), sectionString.end(), '<'), sectionString.end());
@@ -568,11 +560,11 @@ void Fractal3D::HandleKeyInput()
 				// Camera roll
 			case GLFW_KEY_Q:
 				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-				explorationShader.SetUniform(camera.rotation);
+				explorationShader.SetUniform(camera.GetRotationMatrix());
 				break;
 			case GLFW_KEY_E:
 				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-				explorationShader.SetUniform(camera.rotation);
+				explorationShader.SetUniform(camera.GetRotationMatrix());
 				break;
 
 				// Changing the power of the fractal

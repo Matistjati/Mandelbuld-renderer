@@ -60,7 +60,7 @@ boxFold, sphereFold, triplexPow
 	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
 	col += <color> * 0.1;
-	col *= <color> * (1-t*pow(steps,32));
+	//col *= <color> * (1-t*pow(steps,32));
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);

@@ -23,28 +23,31 @@
 
 <operations>
 	<sinX>w.x = sin(w.x); w.x = sinh(w.x)*sin(w.x);</sinX>,
+	<subXfromY>w.y-=w.x;</subXfromY>,
+	<tanY>w.y = tan(w.y);</tanY>,
+	<xAtanYX>w.x = atan(w.y, w.x);</xAtanYX>,
+	<MulXY>w.y*=w.y;w.x*=w.y;</MulXY>,
+	<xMulSinX>w.x *= sin(w.x);</xMulSinX>,
+	<mulYYXYYX>w.y*=w.y;w.x*=w.y;w.y*=w.x;</mulYYXYYX>,
 </operations>
 	 
-	//w.y = cos(w.y)*sin(w.y);
-	//w.y = atan(w.y, w.z)/sin(w.x);
+
 		
-	//w.x = atan(w.y, w.x);
-		
-	//w.x = tan(w.x);
-	//w.y = tan(w.y);
-	//w.z = tan(w.z);
-	//w = complexTan(w);
+
 
 <color>
 	<vec3(0.54,0.3,0.07)>,
+	<vec3(0.7,0.7,0.9)>,
 </color>
 
 <colorB>
 	<vec3(0.02,0.4,0.30)>,
+	<vec3(0.6,0.6,0.9)>,
 </colorB>
 
 <colorC>
 	<vec3(0.15, 0.4, 0.04)>,
+	<vec3(0.7,0.7,1)>,
 </colorC>
 
 <coloring>

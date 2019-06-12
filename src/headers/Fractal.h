@@ -61,6 +61,7 @@ protected:
 	static std::string getSectionValue(std::string str);
 	static void cleanString(std::string& str, std::vector<char> chars);
 	static bool RemoveOuterSection(std::string& str);
+	static bool RemoveOuterChars(std::string& str, char first, char last);
 	static std::vector<std::string> split(std::string str, char splitBy);
 	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
 	static std::string GetSpecificationByIndex(std::string specification, int index, const std::string presets);
