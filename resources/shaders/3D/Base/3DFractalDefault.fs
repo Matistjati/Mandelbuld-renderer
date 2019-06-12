@@ -43,12 +43,17 @@
 </distanceReturn>
 
 <distanceTrap>
-	<defaultTrap>m = dot(w,w);trap = min(trap, vec4(abs(w),m));</defaultTrap>
+	<defaultTrap>m = dot(w,w);trap = min(trap, vec4(abs(w),m));</defaultTrap>,
 </distanceTrap>
 
 <distanceTrapReturn>
-	<defaultTrapReturn>trap;</defaultTrapReturn>
+	<defaultTrapReturn>trap;</defaultTrapReturn>,
 </distanceTrapReturn>
+
+<distanceBreakCondition>
+	<none></none>,
+	<defaultBreak>if (m > 256) break;</defaultBreak>,
+</distanceBreakCondition>
 
 <distanceEstimator>
 float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
@@ -61,7 +66,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 
 			<distanceTrap>
 
-			if (m > 256) break;
+			<distanceBreakCondition>
 		}
 	
 		resColor = <distanceTrapReturn>

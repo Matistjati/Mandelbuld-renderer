@@ -181,6 +181,14 @@ void Fractal3D::SaveImage(const std::string path)
 
 void Fractal3D::Update()
 {
+	// Move sun in shader
+	double t = glfwGetTime();
+	sun.value = glm::normalize(glm::vec3(sin(t * 0.25),
+		std::abs(sin(t * 0.1)) * -1,
+		cos(t * 0.25)));
+
+	explorationShader.SetUniform(sun);
+
 	time.PollTime();
 }
 
@@ -620,7 +628,7 @@ Shader& Fractal3D::GenerateShader(bool highQuality, int specIndex, std::string s
 	}
 
 	Fractal3D::ParseShader(source, base, specification, highQuality, specIndex, sections);
-	DebugPrint(base);
+
 	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
 	return *(new Shader(vertexSource, base, false));
 }

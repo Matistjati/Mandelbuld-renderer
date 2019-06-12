@@ -20,6 +20,7 @@
 	<distanceTrap>[defaultTrap]</distanceTrap>,
 	<distanceSetup>[scaleInit, defaultSetup]</distanceSetup>,
 	<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
+	<distanceBreakCondition>[none]</distanceBreakCondition>,
 </distanceEstimator>
 <cpuVariables>
 	<power>1</power>,
@@ -35,6 +36,7 @@
 	<distanceTrap>[defaultTrap]</distanceTrap>,
 	<distanceSetup>[mandelBulbInit]</distanceSetup>,
 	<distanceTrapReturn>[mandelBulbTrapReturn]</distanceTrapReturn>,
+	<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
 </distanceEstimator>
 <indices>
 	<color>0</color>,

@@ -1,13 +1,40 @@
+// Normal 0
 {
 	<include>
 		MandelBox
 	</include>
 	<distanceEstimator>
+		<distanceBody>[(0)[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], 
+		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative], // Try lower maxiteration
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+	<variables>
+	</variables>
+	<cpuVariables>
+		<position>[7, 0, 0]</position>,
+	</cpuVariables>
+}
+
+// Iteration based fog 1
+{
+	<include>
+		MandelBox, FogIteration
+	</include>
+
+	<distanceEstimator>
 		<distanceBody>[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
+	<indices>
+		<color>4</color>
+	</indices>
+	<cpuVariables>
+		<position>[-1.01426327, -0.817652643, -3.69670177]</position>,
+	</cpuVariables>
 }
 
+// Bulb forest 2
 {
 	<include>
 		MandelBox
@@ -18,7 +45,7 @@
 	</distanceEstimator>
 
 	<indices>
-		<color>1</color>
+		<color>2</color>
 	</indices>
 	<variables>
 		<zoom>.001</zoom>,
@@ -30,79 +57,79 @@
 	</cpuVariables>
 }
 
+// Sphere inversion hell 3
 {
-<include>
-FogIteration, MandelBox
-</include>
-<indices>
-	<color>3</color>
-</indices>
-<cpuVariables>
-	<position>[-0.974210978, -0.814095318, -3.66229343]</position>,
-</cpuVariables>
+	<include>
+		MandelBox
+	</include>
+	<distanceEstimator>
+		<distanceBody>[boxFold, sphereFold, cosZsinY, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+	<indices>
+		<color>3</color>
+	</indices>
+	<variables>
+		<innerRadius>power-1</innerRadius>, // power - distance(w, sun);
+		<outerRadius>power+3</outerRadius>, // power + distance(w, sun);
+		<scale>genericParameter</scale>,
+		<foldingLimit>power</foldingLimit>,
+		<zoom>.001</zoom>,
+		<maxIterations>4</maxIterations>,
+		<maxIterationsRelease>4</maxIterationsRelease>
+		<genericParameter>0.363999933</genericParameter>,
+	</variables>
+	<cpuVariables>
+		<position>[(1)[1.97544038, 1.99667835, 1.43940282], [-0.974210978, -0.814095318, -3.66229343]]</position>,
+		<genericParameter>2</genericParameter>,
+	</cpuVariables>
 }
 
+// Weird floaters 4
 {
-<flags>
-	<skyOff>
-	<sunOff>
-</flags>
-<variables>
-	<maxDist>0</maxDist>,
-	<maxDistRelease>0</maxDistRelease>,
-	<maxSteps>100</maxSteps>,
-	<maxStepsRelease>100</maxStepsRelease>,
-</variables>
-<indices>
-	<color>4</color>
-</indices>
-<cpuVariables>
-	<position>[-1.01426327, -0.817652643, -3.69670177]</position>,
-</cpuVariables>
+	// Tip: try increasing genericParameter
+	<include>
+		MandelBox
+	</include>
+	<distanceEstimator>
+		<distanceBody>[boxFold, sphereFold, cosZsinY, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+	<indices>
+		<color>1</color>
+	</indices>
+	<variables>
+		<innerRadius>power-1</innerRadius>,
+		<outerRadius>power+1</outerRadius>,
+		<scale>genericParameter</scale>,
+		<foldingLimit>power</foldingLimit>,
+		<zoom>.001</zoom>,
+		<maxIterations>4</maxIterations>,
+		<maxIterationsRelease>4</maxIterationsRelease>
+	</variables>
+	<cpuVariables>
+		<position>[(1)[1.97544038, 1.99667835, 1.43940282], [-0.974210978, -0.814095318, -3.66229343]]</position>,
+		<genericParameter>0.363999933</genericParameter>,
+		<power>1</power>,
+	</cpuVariables>
 }
 
+// Curious infinity 5
 {
-<variables>
-	<innerRadius>0.1</innerRadius>,
-	<outerRadius>1</outerRadius>,
-	<scale>1</scale>,
-	<foldingLimit>1</foldingLimit>,
-</variables>
-<indices>
-	<color>1</color>
-</indices>
-}
-
-{
-<variables>
-	<innerRadius>0.1</innerRadius>,
-	<outerRadius>1</outerRadius>,
-	<scale>-1.7</scale>,
-	<foldingLimit>1</foldingLimit>,
-</variables>
-<indices>
-	<color>1</color>
-</indices>
-}
-
-{
-<indices>
-	<color>1</color>
-	<deformation>1</deformation>
-</indices>
-<cpuVariables>
-	<position>[0.0449852236, 0.0743116215, -0.930447638]</position>,
-	<yaw>268.699890</position>,
-	<pitch>-3.00000954</pitch>,
-</cpuVariables>
-}
-
-{
-<indices>
-	<color>1</color>
-	<deformation>1</deformation>
-</indices>
-<cpuVariables>
-	<genericParameter>0.363999933</genericParameter>,
-</cpuVariables>
+	<include>
+		MandelBox
+	</include>
+	<distanceEstimator>
+		<distanceBody>[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+	<variables>
+		<innerRadius>0.1</innerRadius>,
+		<outerRadius>1</outerRadius>,
+		<scale>1</scale>,
+		<foldingLimit>1</foldingLimit>,
+	</variables>
+	<indices>
+		<color>1</color>
+	</indices>
 }

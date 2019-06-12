@@ -99,7 +99,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	FractalType fractal = FractalType(0, "resources/shaders/3D/Fractals/MandelbulbSpecs.fs", "resources/shaders/3D/Fractals/Mandelbulb.fs");
+	FractalType fractal = FractalType(0, "resources/shaders/3D/Fractals/MandelboxSpecs.fs", "resources/shaders/3D/Fractals/Mandelbox.fs");
 
 
 

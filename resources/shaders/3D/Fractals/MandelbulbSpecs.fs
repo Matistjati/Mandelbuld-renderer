@@ -1,4 +1,4 @@
-// Exterior renderings
+// Exterior renderings 0
 {
 	<include>
 		MandelBulb
@@ -13,7 +13,7 @@
 	</flags>
 }
 
-// Interior renderings
+// Interior renderings 1
 {
 	<include>
 		MandelBulb
@@ -32,7 +32,7 @@
 	</flags>
 }
 
-// Black region edge rendering
+// Black region edge rendering 2
 {
 	<include>
 		MandelBulb
@@ -61,7 +61,7 @@
 }
 
 
-// Interior/weird surface renderings
+// Interior/weird surface renderings 3
 {
 	<include>
 		MandelBulb

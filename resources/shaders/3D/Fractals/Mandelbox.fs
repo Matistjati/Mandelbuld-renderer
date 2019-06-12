@@ -4,15 +4,15 @@
 
 <maxIterations>8</maxIterations>
 <maxSteps>100</maxSteps>
-<maxIterationsRelease>16</maxIterationsRelease>
+<maxIterationsRelease>8</maxIterationsRelease>
 <maxStepsRelease>5000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
-<maxDist>power*2</maxDist>
-<maxDistRelease>power*20</maxDistRelease>
+<maxDist>power*7</maxDist>
+<maxDistRelease>power*15</maxDistRelease>
 
 <innerRadius>power-1</innerRadius> // power - distance(w, sun);
-<outerRadius>power+1</outerRadius> // power + distance(w, sun);
+<outerRadius>power+1</outerRadius> // power + distance(w, sun); // Try adding something other than 1
 <scale>genericParameter</scale>
 <foldingLimit>power</foldingLimit>
 <zoom>.01</zoom>
@@ -22,14 +22,12 @@
 	uniform float genericParameter = 1;
 </uniforms>
 
-<deformation>
-	<w.x = sin(w.x);
-	w.x = sinh(w.x)*sin(w.x);>,
-			
-	<w.z = cos(w.z)*sin(w.z);
-	w.y = cos(w.y)*sin(w.y);>,
+<operations>
+	<sinSinhX>w.x = sin(w.x); w.x = sinh(w.x)*sin(w.x);</sinSinhX>,
+	<cosZsinY>w.z = cos(w.z)*sin(w.z); w.y = cos(w.y)*sin(w.y);</cosZsinY>,
+</operations>
 
-</deformation>
+
 
 <include>
 boxFold, sphereFold, triplexPow
@@ -60,7 +58,7 @@ boxFold, sphereFold, triplexPow
 	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
 	col += <color> * 0.1;
-	//col *= <color> * (1-t*pow(steps,32));
+	col *= <color>;
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);
