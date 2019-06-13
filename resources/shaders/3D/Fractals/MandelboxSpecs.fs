@@ -48,7 +48,7 @@
 		<color>2</color>
 	</indices>
 	<variables>
-		<zoom>.001</zoom>,
+		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterationsRelease>8</maxIterationsRelease>,
 		<maxStepsRelease>1000</maxStepsRelease>,
 	</variables>
@@ -74,7 +74,7 @@
 		<outerRadius>power+3</outerRadius>, // power + distance(w, sun);
 		<scale>genericParameter</scale>,
 		<foldingLimit>power</foldingLimit>,
-		<zoom>.001</zoom>,
+		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterations>4</maxIterations>,
 		<maxIterationsRelease>4</maxIterationsRelease>
 		<genericParameter>0.363999933</genericParameter>,
@@ -103,7 +103,7 @@
 		<outerRadius>power+1</outerRadius>,
 		<scale>genericParameter</scale>,
 		<foldingLimit>power</foldingLimit>,
-		<zoom>.001</zoom>,
+		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterations>4</maxIterations>,
 		<maxIterationsRelease>4</maxIterationsRelease>
 	</variables>

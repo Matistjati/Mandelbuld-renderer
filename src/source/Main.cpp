@@ -29,6 +29,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	((FractalType*)glfwGetWindowUserPointer(window))->KeyCallback(window, key, scancode, action, mods);
 }
 
+void ScrollCallBack(GLFWwindow* window, double xoffset, double yoffset)
+{
+	((FractalType*)glfwGetWindowUserPointer(window))->ScrollCallback(window, xoffset, yoffset);
+}
+
 int main()
 {
 	if (!glfwInit())
@@ -109,6 +114,7 @@ int main()
 	glfwSetFramebufferSizeCallback(mainWindow, FrameBufferSizeCallback);
 	glfwSetCursorPosCallback(mainWindow, MouseCallback);
 	glfwSetKeyCallback(mainWindow, KeyCallback);
+	glfwSetScrollCallback(mainWindow, ScrollCallBack);
 
 	glViewport(0, 0, fractal.screenSize.value.x, fractal.screenSize.value.y);
 

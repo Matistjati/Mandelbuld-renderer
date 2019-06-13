@@ -108,6 +108,19 @@ void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 	glViewport(0, 0, width, height);
 }
 
+void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	if (zoom.value + yoffset < 1)
+	{
+		zoom.value = 1;
+	}
+	else
+	{
+		zoom.value += static_cast<float>(yoffset);
+	}
+	explorationShader.SetUniform(zoom);
+}
+
 void Fractal3D::SetUniforms(Shader& shader)
 {
 	shader.use();
@@ -118,6 +131,7 @@ void Fractal3D::SetUniforms(Shader& shader)
 	shader.SetUniform(sun);
 	shader.SetUniform(power);
 	shader.SetUniform(genericParameter);
+	explorationShader.SetUniform(zoom);
 	GlErrorCheck();
 }
 
@@ -130,6 +144,7 @@ void Fractal3D::SetUniformLocations(Shader& shader)
 	sun.id = glGetUniformLocation(shader.id, sun.name.c_str());
 	power.id = glGetUniformLocation(shader.id, power.name.c_str());
 	genericParameter.id = glGetUniformLocation(shader.id, genericParameter.name.c_str());
+	zoom.id = glGetUniformLocation(shader.id, zoom.name.c_str());
 	GlErrorCheck();
 }
 
@@ -142,6 +157,7 @@ void Fractal3D::SetUniformNames()
 	sun.name = "sun";
 	power.name = "power";
 	genericParameter.name = "genericParameter";
+	zoom.name = "zoom";
 }
 
 void Fractal3D::SaveImage(const std::string path)

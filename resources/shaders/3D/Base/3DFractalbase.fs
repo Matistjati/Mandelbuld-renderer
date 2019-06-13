@@ -7,10 +7,11 @@ uniform int worldFlip = -1;
 uniform vec3 position;
 uniform vec3 sun;
 uniform mat3 rotation;
+uniform float zoom;
 
 <uniforms>
 
-const float zoom = <zoom>;
+const float zoomDetailRatio = <zoomDetailRatio>;
 const int maxIterations = <maxIterations>;
 const int maxSteps = <maxSteps>;
 const float antiAliasing = <antiAliasing>;

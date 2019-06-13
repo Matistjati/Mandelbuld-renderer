@@ -38,7 +38,7 @@ const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSe
 											 ShaderSection("color", false, "", true), ShaderSection("maxDist", false, "maxDistRelease"), ShaderSection("distanceBody"), ShaderSection("trap") };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
-									ShaderSection("shadowSoftness"), ShaderSection("antiAliasing"), ShaderSection("zoom") };
+									ShaderSection("shadowSoftness"), ShaderSection("antiAliasing"), ShaderSection("zoomDetailRatio") };
 
 const ShaderSection cpuVariables[] = { ShaderSection("position"), ShaderSection("sun", false, "maxStepsRelease"),
 										ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
@@ -62,6 +62,7 @@ public:
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
+	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
 	void SetUniforms(Shader& shader) override;
 	void SetUniformLocations(Shader& shader) override;
 	void SetUniformNames() override;

@@ -4,7 +4,7 @@
 <maxIterationsRelease>16</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2<antiAliasing>
-<zoom>.01</zoom>
+<zoomDetailRatio>.001</zoomDetailRatio>
 
 <sceneDistance>
 	float sceneDistance(vec3 position, out vec4 resColor)
@@ -147,11 +147,11 @@ float SoftShadow(Ray ray, float k)
 <render>
 	vec3 render(Ray ray, vec2 uv)
 	{
-		float px = 2.0 / (screenSize.y * zoom);
+		float px = 10000 / (screenSize.y * zoom / zoomDetailRatio);
 		vec4 trap;
 		float steps;
 
-		float t = trace(ray, trap, zoom, steps);
+		float t = trace(ray, trap, px, steps);
 
 		vec3 col = vec3(0);
 
@@ -215,10 +215,10 @@ float SoftShadow(Ray ray, float k)
 </render>
 
 <main>
-	vec2 uv = gl_FragCoord.xy / screenSize;
-	uv = uv * 2.0 - 1.0;
+	vec2 uv = gl_FragCoord.xy / screenSize * 2.0 - 1.0;
 
 	uv.x *= float(screenSize.x) / float(screenSize.y);
+	uv /= zoom;
 
 	vec3 direction = normalize(vec3(uv.xy, 1));
 
@@ -240,9 +240,9 @@ float SoftShadow(Ray ray, float k)
 			vec2 frag = gl_FragCoord.xy;
 			frag.x += float(i)/antiAliasing;
 			frag.y += float(j)/antiAliasing;
-			vec2 uv = frag / screenSize;
-			uv = uv * 2.0 - 1.0;
+			vec2 uv = frag / screenSize * 2.0 - 1.0;
 			uv.x *= float(screenSize.x) / float(screenSize.y);
+			uv /= zoom;
 
 			vec3 direction = normalize(vec3(uv.xy, 1));
 
