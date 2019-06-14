@@ -5,11 +5,11 @@
 <maxIterations>8</maxIterations>
 <maxSteps>100</maxSteps>
 <maxIterationsRelease>8</maxIterationsRelease>
-<maxStepsRelease>5000</maxStepsRelease>
+<maxStepsRelease>20000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
 <maxDist>power*7</maxDist>
-<maxDistRelease>power*15</maxDistRelease>
+<maxDistRelease>power*100</maxDistRelease>
 
 <innerRadius>power-1</innerRadius> // power - distance(w, sun);
 <outerRadius>power+1</outerRadius> // power + distance(w, sun); // Try adding something other than 1
@@ -39,12 +39,12 @@ boxFold, sphereFold, triplexPow
 </distanceTrap>
 
 <color>
-	<vec3(1, 0, 0.3)>,
-	<vec3(1, 0, 1)>,
+	<vec3(0.7, 0.1, 0.3)>,
+	<vec3(0.707, 0, 0.707)>,
 	<vec3(0, 1, 1)>,
 	<vec3(0, 1, 0)>,
 	<vec3(1, 1, 1)>,
-	<vec3(0.9, 0.8, 0.2)>,
+	<vec3(0.20739, 0.518, 0.8295)>,
 	<vec3(0.78, 0.5, 0.13)>,
 	<vec3(0.9, 0.15, 0.5)>,
 	<vec3(0.5, 0, 0.5)>,

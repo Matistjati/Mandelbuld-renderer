@@ -9,8 +9,10 @@
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
-	<variables>
-	</variables>
+	<indices>
+		<color>5</color>
+	</indices>
+
 	<cpuVariables>
 		<position>[7, 0, 0]</position>,
 	</cpuVariables>

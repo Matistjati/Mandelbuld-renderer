@@ -83,24 +83,24 @@ Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float
 void Camera::SetRotationMatrix()
 {
 	// The standard 3d rotation matrices
-	float y = glm::radians(-GetPitch());
-	glm::mat3 pitchM = glm::mat3(1, 0, 0,
-		0, cos(y), -sin(y),
-		0, sin(y), cos(y));
+	float p = glm::radians(-GetPitch());
+	glm::mat3 pitchMatrix = glm::mat3(1,     0,       0,
+									  0, cos(p), -sin(p),
+									  0, sin(p),  cos(p));
 
 
-	float p = glm::radians(GetYaw());
-	glm::mat3 yawM = glm::mat3(cos(p), 0, sin(p),
-		0, 1, 0,
-		-sin(p), 0, cos(p));
+	float y = glm::radians(GetYaw());
+	glm::mat3 yawMatrix = glm::mat3(cos(y), 0, sin(y),
+								    0,	    1,      0,
+								   -sin(y), 0, cos(y));
 
 
 	float r = glm::radians(-GetRoll());
-	glm::mat3 rollM = glm::mat3(cos(r), -sin(r), 0,
-		sin(r), cos(r), 0,
-		0, 0, 1);
+	glm::mat3 rollMatrix = glm::mat3(cos(r), -sin(r),  0,
+									 sin(r),  cos(r),  0,
+									 0,       0,       1);
 
-	rotation.value = pitchM * yawM * rollM;
+	rotation.value = pitchMatrix * yawMatrix * rollMatrix;
 }
 
 
