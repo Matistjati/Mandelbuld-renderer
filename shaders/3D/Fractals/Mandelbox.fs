@@ -5,11 +5,11 @@
 <maxIterations>8</maxIterations>
 <maxSteps>100</maxSteps>
 <maxIterationsRelease>8</maxIterationsRelease>
-<maxStepsRelease>20000</maxStepsRelease>
+<maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
 <maxDist>power*7</maxDist>
-<maxDistRelease>power*100</maxDistRelease>
+<maxDistRelease>power*15</maxDistRelease>
 
 <innerRadius>power-1</innerRadius> // power - distance(w, sun);
 <outerRadius>power+1</outerRadius> // power + distance(w, sun); // Try adding something other than 1
@@ -27,23 +27,22 @@
 	<cosZsinY>w.z = cos(w.z)*sin(w.z); w.y = cos(w.y)*sin(w.y);</cosZsinY>,
 </operations>
 
-
-
 <include>
 boxFold, sphereFold, triplexPow
 </include>
 
 <distanceTrap>
 	<bulbForest>trap = mix(trap, vec4(w*w, m), 0.5);</bulbForest>
-	<mandelBoxTrap>trap = max(trap, vec4(abs(w),m));</mandelBoxTrap>
+	<mandelBoxTrap>trap = min(trap, vec4(abs(w),m));</mandelBoxTrap>
 </distanceTrap>
 
 <color>
 	<vec3(0.7, 0.1, 0.3)>,
 	<vec3(0.707, 0, 0.707)>,
-	<vec3(0, 1, 1)>,
+	<vec3(0, 0.707, 0.707)>,
 	<vec3(0, 1, 0)>,
-	<vec3(1, 1, 1)>,
+	<vec3(0.577, 0.577, 0.577)>,
+	<vec3(1, 0, 0)>,
 	<vec3(0.20739, 0.518, 0.8295)>,
 	<vec3(0.78, 0.5, 0.13)>,
 	<vec3(0.9, 0.15, 0.5)>,
@@ -58,7 +57,7 @@ boxFold, sphereFold, triplexPow
 	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
 	col += <color> * 0.1;
-	col *= <color>;
+	//col *= <color>;
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);

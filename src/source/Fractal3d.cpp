@@ -70,10 +70,11 @@ Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShade
 }
 
 Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourcePath)
-	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GenerateShader(true, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GetMonitorSize()),
+	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), 
+			  GenerateShader(true , specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GetMonitorSize()),
 	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
-		0.15f, 3, 2000))), // mouseSensitivity, movementSpeed, rollSpeed
+		0.15f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
 		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	time(Time()), power(1), genericParameter(1)
 {
@@ -418,7 +419,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 	for (size_t i = 0; i < extraSections.size(); i++)
 	{
 		ShaderSection c = extraSections[i];
-			
+		
 		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
 
 		std::string sectionString;
@@ -464,7 +465,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	{
 		genericParameter.value = std::stof(value);
 	}
-	if (name == "position")
+	else if (name == "position")
 	{
 		std::vector<std::string> components = split(value, ',');
 		camera.position.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));

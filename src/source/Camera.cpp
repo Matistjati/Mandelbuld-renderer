@@ -169,8 +169,6 @@ void Camera::ProcessMovement(Camera_Movement direction, float deltaTime)
 void Camera::ProcessRoll(float delta)
 {
 	SetRoll(roll + delta);
-
-	DebugPrint("cos: " + std::to_string(cos(glm::radians(roll))));
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset)

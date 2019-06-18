@@ -20,18 +20,14 @@ struct Section
 
 	Section(std::string name)
 	{
-		start = "<" + name + ">";
-		end = "</" + name + ">";
+		start = ("<" + name) + ">";
+		end = ("</" + name) + ">";
 	}
 };
 
 class Fractal
 {
 public:
-	static const int DefaultWidth = 1920;
-	static const int DefaultHeight = 1080;
-
-	
 	float parameterChangeRate = 1;
 	Shader &explorationShader;
 	Shader &renderShader;
@@ -52,7 +48,9 @@ public:
 	virtual void SetVariablesFromSpec(int index, std::string SpecificationPath) = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;
 
-	static const constexpr char* pathRectangleVertexshader = "resources/shaders/Rectangle.glsl";
+	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
+
+	static glm::ivec2 GetMonitorSize();
 
 protected:
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
@@ -72,7 +70,6 @@ protected:
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);
-	static glm::ivec2 GetMonitorSize();
 };
 
 #endif

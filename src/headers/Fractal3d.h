@@ -23,6 +23,7 @@ struct ShaderSection
 	ShaderSection(std::string name, bool optional, std::string releaseName, bool multiple) : name(name), optional(optional), releaseName(releaseName), multiple(multiple)
 	{}
 
+	// Required for some templates
 	bool operator<(const ShaderSection& c2) const
 	{
 		return this->name[0] < c2.name[0];
@@ -76,10 +77,10 @@ public:
 	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const std::vector<ShaderSection> extraSections);
 
 
-	static const constexpr char* path3DBase = "resources/shaders/3D/Base/3DFractalbase.fs";
-	static const constexpr char* default3DFractal = "resources/shaders/3D/Base/3DFractalDefault.fs";
-	static const constexpr char* helperFunctions = "resources/shaders/3D/Base/HelperFunctions.fs";
-	static const constexpr char* presetSpec = "resources/shaders/3D/Base/PresetSpecs.fs";
+	static const constexpr char* path3DBase = "shaders/3D/Base/3DFractalbase.fs";
+	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";
+	static const constexpr char* helperFunctions = "shaders/3D/Base/HelperFunctions.fs";
+	static const constexpr char* presetSpec = "shaders/3D/Base/PresetSpecs.fs";
 
 private:
 	const static std::string& default3DSource;

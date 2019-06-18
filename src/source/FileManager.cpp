@@ -4,7 +4,7 @@
 #include "headers/Debug.h"
 #include <fstream>
 
-bool FileManager::correctWorkingDir = FileManager::SetCorrectDirectory();
+bool FileManager::correctWorkingDir = false;
 
 inline std::string FileManager::GetWorkingDirectory()
 {
@@ -16,10 +16,7 @@ inline std::string FileManager::GetWorkingDirectory()
 
 std::string FileManager::readFile(std::string path)
 {
-	if (!correctWorkingDir)
-	{
-		SetCorrectDirectory();
-	}
+	SetCorrectDirectory(); // Has built-in check and returns if unnecesseray
 
 	std::ifstream t(path);
 	if (t.fail())
@@ -53,9 +50,9 @@ bool FileManager::fileExists(const std::string& name)
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
-bool FileManager::SetCorrectDirectory()
+void FileManager::SetCorrectDirectory()
 {
-	if (correctWorkingDir) return true;
+	if (correctWorkingDir) return;
 
 	std::string workingDir = GetWorkingDirectory();
 
@@ -71,9 +68,8 @@ bool FileManager::SetCorrectDirectory()
 		if (!SetCurrentDirectory(workingDir.c_str()))
 		{
 			DebugPrint("Error setting working directory");
-			return false;
+			return;
 		}
+		correctWorkingDir = true;
 	}
-
-	return true;
 }

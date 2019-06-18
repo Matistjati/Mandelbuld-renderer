@@ -43,11 +43,13 @@ int main()
 	}
 
 	// glfw window creation
+	glm::ivec2 screenSize = Fractal::GetMonitorSize();
 #if _DEBUG
-	GLFWwindow* mainWindow = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", NULL, NULL);
+	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, "Mandelbulb", NULL, NULL);
 #else
-	GLFWwindow* mainWindow = glfwCreateWindow(Fractal::DefaultWidth, Fractal::DefaultHeight, "Mandelbulb", glfwGetPrimaryMonitor(), NULL);
+	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, "Mandelbulb", glfwGetPrimaryMonitor(), NULL);
 #endif
+
 	if (!mainWindow)
 	{
 		DebugPrint("Failed to create GLFW window");
@@ -104,9 +106,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	FractalType fractal = FractalType(0, "resources/shaders/3D/Fractals/MandelboxSpecs.fs", "resources/shaders/3D/Fractals/Mandelbox.fs");
-
-
+	FractalType fractal = FractalType(0, "shaders/3D/Fractals/MandelboxSpecs.fs", "shaders/3D/Fractals/Mandelbox.fs");
 
 	glfwSetWindowUserPointer(mainWindow, &fractal);
 

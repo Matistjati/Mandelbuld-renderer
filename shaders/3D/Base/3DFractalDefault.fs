@@ -83,6 +83,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 			w-=2 * min(0, dot(w, n1)) * n1;
 			w-=2 * min(0, dot(w, n3)) * n3;*/
 
+		//			w*=rotation;
+		//			w+=position;
+
 		for(int i = 0; i < <maxIterations>; i++)
 		{
 			<distanceBody>
@@ -115,7 +118,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 			float h = sceneDistance(pos, trap);
 			float th = 0.25 * px * t;
 
-			if(h<th || h>power*8)
+			if(h<th || h><maxDist>)
 			{
 				break;
 			}
