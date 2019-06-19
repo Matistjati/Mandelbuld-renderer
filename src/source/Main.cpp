@@ -19,7 +19,7 @@ void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
 	{
 	default:
-		DebugPrint("Case default reached in function KeyCallback");
+		DebugPrint("Case default reached in function FrameBufferSizeCallback");
 		break;
 	case FractalType::fractal2D:
 		DebugPrint("Add fractal2D");
@@ -35,7 +35,7 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
 	{
 	default:
-		DebugPrint("Case default reached in function KeyCallback");
+		DebugPrint("Case default reached in function MouseCallback");
 		break;
 	case FractalType::fractal2D:
 		DebugPrint("Add fractal2D");
@@ -67,7 +67,7 @@ void ScrollCallBack(GLFWwindow* window, double xoffset, double yoffset)
 	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
 	{
 	default:
-		DebugPrint("Case default reached in function KeyCallback");
+		DebugPrint("Case default reached in function ScrollCallBack");
 		break;
 	case FractalType::fractal2D:
 		DebugPrint("Add fractal2D");

@@ -118,7 +118,7 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 	}
 	else
 	{
-		zoom.value -= static_cast<float>(yoffset*time.deltaTime*scrollSpeed);
+		zoom.value += static_cast<float>(yoffset*time.deltaTime*scrollSpeed*zoom.value);
 	}
 	explorationShader.SetUniform(zoom);
 }
