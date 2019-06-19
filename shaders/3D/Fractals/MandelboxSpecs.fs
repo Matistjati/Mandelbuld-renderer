@@ -10,7 +10,7 @@
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 	<indices>
-		<color>4</color>
+		<color>2</color>
 	</indices>
 
 	<cpuVariables>

@@ -8,6 +8,24 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::readFile(default3DFractal);
 
+Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification)
+	: Fractal(explorationShader, renderShader, screenSize, time), camera(camera), sun(sun), power(power), genericParameter(1)
+{
+	Init(specIndex, specification);
+}
+
+Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourcePath)
+	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), 
+			  GenerateShader(true , specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GetMonitorSize(), Time()),
+	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
+		169, -14, 0.001f, // Yaw, pitch, roll
+		0.15f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
+		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
+	power(1), genericParameter(1)
+{
+	Init(specIndex, specification);
+}
+
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
@@ -63,23 +81,6 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	}
 }
 
-Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification)
-	: Fractal(explorationShader, renderShader, screenSize), time(time), camera(camera), sun(sun), power(power), genericParameter(1)
-{
-	Init(specIndex, specification);
-}
-
-Fractal3D::Fractal3D(int specIndex, std::string specification, std::string sourcePath)
-	: Fractal(GenerateShader(false, specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), 
-			  GenerateShader(true , specIndex, FileManager::readFile(specification), FileManager::readFile(sourcePath)), GetMonitorSize()),
-	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
-		169, -14, 0.001f, // Yaw, pitch, roll
-		0.15f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
-		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	time(Time()), power(1), genericParameter(1)
-{
-	Init(specIndex, specification);
-}
 
 void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 {
@@ -89,7 +90,7 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 		mouseOffset = newPos;
 		firstMouse = false;
 	}
-
+	Camera* c = &this->Fractal3D::camera;
 	camera.ProcessMouseMovement(static_cast<float>(newPos.x - mouseOffset.x),
 		static_cast<float>(mouseOffset.y - newPos.y) // reversed since y-coordinates go from bottom to top
 	);
@@ -117,7 +118,7 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 	}
 	else
 	{
-		zoom.value += static_cast<float>(yoffset);
+		zoom.value -= static_cast<float>(yoffset*time.deltaTime*scrollSpeed);
 	}
 	explorationShader.SetUniform(zoom);
 }

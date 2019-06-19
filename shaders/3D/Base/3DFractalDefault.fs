@@ -52,7 +52,7 @@
 
 <distanceBreakCondition>
 	<none></none>,
-	<defaultBreak>if (m > 256) break;</defaultBreak>,
+	<defaultBreak>if (m > 2) break;</defaultBreak>,
 </distanceBreakCondition>
 
 <distanceEstimator>
@@ -129,7 +129,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 
 		if (t < <maxDist>)
 		{
-		trapOut = trap;
+			trapOut = trap;
 			res = t;
 		}
 

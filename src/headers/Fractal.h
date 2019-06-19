@@ -10,6 +10,10 @@
 #include "headers/Shader.h"
 #include "glm.hpp"
 #include <vector>
+#include <map>
+#include <headers/Time.h>
+
+const double scrollSpeed = 10;
 
 class Shader;
 
@@ -25,6 +29,13 @@ struct Section
 	}
 };
 
+enum FractalType
+{
+	error = -1,
+	fractal3D = 0,
+	fractal2D = 1,
+};
+
 class Fractal
 {
 public:
@@ -33,20 +44,28 @@ public:
 	Shader &renderShader;
 	Uniform<glm::ivec2> screenSize;
 	Uniform<float> zoom;
-	Fractal(Shader &explorationShader, Shader &renderShader, Uniform<glm::ivec2> screenSize, float zoom = 1) : explorationShader(explorationShader), renderShader(renderShader), screenSize(screenSize), zoom(zoom)
+	Time time;
+
+	FractalType fractalType;
+
+	std::map<int, bool> keys;
+
+	Fractal(Shader &explorationShader, Shader &renderShader, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1) : explorationShader(explorationShader), renderShader(renderShader),
+		screenSize(screenSize), zoom(zoom), fractalType(FractalType::error), time(t)
 	{}
 
-	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
-	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
-	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
-	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
-	virtual void SetUniforms(Shader& shader) = 0;
-	virtual void SetUniformNames() = 0;
-	virtual void SetUniformLocations(Shader& shader) = 0;
-	virtual void Update() = 0;
-	virtual void SaveImage(std::string filePath) = 0;
-	virtual void SetVariablesFromSpec(int index, std::string SpecificationPath) = 0;
-	virtual void SetVariable(std::string name, std::string value) = 0;
+	virtual void MouseCallback(GLFWwindow* window, double x, double y) {};
+	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {};
+	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {};
+	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {};
+	virtual void SetUniforms(Shader& shader) {};
+	virtual void SetUniformNames() {};
+	virtual void SetUniformLocations(Shader& shader) {};
+	virtual void Update() {};
+	virtual void SaveImage(std::string filePath) {};
+	virtual void SetVariablesFromSpec(int index, std::string SpecificationPath) {};
+	virtual void SetVariable(std::string name, std::string value) {};
+	virtual void HandleKeyInput() {};
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
 

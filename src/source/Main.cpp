@@ -11,27 +11,71 @@
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
 
-#define FractalType Fractal3D
 
+#define DefaultFractal Fractal3D
 
 void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	((FractalType*)glfwGetWindowUserPointer(window))->FramebufferSizeCallback(window, width, height);
+	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function KeyCallback");
+		break;
+	case FractalType::fractal2D:
+		DebugPrint("Add fractal2D");
+		break;
+	case FractalType::fractal3D:
+		((Fractal3D*)glfwGetWindowUserPointer(window))->Fractal3D::FramebufferSizeCallback(window, width, height);
+		break;
+	}
 }
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	((FractalType*)glfwGetWindowUserPointer(window))->MouseCallback(window, xpos, ypos);
+	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function KeyCallback");
+		break;
+	case FractalType::fractal2D:
+		DebugPrint("Add fractal2D");
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
+		break;
+	}
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	((FractalType*)glfwGetWindowUserPointer(window))->KeyCallback(window, key, scancode, action, mods);
+	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function KeyCallback");
+		break;
+	case FractalType::fractal2D:
+		DebugPrint("Add fractal2D");
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->KeyCallback(window, key, scancode, action, mods);
+		break;
+	}
 }
 
 void ScrollCallBack(GLFWwindow* window, double xoffset, double yoffset)
 {
-	((FractalType*)glfwGetWindowUserPointer(window))->ScrollCallback(window, xoffset, yoffset);
+	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function KeyCallback");
+		break;
+	case FractalType::fractal2D:
+		DebugPrint("Add fractal2D");
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->ScrollCallback(window, xoffset, yoffset);
+		break;
+	}
 }
 
 int main()
@@ -106,9 +150,10 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	FractalType fractal = FractalType(0, "shaders/3D/Fractals/MandelboxSpecs.fs", "shaders/3D/Fractals/Mandelbox.fs");
+	Fractal* fractal = new DefaultFractal(0, "shaders/3D/Fractals/MandelboxSpecs.fs", "shaders/3D/Fractals/Mandelbox.fs");
+	fractal->fractalType = FractalType::fractal3D;
 
-	glfwSetWindowUserPointer(mainWindow, &fractal);
+	glfwSetWindowUserPointer(mainWindow, fractal);
 
 
 	glfwSetFramebufferSizeCallback(mainWindow, FrameBufferSizeCallback);
@@ -116,23 +161,22 @@ int main()
 	glfwSetKeyCallback(mainWindow, KeyCallback);
 	glfwSetScrollCallback(mainWindow, ScrollCallBack);
 
-	glViewport(0, 0, fractal.screenSize.value.x, fractal.screenSize.value.y);
+	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
 
 	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
-	fractal.explorationShader.use();
+	fractal->explorationShader.use();
 
 	GlErrorCheck();
 
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))
 	{
-		fractal.Update();
+		fractal->Update();
 
 #if _DEBUG
 		// Set the window title to our fps
-		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal.time.deltaTime).c_str());
+		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.deltaTime).c_str());
 #endif
 
 		// render, we use ray marching inside the fragment shader
@@ -141,7 +185,7 @@ int main()
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
-		fractal.HandleKeyInput();
+		fractal->HandleKeyInput();
 	}
 
 	glDeleteVertexArrays(1, &VAO);

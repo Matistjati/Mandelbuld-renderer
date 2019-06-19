@@ -4,7 +4,7 @@
 
 <maxIterations>8</maxIterations>
 <maxSteps>100</maxSteps>
-<maxIterationsRelease>8</maxIterationsRelease>
+<maxIterationsRelease>16</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
@@ -28,7 +28,7 @@
 </operations>
 
 <include>
-boxFold, sphereFold, triplexPow
+	boxFold, sphereFold, triplexPow
 </include>
 
 <distanceTrap>
