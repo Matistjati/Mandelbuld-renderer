@@ -7,7 +7,10 @@
 	<distanceEstimator>
 		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, sinX]]</distanceBody>,
 	</distanceEstimator>
-
+	
+	<cpuVariables>
+		<position>[1.69295061, 0.386302084, -0.380642384]</position>,
+	</cpuVariables>
 	<flags>
 		<traceDefault>
 	</flags>

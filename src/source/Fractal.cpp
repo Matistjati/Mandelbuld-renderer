@@ -1,5 +1,6 @@
 #include "headers/Fractal.h"
 #include "headers/Debug.h"
+#include <headers/FileManager.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -418,11 +419,38 @@ std::vector<std::string> Fractal::GetSections(std::string& source)
 
 bool Fractal::StringToBool(std::string str)
 {
-	if (str.length() == 0) return false;
+	if (str.length() == 0)		return false;
 	else if (str.length() == 1) return str[0] != '0';
-	else if (str == "true") return true;
-	else if (str == "false") return false;
-	else return false;
+	else if (str == "true")     return true;
+	else if (str == "false")	return false;
+	else						return false;
+}
+
+std::vector<std::string> Fractal::GetFractalNames(std::vector<std::string> names)
+{
+	std::vector<std::string> finalNames(0);
+	for (size_t i = 0; i < names.size(); i++)
+	{
+		if (names[i].find("Specs") == std::string::npos)
+		{
+			std::string name = names[i].substr(0, names[i].find_last_of('.'));
+			if (name + "Specs.fs" == names[i+1])
+			{
+				finalNames.push_back(name);
+				i++;
+			}
+		}
+	}
+	return finalNames;
+}
+
+void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
+{
+	std::vector<std::string> fractals = FileManager::GetDirectoryFileNames(fractalPath);
+	std::vector<std::string> fractalNames = GetFractalNames(fractals);
+	*index = std::max(*index, 0);
+	if (*index > (size_t)fractalNames.size() - 1)* index = (size_t)fractalNames.size() - 1;
+	fractalName = fractalNames[*index];
 }
 
 glm::ivec2 Fractal::GetMonitorSize()

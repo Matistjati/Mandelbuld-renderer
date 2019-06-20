@@ -13,6 +13,7 @@
 #include <map>
 #include <headers/Time.h>
 #include <utility>
+#include <string>
 
 const double scrollSpeed = 10;
 
@@ -47,12 +48,15 @@ public:
 	Uniform<float> zoom;
 	Time time;
 
+
 	FractalType fractalType;
 	int fractalIndex;
 	int specIndex;
+	int fractalNameIndex;
 	std::string fractalName;
 
 	std::map<int, bool> keys;
+
 
 	~Fractal()
 	{
@@ -61,11 +65,14 @@ public:
 	};
 
 	// Nothing fancy
-	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = -1,
-		int specIndex = -1, std::string fractalName = "")
+	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
 		: explorationShader(shaders.first), renderShader(shaders.second), screenSize(screenSize), zoom(zoom), fractalType(f), time(t), fractalIndex(fractalIndex), specIndex(specIndex),
-		fractalName(fractalName)
+		fractalName(fractalName), fractalNameIndex(fractalNameIndex)
 	{}
+
+	void SetFractalNameFromIndex(int* index, std::string fractalPath);
+	static glm::ivec2 GetMonitorSize();
 
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
@@ -82,11 +89,11 @@ public:
 	virtual std::string GetSpecPath(std::string fileName) = 0;
 	virtual std::string GetFractalPath(std::string fileName) = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;
+	virtual std::pair<Shader*, Shader*> GenerateShader(std::string name) = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader() = 0;
+	virtual std::string GetFractalFolderPath() = 0;
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
-
-	static glm::ivec2 GetMonitorSize();
 
 protected:
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
@@ -107,6 +114,7 @@ protected:
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);
+	static std::vector<std::string> GetFractalNames(std::vector<std::string> names);
 };
 
 #endif

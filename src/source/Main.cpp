@@ -8,6 +8,7 @@
 #include "headers/Camera.h"
 #include "headers/shader.h"
 #include "headers/Image.h"
+#include "headers/FileManager.h"
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
 #include <algorithm>
@@ -16,7 +17,7 @@
 #define DefaultFractalType fractal3D
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalIndex = 0;
-constexpr auto DefaultFractalName = "MandelBox";
+constexpr auto DefaultFractalNameIndex = 0;
 
 void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -99,6 +100,19 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		case GLFW_KEY_S:
 			fractal->fractalIndex--;
 			fractal->fractalIndex = std::max(fractal->fractalIndex, 0);
+			break;
+
+		case GLFW_KEY_E:
+			fractal->fractalNameIndex++;
+			fractal->fractalIndex = 0;
+			fractal->specIndex = 0;
+			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
+			break;
+		case GLFW_KEY_D:
+			fractal->fractalNameIndex--;
+			fractal->fractalIndex = 0;
+			fractal->specIndex = 0;
+			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
 			break;
 		}
 		if (update)
@@ -211,7 +225,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalName);
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
 	fractal->fractalType = DefaultFractalType;
 
 	glfwSetWindowUserPointer(mainWindow, fractal);

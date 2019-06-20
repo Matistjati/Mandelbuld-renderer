@@ -14,8 +14,9 @@ Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShade
 	Init();
 }
 
-Fractal3D::Fractal3D(int specIndex, int fractalIndex, std::string fractalName)
-	: Fractal(GenerateShader(new int(specIndex), new int(fractalIndex), fractalName), GetMonitorSize(), Time(), 1.f, fractal3D, fractalIndex, specIndex, fractalName),
+Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
+	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), 1.f, fractal3D, fractalIndex, specIndex, 
+		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
 		0.15f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
@@ -660,6 +661,15 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader()
 	return GenerateShader(&specIndex, &fractalIndex, fractalName);
 }
 
+std::pair<Shader*, Shader*> Fractal3D::GenerateShader(std::string fractalName)
+{
+	int* tempA = new int(0);
+	int* tempB = new int(0);
+	return Fractal3D::GenerateShader(tempA, tempB, fractalName);
+	delete tempA;
+	delete tempB;
+}
+
 std::string Fractal3D::GetSpecPath(std::string fileName)
 {
 	return (Fractal3D::fractal3dPath + fileName) + "Specs.fs";
@@ -668,4 +678,9 @@ std::string Fractal3D::GetSpecPath(std::string fileName)
 std::string Fractal3D::GetFractalPath(std::string fileName)
 {
 	return (Fractal3D::fractal3dPath + fileName) + ".fs";
+}
+
+std::string Fractal3D::GetFractalFolderPath()
+{
+	return fractal3dPath;
 }

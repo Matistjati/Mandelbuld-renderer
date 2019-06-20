@@ -54,7 +54,7 @@ public:
 
 
 	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification);
-	Fractal3D(int specIndex, int fractalIndex, std::string fractalName);
+	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 
 
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
@@ -71,8 +71,10 @@ public:
 	void HandleKeyInput() override;
 	std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	std::pair<Shader*, Shader*> GenerateShader() override;
+	std::pair<Shader*, Shader*> GenerateShader(std::string fractalName) override;
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
+	std::string GetFractalFolderPath() override;
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
 	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 	void Init();
