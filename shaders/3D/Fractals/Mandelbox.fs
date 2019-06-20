@@ -7,6 +7,7 @@
 <maxIterationsRelease>16</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
+<zoomDetailRatio>.001</zoomDetailRatio>
 
 <maxDist>power*7</maxDist>
 <maxDistRelease>power*15</maxDistRelease>

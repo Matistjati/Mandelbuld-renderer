@@ -53,7 +53,7 @@ public:
 	Uniform<float> genericParameter;
 
 
-	Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification);
+	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification);
 	Fractal3D(int specIndex, int fractalIndex, std::string fractalName);
 
 
@@ -61,20 +61,20 @@ public:
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
 	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
-	void SetUniforms(Shader& shader) override;
-	void SetUniformLocations(Shader& shader) override;
+	void SetUniforms(Shader* shader) override;
+	void SetUniformLocations(Shader* shader) override;
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void Update() override;
 	void SetVariable(std::string name, std::string value) override;
-	void SetVariablesFromSpec(int index, std::string specification) override;
+	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;
-	std::pair<Shader&, Shader&> GenerateShader(int specIndex, int fractalIndex, std::string name) override;
-	std::pair<Shader&, Shader&> GenerateShader() override;
+	std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
+	std::pair<Shader*, Shader*> GenerateShader() override;
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
-	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, int fractalIndex, const std::vector<ShaderSection> extraSections);
+	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 	void Init();
 
 

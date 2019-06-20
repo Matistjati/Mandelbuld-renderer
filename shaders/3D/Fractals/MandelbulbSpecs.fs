@@ -5,7 +5,7 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, mulYYXYYX], [triplexPow, translate, sinX]]</distanceBody>,
+		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, sinX]]</distanceBody>,
 	</distanceEstimator>
 
 	<flags>

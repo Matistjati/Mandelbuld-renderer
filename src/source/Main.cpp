@@ -61,9 +61,10 @@ void UpdateFractalShader(Fractal* fractal)
 		DebugPrint("Add fractal2D");
 		break;
 	case fractal3D:
-		glDeleteProgram(fractal->explorationShader.id);
-		glDeleteProgram(fractal->renderShader.id);
-		std::pair<Shader&, Shader&> shaders = fractal->GenerateShader();
+		delete fractal->renderShader;
+		delete fractal->explorationShader;
+
+		std::pair<Shader*, Shader*> shaders = fractal->GenerateShader();
 		fractal->explorationShader = shaders.first;
 		fractal->renderShader = shaders.second;
 		(reinterpret_cast<Fractal3D*>(fractal))->Init();
@@ -84,10 +85,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			break;
 		case GLFW_KEY_Q:
 			fractal->specIndex++;
+			fractal->fractalIndex = 0;
 			break;
 		case GLFW_KEY_A:
 			fractal->specIndex--;
 			fractal->specIndex = std::max(fractal->specIndex, 0);
+			fractal->fractalIndex = 0;
 			break;
 
 		case GLFW_KEY_W:

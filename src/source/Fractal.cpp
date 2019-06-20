@@ -156,11 +156,11 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 	return result;
 }
 
-std::string Fractal::GetSpecificationByIndex(std::string specification, int index, const std::string presets)
+std::string Fractal::GetSpecificationByIndex(std::string specification, int* index, const std::string presets)
 {
 	int n = std::count(specification.begin(), specification.end(), '{');
 	if (index < 0) index = 0;
-	else if (index > n - 1) index = n - 1;
+	else if (*index > n - 1) (*index) = n - 1;
 
 	int bracketCount = 0;
 	int bracketLevel = 0;
@@ -169,7 +169,7 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int inde
 	{
 		if (specification[i] == '{')
 		{
-			if (bracketCount == index)
+			if (bracketCount == *index)
 			{
 				startIndex = i + 1;
 				break;
@@ -246,7 +246,7 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 	}
 }
 
-void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int index)
+void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index)
 {
 	const static Section distSect("distanceEstimator");
 	std::string distanceDeclaration;
@@ -306,9 +306,9 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 
 
 					if (index < 0) index = 0;
-					else if (index > sequences.size() - 1) index = sequences.size() - 1;
+					else if ((*index) > (int)sequences.size() - 1) (*index) = sequences.size() - 1;
 
-					sectionValue = sequences[index];
+					sectionValue = sequences[*index];
 				}
 
 				cleanString(sectionValue, { '[', ']' });
@@ -349,6 +349,14 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 			}
 		}
 	}
+}
+
+void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification)
+{
+	int* index = new int();
+	(*index) = -1;
+	BuildDistanceEstimator(source, defaultSource, target, specification, index);
+	delete index;
 }
 
 std::vector<std::string> Fractal::GetOuterSections(std::string& source)

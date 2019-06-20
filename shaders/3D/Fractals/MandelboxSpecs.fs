@@ -71,9 +71,14 @@
 	<indices>
 		<color>3</color>
 	</indices>
+	<flags>
+		<edgeGlowOff>
+	</flags>
+	//power - distance(w, sun);
+	//power + distance(w, sun);
 	<variables>
-		<innerRadius>power-1</innerRadius>, // power - distance(w, sun);
-		<outerRadius>power+3</outerRadius>, // power + distance(w, sun);
+		<innerRadius>power-1</innerRadius>, 
+		<outerRadius>power+3</outerRadius>, 
 		<scale>genericParameter</scale>,
 		<foldingLimit>power</foldingLimit>,
 		<zoomDetailRatio>.001</zoomDetailRatio>,
@@ -131,6 +136,9 @@
 		<scale>1</scale>,
 		<foldingLimit>1</foldingLimit>,
 	</variables>
+	<cpuVariables>
+		<position>[0., 0., 0.]</position>,
+	</cpuVariables>
 	<indices>
 		<color>1</color>
 	</indices>

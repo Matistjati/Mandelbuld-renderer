@@ -8,14 +8,14 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::readFile(default3DFractal);
 
-Fractal3D::Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification)
+Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal({ explorationShader, renderShader }, screenSize, time), camera(camera), sun(sun), power(power), genericParameter(1)
 {
 	Init();
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, std::string fractalName)
-	: Fractal(GenerateShader(specIndex, fractalIndex, fractalName), GetMonitorSize(), Time(), 1.f, fractal3D, fractalIndex, specIndex, fractalName),
+	: Fractal(GenerateShader(new int(specIndex), new int(fractalIndex), fractalName), GetMonitorSize(), Time(), 1.f, fractal3D, fractalIndex, specIndex, fractalName),
 	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
 		169, -14, 0.001f, // Yaw, pitch, roll
 		0.15f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
@@ -68,7 +68,7 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		if (action == GLFW_PRESS)
 		{
 			camera.worldFlip.value *= -1;
-			explorationShader.SetUniform(camera.worldFlip);
+			explorationShader->SetUniform(camera.worldFlip);
 		}
 		break;
 	case GLFW_KEY_X:
@@ -96,13 +96,13 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 
 	mouseOffset = newPos;
 
-	explorationShader.SetUniform(camera.GetRotationMatrix());
+	explorationShader->SetUniform(camera.GetRotationMatrix());
 }
 
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	screenSize.value = glm::ivec2(width, height);
-	explorationShader.SetUniform(screenSize);
+	explorationShader->SetUniform(screenSize);
 
 	glViewport(0, 0, width, height);
 }
@@ -118,33 +118,33 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 		// This works surprisingly well
 		zoom.value += static_cast<float>(yoffset * time.deltaTime * scrollSpeed * zoom.value);
 	}
-	explorationShader.SetUniform(zoom);
+	explorationShader->SetUniform(zoom);
 }
 
-void Fractal3D::SetUniforms(Shader& shader)
+void Fractal3D::SetUniforms(Shader* shader)
 {
-	shader.use();
-	shader.SetUniform(camera.position);
-	shader.SetUniform(camera.GetRotationMatrix());
-	shader.SetUniform(camera.worldFlip);
-	shader.SetUniform(screenSize);
-	shader.SetUniform(sun);
-	shader.SetUniform(power);
-	shader.SetUniform(genericParameter);
-	explorationShader.SetUniform(zoom);
+	shader->use();
+	shader->SetUniform(camera.position);
+	shader->SetUniform(camera.GetRotationMatrix());
+	shader->SetUniform(camera.worldFlip);
+	shader->SetUniform(screenSize);
+	shader->SetUniform(sun);
+	shader->SetUniform(power);
+	shader->SetUniform(genericParameter);
+	explorationShader->SetUniform(zoom);
 	GlErrorCheck();
 }
 
-void Fractal3D::SetUniformLocations(Shader& shader)
+void Fractal3D::SetUniformLocations(Shader* shader)
 {
-	camera.GetRotationMatrix().id = glGetUniformLocation(shader.id, camera.GetRotationMatrix().name.c_str());
-	camera.position.id = glGetUniformLocation(shader.id, camera.position.name.c_str());
-	camera.worldFlip.id = glGetUniformLocation(shader.id, camera.worldFlip.name.c_str());
-	screenSize.id = glGetUniformLocation(shader.id, screenSize.name.c_str());
-	sun.id = glGetUniformLocation(shader.id, sun.name.c_str());
-	power.id = glGetUniformLocation(shader.id, power.name.c_str());
-	genericParameter.id = glGetUniformLocation(shader.id, genericParameter.name.c_str());
-	zoom.id = glGetUniformLocation(shader.id, zoom.name.c_str());
+	camera.GetRotationMatrix().id = glGetUniformLocation(shader->id, camera.GetRotationMatrix().name.c_str());
+	camera.position.id = glGetUniformLocation(shader->id, camera.position.name.c_str());
+	camera.worldFlip.id = glGetUniformLocation(shader->id, camera.worldFlip.name.c_str());
+	screenSize.id = glGetUniformLocation(shader->id, screenSize.name.c_str());
+	sun.id = glGetUniformLocation(shader->id, sun.name.c_str());
+	power.id = glGetUniformLocation(shader->id, power.name.c_str());
+	genericParameter.id = glGetUniformLocation(shader->id, genericParameter.name.c_str());
+	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
 	GlErrorCheck();
 }
 
@@ -162,7 +162,7 @@ void Fractal3D::SetUniformNames()
 
 void Fractal3D::SaveImage(const std::string path)
 {
-	renderShader.use();
+	renderShader->use();
 	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
 
@@ -174,7 +174,7 @@ void Fractal3D::SaveImage(const std::string path)
 	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 
-	explorationShader.use();
+	explorationShader->use();
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
 	GlErrorCheck();
@@ -203,7 +203,7 @@ void Fractal3D::Update()
 		std::abs(sin(t * 0.1)) * -1,
 		cos(t * 0.25)));
 
-	explorationShader.SetUniform(sun);
+	explorationShader->SetUniform(sun);
 
 	time.PollTime();
 }
@@ -377,7 +377,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	}
 }
 
-void Fractal3D::ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, int fractalIndex, const std::vector<ShaderSection> extraSections)
+void Fractal3D::ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections)
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
@@ -441,12 +441,12 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 
 void Fractal3D::Init()
 {
-	SetVariablesFromSpec(specIndex, GetSpecPath(fractalName));
+	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
-	explorationShader.use();
+	explorationShader->use();
 	GlErrorCheck();
 }
 
@@ -493,7 +493,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	}
 }
 
-void Fractal3D::SetVariablesFromSpec(int index, std::string SpecificationPath)
+void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 {
 	std::string specSection = GetSpecificationByIndex(FileManager::readFile(SpecificationPath), index, FileManager::readFile(presetSpec));
 	std::string variables = getSection(Section("cpuVariables"), specSection);
@@ -542,29 +542,29 @@ void Fractal3D::HandleKeyInput()
 				// WASD movement
 			case GLFW_KEY_W:
 				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.deltaTime) * parameterChangeRate);
-				explorationShader.SetUniform(camera.position);
+				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_S:
 				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.deltaTime) * parameterChangeRate);
-				explorationShader.SetUniform(camera.position);
+				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_A:
 				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.deltaTime) * parameterChangeRate);
-				explorationShader.SetUniform(camera.position);
+				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_D:
 				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.deltaTime) * parameterChangeRate);
-				explorationShader.SetUniform(camera.position);
+				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Up and down
 			case GLFW_KEY_SPACE:
 				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.deltaTime) * parameterChangeRate);
-				explorationShader.SetUniform(camera.position);
+				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
 				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.deltaTime) * parameterChangeRate);
-				explorationShader.SetUniform(camera.position);
+				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Variable change rate
@@ -580,30 +580,30 @@ void Fractal3D::HandleKeyInput()
 				// Camera roll
 			case GLFW_KEY_Q:
 				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-				explorationShader.SetUniform(camera.GetRotationMatrix());
+				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
 			case GLFW_KEY_E:
 				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
-				explorationShader.SetUniform(camera.GetRotationMatrix());
+				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
 				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.deltaTime);
-				explorationShader.SetUniform(power);
+				explorationShader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
 				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.deltaTime);
-				explorationShader.SetUniform(power);
+				explorationShader->SetUniform(power);
 				break;
 
 			case GLFW_KEY_R:
 				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.deltaTime);
-				explorationShader.SetUniform(genericParameter);
+				explorationShader->SetUniform(genericParameter);
 				break;
 			case GLFW_KEY_F:
 				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.deltaTime);
-				explorationShader.SetUniform(genericParameter);
+				explorationShader->SetUniform(genericParameter);
 				break;
 
 
@@ -614,7 +614,7 @@ void Fractal3D::HandleKeyInput()
 	}
 }
 
-std::pair<Shader&, Shader&> Fractal3D::GenerateShader(int specIndex, int fractalIndex, std::string name)
+std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
 	GlErrorCheck();
 
@@ -651,13 +651,13 @@ std::pair<Shader&, Shader&> Fractal3D::GenerateShader(int specIndex, int fractal
 
 	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
 
-	return std::pair<Shader&, Shader&>(*(new Shader(vertexSource, baseCopy, false)),
-									   *(new Shader(vertexSource, base, false)));
+	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
+									   (new Shader(vertexSource, base, false)));
 }
 
-std::pair<Shader&, Shader&> Fractal3D::GenerateShader()
+std::pair<Shader*, Shader*> Fractal3D::GenerateShader()
 {
-	return GenerateShader(specIndex, fractalIndex, fractalName);
+	return GenerateShader(&specIndex, &fractalIndex, fractalName);
 }
 
 std::string Fractal3D::GetSpecPath(std::string fileName)
