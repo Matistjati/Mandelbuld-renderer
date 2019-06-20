@@ -158,7 +158,10 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 
 std::string Fractal::GetSpecificationByIndex(std::string specification, int index, const std::string presets)
 {
-	size_t n = std::count(specification.begin(), specification.end(), '{');
+	int n = std::count(specification.begin(), specification.end(), '{');
+	if (index < 0) index = 0;
+	else if (index > n - 1) index = n - 1;
+
 	int bracketCount = 0;
 	int bracketLevel = 0;
 	int startIndex = 0;
@@ -243,7 +246,7 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 	}
 }
 
-void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification)
+void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int index)
 {
 	const static Section distSect("distanceEstimator");
 	std::string distanceDeclaration;
@@ -295,18 +298,17 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 				std::string sectionValue = getSectionValue(distanceSections[k]);
 				std::string final;
 
-				size_t parenthesisStart = sectionValue.find('(');
-				if (parenthesisStart != std::string::npos)
+				RemoveOuterChars(sectionValue, '[', ']');
+				
+				if (sectionValue.find('[') != std::string::npos)
 				{
-					size_t parenthesisEnd = sectionValue.find(')', parenthesisStart);
-					if (parenthesisEnd != std::string::npos)
-					{
-						std::string index = sectionValue.substr(parenthesisStart + 1, parenthesisEnd - 2);
-						sectionValue.erase(parenthesisStart, parenthesisEnd);
-						RemoveOuterChars(sectionValue, '[', ']');
-						std::vector<std::string> sequences = splitNotInChar(sectionValue, ',', '[', ']');
-						sectionValue = sequences[std::stoi(index)];
-					}
+					std::vector<std::string> sequences = splitNotInChar(sectionValue, ',', '[', ']');
+
+
+					if (index < 0) index = 0;
+					else if (index > sequences.size() - 1) index = sequences.size() - 1;
+
+					sectionValue = sequences[index];
 				}
 
 				cleanString(sectionValue, { '[', ']' });
@@ -389,7 +391,7 @@ std::vector<std::string> Fractal::GetSections(std::string& source)
 		{
 			sectionEnd = source.find('>', i);
 			size_t nextOpener = source.find('<', i + 1);
-			if (nextOpener < sectionEnd) // Edge case, for example if (a < <someValue>)
+			if (nextOpener < sectionEnd) // Edge case, for example: if (a < <someValue>)
 			{
 				i = nextOpener;
 			}

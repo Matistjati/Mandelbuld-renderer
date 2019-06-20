@@ -12,6 +12,7 @@
 #include <vector>
 #include <map>
 #include <headers/Time.h>
+#include <utility>
 
 const double scrollSpeed = 10;
 
@@ -47,25 +48,35 @@ public:
 	Time time;
 
 	FractalType fractalType;
+	int fractalIndex;
+	int specIndex;
+	std::string fractalName;
 
 	std::map<int, bool> keys;
 
-	Fractal(Shader &explorationShader, Shader &renderShader, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1) : explorationShader(explorationShader), renderShader(renderShader),
-		screenSize(screenSize), zoom(zoom), fractalType(FractalType::error), time(t)
+	// Nothing fancy
+	Fractal(std::pair<Shader&, Shader&> shaders, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = -1,
+		int specIndex = -1, std::string fractalName = "")
+		: explorationShader(shaders.first), renderShader(shaders.second), screenSize(screenSize), zoom(zoom), fractalType(f), time(t), fractalIndex(fractalIndex), specIndex(specIndex),
+		fractalName(fractalName)
 	{}
 
-	virtual void MouseCallback(GLFWwindow* window, double x, double y) {};
-	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {};
-	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {};
-	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {};
-	virtual void SetUniforms(Shader& shader) {};
-	virtual void SetUniformNames() {};
-	virtual void SetUniformLocations(Shader& shader) {};
-	virtual void Update() {};
-	virtual void SaveImage(std::string filePath) {};
-	virtual void SetVariablesFromSpec(int index, std::string SpecificationPath) {};
-	virtual void SetVariable(std::string name, std::string value) {};
-	virtual void HandleKeyInput() {};
+	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
+	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
+	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
+	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
+	virtual void SetUniforms(Shader& shader) = 0;
+	virtual void SetUniformNames() = 0;
+	virtual void SetUniformLocations(Shader& shader) = 0;
+	virtual void Update() = 0;
+	virtual void SaveImage(std::string filePath) = 0;
+	virtual void SetVariablesFromSpec(int index, std::string SpecificationPath) = 0;
+	virtual void SetVariable(std::string name, std::string value) = 0;
+	virtual void HandleKeyInput() = 0;
+	virtual std::string GetSpecPath(std::string fileName) = 0;
+	virtual std::string GetFractalPath(std::string fileName) = 0;
+	virtual std::pair<Shader&, Shader&> GenerateShader(int specIndex, int fractalIndex, std::string name) = 0;
+	virtual std::pair<Shader&, Shader&> GenerateShader() = 0;
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
 
@@ -85,7 +96,7 @@ protected:
 	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
 	static std::string GetSpecificationByIndex(std::string specification, int index, const std::string presets);
 	static void LinkSpecification(std::string& source, std::string& target);
-	static void BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification);
+	static void BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int index = -1);
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);

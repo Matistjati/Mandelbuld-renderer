@@ -5,7 +5,7 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[(3)[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, mulYYXYYX], [triplexPow, translate, sinX]]</distanceBody>,
+		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, mulYYXYYX], [triplexPow, translate, sinX]]</distanceBody>,
 	</distanceEstimator>
 
 	<flags>
@@ -20,11 +20,11 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[(1)[triplexPow, translate], [triplexPow, translate, mulYYXYYX]]</distanceBody>,
+		<distanceBody>[[triplexPow, translate], [triplexPow, translate, mulYYXYYX]]</distanceBody>,
 	</distanceEstimator>
 
 	<cpuVariables>
-		<position>[(0)[,-0.301680839, 0, 0.435530365]]</position>,
+		<position>[(0)[-0.301680839, 0, 0.435530365]]</position>,
 	</cpuVariables>
 
 	<flags>
@@ -67,8 +67,8 @@
 		MandelBulb
 	</include>
 	<distanceEstimator>
-		<distanceBody>[(1)[triplexPow, translate], [triplexPow, translate, subXfromY], [triplexPow, translate, tanY], [triplexPow, translate, xAtanYX],
-						  [triplexPow, translate, MulXY],]</distanceBody>,
+		<distanceBody>[[triplexPow, translate], [triplexPow, translate, subXfromY], [triplexPow, translate, tanY], [triplexPow, translate, xAtanYX],
+					   [triplexPow, translate, MulXY],]</distanceBody>,
 		<distanceSetup>[defaultSetup]</distanceSetup>,
 	</distanceEstimator>
 	<flags>
@@ -77,7 +77,7 @@
 	</flags>
 
 	<cpuVariables>
-		<position>[(0)[,-0.301680839, 0, 0.435530365]]</position>,
+		<position>[(0)[-0.301680839, 0, 0.435530365]]</position>,
 	</cpuVariables>
 
 	<indices>

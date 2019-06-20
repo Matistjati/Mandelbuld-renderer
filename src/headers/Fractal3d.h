@@ -54,7 +54,7 @@ public:
 
 
 	Fractal3D(float power, Shader& explorationShader, Shader& renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int specIndex, std::string specification);
-	Fractal3D(int specIndex, std::string specPath, std::string sourcePath);
+	Fractal3D(int specIndex, int fractalIndex, std::string fractalName);
 
 
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
@@ -69,19 +69,23 @@ public:
 	void SetVariable(std::string name, std::string value) override;
 	void SetVariablesFromSpec(int index, std::string specification) override;
 	void HandleKeyInput() override;
-	static Shader& GenerateShader(bool highQuality, int specIndex, std::string specification, std::string source);
+	std::pair<Shader&, Shader&> GenerateShader(int specIndex, int fractalIndex, std::string name) override;
+	std::pair<Shader&, Shader&> GenerateShader() override;
+	std::string GetSpecPath(std::string fileName) override;
+	std::string GetFractalPath(std::string fileName) override;
 	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
-	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, const std::vector<ShaderSection> extraSections);
+	static void ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int specIndex, int fractalIndex, const std::vector<ShaderSection> extraSections);
+	void Init();
 
 
 	static const constexpr char* path3DBase = "shaders/3D/Base/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";
 	static const constexpr char* helperFunctions = "shaders/3D/Base/HelperFunctions.fs";
 	static const constexpr char* presetSpec = "shaders/3D/Base/PresetSpecs.fs";
+	static const constexpr char* fractal3dPath = "shaders/3D/Fractals/";
 
 private:
 	const static std::string& default3DSource;
-	void Init(int specIndex, std::string specification);
 	glm::vec2 mouseOffset;
 	bool firstMouse = true;
 };

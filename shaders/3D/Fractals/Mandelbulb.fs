@@ -9,8 +9,8 @@
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
-<maxDist>20</maxDist>
-<maxDistRelease>100</maxDistRelease>
+<maxDist>5</maxDist>
+<maxDistRelease>5</maxDistRelease>
 
 <uniforms>
 	uniform float power = 8;

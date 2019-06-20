@@ -10,9 +10,13 @@
 #include "headers/Image.h"
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
-
+#include <algorithm>
 
 #define DefaultFractal Fractal3D
+#define DefaultFractalType fractal3D
+constexpr auto DefaultSpecIndex = 0;
+constexpr auto DefaultFractalIndex = 0;
+constexpr auto DefaultFractalName = "MandelBox";
 
 void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -46,8 +50,60 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	}
 }
 
+void UpdateFractalShader(Fractal* fractal)
+{
+	switch (fractal->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached UpdateFractalShader");
+		break;
+	case fractal2D:
+		DebugPrint("Add fractal2D");
+		break;
+	case fractal3D:
+		glDeleteProgram(fractal->explorationShader.id);
+		glDeleteProgram(fractal->renderShader.id);
+		std::pair<Shader&, Shader&> shaders = fractal->GenerateShader();
+		fractal->explorationShader = shaders.first;
+		fractal->renderShader = shaders.second;
+		(reinterpret_cast<Fractal3D*>(fractal))->Init();
+		break;
+	}
+}
+
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	if (action == GLFW_PRESS && (mods & GLFW_MOD_ALT) == GLFW_MOD_ALT)
+	{
+		Fractal* fractal = reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window));
+		bool update = true;
+		switch (key)
+		{
+		default:
+			update = false;
+			break;
+		case GLFW_KEY_Q:
+			fractal->specIndex++;
+			break;
+		case GLFW_KEY_A:
+			fractal->specIndex--;
+			fractal->specIndex = std::max(fractal->specIndex, 0);
+			break;
+
+		case GLFW_KEY_W:
+			fractal->fractalIndex++;
+			break;
+		case GLFW_KEY_S:
+			fractal->fractalIndex--;
+			fractal->fractalIndex = std::max(fractal->fractalIndex, 0);
+			break;
+		}
+		if (update)
+		{
+			UpdateFractalShader(fractal);
+			return;
+		}
+	}
 	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
 	{
 	default:
@@ -109,16 +165,18 @@ int main()
 		return -1;
 	}
 
+#if _DEBUG
 	std::cout << glGetString(GL_VERSION) << std::endl;
+#endif
 
 
 	const float vertices[12] =
 	{
 		// Positions
-		1.f,  1.f, 0.0f,  // top right
-		1.f, -1.f, 0.0f,  // bottom right
-		-1.f,  1.f, 0.0f, // top left,
-		-1.f, -1.f, 0.0f,  // bottom left
+		 1.f,  1.f, 0.0f, // top right
+		 1.f, -1.f, 0.0f, // bottom right
+		-1.f,  1.f, 0.0f, // top left
+		-1.f, -1.f, 0.0f, // bottom left
 	};
 
 	const unsigned int indices[6] =
@@ -150,8 +208,8 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
-	Fractal* fractal = new DefaultFractal(0, "shaders/3D/Fractals/MandelboxSpecs.fs", "shaders/3D/Fractals/Mandelbox.fs");
-	fractal->fractalType = FractalType::fractal3D;
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalName);
+	fractal->fractalType = DefaultFractalType;
 
 	glfwSetWindowUserPointer(mainWindow, fractal);
 
@@ -164,8 +222,6 @@ int main()
 	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
 
 	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	fractal->explorationShader.use();
 
 	GlErrorCheck();
 
@@ -190,6 +246,7 @@ int main()
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &EBO);
+	delete fractal;
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	glfwTerminate();

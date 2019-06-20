@@ -4,9 +4,9 @@
 		MandelBox
 	</include>
 	<distanceEstimator>
-		<distanceBody>[(0)[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], 
-		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative], // Try lower maxiteration
-		]</distanceBody>,
+		<distanceBody>[[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], 
+		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative] // Try lower maxiteration
+		,]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 	<indices>
