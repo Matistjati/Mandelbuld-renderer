@@ -29,7 +29,7 @@
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 	<indices>
-		<color>4</color>
+		<color>0</color>
 	</indices>
 	<cpuVariables>
 		<position>[-1.01426327, -0.817652643, -3.69670177]</position>,
@@ -87,7 +87,7 @@
 		<genericParameter>0.363999933</genericParameter>,
 	</variables>
 	<cpuVariables>
-		<position>[(1)[1.97544038, 1.99667835, 1.43940282], [-0.974210978, -0.814095318, -3.66229343]]</position>,
+		<position>[(0)[1.97544038, 1.99667835, 1.43940282], [-0.974210978, -0.814095318, -3.66229343]]</position>,
 		<genericParameter>2</genericParameter>,
 	</cpuVariables>
 }

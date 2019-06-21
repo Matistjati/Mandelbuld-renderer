@@ -29,8 +29,6 @@ const float SENSITIVITY = 0.005f;
 class Camera
 {
 public:
-	// -1 or 1, for moving inside our outside of the bulb
-	float movementReverse;
 
 	// -1 or 1, flipping the world upside up
 	Uniform<int> worldFlip;

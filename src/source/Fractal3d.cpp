@@ -72,12 +72,6 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			explorationShader->SetUniform(camera.worldFlip);
 		}
 		break;
-	case GLFW_KEY_X:
-		if (action == GLFW_PRESS)
-		{
-			camera.movementReverse *= -1;
-		}
-		break;
 	}
 }
 
@@ -341,15 +335,8 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			std::string index = getSection(s, specification);
 			if (index == "")
 			{
-				if (s.start.find("color") != std::string::npos)
-				{
-					index = "0";
-				}
-				else
-				{
-					replace(final, s.start, "");
-					continue;
-				}
+				replace(final, s.start, "");
+				continue;
 			}
 			size_t indexInt = std::stoi(index);
 			if (indexInt > versions.size() - 1)
@@ -483,10 +470,6 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	{
 		std::vector<std::string> components = split(value, ',');
 		sun.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
-	}
-	else if (name == "movementReverse")
-	{
-		camera.movementReverse = std::stof(value);
 	}
 	else if (name == "worldFlip")
 	{

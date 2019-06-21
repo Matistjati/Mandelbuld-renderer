@@ -52,7 +52,7 @@ Uniform<glm::mat3>& Camera::GetRotationMatrix()
 }
 
 Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
-	movementReverse(1), rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
+	rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
 {
 	position.value = Position;
 	yaw = Yaw;
@@ -60,7 +60,7 @@ Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw
 	roll = Roll;
 }
 
-Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : movementReverse(1), worldFlip(-1), rotationMatrixIsCurrent(false)
+Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : worldFlip(-1), rotationMatrixIsCurrent(false)
 {
 	position.value = Position;
 	yaw = Yaw;
@@ -71,7 +71,7 @@ Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, flo
 	rollSpeed = RollSpeed;
 }
 
-Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), movementReverse(1),
+Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
 	rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
 {
 	position.value = glm::vec3(posX, posY, posZ);
@@ -114,7 +114,7 @@ glm::vec3 Camera::GetWorldUp()
 // Forward vector independent of roll
 glm::vec3 Camera::GetWorldForward()
 {
-	return glm::normalize(glm::vec3(abs(cos(glm::radians(roll))) * movementReverse, 0, 0));
+	return glm::normalize(glm::vec3(abs(cos(glm::radians(roll))), 0, 0));
 }
 
 
@@ -122,7 +122,7 @@ glm::vec3 Camera::GetForwardVector()
 {
 	glm::vec3 out;
 	// Vertical movement
-	out.y = cos(glm::radians(pitch) + static_cast<float>(M_PI_2)) * -movementReverse;
+	out.y = -cos(glm::radians(pitch) + static_cast<float>(M_PI_2));
 
 
 	glm::vec3 forward = rotation.value * glm::vec3(1, 0, 0);
