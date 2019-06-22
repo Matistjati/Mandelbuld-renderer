@@ -169,18 +169,18 @@ std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, 
 	return result;
 }
 
-std::string Fractal::GetSpecificationByIndex(std::string specification, int* index, const std::string presets)
+std::string Fractal::GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets)
 {
-	int n = std::count(specification.begin(), specification.end(), '{');
+	int n = std::count(specification->begin(), specification->end(), '{');
 	if (index < 0) index = 0;
 	else if (*index > n - 1) (*index) = n - 1;
 
 	int bracketCount = 0;
 	int bracketLevel = 0;
 	int startIndex = 0;
-	for (size_t i = 0; i < specification.length(); i++)
+	for (size_t i = 0; i < specification->length(); i++)
 	{
-		if (specification[i] == '{')
+		if ((*specification)[i] == '{')
 		{
 			if (bracketCount == *index)
 			{
@@ -190,7 +190,7 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int* ind
 			bracketCount++;
 			bracketLevel++;
 		}
-		else if (specification[i] == '}')
+		else if ((*specification)[i] == '}')
 		{
 			bracketLevel--;
 			if (bracketLevel < 0)
@@ -207,14 +207,14 @@ std::string Fractal::GetSpecificationByIndex(std::string specification, int* ind
 		return "";
 	}
 
-	int endIndex = specification.find('}', startIndex);
+	int endIndex = specification->find('}', startIndex);
 
 	if (endIndex == std::string::npos)
 	{
 		return "";
 	}
 
-	std::string section = specification.substr(startIndex, endIndex - startIndex);
+	std::string section = specification->substr(startIndex, endIndex - startIndex);
 	if (section.find(Section("include").start) != std::string::npos)
 	{
 		std::vector<std::string> includes = split(getSectionValue(getSection(Section("include"), section)), ',');

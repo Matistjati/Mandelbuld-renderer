@@ -382,7 +382,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	}
 }
 
-void Fractal3D::ParseShader(std::string& source, std::string& final, std::string spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections)
+void Fractal3D::ParseShader(std::string& source, std::string& final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections)
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
@@ -391,6 +391,14 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, std::string
 	{
 		DebugPrint("Specification error");
 		return;
+	}
+
+	std::string tip = getSection(Section("tip"), specSection);
+	if (tip != "" && highQuality) // Only print once
+	{
+		size_t start = tip.find("\"") + 1;
+		size_t end = tip.find_last_of("\"");
+		std::cout << tip.substr(start, end - start) << std::endl;
 	}
 
 	BuildDistanceEstimator(source, default3DSource, final, specSection, fractalIndex);
@@ -496,7 +504,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 
 void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 {
-	std::string specSection = GetSpecificationByIndex(FileManager::readFile(SpecificationPath), index, FileManager::readFile(presetSpec));
+	std::string specSection = GetSpecificationByIndex(&FileManager::readFile(SpecificationPath), index, FileManager::readFile(presetSpec));
 	std::string variables = getSection(Section("cpuVariables"), specSection);
 	if (variables != "")
 	{
@@ -646,9 +654,9 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 
 	std::string sourceCopy = std::string(source);
 	std::string baseCopy = std::string(base);
-	ParseShader(sourceCopy, baseCopy, specification, false, specIndex, fractalIndex, sections);
+	ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
 
-	ParseShader(source, base, specification, true, specIndex, fractalIndex, sections);
+	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
 

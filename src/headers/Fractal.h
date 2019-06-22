@@ -108,7 +108,7 @@ protected:
 	static bool RemoveOuterChars(std::string& str, char first, char last);
 	static std::vector<std::string> split(std::string str, char splitBy);
 	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
-	static std::string GetSpecificationByIndex(std::string specification, int* index, const std::string presets);
+	static std::string GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets);
 	static void LinkSpecification(std::string& source, std::string& target);
 	static void BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index);
 	static void BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification);

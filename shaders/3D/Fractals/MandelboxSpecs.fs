@@ -94,7 +94,9 @@
 
 // Weird floaters 4
 {
-	// Tip: try increasing genericParameter
+	<tip>
+		"Increase genericParameter and decrease power"
+	</tip>
 	<include>
 		MandelBox
 	</include>
