@@ -1,8 +1,6 @@
-<traceNoMaxDist>
+<traceIterationPercent>
 float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 	{
-		float res = -1.0;
-
 		vec4 trap;
 
 		float t = 0;
@@ -22,6 +20,6 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 
 		percentSteps = float(i)/float(maxSteps);
 
-		return res;
+		return -1;
 	}
-</traceNoMaxDist>
+</traceIterationPercent>

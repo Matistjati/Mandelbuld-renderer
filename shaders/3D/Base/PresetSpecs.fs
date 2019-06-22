@@ -11,7 +11,7 @@
 		<maxStepsRelease>100</maxStepsRelease>,
 	</variables>
 	<alternateFunctions>
-		<trace>traceNoMaxDist</trace>
+		<trace>traceIterationPercent</trace>
 	</alternateFunctions>
 }
 </FogIteration>

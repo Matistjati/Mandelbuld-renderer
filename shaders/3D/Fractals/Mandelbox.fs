@@ -15,7 +15,7 @@
 <innerRadius>power-1</innerRadius> // power - distance(w, sun);
 <outerRadius>power+1</outerRadius> // power + distance(w, sun); // Try adding something other than 1
 <scale>genericParameter</scale>
-<foldingLimit>power</foldingLimit>
+<foldingLimit>power</foldingLimit> // +cos(sin(sin(sin(w.y))))
 <zoom>.01</zoom>
 
 <uniforms>
