@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <thread>
 
-const std::string& Fractal3D::default3DSource = FileManager::readFile(default3DFractal);
+const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal({ explorationShader, renderShader }, screenSize, time), camera(camera), sun(sun), power(power), genericParameter(1)
@@ -49,7 +49,7 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			int count = 0;
 			while (1)
 			{
-				if (!FileManager::fileExists((baseName + std::to_string(count) + ".png")))
+				if (!FileManager::FileExists((baseName + std::to_string(count) + ".png")))
 				{
 					SaveImage(baseName + std::to_string(count) + ".png");
 					return;
@@ -181,7 +181,7 @@ void Fractal3D::SaveImage(const std::string path)
 	try
 	{
 		image.Save(path.c_str());
-		DebugPrint("Successfully saved image \"" + FileManager::getFileName(path) + "\"");
+		DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
 	}
 	catch (const std::exception& e)
 	{
@@ -208,15 +208,15 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 	// Bool in sections is for done or not 
 	if (specification.find(Section("variables").start) != std::string::npos)
 	{
-		std::vector<std::string> variables = splitNotInChar(getSection(Section("variables"), specification), ',', '<', '>');
+		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', '<', '>');
 		for (size_t i = 0; i < variables.size(); i++)
 		{
 			
-			std::string sectionName = getSectionName(variables[i]);
+			std::string sectionName = GetSectionName(variables[i]);
 			Section c = Section(sectionName);
-			std::string from = c.start + getSection(c, source) + c.end;
+			std::string from = c.start + GetSection(c, source) + c.end;
 
-			if (!replace(source, from, variables[i]))
+			if (!Replace(source, from, variables[i]))
 			{
 				DebugPrint("Could not replace variable from specification");
 			}
@@ -225,15 +225,15 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 	std::string defaultSource = default3DSource;
 
-	const static std::string alternateDefaultFunctions = FileManager::readFile(alternateDefaultFunctionsPath);
-	std::string alternateFunctionsStr = getSection(Section("alternateFunctions"), specification);
-	std::vector<std::string> alternateFunctions = split(alternateFunctionsStr, ',');
+	const static std::string alternateDefaultFunctions = FileManager::ReadFile(alternateDefaultFunctionsPath);
+	std::string alternateFunctionsStr = GetSection(Section("alternateFunctions"), specification);
+	std::vector<std::string> alternateFunctions = Split(alternateFunctionsStr, ',');
 
 	for (auto const& x : sections)
 	{
 		if (!x.second && x.first.optional)
 		{
-			replace(final, Section(x.first.name).start, "");
+			Replace(final, Section(x.first.name).start, "");
 		}
 		else
 		{
@@ -251,16 +251,16 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			std::string function = defaultSource;
 			for (size_t i = 0; i < alternateFunctions.size(); i++)
 			{
-				if (getSectionName(alternateFunctions[i]) == getSectionName(s.start))
+				if (GetSectionName(alternateFunctions[i]) == GetSectionName(s.start))
 				{
-					std::string functionName = getSectionValue(alternateFunctions[i]);
-					std::string newFunction = getWholeSection(Section(functionName), alternateDefaultFunctions);
+					std::string functionName = GetSectionValue(alternateFunctions[i]);
+					std::string newFunction = GetWholeSection(Section(functionName), alternateDefaultFunctions);
 					function = newFunction;
 					s = Section(functionName);
 				}
 			}
 
-			replaceSection(s, Section(x.first.name), function, final);
+			ReplaceSection(s, Section(x.first.name), function, final);
 		}
 	}
 
@@ -275,38 +275,38 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 		s = Section(name);
 
-		std::string section = getSection(s, source);
+		std::string section = GetSection(s, source);
 		if (section == "")
 		{
-			if ((section = getSection(s, defaultSource)) == "")
+			if ((section = GetSection(s, defaultSource)) == "")
 			{
 				// Default to normal name if a different one for release doesn't exist
 				s = Section(c.name);
 
-				if ((section = getSection(s, source)) == "")
+				if ((section = GetSection(s, source)) == "")
 				{
-					section = getSection(s, defaultSource);
+					section = GetSection(s, defaultSource);
 				}
 			}
 		}
 
 		if (c.releaseName != "")
 		{
-			while (replace(final, Section(c.name).start, section)) {}
+			while (Replace(final, Section(c.name).start, section)) {}
 		}
 		else
 		{
-			while (replace(final, s.start, section)) {}
+			while (Replace(final, s.start, section)) {}
 		}
 	}
 
 
 	Section help("helperFunctions");
-	std::string functions = getSection(help, source);
+	std::string functions = GetSection(help, source);
 
 
 	Section include("include");
-	std::string includes = getSection(include, source);
+	std::string includes = GetSection(include, source);
 
 	if (includes != "")
 	{
@@ -314,20 +314,20 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		includes.erase(std::remove(includes.begin(), includes.end(), '\t'), includes.end());
 		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
 
-		std::vector<std::string> includeList = Fractal::split(includes, ',');
+		std::vector<std::string> includeList = Fractal::Split(includes, ',');
 
-		std::string helperFunctions = FileManager::readFile(Fractal3D::helperFunctions);
+		std::string helperFunctions = FileManager::ReadFile(Fractal3D::helperFunctions);
 		
 		for (size_t i = 0; i < includeList.size(); i++)
 		{
-			functions += getSection(Section(includeList[i]), helperFunctions);
+			functions += GetSection(Section(includeList[i]), helperFunctions);
 		}
 	}
 
-	replace(final, help.start, functions);
+	Replace(final, help.start, functions);
 
 
-	std::string flags = getSection(Section("flags"), specification);
+	std::string flags = GetSection(Section("flags"), specification);
 
 	// Do this last, various reasons
 	const static size_t postShaderSize = std::extent<decltype(postShaderSections)>::value;
@@ -337,7 +337,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		ShaderSection c = postShaderSections[i];
 		if (c.optional && (source.find("<" + c.name + "Off>") != std::string::npos || flags.find("<" + c.name + "Off>") != std::string::npos))
 		{
-			replace(final, Section(c.name).start, "");
+			Replace(final, Section(c.name).start, "");
 			continue;
 		}
 
@@ -348,11 +348,11 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		{
 			std::vector<std::string> versions;
 			
-			versions = splitNotInChar(getSection(s, (source.find(s.start) == std::string::npos) ? defaultSource : source), ',', '<', '>');
-			std::string index = getSection(s, specification);
+			versions = SplitNotInChar(GetSection(s, (source.find(s.start) == std::string::npos) ? defaultSource : source), ',', '<', '>');
+			std::string index = GetSection(s, specification);
 			if (index == "")
 			{
-				replace(final, s.start, "");
+				Replace(final, s.start, "");
 				continue;
 			}
 			size_t indexInt = std::stoi(index);
@@ -364,20 +364,20 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			}
 			sectionString = versions[indexInt];
 
-			cleanString(sectionString, { '<','>' });
+			CleanString(sectionString, { '<','>' });
 		}
 		else
 		{
-			sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, defaultSource) : getSection(s, source);
+			sectionString = (source.find(s.start) == std::string::npos) ? GetSection(s, defaultSource) : GetSection(s, source);
 		}
 
 		if (c.releaseName != "")
 		{
-			while (replace(final, Section(c.name).start, sectionString)) {}
+			while (Replace(final, Section(c.name).start, sectionString)) {}
 		}
 		else
 		{
-			while(replace(final, s.start, sectionString)) {}
+			while(Replace(final, s.start, sectionString)) {}
 		}
 	}
 }
@@ -386,14 +386,14 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
-	std::string specSection = GetSpecificationByIndex(spec, specIndex, FileManager::readFile(presetSpec));
+	std::string specSection = GetSpecificationByIndex(spec, specIndex, FileManager::ReadFile(presetSpec));
 	if (specSection == "")
 	{
 		DebugPrint("Specification error");
 		return;
 	}
 
-	std::string tip = getSection(Section("tip"), specSection);
+	std::string tip = GetSection(Section("tip"), specSection);
 	if (tip != "" && highQuality) // Only print once
 	{
 		size_t start = tip.find("\"") + 1;
@@ -403,7 +403,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 	BuildDistanceEstimator(source, default3DSource, final, specSection, fractalIndex);
 
-	std::string flags = getSection(Section("flags"), specSection);
+	std::string flags = GetSection(Section("flags"), specSection);
 
 	const static size_t sectionSize = std::extent<decltype(shaderSections)>::value;
 	for (size_t i = 0; i < sectionSize; i++)
@@ -413,9 +413,9 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
 
-		if (flags.find("<" + getSectionName(s.start) + "Default>") == std::string::npos)
+		if (flags.find("<" + GetSectionName(s.start) + "Default>") == std::string::npos)
 		{
-			sections[c] = replaceSection(s, Section(c.name), source, final);
+			sections[c] = ReplaceSection(s, Section(c.name), source, final);
 		}
 	}
 
@@ -435,19 +435,19 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 		{
 			std::vector<std::string> versions;
 
-			versions = (source.find(s.start) == std::string::npos) ? splitNotInChar(getSection(s, default3DSource), ',', '<', '>') : splitNotInChar(getSection(s, source), ',', '<', '>');
-			std::string index = getSection(s, specSection);
+			versions = (source.find(s.start) == std::string::npos) ? SplitNotInChar(GetSection(s, default3DSource), ',', '<', '>') : SplitNotInChar(GetSection(s, source), ',', '<', '>');
+			std::string index = GetSection(s, specSection);
 
 			sectionString = versions[std::stoi(index)];
 
-			cleanString(sectionString, { '<', '>' });
+			CleanString(sectionString, { '<', '>' });
 
-			while (replace(final, s.start, sectionString)) {}
+			while (Replace(final, s.start, sectionString)) {}
 		}
 		else
 		{
-			sectionString = (source.find(s.start) == std::string::npos) ? getSection(s, source) : getSection(s, source);
-			while (replace(final, Section(c.name).start, sectionString)) {}
+			sectionString = (source.find(s.start) == std::string::npos) ? GetSection(s, source) : GetSection(s, source);
+			while (Replace(final, Section(c.name).start, sectionString)) {}
 		}
 	}
 }
@@ -476,7 +476,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	}
 	else if (name == "position")
 	{
-		std::vector<std::string> components = split(value, ',');
+		std::vector<std::string> components = Split(value, ',');
 		camera.position.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
 	}
 	else if (name == "yaw")
@@ -493,7 +493,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	}
 	else if (name == "sun")
 	{
-		std::vector<std::string> components = split(value, ',');
+		std::vector<std::string> components = Split(value, ',');
 		sun.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
 	}
 	else if (name == "worldFlip")
@@ -504,14 +504,14 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 
 void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 {
-	std::string specSection = GetSpecificationByIndex(&FileManager::readFile(SpecificationPath), index, FileManager::readFile(presetSpec));
-	std::string variables = getSection(Section("cpuVariables"), specSection);
+	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetSpec));
+	std::string variables = GetSection(Section("cpuVariables"), specSection);
 	if (variables != "")
 	{
-		std::vector<std::string> variablesList = splitNotInChar(variables, ',', '[', ']');
+		std::vector<std::string> variablesList = SplitNotInChar(variables, ',', '[', ']');
 		for (size_t i = 0; i < variablesList.size(); i++)
 		{
-			std::string value = getSectionValue(variablesList[i]);
+			std::string value = GetSectionValue(variablesList[i]);
 
 			size_t indexStart = value.find('(');
 			if (indexStart != std::string::npos)
@@ -524,18 +524,18 @@ void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 					{
 						value.erase(value.length() - 1);
 					}
-					std::vector<std::string> values = splitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
+					std::vector<std::string> values = SplitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
 					if (index > values.size() - 1)
 					{
-						DebugPrint("Index was too large: " + std::to_string(index) + " at " + getSectionName(variables));
+						DebugPrint("Index was too large: " + std::to_string(index) + " at " + GetSectionName(variables));
 						BreakIfDebug();
 					}
 					value = values[index];
 				}
 			}
 
-			cleanString(value, { '[', ']' });
-			SetVariable(getSectionName(variablesList[i]), value);
+			CleanString(value, { '[', ']' });
+			SetVariable(GetSectionName(variablesList[i]), value);
 		}
 	}
 }
@@ -627,22 +627,22 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 {
 	GlErrorCheck();
 
-	std::string base = FileManager::readFile(Fractal3D::path3DBase);
+	std::string base = FileManager::ReadFile(Fractal3D::path3DBase);
 
 	std::vector<ShaderSection> sections{};
 
-	std::string source = FileManager::readFile(Fractal3D::GetFractalPath(name));
+	std::string source = FileManager::ReadFile(Fractal3D::GetFractalPath(name));
 
 	Section extraSects = Section("extraSections");
 	size_t extraSectionIndex = source.find(extraSects.start);
 	if (extraSectionIndex != std::string::npos)
 	{
 		size_t extraSectionEnd = source.find(extraSects.end);
-		std::vector<std::string> sectionContents = splitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
+		std::vector<std::string> sectionContents = SplitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
 		for (size_t i = 0; i < sectionContents.size(); i++)
 		{
-			cleanString(sectionContents[i], {'\n', '\t', ' ', '[', ']', '\"'});
-			std::vector<std::string> value = split(sectionContents[i], ',');
+			CleanString(sectionContents[i], {'\n', '\t', ' ', '[', ']', '\"'});
+			std::vector<std::string> value = Split(sectionContents[i], ',');
 			if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
 			else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
 			else if (value.size() == 3) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2]));
@@ -650,7 +650,7 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 		}
 	}
 
-	const std::string specification = FileManager::readFile(Fractal3D::GetSpecPath(name));
+	const std::string specification = FileManager::ReadFile(Fractal3D::GetSpecPath(name));
 
 	std::string sourceCopy = std::string(source);
 	std::string baseCopy = std::string(base);
@@ -658,7 +658,7 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 
 	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
 
-	const static std::string vertexSource = FileManager::readFile(Fractal::pathRectangleVertexshader);
+	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
 									   (new Shader(vertexSource, base, false)));

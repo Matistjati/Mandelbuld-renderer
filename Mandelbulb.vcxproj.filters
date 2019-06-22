@@ -18,9 +18,6 @@
     <ClCompile Include="src/source/Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/source/ToString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src/source/Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

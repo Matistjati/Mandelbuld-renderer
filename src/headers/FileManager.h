@@ -6,9 +6,9 @@ class FileManager
 {
 public:
 	inline static std::string GetWorkingDirectory();
-	static std::string readFile(std::string path);
-	static std::string getFileName(std::string path);
-	static bool fileExists(const std::string& name);
+	static std::string ReadFile(std::string path);
+	static std::string GetFileName(std::string path);
+	static bool FileExists(const std::string& name);
 	static std::vector<std::string> GetDirectoryFileNames(const std::string directory);
 
 private:

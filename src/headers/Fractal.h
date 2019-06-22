@@ -96,18 +96,18 @@ public:
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
 
 protected:
-	static bool replace(std::string& str, const std::string& from, const std::string& to);
-	static bool replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
-	static bool replaceSection(Section section, std::string& origin, std::string& dest);
-	static std::string getSection(Section s, std::string from, size_t start = 0);
-	static std::string getWholeSection(Section s, std::string from, size_t start = 0);
-	static std::string getSectionName(std::string str);
-	static std::string getSectionValue(std::string str);
-	static void cleanString(std::string& str, std::vector<char> chars);
+	static bool Replace(std::string& str, const std::string& from, const std::string& to);
+	static bool ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
+	static bool ReplaceSection(Section section, std::string& origin, std::string& dest);
+	static std::string GetSection(Section s, std::string from, size_t start = 0);
+	static std::string GetWholeSection(Section s, std::string from, size_t start = 0);
+	static std::string GetSectionName(std::string str);
+	static std::string GetSectionValue(std::string str);
+	static void CleanString(std::string& str, std::vector<char> chars);
 	static bool RemoveOuterSection(std::string& str);
 	static bool RemoveOuterChars(std::string& str, char first, char last);
-	static std::vector<std::string> split(std::string str, char splitBy);
-	static std::vector<std::string> splitNotInChar(std::string str, char splitBy, char opener, char closer);
+	static std::vector<std::string> Split(std::string str, char splitBy);
+	static std::vector<std::string> SplitNotInChar(std::string str, char splitBy, char opener, char closer);
 	static std::string GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets);
 	static void LinkSpecification(std::string& source, std::string& target);
 	static void BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index);

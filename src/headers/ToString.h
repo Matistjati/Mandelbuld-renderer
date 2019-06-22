@@ -5,14 +5,14 @@
 #include "glm.hpp"
 #include <string>
 
-class ToString
+std::string toString(glm::dvec2 vector)
 {
-public:
-	static std::string toString(glm::dvec2 vector);
-	static std::string toString(glm::dvec3 vector);
-private:
-	ToString() { };
-	~ToString() { };
-};
+	return "x: " + std::to_string(vector.x) + ", y: " + std::to_string(vector.y);
+}
+
+std::string toString(glm::dvec3 vector)
+{
+	return "x: " + std::to_string(vector.x) + ", y: " + std::to_string(vector.y) + ", z: " + std::to_string(vector.z);
+}
 
 #endif

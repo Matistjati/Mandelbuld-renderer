@@ -14,7 +14,7 @@ inline std::string FileManager::GetWorkingDirectory()
 	return std::string(path);
 }
 
-std::string FileManager::readFile(std::string path)
+std::string FileManager::ReadFile(std::string path)
 {
 	SetCorrectDirectory(); // Has built-in check and returns if unnecesseray
 
@@ -23,14 +23,14 @@ std::string FileManager::readFile(std::string path)
 	{
 		char buff[256];
 		strerror_s(buff, errno);
-		std::cout << "Ifstream error trying to open file " << getFileName(path) << ". Error: " << buff << std::endl;
+		std::cout << "Ifstream error trying to open file " << GetFileName(path) << ". Error: " << buff << std::endl;
 		return "";
 	}
 	return std::string((std::istreambuf_iterator<char>(t)),
 		std::istreambuf_iterator<char>());
 }
 
-std::string FileManager::getFileName(std::string path)
+std::string FileManager::GetFileName(std::string path)
 {
 	int lastPos = path.find_last_of('\\');
 	if (lastPos == std::string::npos)
@@ -44,7 +44,7 @@ std::string FileManager::getFileName(std::string path)
 	return path.substr(lastPos + 1);
 }
 
-bool FileManager::fileExists(const std::string& name)
+bool FileManager::FileExists(const std::string& name)
 {
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
@@ -77,7 +77,7 @@ void FileManager::SetCorrectDirectory()
 
 	DebugPrint("Initial working directory: " + workingDir);
 
-	if (getFileName(workingDir) == "Debug" || getFileName(workingDir) == "Release")
+	if (GetFileName(workingDir) == "Debug" || GetFileName(workingDir) == "Release")
 	{
 		workingDir = workingDir.substr(0, workingDir.find_last_of("/\\"));
 

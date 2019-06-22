@@ -7,7 +7,7 @@
 #include <sstream>
 #include <algorithm>
 
-bool Fractal::replace(std::string& str, const std::string& from, const std::string& to)
+bool Fractal::Replace(std::string& str, const std::string& from, const std::string& to)
  {
 	 size_t start_pos = str.find(from);
 	 if (start_pos == std::string::npos)
@@ -16,7 +16,7 @@ bool Fractal::replace(std::string& str, const std::string& from, const std::stri
 	 return true;
 }
 
-bool Fractal::replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest)
+bool Fractal::ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest)
 {
 	int index = origin.find(originSection.start);
 	if (index == std::string::npos)
@@ -26,10 +26,10 @@ bool Fractal::replaceSection(Section originSection, Section destSection, std::st
 	int startOrigin = index + originSection.start.length();
 	int endOrigin = origin.find(originSection.end, startOrigin);
 
-	return replace(dest, destSection.start, origin.substr(startOrigin, endOrigin - startOrigin));
+	return Replace(dest, destSection.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
 
-bool Fractal::replaceSection(Section section, std::string& origin, std::string& dest)
+bool Fractal::ReplaceSection(Section section, std::string& origin, std::string& dest)
 {
 	int index = origin.find(section.start);
 	if (index == std::string::npos)
@@ -39,10 +39,10 @@ bool Fractal::replaceSection(Section section, std::string& origin, std::string& 
 	int startOrigin = index + section.start.length();
 	int endOrigin = origin.find(section.end, startOrigin);
 
-	return replace(dest, section.start, origin.substr(startOrigin, endOrigin - startOrigin));
+	return Replace(dest, section.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
 
-std::string Fractal::getSection(Section s, std::string from, size_t start)
+std::string Fractal::GetSection(Section s, std::string from, size_t start)
 {
 	int startIndex = from.find(s.start, start);
 	int endIndex = from.find(s.end, startIndex);
@@ -55,7 +55,7 @@ std::string Fractal::getSection(Section s, std::string from, size_t start)
 	return from.substr(startIndex, endIndex - startIndex);
 }
 
-std::string Fractal::getWholeSection(Section s, std::string from, size_t start)
+std::string Fractal::GetWholeSection(Section s, std::string from, size_t start)
 {
 	int startIndex = from.find(s.start, start);
 	int endIndex = from.find(s.end, startIndex);
@@ -67,21 +67,21 @@ std::string Fractal::getWholeSection(Section s, std::string from, size_t start)
 	return from.substr(startIndex, endIndex - startIndex);
 }
 
-std::string Fractal::getSectionName(std::string str)
+std::string Fractal::GetSectionName(std::string str)
 {
 	int startIndex = str.find('<') + 1;
 	int endIndex = str.find('>', startIndex);
 	return str.substr(startIndex, endIndex - startIndex);
 }
 
-std::string Fractal::getSectionValue(std::string str)
+std::string Fractal::GetSectionValue(std::string str)
 {
 	int startIndex = str.find('>') + 1;
 	int endIndex = str.find('<', startIndex);
 	return str.substr(startIndex, endIndex - startIndex);
 }
 
-void Fractal::cleanString(std::string& str, std::vector<char> chars)
+void Fractal::CleanString(std::string& str, std::vector<char> chars)
 {
 	for (size_t i = 0; i < chars.size(); i++)
 	{
@@ -98,8 +98,8 @@ bool Fractal::RemoveOuterSection(std::string& str)
 	if (name != "")
 	{
 		Section s(name);
-		replace(str, s.start, "");
-		replace(str, s.end, "");
+		Replace(str, s.start, "");
+		Replace(str, s.end, "");
 		return true;
 	}
 	else
@@ -127,7 +127,7 @@ bool Fractal::RemoveOuterChars(std::string& str, char first, char last)
 	return true;
 }
 
-std::vector<std::string> Fractal::split(std::string str, char splitBy)
+std::vector<std::string> Fractal::Split(std::string str, char splitBy)
 {
 	std::stringstream test(str);
 	std::string segment;
@@ -140,11 +140,11 @@ std::vector<std::string> Fractal::split(std::string str, char splitBy)
 	return seglist;
 }
 
-std::vector<std::string> Fractal::splitNotInChar(std::string str, char splitBy, char opener, char closer)
+std::vector<std::string> Fractal::SplitNotInChar(std::string str, char splitBy, char opener, char closer)
 {
 	std::vector<std::string> result;
 
-	cleanString(str, { '\n','\t', ' '});
+	CleanString(str, { '\n','\t', ' '});
 
 	int level = 0;
 	size_t lastIndex = 0;
@@ -217,13 +217,13 @@ std::string Fractal::GetSpecificationByIndex(const std::string* specification, i
 	std::string section = specification->substr(startIndex, endIndex - startIndex);
 	if (section.find(Section("include").start) != std::string::npos)
 	{
-		std::vector<std::string> includes = split(getSectionValue(getSection(Section("include"), section)), ',');
+		std::vector<std::string> includes = Split(GetSectionValue(GetSection(Section("include"), section)), ',');
 		if (includes.size() != 0)
 		{
 			for (size_t i = 0; i < includes.size(); i++)
 			{
-				cleanString(includes[i], { '\n', '\t', ' ' });
-				std::string preset = getSection(Section(includes[i]), presets);
+				CleanString(includes[i], { '\n', '\t', ' ' });
+				std::string preset = GetSection(Section(includes[i]), presets);
 				LinkSpecification(preset, section);
 			}
 		}
@@ -237,7 +237,7 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 
 	for (size_t i = 0; i < sections.size(); i++)
 	{
-		std::string sectionName = getSectionName(sections[i]);  
+		std::string sectionName = GetSectionName(sections[i]);  
 		if (target.find(sectionName) == std::string::npos)
 		{
 			target += sections[i];
@@ -245,12 +245,12 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 		else
 		{
 			RemoveOuterSection(sections[i]);
-			std::vector<std::string> innerSections = splitNotInChar(sections[i], ',', '[', ']');
+			std::vector<std::string> innerSections = SplitNotInChar(sections[i], ',', '[', ']');
 			int sectionStart = target.find(sectionName) + sectionName.length();
 			for (size_t i = 0; i < innerSections.size(); i++)
 			{
 				// Don't overwrite
-				if (target.find(getSectionName(innerSections[i])) == std::string::npos)
+				if (target.find(GetSectionName(innerSections[i])) == std::string::npos)
 				{
 					target.insert(sectionStart + 1, innerSections[i]+ ",");
 				}
@@ -274,15 +274,15 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 		}
 		else
 		{
-			distanceDeclaration = getSection(distSect, defaultSource, distanceStart);
+			distanceDeclaration = GetSection(distSect, defaultSource, distanceStart);
 		}
 	}
 	else
 	{
-		distanceDeclaration = getSection(distSect, source, distanceStart);
+		distanceDeclaration = GetSection(distSect, source, distanceStart);
 	}
 	
-	if (!replace(target, distSect.start, distanceDeclaration))
+	if (!Replace(target, distSect.start, distanceDeclaration))
 	{
 		DebugPrint("Could not insert distance estimator into target");
 		return;
@@ -297,25 +297,25 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 		}),
 		sourceSections.end());
 
-	std::string distanceSpec = getSection(Section("distanceEstimator"), specification);
-	std::vector<std::string> distanceSections = splitNotInChar(distanceSpec, ',', '[', ']');
+	std::string distanceSpec = GetSection(Section("distanceEstimator"), specification);
+	std::vector<std::string> distanceSections = SplitNotInChar(distanceSpec, ',', '[', ']');
 
 	for (size_t k = 0; k < distanceSections.size(); k++)
 	{
-		cleanString(distanceSections[k], { '\n', '\t', ' ' });
-		std::string sectionName = getSectionName(distanceSections[k]);
+		CleanString(distanceSections[k], { '\n', '\t', ' ' });
+		std::string sectionName = GetSectionName(distanceSections[k]);
 		for (size_t i = 0; i < sourceSections.size(); i++)
 		{
-			if (getSectionName(sourceSections[i]) == sectionName)
+			if (GetSectionName(sourceSections[i]) == sectionName)
 			{
-				std::string sectionValue = getSectionValue(distanceSections[k]);
+				std::string sectionValue = GetSectionValue(distanceSections[k]);
 				std::string final;
 
 				RemoveOuterChars(sectionValue, '[', ']');
 				
 				if (sectionValue.find('[') != std::string::npos)
 				{
-					std::vector<std::string> sequences = splitNotInChar(sectionValue, ',', '[', ']');
+					std::vector<std::string> sequences = SplitNotInChar(sectionValue, ',', '[', ']');
 
 
 					if (index < 0) index = 0;
@@ -324,31 +324,31 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 					sectionValue = sequences[*index];
 				}
 
-				cleanString(sectionValue, { '[', ']' });
-				std::vector<std::string> toReplace = splitNotInChar(sectionValue, ',', '[', ']');
+				CleanString(sectionValue, { '[', ']' });
+				std::vector<std::string> toReplace = SplitNotInChar(sectionValue, ',', '[', ']');
 
 				for (size_t j = 0; j < toReplace.size(); j++)
 				{
-					cleanString(toReplace[j], { '\n', '\t', ' ', '[', ']' });
+					CleanString(toReplace[j], { '\n', '\t', ' ', '[', ']' });
 
 					Section c(toReplace[j]);
 					size_t start = source.find(c.start);
 
 					if (start != std::string::npos)
 					{
-						std::string newSection = getSection(Section(toReplace[j]), source, start);
+						std::string newSection = GetSection(Section(toReplace[j]), source, start);
 						if (newSection == "")
 						{
-							newSection = getSection(Section(toReplace[j]), source);
+							newSection = GetSection(Section(toReplace[j]), source);
 						}
 						final += newSection;
 					}
 					else if ((start = defaultSource.find(c.start)) != std::string::npos)
 					{
-						std::string newSection = getSection(Section(toReplace[j]), defaultSource, start);
+						std::string newSection = GetSection(Section(toReplace[j]), defaultSource, start);
 						if (newSection == "")
 						{
-							newSection = getSection(Section(toReplace[j]), defaultSource);
+							newSection = GetSection(Section(toReplace[j]), defaultSource);
 						}
 						final += newSection;
 					}
@@ -358,7 +358,7 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 					}
 				}
 
-				replace(target, Section(sectionName).start, final);
+				Replace(target, Section(sectionName).start, final);
 			}
 		}
 	}
@@ -375,7 +375,7 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 std::vector<std::string> Fractal::GetOuterSections(std::string& source)
 {
 	std::vector<std::string> sections(0);
-	cleanString(source, { '\n', '\t' });
+	CleanString(source, { '\n', '\t' });
 
 	int sectionStart = -1;
 	int sectionEnd = -1;
