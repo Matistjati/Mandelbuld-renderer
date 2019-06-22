@@ -225,12 +225,20 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 	std::string defaultSource = default3DSource;
 
+	const static std::string alternateDefaultFunctions = FileManager::readFile(alternateDefaultFunctionsPath);
+	std::string alternateFunctionsStr = getSection(Section("alternateFunctions"), specification);
+	std::vector<std::string> alternateFunctions = split(alternateFunctionsStr, ',');
+
 	for (auto const& x : sections)
 	{
-		if (!x.first.optional && !x.second)
+		if (!x.second && x.first.optional)
 		{
-			Section s(""); 
-			
+			replace(final, Section(x.first.name).start, "");
+		}
+		else
+		{
+			Section s("");
+
 			if (highQuality && x.first.releaseName != "")
 			{
 				s = Section(x.first.releaseName);
@@ -239,11 +247,20 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			{
 				s = Section(x.first.name);
 			}
-			replaceSection(s, Section(x.first.name), defaultSource, final);
-		}
-		else
-		{
-			replace(final, Section(x.first.name).start, "");
+
+			std::string function = defaultSource;
+			for (size_t i = 0; i < alternateFunctions.size(); i++)
+			{
+				if (getSectionName(alternateFunctions[i]) == getSectionName(s.start))
+				{
+					std::string functionName = getSectionValue(alternateFunctions[i]);
+					std::string newFunction = getWholeSection(Section(functionName), alternateDefaultFunctions);
+					function = newFunction;
+					s = Section(functionName);
+				}
+			}
+
+			replaceSection(s, Section(x.first.name), function, final);
 		}
 	}
 

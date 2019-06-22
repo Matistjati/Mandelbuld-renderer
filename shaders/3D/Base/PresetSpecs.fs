@@ -1,31 +1,34 @@
 <FogIteration>
 {
-<flags>
-	<skyOff>
-	<sunOff>
-</flags>
-<variables>
-	<maxDist>0</maxDist>,
-	<maxDistRelease>0</maxDistRelease>,
-	<maxSteps>100</maxSteps>,
-	<maxStepsRelease>100</maxStepsRelease>,
-</variables>
+	<flags>
+		<skyOff>
+		<sunOff>
+	</flags>
+	<variables>
+		<maxDist>0</maxDist>,
+		<maxDistRelease>0</maxDistRelease>,
+		<maxSteps>100</maxSteps>,
+		<maxStepsRelease>100</maxStepsRelease>,
+	</variables>
+	<alternateFunctions>
+		<trace>traceNoMaxDist</trace>
+	</alternateFunctions>
 }
 </FogIteration>
 
 <MandelBox>
 {
-<distanceEstimator>
-	<distanceReturn>[mandelBoxDist]</distanceReturn>,
-	<distanceTrap>[defaultTrap]</distanceTrap>,
-	<distanceSetup>[scaleInit, defaultSetup]</distanceSetup>,
-	<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
-	<distanceBreakCondition>[none]</distanceBreakCondition>,
-</distanceEstimator>
-<cpuVariables>
-	<power>1</power>,
-	<genericParameter>2</genericParameter>
-</cpuVariables>
+	<distanceEstimator>
+		<distanceReturn>[mandelBoxDist]</distanceReturn>,
+		<distanceTrap>[defaultTrap]</distanceTrap>,
+		<distanceSetup>[scaleInit, defaultSetup]</distanceSetup>,
+		<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
+		<distanceBreakCondition>[none]</distanceBreakCondition>,
+	</distanceEstimator>
+	<cpuVariables>
+		<power>1</power>,
+		<genericParameter>2</genericParameter>
+	</cpuVariables>
 }
 </MandelBox>
 

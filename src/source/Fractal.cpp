@@ -55,6 +55,18 @@ std::string Fractal::getSection(Section s, std::string from, size_t start)
 	return from.substr(startIndex, endIndex - startIndex);
 }
 
+std::string Fractal::getWholeSection(Section s, std::string from, size_t start)
+{
+	int startIndex = from.find(s.start, start);
+	int endIndex = from.find(s.end, startIndex);
+	if (startIndex == std::string::npos || endIndex == std::string::npos)
+	{
+		return "";
+	}
+
+	return from.substr(startIndex, endIndex - startIndex);
+}
+
 std::string Fractal::getSectionName(std::string str)
 {
 	int startIndex = str.find('<') + 1;
@@ -449,7 +461,7 @@ void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 	std::vector<std::string> fractals = FileManager::GetDirectoryFileNames(fractalPath);
 	std::vector<std::string> fractalNames = GetFractalNames(fractals);
 	*index = std::max(*index, 0);
-	if (*index > (size_t)fractalNames.size() - 1)* index = (size_t)fractalNames.size() - 1;
+	if (*index > (int)fractalNames.size() - 1)* index = (int)fractalNames.size() - 1;
 	fractalName = fractalNames[*index];
 }
 

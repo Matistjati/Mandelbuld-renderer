@@ -84,6 +84,7 @@ public:
 	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";
 	static const constexpr char* helperFunctions = "shaders/3D/Base/HelperFunctions.fs";
 	static const constexpr char* presetSpec = "shaders/3D/Base/PresetSpecs.fs";
+	static const constexpr char* alternateDefaultFunctionsPath = "shaders/3D/Base/AlternateDefault.fs";
 	static const constexpr char* fractal3dPath = "shaders/3D/Fractals/";
 
 private:

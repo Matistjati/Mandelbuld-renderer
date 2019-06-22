@@ -1,57 +1,33 @@
-<boundingSphere>
-	vec2 boundingSphere(vec4 sph, vec3 origin, vec3 ray)
+<traceNoMaxDist>
+float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 	{
-		vec3 oc = origin - sph.xyz;
-    
-		float b = dot(oc,ray);
-		float c = dot(oc,oc) - sph.w*sph.w;
-		float h = b*b - c;
-    
-		if( h<0.0 ) return vec2(-1.0);
+		float res = -1.0;
 
-		h = sqrt( h );
+		vec4 trap;
 
-		return -b + vec2(-h,h);
-	}
-</boundingSphere>
-
-<sphereFold>
-	void sphereFold(inout vec3 z, inout float dz, float r2, float innerRadius, float outerRadius)
-	{
-		if (r2 < innerRadius)
+		float t = 0;
+		int i = 0;
+		for(; i<maxSteps; i++)
 		{ 
-			// linear inner scaling
-			float temp = (outerRadius/innerRadius);
-			z *= temp;
-			dz*= temp;
+			vec3 pos = ray.origin + ray.dir * t;
+			float h = sceneDistance(pos, trap);
+			float th = 0.25 * px * t;
+
+			if(h<th)
+			{
+				break;
+			}
+			t += h;
 		}
-		else if (r2<outerRadius)
-		{ 
-			// this is the actual sphere inversion
-			float temp =(outerRadius/r2);
-			z *= temp;
-			dz*= temp;
+
+		percentSteps = float(i)/float(maxSteps);
+
+		if (t < <maxDist>)
+		{
+			trapOut = trap;
+			res = t;
 		}
+
+		return res;
 	}
-</sphereFold>
-
-<boxFold>
-	void boxFold(inout vec3 w, float foldingLimit)
-	{
-		w = clamp(w, -foldingLimit, foldingLimit) * 2.0 - w;
-	}
-</boxFold>
-
-<triplexPow>
-vec3 triplexPow(vec3 w, float power, inout float dw, float m)
-{
-	dw = (power * pow(sqrt(m), power - 1)) * dw + 1.0;
-
-	float r = length(w);
-	float theta = power * atan(w.x, w.z);
-	float phi = power * acos(w.y / r);
-
-	// Fun alternative: reverse sin and cos
-	return pow(r, power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
-}
-</triplexPow>
+</traceNoMaxDist>

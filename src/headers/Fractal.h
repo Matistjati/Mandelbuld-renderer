@@ -100,6 +100,7 @@ protected:
 	static bool replaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool replaceSection(Section section, std::string& origin, std::string& dest);
 	static std::string getSection(Section s, std::string from, size_t start = 0);
+	static std::string getWholeSection(Section s, std::string from, size_t start = 0);
 	static std::string getSectionName(std::string str);
 	static std::string getSectionValue(std::string str);
 	static void cleanString(std::string& str, std::vector<char> chars);
