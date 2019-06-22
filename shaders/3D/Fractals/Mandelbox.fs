@@ -65,6 +65,7 @@
 </coloring>
 
 <edgeGlow>
-	col += <color> * (steps * steps+0.25) * 0.45; // Fog
+	col += <color> * sqrt(steps * steps * 0.45); // Fog
+	//col = mix(col, vec3(0.), pow(steps, 128));
 	// If you only want edge, i suggest disabling the sun and sky gradient
 </edgeGlow>

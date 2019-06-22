@@ -25,7 +25,7 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceBody>[[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], [boxFold, sphereFold, boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 	<indices>
