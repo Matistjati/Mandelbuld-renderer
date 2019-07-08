@@ -35,6 +35,7 @@
 	<translate>w+=c;</translate>,
 	<mandelBoxDerivative>dr = dr*abs(Scale)+1.0;</mandelBoxDerivative>,
 	<sinY>w.y = sin(w.y);</sinY>,
+	<addLength>w+=length(w);</addLength>,
 </operations>
 
 <distanceReturn>
@@ -92,14 +93,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		// Mandelbulb middle low parameterchangerate
 		// w*=w;
 
-		//w+=length(w);
-
-
 		//			w+=cross(w, position);
 
 		for(int i = 0; i < <maxIterations>; i++)
 		{
+
 			<distanceBody>
+
 
 			<distanceTrap>
 

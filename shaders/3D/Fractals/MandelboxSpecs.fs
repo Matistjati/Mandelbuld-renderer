@@ -5,8 +5,10 @@
 	</include>
 	<distanceEstimator>
 		<distanceBody>[[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], 
-		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative] // Try lower maxiteration
-		,]</distanceBody>,
+		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative], 
+		[addLength, boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, addLength],
+		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 	<indices>

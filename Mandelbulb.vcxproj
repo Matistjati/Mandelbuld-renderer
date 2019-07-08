@@ -76,8 +76,8 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\opengl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)opengl\include;$(SolutionDir)opengl\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)opengl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,12 +85,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\include\GL;C:\Users\Matis\source\repos\Mandelbulb\src;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;C:\Users\Matis\source\repos\Mandelbulb\Image\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\Image\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)Image\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
