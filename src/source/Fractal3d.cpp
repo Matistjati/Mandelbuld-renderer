@@ -61,7 +61,7 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 
 	case GLFW_KEY_D:
 		if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL && action == GLFW_PRESS)
-			__debugbreak();
+			BreakIfDebug();
 		break;
 
 		// World stuff

@@ -86,10 +86,20 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		//			w*=rotation;
 		//			w+=position;
 
+		// Mandelbulb hollow 
+		//w*=1.9;
+
+		// Mandelbulb middle low parameterchangerate
+		// w*=w;
+
+		//w+=length(w);
+
+
+		//			w+=cross(w, position);
+
 		for(int i = 0; i < <maxIterations>; i++)
 		{
 			<distanceBody>
-
 
 			<distanceTrap>
 
