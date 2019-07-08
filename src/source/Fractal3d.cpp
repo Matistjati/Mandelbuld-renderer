@@ -659,7 +659,7 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
-	std::cout << (baseCopy);
+
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
 									   (new Shader(vertexSource, base, false)));
 }
