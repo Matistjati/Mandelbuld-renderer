@@ -59,6 +59,17 @@
 <distanceEstimator>
 float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 	{
+		//w = sin(w); w = tan(w);
+		//w = sin(w);
+
+		//w=tan(w);
+		//w-=length(w);
+
+		//w.x=sin(w.x);
+		//w.z=sin(w.z);
+		//w/=length(position);
+
+
 		<distanceSetup>
 		//const vec3 n = vec3(0.577);
 		//const vec3 n3 = vec3(0.461, 0.877, 0.854);
@@ -95,11 +106,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 
 		//			w+=cross(w, position);
 
+		// w.x+=dot(position,position); pos {x=0.323416412 y=0.588775635 z=2.41064572 ...}
+
+		//w+=sin(dot(w,w));
+			//w.y=pow(w.y, 0.9);
+
 		for(int i = 0; i < <maxIterations>; i++)
 		{
-
 			<distanceBody>
 
+			
 
 			<distanceTrap>
 
