@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\3D">
+      <UniqueIdentifier>{eb61dc47-2b6f-42e5-ab45-d070112be05b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\3D\Default">
+      <UniqueIdentifier>{af416e4b-e384-4274-99fd-1886e52b990c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\3D\Fractals">
+      <UniqueIdentifier>{9f314fa8-e961-47cb-b880-c5b852ae41ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/source/Main.cpp">
@@ -74,5 +83,34 @@
     <ClInclude Include="src\headers\FileManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\3D\Fractals\Mandelbox.fs">
+      <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
+    <None Include="shaders\3D\Fractals\MandelboxSpecs.fs">
+      <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
+    <None Include="shaders\3D\Fractals\Mandelbulb.fs">
+      <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
+    <None Include="shaders\3D\Fractals\MandelbulbSpecs.fs">
+      <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
+    <None Include="shaders\3D\Base\3DFractalbase.fs">
+      <Filter>Resource Files\3D\Default</Filter>
+    </None>
+    <None Include="shaders\3D\Base\3DFractalDefault.fs">
+      <Filter>Resource Files\3D\Default</Filter>
+    </None>
+    <None Include="shaders\3D\Base\AlternateDefault.fs">
+      <Filter>Resource Files\3D\Default</Filter>
+    </None>
+    <None Include="shaders\3D\Base\HelperFunctions.fs">
+      <Filter>Resource Files\3D\Default</Filter>
+    </None>
+    <None Include="shaders\3D\Base\PresetSpecs.fs">
+      <Filter>Resource Files\3D\Default</Filter>
+    </None>
   </ItemGroup>
 </Project>

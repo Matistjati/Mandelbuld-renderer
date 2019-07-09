@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include "headers/Debug.h"
+#include <vector>
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {
@@ -35,14 +36,16 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	glAttachShader(id, fragment);
 	glLinkProgram(id);
 
-	char infoLog[256];
 
 	int success;
 	glGetProgramiv(id, GL_LINK_STATUS, &success);
 	if (!success)
 	{
-		glGetProgramInfoLog(id, 256, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		std::vector<char> infoLog(length);
+		glGetProgramInfoLog(id, length, NULL, &infoLog[0]);
+		std::cerr << "Error: program linking failed\n" << std::string(infoLog.begin(), infoLog.end()) << std::endl;
 	}
 
 
@@ -209,7 +212,6 @@ std::string Shader::ParseShader(const std::string& file)
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
-	char infoLog[256];
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
 	glShaderSource(id, 1, &src, nullptr);
@@ -219,13 +221,16 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 	if (success == GL_FALSE)
 	{
+		DebugPrint(source);
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		std::vector<char> infoLog(length);
+		glGetShaderInfoLog(id, length, NULL, &infoLog[0]);
 
-		std::cout << source << std::endl;
-		glGetShaderInfoLog(id, 256, NULL, infoLog);
-		std::cout << "failed to compile " <<
-			((type == GL_VERTEX_SHADER) ? " vertex " : " fragment ") << " shader.\nError: " << infoLog << std::endl;
+		std::cerr << "Failed to compile " <<
+			((type == GL_VERTEX_SHADER) ? " vertex " : " fragment ") << " shader.\nError: " << std::string(infoLog.begin(), infoLog.end()) << std::endl;
 		glDeleteShader(id);
-		return 0;
+		return -1;
 	}
 
 	return id;

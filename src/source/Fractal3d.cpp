@@ -14,12 +14,20 @@ Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShade
 	Init();
 }
 
+Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
+	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), 1.f, fractal3D, fractalIndex, specIndex,
+		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	camera(DefaultCamera),
+	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
+	power(1), genericParameter(1)
+{
+	Init();
+}
+
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), 1.f, fractal3D, fractalIndex, specIndex, 
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	camera(*(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), // Position
-		169, -14, 0.001f, // Yaw, pitch, roll
-		0.15f, 3, 200))), // mouseSensitivity, movementSpeed, rollSpeed
+	camera(DefaultCamera), 
 		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	power(1), genericParameter(1)
 {
@@ -661,7 +669,7 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
-									   (new Shader(vertexSource, base, false)));
+									   (new Shader(vertexSource, base,     false)));
 }
 
 std::pair<Shader*, Shader*> Fractal3D::GenerateShader()
@@ -671,11 +679,20 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader()
 
 std::pair<Shader*, Shader*> Fractal3D::GenerateShader(std::string fractalName)
 {
-	int* tempA = new int(0);
-	int* tempB = new int(0);
-	return Fractal3D::GenerateShader(tempA, tempB, fractalName);
-	delete tempA;
-	delete tempB;
+	int* specIndex = new int(0);
+	int* fractalIndex = new int(0);
+	return Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
+	delete specIndex;
+	delete fractalIndex;
+}
+
+std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int spec, int fractal, std::string fractalName)
+{
+	int* specIndex = new int(spec);
+	int* fractalIndex = new int(fractal);
+	return Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
+	delete specIndex;
+	delete fractalIndex;
 }
 
 std::string Fractal3D::GetSpecPath(std::string fileName)

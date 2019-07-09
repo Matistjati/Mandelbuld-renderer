@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 #include "headers/Camera.h"
 #include "headers/shader.h"
@@ -11,13 +12,17 @@
 #include "headers/FileManager.h"
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
-#include <algorithm>
+
+constexpr auto ConstScreenSizeX = 600;
+constexpr auto ConstScreenSizeY = 400;
+#define ConstWindowSize 1
 
 #define DefaultFractal Fractal3D
 #define DefaultFractalType fractal3D
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
+constexpr auto ProgramName = "Mandelbulb";
 
 void FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -159,12 +164,16 @@ int main()
 		return -1;
 	}
 
+#if ConstWindowSize
+	GLFWwindow* mainWindow = glfwCreateWindow(ConstScreenSizeX, ConstScreenSizeY, ProgramName, NULL, NULL);
+#else
 	// glfw window creation
 	glm::ivec2 screenSize = Fractal::GetMonitorSize();
-#if _DEBUG
-	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, "Mandelbulb", NULL, NULL);
-#else
-	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, "Mandelbulb", glfwGetPrimaryMonitor(), NULL);
+	#if _DEBUG
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, NULL, NULL);
+	#else
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), NULL);
+	#endif
 #endif
 
 	if (!mainWindow)
@@ -225,7 +234,12 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(VAO);
 
+#if ConstWindowSize
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, glm::ivec2(ConstScreenSizeX, ConstScreenSizeY));
+#else
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
+#endif
+
 	fractal->fractalType = DefaultFractalType;
 
 	glfwSetWindowUserPointer(mainWindow, fractal);

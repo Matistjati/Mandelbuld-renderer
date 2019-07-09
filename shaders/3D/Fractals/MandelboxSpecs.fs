@@ -93,7 +93,6 @@
 		<genericParameter>2</genericParameter>,
 	</cpuVariables>
 }
-
 // Weird floaters 4
 {
 	<tip>
@@ -136,12 +135,12 @@
 	</distanceEstimator>
 	<variables>
 		<innerRadius>0.1</innerRadius>,
-		<outerRadius>1</outerRadius>,
-		<scale>1</scale>,
-		<foldingLimit>1</foldingLimit>,
+		<outerRadius>1.</outerRadius>,
+		<scale>1.</scale>,
+		<foldingLimit>1.</foldingLimit>,
 	</variables>
 	<cpuVariables>
-		<position>[0., 0., 0.]</position>,
+		<position>[0.1, 0., 0.]</position>,
 	</cpuVariables>
 	<indices>
 		<color>1</color>

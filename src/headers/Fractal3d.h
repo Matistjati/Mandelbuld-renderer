@@ -54,6 +54,7 @@ public:
 
 
 	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification);
+	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 
 
@@ -72,6 +73,7 @@ public:
 	std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	std::pair<Shader*, Shader*> GenerateShader() override;
 	std::pair<Shader*, Shader*> GenerateShader(std::string fractalName) override;
+	std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) override;
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	std::string GetFractalFolderPath() override;

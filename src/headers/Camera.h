@@ -24,6 +24,7 @@ const float ROLL = 0.0f;
 const float SPEED = 2.5f;
 const float ROLLSPEED = 1.0f;
 const float SENSITIVITY = 0.005f;
+#define DefaultCamera *(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, 0.001f, /*Yaw, pitch, roll*/ 0.15f, 3, 200 /*mouseSensitivity, movementSpeed, rollSpeed*/))
 
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera

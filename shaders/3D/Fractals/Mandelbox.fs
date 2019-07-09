@@ -58,6 +58,12 @@
 	col = vec3(0.1);
 	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
 	col += <color> * 0.1;
+
+	/*vec3 p = (ray.origin + ray.dir * t);
+	col.x += 1-cos(trap.y*power);
+	col.y += 0.8*cos(trap.x*power);
+	col.z += sqrt(sin(trap.z*power));*/
+
 	//col *= <color>;
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight

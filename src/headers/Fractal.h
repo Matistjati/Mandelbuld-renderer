@@ -91,6 +91,7 @@ public:
 	virtual std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader(std::string name) = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader() = 0;
+	virtual std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
 	virtual std::string GetFractalFolderPath() = 0;
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
