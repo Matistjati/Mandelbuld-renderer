@@ -151,6 +151,7 @@
     <ClCompile Include="src/source/Shader.cpp" />
     <ClCompile Include="src/source/Time.cpp" />
     <ClCompile Include="src\source\FileManager.cpp" />
+    <ClCompile Include="src\source\Fractal2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/Debug.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="src/headers/Time.h" />
     <ClInclude Include="src/headers/Uniform.h" />
     <ClInclude Include="src\headers\FileManager.h" />
+    <ClInclude Include="src\headers\Fractal2D.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\3D\Base\3DFractalbase.fs" />

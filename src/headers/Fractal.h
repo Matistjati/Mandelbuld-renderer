@@ -31,6 +31,29 @@ struct Section
 	}
 };
 
+struct ShaderSection
+{
+	std::string name;
+	bool optional;
+	std::string releaseName;
+	bool multiple;
+	ShaderSection(std::string name) : name(name), optional(false), releaseName(""), multiple(false)
+	{}
+	ShaderSection(std::string name, bool optional) : name(name), optional(optional), releaseName(""), multiple(false)
+	{}
+	ShaderSection(std::string name, bool optional, std::string releaseName) : name(name), optional(optional), releaseName(releaseName), multiple(false)
+	{}
+	ShaderSection(std::string name, bool optional, std::string releaseName, bool multiple) : name(name), optional(optional), releaseName(releaseName), multiple(multiple)
+	{}
+
+	// Required for some templates
+	bool operator<(const ShaderSection& c2) const
+	{
+		return this->name[0] < c2.name[0];
+	}
+};
+
+
 enum FractalType
 {
 	error = -1,
@@ -46,7 +69,7 @@ public:
 	Shader* renderShader;
 	Uniform<glm::ivec2> screenSize;
 	Uniform<float> zoom;
-	Time time;
+	Uniform<Time> time;
 
 
 	FractalType fractalType;
@@ -67,13 +90,14 @@ public:
 	// Nothing fancy
 	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
-		: explorationShader(shaders.first), renderShader(shaders.second), screenSize(screenSize), zoom(zoom), fractalType(f), time(t), fractalIndex(fractalIndex), specIndex(specIndex),
+		: explorationShader(shaders.first), renderShader(shaders.second), screenSize(screenSize), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), fractalIndex(fractalIndex), specIndex(specIndex),
 		fractalName(fractalName), fractalNameIndex(fractalNameIndex)
 	{}
 
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
 	static glm::ivec2 GetMonitorSize();
 
+	void Update();
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
@@ -81,7 +105,6 @@ public:
 	virtual void SetUniformLocations(Shader* shader) = 0;
 	virtual void SetUniforms(Shader* shader) = 0;
 	virtual void SetUniformNames() = 0;
-	virtual void Update() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
 	virtual void SetVariablesFromSpec(int* index, std::string SpecificationPath) = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;

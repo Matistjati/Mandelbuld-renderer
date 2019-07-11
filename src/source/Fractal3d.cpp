@@ -119,7 +119,7 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 	else
 	{
 		// This works surprisingly well
-		zoom.value += static_cast<float>(yoffset * time.deltaTime * scrollSpeed * zoom.value);
+		zoom.value += static_cast<float>(yoffset * time.value.deltaTime * scrollSpeed * zoom.value);
 	}
 	explorationShader->SetUniform(zoom);
 }
@@ -201,14 +201,14 @@ void Fractal3D::SaveImage(const std::string path)
 void Fractal3D::Update()
 {
 	// Move sun in shader
-	double t = glfwGetTime();
+	double t = time.value.GetTotalTime();
 	sun.value = glm::normalize(glm::vec3(sin(t * 0.25),
 		std::abs(sin(t * 0.1)) * -1,
 		cos(t * 0.25)));
 
 	explorationShader->SetUniform(sun);
 
-	time.PollTime();
+	Fractal::Update();
 }
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality)
@@ -558,68 +558,68 @@ void Fractal3D::HandleKeyInput()
 			{
 				// WASD movement
 			case GLFW_KEY_W:
-				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_S:
-				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_A:
-				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_D:
-				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
 				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Up and down
 			case GLFW_KEY_SPACE:
-				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
-				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
 				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Variable change rate
 			case GLFW_KEY_G:
-				parameterChangeRate += 0.5f * static_cast<float>(time.deltaTime);
+				parameterChangeRate += 0.5f * static_cast<float>(time.value.deltaTime);
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 			case GLFW_KEY_T:
-				parameterChangeRate -= 0.5f * static_cast<float>(time.deltaTime);
+				parameterChangeRate -= 0.5f * static_cast<float>(time.value.deltaTime);
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
 				// Camera roll
 			case GLFW_KEY_Q:
-				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
+				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.deltaTime * parameterChangeRate));
 				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
 			case GLFW_KEY_E:
-				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.deltaTime * parameterChangeRate));
+				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.deltaTime * parameterChangeRate));
 				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
-				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
 				explorationShader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
-				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
 				explorationShader->SetUniform(power);
 				break;
 
 			case GLFW_KEY_R:
-				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
 				explorationShader->SetUniform(genericParameter);
 				break;
 			case GLFW_KEY_F:
-				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.deltaTime);
+				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
 				explorationShader->SetUniform(genericParameter);
 				break;
 

@@ -542,3 +542,9 @@ glm::ivec2 Fractal::GetMonitorSize()
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	return glm::ivec2(mode->width, mode->height);
 }
+
+void Fractal::Update()
+{
+	time.value.PollTime();
+	explorationShader->SetUniform(time);
+}

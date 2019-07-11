@@ -8,27 +8,6 @@
 #include <map>
 #include <thread>
 
-struct ShaderSection
-{
-	std::string name;
-	bool optional;
-	std::string releaseName;
-	bool multiple;
-	ShaderSection(std::string name) : name(name), optional(false), releaseName(""), multiple(false)
-	{}
-	ShaderSection(std::string name, bool optional) : name(name), optional(optional), releaseName(""), multiple(false)
-	{}
-	ShaderSection(std::string name, bool optional, std::string releaseName) : name(name), optional(optional), releaseName(releaseName), multiple(false)
-	{}
-	ShaderSection(std::string name, bool optional, std::string releaseName, bool multiple) : name(name), optional(optional), releaseName(releaseName), multiple(multiple)
-	{}
-
-	// Required for some templates
-	bool operator<(const ShaderSection& c2) const
-	{
-		return this->name[0] < c2.name[0];
-	}
-};
 
 const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
 										ShaderSection("sceneDistance"), ShaderSection("trace"),
@@ -58,6 +37,7 @@ public:
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 
 
+	void Update();
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
@@ -66,7 +46,6 @@ public:
 	void SetUniformLocations(Shader* shader) override;
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
-	void Update() override;
 	void SetVariable(std::string name, std::string value) override;
 	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;

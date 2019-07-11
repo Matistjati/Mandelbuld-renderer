@@ -8,6 +8,7 @@ uniform vec3 position;
 uniform vec3 sun;
 uniform mat3 rotation;
 uniform float zoom;
+uniform float time;
 
 <uniforms>
 

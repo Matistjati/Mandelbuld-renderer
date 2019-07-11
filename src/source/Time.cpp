@@ -15,3 +15,8 @@ double Time::PollTime()
 	lastTime = globalTime;
 	return deltaTime;
 }
+
+double Time::GetTotalTime() const
+{
+	return glfwGetTime() - firstTime;
+}

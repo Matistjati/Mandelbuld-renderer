@@ -263,7 +263,7 @@ int main()
 
 #if _DEBUG
 		// Set the window title to our fps
-		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.deltaTime).c_str());
+		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.deltaTime).c_str());
 #endif
 
 		// render, we use ray marching inside the fragment shader

@@ -6,6 +6,7 @@
 #include <string>
 #include <glm.hpp>
 #include "headers/Uniform.h"
+#include "headers/Time.h"
 
 template<typename T>
 struct Uniform;
@@ -31,6 +32,7 @@ public:
 	void SetUniform(Uniform<glm::vec4> vector) const;
 	void SetUniform(Uniform<glm::mat2> &mat) const;
 	void SetUniform(Uniform<glm::mat3> &mat) const;
+	void SetUniform(Uniform<Time> time) const;
 	void SetUniform(unsigned int id, float x, float y, float z) const;
 	void SetUniform(unsigned int id, int value) const;
 	void SetUniformStr(Uniform<glm::vec2> vector) const;

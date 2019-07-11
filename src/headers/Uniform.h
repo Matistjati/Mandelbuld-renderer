@@ -13,6 +13,10 @@ struct Uniform
 	void operator=(const T &other);
 #pragma warning(push)
 #pragma warning(disable : 26495)
+	Uniform(T val, std::string name, unsigned int id) : name(name), id(id)
+	{
+		value = val;
+	}
 	Uniform(T val)
 	{
 		value = val;
