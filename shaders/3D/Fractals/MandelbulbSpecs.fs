@@ -5,7 +5,8 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, sinX]]</distanceBody>,
+		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, sinX],
+					   [triplexPow, translate, mulWByConstant(1.9)]]</distanceBody>,
 	</distanceEstimator>
 	
 	<cpuVariables>

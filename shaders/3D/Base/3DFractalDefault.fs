@@ -36,6 +36,7 @@
 	<mandelBoxDerivative>dr = dr*abs(Scale)+1.0;</mandelBoxDerivative>,
 	<sinY>w.y = sin(w.y);</sinY>,
 	<addLength>w+=length(w);</addLength>,
+	<mulWByConstant>w*=parameter;</mulWByConstant>,
 </operations>
 
 <distanceReturn>
@@ -98,9 +99,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		//			w*=rotation;
 		//			w+=position;
 
-		// Mandelbulb hollow 
-		//w*=1.9;
-
 		// Mandelbulb middle low parameterchangerate
 		// w*=w;
 
@@ -111,11 +109,11 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		//w+=sin(dot(w,w));
 			//w.y=pow(w.y, 0.9);
 
+		// Mandelbox w=abs(w);
+
 		for(int i = 0; i < <maxIterations>; i++)
 		{
 			<distanceBody>
-
-			
 
 			<distanceTrap>
 

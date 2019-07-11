@@ -331,31 +331,60 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 				{
 					CleanString(toReplace[j], { '\n', '\t', ' ', '[', ']' });
 
-					Section c(toReplace[j]);
-					size_t start = source.find(c.start);
+					Section c("");
 
-					if (start != std::string::npos)
+					size_t parameterStart = toReplace[j].find('(');
+					if (parameterStart != std::string::npos)
 					{
-						std::string newSection = GetSection(Section(toReplace[j]), source, start);
-						if (newSection == "")
-						{
-							newSection = GetSection(Section(toReplace[j]), source);
-						}
-						final += newSection;
-					}
-					else if ((start = defaultSource.find(c.start)) != std::string::npos)
-					{
-						std::string newSection = GetSection(Section(toReplace[j]), defaultSource, start);
-						if (newSection == "")
-						{
-							newSection = GetSection(Section(toReplace[j]), defaultSource);
-						}
-						final += newSection;
+						c = toReplace[j].substr(0, parameterStart);
 					}
 					else
 					{
-						final += "";
+						c = toReplace[j];
 					}
+
+
+
+					size_t start = source.find(c.start);
+					
+					std::string newSection;
+
+					if (start != std::string::npos)
+					{
+						std::string newSect = GetSection(c, source, start);
+						if (newSect == "")
+						{
+							newSect = GetSection(c, source);
+						}
+						newSection += newSect;
+					}
+					else if ((start = defaultSource.find(c.start)) != std::string::npos)
+					{
+						std::string newSect = GetSection(c, defaultSource, start);
+						if (newSect == "")
+						{
+							newSect = GetSection(c, defaultSource);
+						}
+						newSection += newSect;
+					}
+					else
+					{
+						newSection += "";
+					}
+					
+					if (parameterStart != std::string::npos)
+					{
+						size_t parameterEnd = toReplace[j].find(')', parameterStart);
+						if (parameterEnd != std::string::npos)
+						{
+							parameterStart++;
+							std::string parameterValue = toReplace[j].substr(parameterStart, parameterEnd - parameterStart);
+
+							Replace(newSection, "parameter", parameterValue);
+						}
+					}
+
+					final += newSection;
 				}
 
 				Replace(target, Section(sectionName).start, final);
