@@ -169,6 +169,49 @@ std::vector<std::string> Fractal::SplitNotInChar(std::string str, char splitBy, 
 	return result;
 }
 
+std::vector<std::string> Fractal::SplitNotInChar(std::string str, char splitBy, std::vector<std::pair<char, char>> ignore)
+{
+	std::vector<std::string> result;
+
+	CleanString(str, { '\n','\t', ' ' });
+
+	int level = 0;
+	size_t lastIndex = 0;
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] == splitBy && level == 0)
+		{
+			result.push_back(str.substr(lastIndex + ((lastIndex == 0) ? 0 : 1), i - lastIndex - ((lastIndex == 0) ? 0 : 1)));
+			lastIndex = i;
+		}
+		for (size_t j = 0; j < ignore.size(); j++)
+		{
+			if (ignore[j].first == str[i])
+			{
+				level++;
+				break;
+			}
+		}
+		for (size_t j = 0; j < ignore.size(); j++)
+		{
+			if (ignore[j].second == str[i])
+			{
+				level--;
+				break;
+			}
+		}
+	}
+
+	std::string end = str.substr(lastIndex);
+	if (end[0] == splitBy) end.erase(0, 1);
+	if (!(end.length() == 1 && end[0] == splitBy) && end != "")
+	{
+		result.push_back(end);
+	}
+
+	return result;
+}
+
 std::string Fractal::GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets)
 {
 	int n = std::count(specification->begin(), specification->end(), '{');
@@ -325,7 +368,7 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 				}
 
 				CleanString(sectionValue, { '[', ']' });
-				std::vector<std::string> toReplace = SplitNotInChar(sectionValue, ',', '[', ']');
+				std::vector<std::string> toReplace = SplitNotInChar(sectionValue, ',', { { '[', ']' }, { '(', ')' } });
 
 				for (size_t j = 0; j < toReplace.size(); j++)
 				{
@@ -374,13 +417,13 @@ void Fractal::BuildDistanceEstimator(std::string& source, const std::string& def
 					
 					if (parameterStart != std::string::npos)
 					{
-						size_t parameterEnd = toReplace[j].find(')', parameterStart);
+						size_t parameterEnd = toReplace[j].find_last_of(')');
 						if (parameterEnd != std::string::npos)
 						{
 							parameterStart++;
 							std::string parameterValue = toReplace[j].substr(parameterStart, parameterEnd - parameterStart);
 
-							Replace(newSection, "parameter", parameterValue);
+							while (Replace(newSection, "parameter", parameterValue)) { }
 						}
 					}
 

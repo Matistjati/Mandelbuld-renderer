@@ -13,8 +13,8 @@
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
 
-constexpr auto ConstScreenSizeX = 282;
-constexpr auto ConstScreenSizeY = 282;
+constexpr auto ConstScreenSizeX = 250;
+constexpr auto ConstScreenSizeY = 250;
 #define ConstWindowSize 1
 
 #define DefaultFractal Fractal3D

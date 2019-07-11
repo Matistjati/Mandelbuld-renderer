@@ -20,7 +20,30 @@
 	</cpuVariables>
 }
 
-// Iteration based fog 1
+// Folding 1
+{
+	<include>
+		MandelBox
+	</include>
+	<distanceEstimator>
+		<distanceBody>[
+		[planeFold(sun), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		[planeFold(sun*-1), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		[planeFold(vec3(0.577)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		[planeFold(vec3(0.461, 0.877, 0.854)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+	<indices>
+		<color>2</color>
+	</indices>
+
+	<cpuVariables>
+		<position>[7, 0, 0]</position>,
+	</cpuVariables>
+}
+
+// Iteration based fog 2
 {
 	<include>
 		MandelBox, FogIteration
@@ -38,7 +61,7 @@
 	</cpuVariables>
 }
 
-// Bulb forest 2
+// Bulb forest 3
 {
 	<include>
 		MandelBox
@@ -61,7 +84,7 @@
 	</cpuVariables>
 }
 
-// Sphere inversion hell 3
+// Sphere inversion hell 4
 {
 	<include>
 		MandelBox
@@ -93,7 +116,7 @@
 		<genericParameter>2</genericParameter>,
 	</cpuVariables>
 }
-// Weird floaters 4
+// Weird floaters 5
 {
 	<tip>
 		"Increase genericParameter and decrease power"
@@ -124,7 +147,7 @@
 	</cpuVariables>
 }
 
-// Curious infinity 5
+// Curious infinity 6
 {
 	<include>
 		MandelBox

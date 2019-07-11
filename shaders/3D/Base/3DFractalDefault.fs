@@ -37,6 +37,7 @@
 	<sinY>w.y = sin(w.y);</sinY>,
 	<addLength>w+=length(w);</addLength>,
 	<mulWByConstant>w*=parameter;</mulWByConstant>,
+	<planeFold>w-=2 * min(0, dot(w, parameter)) * parameter;</planeFold>,
 </operations>
 
 <distanceReturn>
@@ -70,19 +71,14 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		//w.z=sin(w.z);
 		//w/=length(position);
 
-
 		<distanceSetup>
-		//const vec3 n = vec3(0.577);
-		//const vec3 n3 = vec3(0.461, 0.877, 0.854);
 
-		//w-=2 * min(0, dot(w, n)) * n;
-		//w-=2 * min(0, dot(w, n3)) * n3;
 
-		const vec3 n1 = vec3(0, 1, 0);
+		/*const vec3 n1 = vec3(0, 1, 0);
 		const vec3 n2 = vec3(-0.9510565, 0.30901, 0);
 		const vec3 n3 = vec3(-0.588, -0.809, 0);
 		const vec3 n4 = vec3(0.588, -0.809, 0);
-		const vec3 n5 = vec3(0.9510565, 0.30901, 0);
+		const vec3 n5 = vec3(0.9510565, 0.30901, 0);*/
 
 		/*			w-=2 * min(0, dot(w, n1)) * n1;
 			w-=2 * min(0, dot(w, n2)) * n2;
