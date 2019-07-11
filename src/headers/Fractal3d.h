@@ -8,6 +8,7 @@
 #include <map>
 #include <thread>
 
+const double scrollSpeed = 10;
 
 const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
 										ShaderSection("sceneDistance"), ShaderSection("trace"),
@@ -37,7 +38,7 @@ public:
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 
 
-	void Update();
+	void Update() override;
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;

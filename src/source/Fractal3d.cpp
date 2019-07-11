@@ -207,8 +207,6 @@ void Fractal3D::Update()
 		cos(t * 0.25)));
 
 	explorationShader->SetUniform(sun);
-
-	Fractal::Update();
 }
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality)

@@ -259,6 +259,9 @@ int main()
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))
 	{
+		fractal->time.value.PollTime();
+		fractal->explorationShader->SetUniform(fractal->time);
+
 		fractal->Update();
 
 #if _DEBUG

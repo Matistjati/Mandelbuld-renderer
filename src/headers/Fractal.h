@@ -15,8 +15,6 @@
 #include <utility>
 #include <string>
 
-const double scrollSpeed = 10;
-
 class Shader;
 
 struct Section
@@ -97,7 +95,7 @@ public:
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
 	static glm::ivec2 GetMonitorSize();
 
-	void Update();
+	virtual void Update() = 0;
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;

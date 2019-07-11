@@ -543,8 +543,3 @@ glm::ivec2 Fractal::GetMonitorSize()
 	return glm::ivec2(mode->width, mode->height);
 }
 
-void Fractal::Update()
-{
-	time.value.PollTime();
-	explorationShader->SetUniform(time);
-}

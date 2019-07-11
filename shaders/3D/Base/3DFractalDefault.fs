@@ -250,10 +250,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 			col = pow( col, vec3(0.7,0.9,1.0) );                  // fake SSS
 			col += specular * 15.;
 
-			vec3 reflection = reflect( ray.dir, normal );
-
+			// Reflection (?)
+			//vec3 reflection = reflect( ray.dir, normal );
 			//col += 8.0*vec3(0.8,0.9,1.0)*(0.2+0.8*occlusion)*(0.03+0.97*pow(fakeSSS,5.0))*smoothstep(0.0,0.1,reflection.y )*SoftShadow( Ray(pos+0.01*normal, reflection), 2.0 );
-			//col = vec3(occlusion*occlusion);
 		}
 
 		return col;
