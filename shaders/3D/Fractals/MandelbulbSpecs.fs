@@ -6,7 +6,7 @@
 
 	<distanceEstimator>
 		<distanceBody>[[triplexPow, translate], [triplexPow, translate, xMulSinX], [triplexPow, translate, sinX],
-					   [triplexPow, translate, mulWByConstant(1.9)]]</distanceBody>,
+					   [triplexPow, translate, mulW(1.9)]]</distanceBody>,
 	</distanceEstimator>
 	
 	<cpuVariables>
@@ -72,7 +72,7 @@
 	</include>
 	<distanceEstimator>
 		<distanceBody>[[triplexPow, translate], [triplexPow, translate, subXfromY], [triplexPow, translate, tanY], [triplexPow, translate, xAtanYX],
-					   [triplexPow, translate, MulXY],]</distanceBody>,
+					   [triplexPow, translate, MulXY], [triplexPow, translate, mulW(w), /*Go to the middle*/]]</distanceBody>,
 		<distanceSetup>[defaultSetup]</distanceSetup>,
 	</distanceEstimator>
 	<flags>

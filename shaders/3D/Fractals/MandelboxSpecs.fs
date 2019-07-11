@@ -8,6 +8,7 @@
 		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative], 
 		[addLength, boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, addLength],
+		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, setW(abs(w))],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
@@ -31,6 +32,7 @@
 		[planeFold(sun*-1), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		[planeFold(vec3(0.577)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		[planeFold(vec3(0.461, 0.877, 0.854)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		[planeFold(vec3(1.,0,0)*rotation), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
