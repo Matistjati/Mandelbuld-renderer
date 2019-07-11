@@ -48,17 +48,15 @@
 </colorC>
 
 <coloring>
-	col = vec3(0.01);
-	col = mix(col, <color>, clamp(trap.y,0.0,1.0)); // Inner
+	<col = vec3(0.01);
+	col = mix(col, <color>, clamp(trap.y,0.0,1.0)); /*Inner*/
 	col = mix(col, <colorB>, clamp(trap.z*trap.z,0.0,1.0));
-	col = mix(col, <colorC>, clamp(pow(trap.w,6.0),0.0,1.0)); // Stripes
+	col = mix(col, <colorC>, clamp(pow(trap.w,6.0),0.0,1.0)); /*Stripes*/
+	col *= 0.5;>,
 
-	/*vec3 p = (ray.origin + ray.dir * t);
-	col.x += 1-cos(trap.y*power);
+	<col.x += 1-cos(trap.y*power);
 	col.y += 0.8*cos(trap.x*power);
-	col.z += sqrt(sin(trap.z*power));*/
-
-	col *= 0.5;
+	col.z += sqrt(sin(trap.z*power));>,
 </coloring>
 
 <distanceTrapReturn>

@@ -15,7 +15,7 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
 										ShaderSection("lightingFunctions") };
 
-const ShaderSection postShaderSections[] = { ShaderSection("coloring"), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
+const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
 											 ShaderSection("color", false, "", true), ShaderSection("maxDist", false, "maxDistRelease"), ShaderSection("distanceBody"), ShaderSection("trap") };
 
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),

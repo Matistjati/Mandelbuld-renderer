@@ -356,11 +356,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			
 			versions = SplitNotInChar(GetSection(s, (source.find(s.start) == std::string::npos) ? defaultSource : source), ',', '<', '>');
 			std::string index = GetSection(s, specification);
-			if (index == "")
-			{
-				Replace(final, s.start, "");
-				continue;
-			}
+			if (index == "") index = "0";
 			size_t indexInt = std::stoi(index);
 			if (indexInt > versions.size() - 1)
 			{
@@ -370,7 +366,8 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			}
 			sectionString = versions[indexInt];
 
-			CleanString(sectionString, { '<','>' });
+			if (sectionString[0] == '<') sectionString.erase(0, 1);
+			if (sectionString[sectionString.length() - 1] == '>') sectionString.erase(sectionString.length() - 1);
 		}
 		else
 		{
