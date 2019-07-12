@@ -1,4 +1,5 @@
 #include "headers/Fractal.h"
+#include "headers/Fractal3d.h"
 #include "headers/Debug.h"
 #include <headers/FileManager.h>
 #include <iostream>
@@ -144,7 +145,7 @@ std::vector<std::string> Fractal::SplitNotInChar(std::string str, char splitBy, 
 {
 	std::vector<std::string> result;
 
-	CleanString(str, { '\n','\t', ' '});
+	CleanString(str, { '\n','\t' });
 
 	int level = 0;
 	size_t lastIndex = 0;
@@ -535,6 +536,28 @@ void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 	*index = std::max(*index, 0);
 	if (*index > (int)fractalNames.size() - 1)* index = (int)fractalNames.size() - 1;
 	fractalName = fractalNames[*index];
+}
+
+void Fractal::UpdateFractalShader()
+{
+	switch (this->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached UpdateFractalShader");
+		break;
+	case fractal2D:
+		DebugPrint("Add fractal2D");
+		break;
+	case fractal3D:
+		delete this->renderShader;
+		delete this->explorationShader;
+
+		std::pair<Shader*, Shader*> shaders = this->GenerateShader();
+		this->explorationShader = shaders.first;
+		this->renderShader = shaders.second;
+		(reinterpret_cast<Fractal3D*>(this))->Init();
+		break;
+	}
 }
 
 glm::ivec2 Fractal::GetMonitorSize()

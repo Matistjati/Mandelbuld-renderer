@@ -56,27 +56,6 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	}
 }
 
-void UpdateFractalShader(Fractal* fractal)
-{
-	switch (fractal->fractalType)
-	{
-	default:
-		DebugPrint("Case default reached UpdateFractalShader");
-		break;
-	case fractal2D:
-		DebugPrint("Add fractal2D");
-		break;
-	case fractal3D:
-		delete fractal->renderShader;
-		delete fractal->explorationShader;
-
-		std::pair<Shader*, Shader*> shaders = fractal->GenerateShader();
-		fractal->explorationShader = shaders.first;
-		fractal->renderShader = shaders.second;
-		(reinterpret_cast<Fractal3D*>(fractal))->Init();
-		break;
-	}
-}
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -122,7 +101,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		}
 		if (update)
 		{
-			UpdateFractalShader(fractal);
+			fractal->UpdateFractalShader();
 			return;
 		}
 	}

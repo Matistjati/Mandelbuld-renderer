@@ -47,6 +47,7 @@ public:
 	void SetUniformLocations(Shader* shader) override;
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
+	void FindPathAndSaveImage() override;
 	void SetVariable(std::string name, std::string value) override;
 	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;
@@ -57,10 +58,10 @@ public:
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	std::string GetFractalFolderPath() override;
-	static void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
-	static void ParseShader(std::string& source, std::string& final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
+	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
+	void ParseShader(std::string& source, std::string& final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 	void Init();
-
+	std::map<std::string, int*> GetDefaultShaderIndices() override;
 
 	static const constexpr char* path3DBase = "shaders/3D/Base/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";

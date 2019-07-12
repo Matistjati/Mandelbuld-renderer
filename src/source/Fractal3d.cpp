@@ -9,13 +9,13 @@
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
-	: Fractal({ explorationShader, renderShader }, screenSize, time), camera(camera), sun(sun), power(power), genericParameter(1)
+	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1)
 {
 	Init();
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), 1.f, fractal3D, fractalIndex, specIndex,
+	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
@@ -25,7 +25,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
-	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), 1.f, fractal3D, fractalIndex, specIndex, 
+	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera), 
 		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
@@ -37,49 +37,58 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, true); // Close program
 
 	// Handle input actions in separate function
-	if ((action == GLFW_PRESS) && (mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL) keys[key] = true;
-	else if ((action == GLFW_RELEASE) && (mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL) keys[key] = false;
-
-	switch (key)
+	if ((mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL && (mods & GLFW_MOD_ALT) != GLFW_MOD_ALT)
 	{
-	case GLFW_KEY_ESCAPE:
-		if (action == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
-		break;
+		if ((action == GLFW_PRESS)) keys[key] = true;
+		else if ((action == GLFW_RELEASE)) keys[key] = false;
+	}
 
-		// Ctrl key handling
-	case GLFW_KEY_S:
-		if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL && action == GLFW_PRESS)
+
+	// Ctrl key handling
+	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
+	{
+		bool update = false;
+		switch (key)
 		{
-			const std::string baseName = "TestImage/image";
-			int count = 0;
-			while (1)
-			{
-				if (!FileManager::FileExists((baseName + std::to_string(count) + ".png")))
-				{
-					SaveImage(baseName + std::to_string(count) + ".png");
-					return;
-				}
-				count++;
-			}
-		}
-		break;
+		default:
+			break;
+		case GLFW_KEY_Z:
+			FindPathAndSaveImage();
+			break;
 
-	case GLFW_KEY_D:
-		if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL && action == GLFW_PRESS)
+		case GLFW_KEY_Q:
+			(*shaderIndices["coloring"])++;
+			update = true;
+			break;
+		case GLFW_KEY_A:
+			(*shaderIndices["coloring"])--;
+			update = true;
+			break;
+
+		case GLFW_KEY_X:
 			BreakIfDebug();
-		break;
-
-		// World stuff
-	case GLFW_KEY_Z:
-		if (action == GLFW_PRESS)
+			break;
+		}
+		if (update)
 		{
+			UpdateFractalShader();
+		}
+	}
+	else if (action == GLFW_PRESS)
+	{
+		switch (key)
+		{
+		default:
+			break;
+		case GLFW_KEY_Z:
+			// Flipping the world
 			camera.worldFlip.value *= -1;
 			explorationShader->SetUniform(camera.worldFlip);
+			break;
 		}
-		break;
 	}
 }
 
@@ -195,6 +204,21 @@ void Fractal3D::SaveImage(const std::string path)
 	{
 		DebugPrint("Error saving image: " + *e.what());
 		return;
+	}
+}
+
+void Fractal3D::FindPathAndSaveImage()
+{
+	const std::string baseName = "TestImage/image";
+	int count = 0;
+	while (1)
+	{
+		if (!FileManager::FileExists((baseName + std::to_string(count) + ".png")))
+		{
+			SaveImage(baseName + std::to_string(count) + ".png");
+			return;
+		}
+		count++;
 	}
 }
 
@@ -356,7 +380,17 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			
 			versions = SplitNotInChar(GetSection(s, (source.find(s.start) == std::string::npos) ? defaultSource : source), ',', '<', '>');
 			std::string index = GetSection(s, specification);
-			if (index == "") index = "0";
+
+			if (shaderIndices.size() != 0 && shaderIndices.count(c.name))
+			{
+				int* indexPtr = shaderIndices[c.name];
+				if (*indexPtr < 0)* indexPtr = 0;
+				else if ((size_t)*indexPtr > versions.size() - 1)* indexPtr = versions.size() - 1;
+				index = std::to_string(*indexPtr);
+			}
+			else if (index == "") index = "0";
+
+
 			size_t indexInt = std::stoi(index);
 			if (indexInt > versions.size() - 1)
 			{
@@ -464,6 +498,11 @@ void Fractal3D::Init()
 	SetUniforms(explorationShader);
 	explorationShader->use();
 	GlErrorCheck();
+}
+
+std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()
+{
+	return { {"coloring", new int(0)} };
 }
 
 // This is really nasty, be careful

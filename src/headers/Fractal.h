@@ -77,7 +77,7 @@ public:
 	std::string fractalName;
 
 	std::map<int, bool> keys;
-
+	std::map<std::string, int*> shaderIndices;
 
 	~Fractal()
 	{
@@ -86,13 +86,14 @@ public:
 	};
 
 	// Nothing fancy
-	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
 		: explorationShader(shaders.first), renderShader(shaders.second), screenSize(screenSize), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), fractalIndex(fractalIndex), specIndex(specIndex),
-		fractalName(fractalName), fractalNameIndex(fractalNameIndex)
+		fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices)
 	{}
 
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
+	void UpdateFractalShader();
 	static glm::ivec2 GetMonitorSize();
 
 	virtual void Update() = 0;
@@ -104,6 +105,7 @@ public:
 	virtual void SetUniforms(Shader* shader) = 0;
 	virtual void SetUniformNames() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
+	virtual void FindPathAndSaveImage() = 0;
 	virtual void SetVariablesFromSpec(int* index, std::string SpecificationPath) = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;
 	virtual void HandleKeyInput() = 0;
@@ -114,6 +116,8 @@ public:
 	virtual std::pair<Shader*, Shader*> GenerateShader() = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
 	virtual std::string GetFractalFolderPath() = 0;
+	virtual std::map<std::string, int*> GetDefaultShaderIndices() = 0;
+
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
 
