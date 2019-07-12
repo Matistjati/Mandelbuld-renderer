@@ -167,6 +167,10 @@
     <ClInclude Include="src\headers\Fractal2D.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\2D\Base\2DFractalBase.fs" />
+    <None Include="shaders\2D\Base\2DFractalDefault.fs" />
+    <None Include="shaders\2D\Fractals\mandelbrot.fs" />
+    <None Include="shaders\2D\Fractals\mandelbrotSpecs.fs" />
     <None Include="shaders\3D\Base\3DFractalbase.fs" />
     <None Include="shaders\3D\Base\3DFractalDefault.fs" />
     <None Include="shaders\3D\Base\AlternateDefault.fs" />

@@ -24,13 +24,11 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	Init();
 }
 
-void Fractal2D::Update()
-{
-
-}
+void Fractal2D::Update() { }
 
 void Fractal2D::MouseCallback(GLFWwindow* window, double x, double y)
 {
+	mousePosition = { x, y };
 }
 
 void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -202,11 +200,11 @@ void Fractal2D::HandleKeyInput()
 
 				// Zooming using exponential decay
 			case GLFW_KEY_Q:
-				zoom.value *= exp(time.value.deltaTime * -parameterChangeRate);
+				zoom.value *= static_cast<float>(exp(time.value.deltaTime * -parameterChangeRate));
 				explorationShader->SetUniform(zoom);
 				break;
 			case GLFW_KEY_E:
-				zoom.value /= exp(time.value.deltaTime * -parameterChangeRate);
+				zoom.value /= static_cast<float>(exp(time.value.deltaTime * -parameterChangeRate));
 				explorationShader->SetUniform(zoom);
 				break;
 
@@ -220,7 +218,6 @@ void Fractal2D::HandleKeyInput()
 				explorationShader->SetUniform(power);
 				break;
 
-
 			default:
 				break;
 			}
@@ -230,6 +227,44 @@ void Fractal2D::HandleKeyInput()
 
 std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
+	//GlErrorCheck();
+
+	//std::string base = FileManager::ReadFile(Fractal2D::path2DBase);
+
+	//std::vector<ShaderSection> sections{};
+
+	//std::string source = FileManager::ReadFile(Fractal2D::GetFractalPath(name));
+
+	//Section extraSects = Section("extraSections");
+	//size_t extraSectionIndex = source.find(extraSects.start);
+	//if (extraSectionIndex != std::string::npos)
+	//{
+	//	size_t extraSectionEnd = source.find(extraSects.end);
+	//	std::vector<std::string> sectionContents = SplitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
+	//	for (size_t i = 0; i < sectionContents.size(); i++)
+	//	{
+	//		CleanString(sectionContents[i], { '\n', '\t', ' ', '[', ']', '\"' });
+	//		std::vector<std::string> value = Split(sectionContents[i], ',');
+	//		if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
+	//		else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
+	//		else if (value.size() == 3) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2]));
+	//		else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2], StringToBool(value[3])));
+	//	}
+	//}
+
+	//const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
+
+	//std::string sourceCopy = std::string(source);
+	//std::string baseCopy = std::string(base);
+	//ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
+
+	//ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
+
+	//const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
+
+	//return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
+	//	(new Shader(vertexSource, base, false)));
+
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
 	std::string base = FileManager::ReadFile(Fractal2D::GetFractalPath(name));
@@ -290,5 +325,5 @@ void Fractal2D::Init()
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
-	return std::map<std::string, int*>();
+	return {};
 }

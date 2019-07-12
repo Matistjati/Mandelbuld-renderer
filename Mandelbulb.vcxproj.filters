@@ -25,6 +25,12 @@
     <Filter Include="Resource Files\2D">
       <UniqueIdentifier>{bedb2b54-b817-4fad-818c-61d55393be8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\2D\Default">
+      <UniqueIdentifier>{01063701-3dc7-4f20-a5a9-421df41f2d56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\2D\Fractals">
+      <UniqueIdentifier>{26cc9a7c-5e97-4276-9990-7fb1ab73c149}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/source/Main.cpp">
@@ -120,6 +126,18 @@
     </None>
     <None Include="shaders\3D\Base\PresetSpecs.fs">
       <Filter>Resource Files\3D\Default</Filter>
+    </None>
+    <None Include="shaders\2D\Base\2DFractalBase.fs">
+      <Filter>Resource Files\2D\Default</Filter>
+    </None>
+    <None Include="shaders\2D\Base\2DFractalDefault.fs">
+      <Filter>Resource Files\2D\Default</Filter>
+    </None>
+    <None Include="shaders\2D\Fractals\mandelbrot.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
+    </None>
+    <None Include="shaders\2D\Fractals\mandelbrotSpecs.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
     </None>
   </ItemGroup>
 </Project>

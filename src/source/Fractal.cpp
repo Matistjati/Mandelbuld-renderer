@@ -303,148 +303,6 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 	}
 }
 
-void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index)
-{
-	const static Section distSect("distanceEstimator");
-	std::string distanceDeclaration;
-	size_t distanceStart = source.find(distSect.start);
-	if (distanceStart == std::string::npos)
-	{
-		distanceStart = defaultSource.find(distSect.start);
-		if (distanceStart == std::string::npos)
-		{
-			DebugPrint("Error building distance estimator: could not find distance estimator section");
-			return;
-		}
-		else
-		{
-			distanceDeclaration = GetSection(distSect, defaultSource, distanceStart);
-		}
-	}
-	else
-	{
-		distanceDeclaration = GetSection(distSect, source, distanceStart);
-	}
-	
-	if (!Replace(target, distSect.start, distanceDeclaration))
-	{
-		DebugPrint("Could not insert distance estimator into target");
-		return;
-	}
-	std::vector<std::string> sourceSections = GetSections(distanceDeclaration);
-
-	sourceSections.erase(std::remove_if(
-		sourceSections.begin(), sourceSections.end(),
-		[](const std::string& x) 
-		{
-			return x.substr(1, 8) != "distance";
-		}),
-		sourceSections.end());
-
-	std::string distanceSpec = GetSection(Section("distanceEstimator"), specification);
-	std::vector<std::string> distanceSections = SplitNotInChar(distanceSpec, ',', '[', ']');
-
-	for (size_t k = 0; k < distanceSections.size(); k++)
-	{
-		CleanString(distanceSections[k], { '\n', '\t', ' ' });
-		std::string sectionName = GetSectionName(distanceSections[k]);
-		for (size_t i = 0; i < sourceSections.size(); i++)
-		{
-			if (GetSectionName(sourceSections[i]) == sectionName)
-			{
-				std::string sectionValue = GetSectionValue(distanceSections[k]);
-				std::string final;
-
-				RemoveOuterChars(sectionValue, '[', ']');
-				
-				if (sectionValue.find('[') != std::string::npos)
-				{
-					std::vector<std::string> sequences = SplitNotInChar(sectionValue, ',', '[', ']');
-
-
-					if (index < 0) index = 0;
-					else if ((*index) > (int)sequences.size() - 1) (*index) = sequences.size() - 1;
-
-					sectionValue = sequences[*index];
-				}
-
-				CleanString(sectionValue, { '[', ']' });
-				std::vector<std::string> toReplace = SplitNotInChar(sectionValue, ',', { { '[', ']' }, { '(', ')' } });
-
-				for (size_t j = 0; j < toReplace.size(); j++)
-				{
-					CleanString(toReplace[j], { '\n', '\t', ' ', '[', ']' });
-
-					Section c("");
-
-					size_t parameterStart = toReplace[j].find('(');
-					if (parameterStart != std::string::npos)
-					{
-						c = toReplace[j].substr(0, parameterStart);
-					}
-					else
-					{
-						c = toReplace[j];
-					}
-
-
-
-					size_t start = source.find(c.start);
-					
-					std::string newSection;
-
-					if (start != std::string::npos)
-					{
-						std::string newSect = GetSection(c, source, start);
-						if (newSect == "")
-						{
-							newSect = GetSection(c, source);
-						}
-						newSection += newSect;
-					}
-					else if ((start = defaultSource.find(c.start)) != std::string::npos)
-					{
-						std::string newSect = GetSection(c, defaultSource, start);
-						if (newSect == "")
-						{
-							newSect = GetSection(c, defaultSource);
-						}
-						newSection += newSect;
-					}
-					else
-					{
-						newSection += "";
-					}
-					
-					if (parameterStart != std::string::npos)
-					{
-						size_t parameterEnd = toReplace[j].find_last_of(')');
-						if (parameterEnd != std::string::npos)
-						{
-							parameterStart++;
-							std::string parameterValue = toReplace[j].substr(parameterStart, parameterEnd - parameterStart);
-
-							while (Replace(newSection, "parameter", parameterValue)) { }
-						}
-					}
-
-					final += newSection;
-				}
-
-				Replace(target, Section(sectionName).start, final);
-			}
-		}
-	}
-}
-
-void Fractal::BuildDistanceEstimator(std::string& source, const std::string& defaultSource, std::string& target, std::string& specification)
-{
-	int* index = new int();
-	(*index) = -1;
-	BuildDistanceEstimator(source, defaultSource, target, specification, index);
-	delete index;
-}
-
 std::vector<std::string> Fractal::GetOuterSections(std::string& source)
 {
 	std::vector<std::string> sections(0);
@@ -544,24 +402,13 @@ void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 
 void Fractal::UpdateFractalShader()
 {
-	switch (this->fractalType)
-	{
-	default:
-		DebugPrint("Case default reached UpdateFractalShader");
-		break;
-	case fractal2D:
-		DebugPrint("Add fractal2D");
-		break;
-	case fractal3D:
-		delete this->renderShader;
-		delete this->explorationShader;
+	delete this->renderShader;
+	delete this->explorationShader;
 
-		std::pair<Shader*, Shader*> shaders = this->GenerateShader();
-		this->explorationShader = shaders.first;
-		this->renderShader = shaders.second;
-		(reinterpret_cast<Fractal3D*>(this))->Init();
-		break;
-	}
+	std::pair<Shader*, Shader*> shaders = this->GenerateShader();
+	this->explorationShader = shaders.first;
+	this->renderShader = shaders.second;
+	(reinterpret_cast<Fractal3D*>(this))->Init();
 }
 
 glm::ivec2 Fractal::GetMonitorSize()
@@ -570,3 +417,143 @@ glm::ivec2 Fractal::GetMonitorSize()
 	return glm::ivec2(mode->width, mode->height);
 }
 
+
+void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index)
+{
+	std::string distanceDeclaration;
+	size_t distanceStart = source.find(targetSection.start);
+	if (distanceStart == std::string::npos)
+	{
+		distanceStart = defaultSource.find(targetSection.start);
+		if (distanceStart == std::string::npos)
+		{
+			DebugPrint("Error building distance estimator: could not find distance estimator section");
+			return;
+		}
+		else
+		{
+			distanceDeclaration = GetSection(targetSection, defaultSource, distanceStart);
+		}
+	}
+	else
+	{
+		distanceDeclaration = GetSection(targetSection, source, distanceStart);
+	}
+
+	if (!Replace(target, targetSection.start, distanceDeclaration))
+	{
+		DebugPrint("Could not insert distance estimator into target");
+		return;
+	}
+	std::vector<std::string> sourceSections = GetSections(distanceDeclaration);
+
+	sourceSections.erase(std::remove_if(
+		sourceSections.begin(), sourceSections.end(),
+		[](const std::string& x)
+		{
+			return x.substr(1, 8) != "distance";
+		}),
+		sourceSections.end());
+
+	std::string distanceSpec = GetSection(Section("distanceEstimator"), specification);
+	std::vector<std::string> distanceSections = SplitNotInChar(distanceSpec, ',', '[', ']');
+
+	for (size_t k = 0; k < distanceSections.size(); k++)
+	{
+		CleanString(distanceSections[k], { '\n', '\t', ' ' });
+		std::string sectionName = GetSectionName(distanceSections[k]);
+		for (size_t i = 0; i < sourceSections.size(); i++)
+		{
+			if (GetSectionName(sourceSections[i]) == sectionName)
+			{
+				std::string sectionValue = GetSectionValue(distanceSections[k]);
+				std::string final;
+
+				RemoveOuterChars(sectionValue, '[', ']');
+
+				if (sectionValue.find('[') != std::string::npos)
+				{
+					std::vector<std::string> sequences = SplitNotInChar(sectionValue, ',', '[', ']');
+
+
+					if (index < 0) index = 0;
+					else if ((*index) > (int)sequences.size() - 1) (*index) = sequences.size() - 1;
+
+					sectionValue = sequences[*index];
+				}
+
+				CleanString(sectionValue, { '[', ']' });
+				std::vector<std::string> toReplace = SplitNotInChar(sectionValue, ',', { { '[', ']' }, { '(', ')' } });
+
+				for (size_t j = 0; j < toReplace.size(); j++)
+				{
+					CleanString(toReplace[j], { '\n', '\t', ' ', '[', ']' });
+
+					Section c("");
+
+					size_t parameterStart = toReplace[j].find('(');
+					if (parameterStart != std::string::npos)
+					{
+						c = toReplace[j].substr(0, parameterStart);
+					}
+					else
+					{
+						c = toReplace[j];
+					}
+
+
+
+					size_t start = source.find(c.start);
+
+					std::string newSection;
+
+					if (start != std::string::npos)
+					{
+						std::string newSect = GetSection(c, source, start);
+						if (newSect == "")
+						{
+							newSect = GetSection(c, source);
+						}
+						newSection += newSect;
+					}
+					else if ((start = defaultSource.find(c.start)) != std::string::npos)
+					{
+						std::string newSect = GetSection(c, defaultSource, start);
+						if (newSect == "")
+						{
+							newSect = GetSection(c, defaultSource);
+						}
+						newSection += newSect;
+					}
+					else
+					{
+						newSection += "";
+					}
+
+					if (parameterStart != std::string::npos)
+					{
+						size_t parameterEnd = toReplace[j].find_last_of(')');
+						if (parameterEnd != std::string::npos)
+						{
+							parameterStart++;
+							std::string parameterValue = toReplace[j].substr(parameterStart, parameterEnd - parameterStart);
+
+							while (Replace(newSection, "parameter", parameterValue)) {}
+						}
+					}
+
+					final += newSection;
+				}
+
+				Replace(target, Section(sectionName).start, final);
+			}
+		}
+	}
+}
+
+void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification)
+{
+	int* index = new int(-1);
+	BuildMainLoop(targetSection, source, defaultSource, target, specification, index);
+	delete index;
+}

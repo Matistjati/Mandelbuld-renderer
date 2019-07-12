@@ -1,13 +1,13 @@
 #version 330 core
 
-
 layout(location = 0) out vec4 color;
 
 uniform vec2 screenSize = vec2(1920, 1080);
-uniform int maxIterations = 4096;
+uniform int maxIterations = 512;
 uniform float iterationLog = log(float(4096));
 uniform float zoom = 1;
 uniform vec2 position;
+uniform float time;
 
 vec4 GetColor(float iterations)
 {

@@ -14,8 +14,8 @@
 #include "headers/Fractal2D.h"
 #include "headers/Debug.h"
 
-constexpr auto ConstScreenSizeX = 500;
-constexpr auto ConstScreenSizeY = 500;
+constexpr auto ConstScreenSizeX = 250;
+constexpr auto ConstScreenSizeY = 250;
 #define ConstWindowSize 1
 
 #define DefaultFractal Fractal2D
@@ -49,7 +49,7 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 		DebugPrint("Case default reached in function MouseCallback");
 		break;
 	case FractalType::fractal2D:
-		DebugPrint("Add fractal2D");
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
 		break;
 	case FractalType::fractal3D:
 		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
@@ -107,10 +107,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			if (fractal->fractalType == FractalType::fractal2D)
 			{
 				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 			}
 			else
 			{
 				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 			delete fractal;
 			fractal = (Fractal*)glfwGetWindowUserPointer(window);
@@ -232,8 +235,7 @@ int main()
 	glBindVertexArray(VAO);
 
 #if ConstWindowSize
-	//Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, glm::ivec2(ConstScreenSizeX, ConstScreenSizeY));
-	Fractal* fractal = new DefaultFractal(0,0,0,{ ConstScreenSizeX, ConstScreenSizeY });
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, glm::ivec2(ConstScreenSizeX, ConstScreenSizeY));
 #else
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
 #endif
@@ -249,7 +251,11 @@ int main()
 	glfwSetScrollCallback(mainWindow, ScrollCallBack);
 
 	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
-	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	if (fractal->fractalType == fractal3D)
+	{
+		glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 
 	GlErrorCheck();
 

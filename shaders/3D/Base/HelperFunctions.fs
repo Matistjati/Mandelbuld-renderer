@@ -48,10 +48,19 @@ vec3 triplexPow(vec3 w, float power, inout float dw, float m)
 	dw = (power * pow(sqrt(m), power - 1)) * dw + 1.0;
 
 	float r = length(w);
+#if 1
 	float theta = power * atan(w.x, w.z);
 	float phi = power * acos(w.y / r);
 
 	// Fun alternative: reverse sin and cos
 	return pow(r, power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
+#else
+	float theta = power * atan(w.y, w.x);
+    float phi = power * asin(w.z / r);
+
+	// Fun alternative: reverse sin and cos
+	//return pow(r, power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
+	return pow(r, power) * vec3(cos(theta)*cos(phi), sin(theta)*cos(phi), sin(phi));
+#endif
 }
 </triplexPow>
