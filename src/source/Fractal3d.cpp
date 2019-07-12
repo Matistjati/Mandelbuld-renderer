@@ -28,7 +28,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera), 
-		sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
+	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	power(1), genericParameter(1)
 {
 	Init();
@@ -143,12 +143,13 @@ void Fractal3D::SetUniforms(Shader* shader)
 	shader->SetUniform(sun);
 	shader->SetUniform(power);
 	shader->SetUniform(genericParameter);
-	explorationShader->SetUniform(zoom);
+	shader->SetUniform(zoom);
 	GlErrorCheck();
 }
 
 void Fractal3D::SetUniformLocations(Shader* shader)
 {
+	shader->use();
 	camera.GetRotationMatrix().id = glGetUniformLocation(shader->id, camera.GetRotationMatrix().name.c_str());
 	camera.position.id = glGetUniformLocation(shader->id, camera.position.name.c_str());
 	camera.worldFlip.id = glGetUniformLocation(shader->id, camera.worldFlip.name.c_str());
@@ -491,6 +492,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 void Fractal3D::Init()
 {
+	Fractal::fractalType = FractalType::fractal3D;
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
 	SetUniformNames();
 

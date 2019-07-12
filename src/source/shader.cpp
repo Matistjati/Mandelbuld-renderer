@@ -42,7 +42,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	if (!success)
 	{
 		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
 		std::vector<char> infoLog(length);
 		glGetProgramInfoLog(id, length, NULL, &infoLog[0]);
 		std::cerr << "Error: program linking failed\n" << std::string(infoLog.begin(), infoLog.end()) << std::endl;

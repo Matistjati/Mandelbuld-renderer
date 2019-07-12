@@ -22,6 +22,9 @@
     <Filter Include="Resource Files\3D\Fractals">
       <UniqueIdentifier>{9f314fa8-e961-47cb-b880-c5b852ae41ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\2D">
+      <UniqueIdentifier>{bedb2b54-b817-4fad-818c-61d55393be8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/source/Main.cpp">

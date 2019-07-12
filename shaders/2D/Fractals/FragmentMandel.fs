@@ -2,13 +2,12 @@
 
 
 layout(location = 0) out vec4 color;
-in vec4 pos;
 
+uniform vec2 screenSize = vec2(1920, 1080);
 uniform int maxIterations = 4096;
 uniform float iterationLog = log(float(4096));
-uniform float offsetX = 0;
-uniform float offsetY = 0;
 uniform float zoom = 1;
+uniform vec2 position;
 
 vec4 GetColor(float iterations)
 {
@@ -39,28 +38,17 @@ vec4 GetColor(float iterations)
 
 void main()
 {
-	vec2 npos = vec2((offsetX) + pos.x * zoom, (offsetY) + pos.y * zoom);
+    vec2 c = (2*gl_FragCoord.xy-screenSize)/screenSize.y * zoom + position;
 
-	float x = 0;
-	float y = 0;
+	vec2 z = c;
 
-	float y2;
-	float x2;
-
-	int i = maxIterations;
-	for (; i > 0; i--)
+	int i = 0;
+	for (; i < maxIterations; i++)
 	{
-		y2 = y * y;
-		x2 = x * x;
-
-		if (x2 + y2 > 4)
-		{
-			break;
-		}
-
-		y = 2 * x * y + npos.y;
-		x = x2 - y2 + npos.x;
+		
+		if (dot(z, z) > 4.) break;
+		z = mat2(z, -z.y, z.x) * z + c;
 	}
 
-	color = GetColor(float(maxIterations - i));
+	color = GetColor(float(i));
 };

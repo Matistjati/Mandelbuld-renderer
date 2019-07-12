@@ -514,6 +514,10 @@ bool Fractal::StringToBool(std::string str)
 std::vector<std::string> Fractal::GetFractalNames(std::vector<std::string> names)
 {
 	std::vector<std::string> finalNames(0);
+	if (names.size() == 1)
+	{
+		return { names[0].substr(0, names[0].find_last_of('.')) };
+	}
 	for (size_t i = 0; i < names.size(); i++)
 	{
 		if (names[i].find("Specs") == std::string::npos)
