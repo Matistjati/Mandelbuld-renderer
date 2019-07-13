@@ -108,7 +108,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			{
 				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 			}
 			else
 			{

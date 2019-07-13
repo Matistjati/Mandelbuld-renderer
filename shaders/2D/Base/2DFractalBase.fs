@@ -9,7 +9,7 @@ uniform float time = 0;
 
 <uniforms>
 
-const int maxIterations = <maxIterations>;
+const float maxIterations = <maxIterations>;
 const float antiAliasing = <antiAliasing>;
 
 <constants>

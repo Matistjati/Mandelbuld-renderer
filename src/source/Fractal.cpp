@@ -1,4 +1,5 @@
 #include "headers/Fractal.h"
+#include "headers/Fractal2d.h"
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
 #include <headers/FileManager.h>
@@ -408,7 +409,18 @@ void Fractal::UpdateFractalShader()
 	std::pair<Shader*, Shader*> shaders = this->GenerateShader();
 	this->explorationShader = shaders.first;
 	this->renderShader = shaders.second;
-	(reinterpret_cast<Fractal3D*>(this))->Init();
+	if (fractalType == fractal3D)
+	{
+		(reinterpret_cast<Fractal3D*> (this))->Init();
+	}
+	else if (fractalType == fractal2D)
+	{
+		(reinterpret_cast<Fractal2D*> (this))->Init();
+	}
+	else
+	{
+		DebugPrint("Case default reached in UpdateFractalShader");
+	}
 }
 
 glm::ivec2 Fractal::GetMonitorSize()

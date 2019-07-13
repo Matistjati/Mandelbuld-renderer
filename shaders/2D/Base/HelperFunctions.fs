@@ -10,7 +10,7 @@ vec3 iterationColorRed(float iterations)
 {
 	vec4 localColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-	if (iterations == maxIterations)
+	if (iterations >= maxIterations)
 	{
 		return vec4(0, 0, 0, 1.0);
 	}
