@@ -424,7 +424,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 {
 	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
 
-	std::string specSection = GetSpecificationByIndex(spec, specIndex, FileManager::ReadFile(presetSpec));
+	std::string specSection = GetSpecificationByIndex(spec, specIndex, FileManager::ReadFile(presetSpec3D));
 	if (specSection == "")
 	{
 		DebugPrint("Specification error");
@@ -492,6 +492,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 void Fractal3D::Init()
 {
+	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal3D;
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
 	SetUniformNames();
@@ -548,7 +549,7 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 
 void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 {
-	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetSpec));
+	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetSpec3D));
 	std::string variables = GetSection(Section("cpuVariables"), specSection);
 	if (variables != "")
 	{

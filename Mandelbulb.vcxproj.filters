@@ -139,5 +139,14 @@
     <None Include="shaders\2D\Fractals\mandelbrotSpecs.fs">
       <Filter>Resource Files\2D\Fractals</Filter>
     </None>
+    <None Include="shaders\2D\Base\AlternateDefault.fs">
+      <Filter>Resource Files\2D\Default</Filter>
+    </None>
+    <None Include="shaders\2D\Base\HelperFunctions.fs">
+      <Filter>Resource Files\2D\Default</Filter>
+    </None>
+    <None Include="shaders\2D\Base\PresetSpecs.fs">
+      <Filter>Resource Files\2D\Default</Filter>
+    </None>
   </ItemGroup>
 </Project>

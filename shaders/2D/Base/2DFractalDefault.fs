@@ -1,14 +1,19 @@
 <escapeRadius>4</escapeRadius>
 <maxIterations>256</maxIterations>
 <maxIterationsRelease>512</maxIterationsRelease>
-<antiAliasing>2<antiAliasing>
+<antiAliasing>2</antiAliasing>
+
+<operations>
+	<complexSquare>w = complexSquare(w);</complexSquare>,
+	<translate>w += c;</translate>,
+</operations>
 
 <loopSetup>
 	<defaultSetup>vec2 c = w;</defaultSetup>,
 </loopSetup>
 
 <iterateReturn>
-	<escapeColor>return iterationColorRed(float(i)/float(maxIterations))</escapeColor>,
+	<escapeColor>iterationColorRed(float(i));</escapeColor>,
 </iterateReturn>
 
 <loopTrap>
@@ -20,8 +25,8 @@
 	<defaultBreak>if (dot(w,w) > <escapeRadius>) break;</defaultBreak>,
 </loopBreakCondition>
 
-<iterate>
-	vec3 iterate(vec2 w)
+<mainLoop>
+	vec3 mainLoop(vec2 w)
 	{
 		<loopSetup>
 
@@ -35,14 +40,14 @@
 			<loopBreakCondition>
 		}
 
-		return <iterateReturn>
+		return <loopReturn>
 	}
-</iterate>
+</mainLoop>
 
 <main>
     vec2 c = (2*gl_FragCoord.xy-screenSize)/screenSize.y * zoom + position;
 
-	vec3 col = iterate(c);
+	vec3 col = mainLoop(c);
 
     color = vec4(col.xyz, 1.0);
 </main>
@@ -53,9 +58,9 @@
 	{
 		for (int j = 0; j < antiAliasing; j++)
 		{
-			vec2 c = ((2*gl_FragCoord.xy-screenSize)/screenSize.y + vec2(float(i)/antiAliasing, float(j)/antiAliasing)) * zoom + position;
+			vec2 c = ((2*gl_FragCoord.xy-screenSize)/screenSize.y + .1 * (vec2(float(i)/antiAliasing), float(j)/antiAliasing)) * zoom + position;
 
-			vec3 col += iterate(c);
+			col += mainLoop(c);
 		}
 	}
 	col /= float(antiAliasing*antiAliasing);

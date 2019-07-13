@@ -451,11 +451,12 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 		sourceSections.begin(), sourceSections.end(),
 		[](const std::string& x)
 		{
-			return x.substr(1, 8) != "distance";
+			return x.substr(1, 8) != "distance" && x.substr(1, 4) != "loop";
 		}),
 		sourceSections.end());
 
-	std::string distanceSpec = GetSection(Section("distanceEstimator"), specification);
+	std::string distanceSpec = GetSection(targetSection, specification);
+
 	std::vector<std::string> distanceSections = SplitNotInChar(distanceSpec, ',', '[', ']');
 
 	for (size_t k = 0; k < distanceSections.size(); k++)

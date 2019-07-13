@@ -1,7 +1,11 @@
 // Normal
 {
+	<include>
+		Mandelbrot
+	</include>
 	<mainLoop>
 		<loopBody>[[complexSquare, translate]]</loopBody>,
-		<trap></trap>,
+		<loopTrap>none</loopTrap>,
+		<loopReturn>escapeColor</loopReturn>,
 	</mainLoop>
 }

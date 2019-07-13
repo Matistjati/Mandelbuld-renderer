@@ -169,6 +169,9 @@
   <ItemGroup>
     <None Include="shaders\2D\Base\2DFractalBase.fs" />
     <None Include="shaders\2D\Base\2DFractalDefault.fs" />
+    <None Include="shaders\2D\Base\AlternateDefault.fs" />
+    <None Include="shaders\2D\Base\HelperFunctions.fs" />
+    <None Include="shaders\2D\Base\PresetSpecs.fs" />
     <None Include="shaders\2D\Fractals\mandelbrot.fs" />
     <None Include="shaders\2D\Fractals\mandelbrotSpecs.fs" />
     <None Include="shaders\3D\Base\3DFractalbase.fs" />

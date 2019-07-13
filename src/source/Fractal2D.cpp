@@ -4,6 +4,8 @@
 #include "headers/Image.h"
 #include <algorithm>
 
+const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
+
 template <typename T>
 T clamp(const T& n, const T& lower, const T& upper)
 {
@@ -156,10 +158,58 @@ void Fractal2D::FindPathAndSaveImage()
 
 void Fractal2D::SetVariable(std::string name, std::string value)
 {
+	if (name == "power")
+	{
+		power.value = std::stof(value);
+	}
+	else if (name == "position")
+	{
+		std::vector<std::string> components = Split(value, ',');
+		position.value = glm::vec2(std::stof(components[0]), std::stof(components[1]));
+	}
+	else if (name == "mousePosition")
+	{
+		std::vector<std::string> components = Split(value, ',');
+		mousePosition = glm::vec2(std::stof(components[0]), std::stof(components[1]));
+	}
 }
 
-void Fractal2D::SetVariablesFromSpec(int* index, std::string specification)
+void Fractal2D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 {
+	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetSpec2D));
+	std::string variables = GetSection(Section("cpuVariables"), specSection);
+	if (variables != "")
+	{
+		std::vector<std::string> variablesList = SplitNotInChar(variables, ',', '[', ']');
+		for (size_t i = 0; i < variablesList.size(); i++)
+		{
+			std::string value = GetSectionValue(variablesList[i]);
+
+			size_t indexStart = value.find('(');
+			if (indexStart != std::string::npos)
+			{
+				size_t indexEnd = value.find(')', indexStart);
+				if (indexEnd != std::string::npos)
+				{
+					size_t index = std::stoi(value.substr(indexStart + 1, indexEnd - 2));
+					if (value[value.length() - 1] == ']' && value[value.length() - 2] == ']')
+					{
+						value.erase(value.length() - 1);
+					}
+					std::vector<std::string> values = SplitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
+					if (index > values.size() - 1)
+					{
+						DebugPrint("Index was too large: " + std::to_string(index) + " at " + GetSectionName(variables));
+						BreakIfDebug();
+					}
+					value = values[index];
+				}
+			}
+
+			CleanString(value, { '[', ']' });
+			SetVariable(GetSectionName(variablesList[i]), value);
+		}
+	}
 }
 
 void Fractal2D::HandleKeyInput()
@@ -227,50 +277,43 @@ void Fractal2D::HandleKeyInput()
 
 std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
-	//GlErrorCheck();
+	GlErrorCheck();
 
-	//std::string base = FileManager::ReadFile(Fractal2D::path2DBase);
+	std::string base = FileManager::ReadFile(Fractal2D::path2DBase);
 
-	//std::vector<ShaderSection> sections{};
+	std::vector<ShaderSection> sections{};
 
-	//std::string source = FileManager::ReadFile(Fractal2D::GetFractalPath(name));
+	std::string source = FileManager::ReadFile(Fractal2D::GetFractalPath(name));
 
-	//Section extraSects = Section("extraSections");
-	//size_t extraSectionIndex = source.find(extraSects.start);
-	//if (extraSectionIndex != std::string::npos)
-	//{
-	//	size_t extraSectionEnd = source.find(extraSects.end);
-	//	std::vector<std::string> sectionContents = SplitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
-	//	for (size_t i = 0; i < sectionContents.size(); i++)
-	//	{
-	//		CleanString(sectionContents[i], { '\n', '\t', ' ', '[', ']', '\"' });
-	//		std::vector<std::string> value = Split(sectionContents[i], ',');
-	//		if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
-	//		else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
-	//		else if (value.size() == 3) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2]));
-	//		else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2], StringToBool(value[3])));
-	//	}
-	//}
+	Section extraSects = Section("extraSections");
+	size_t extraSectionIndex = source.find(extraSects.start);
+	if (extraSectionIndex != std::string::npos)
+	{
+		size_t extraSectionEnd = source.find(extraSects.end);
+		std::vector<std::string> sectionContents = SplitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
+		for (size_t i = 0; i < sectionContents.size(); i++)
+		{
+			CleanString(sectionContents[i], { '\n', '\t', ' ', '[', ']', '\"' });
+			std::vector<std::string> value = Split(sectionContents[i], ',');
+			if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
+			else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
+			else if (value.size() == 3) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2]));
+			else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), value[2], StringToBool(value[3])));
+		}
+	}
 
-	//const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
+	const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
 
-	//std::string sourceCopy = std::string(source);
-	//std::string baseCopy = std::string(base);
-	//ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
+	std::string sourceCopy = std::string(source);
+	std::string baseCopy = std::string(base);
+	ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
 
-	//ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
-
-	//const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
-
-	//return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
-	//	(new Shader(vertexSource, base, false)));
+	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
-	std::string base = FileManager::ReadFile(Fractal2D::GetFractalPath(name));
-
-	return std::pair<Shader*, Shader*>((new Shader(vertexSource, base, false)),
-									   (new Shader(vertexSource, base, false)));
+	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
+									   (new Shader(vertexSource, base,     false)));
 }
 
 std::pair<Shader*, Shader*> Fractal2D::GenerateShader()
@@ -311,8 +354,265 @@ std::string Fractal2D::GetFractalFolderPath()
 	return fractal2dPath;
 }
 
+void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string & final, std::string specification, bool highQuality)
+{
+	// Bool in sections is for done or not 
+	if (specification.find(Section("variables").start) != std::string::npos)
+	{
+		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', '<', '>');
+		for (size_t i = 0; i < variables.size(); i++)
+		{
+
+			std::string sectionName = GetSectionName(variables[i]);
+			Section c = Section(sectionName);
+			std::string from = c.start + GetSection(c, source) + c.end;
+
+			if (!Replace(source, from, variables[i]))
+			{
+				DebugPrint("Could not replace variable from specification");
+			}
+		}
+	}
+
+	std::string defaultSource = default2DSource;
+
+	const static std::string alternateDefaultFunctions = FileManager::ReadFile(alternateDefaultFunctionsPath);
+	std::string alternateFunctionsStr = GetSection(Section("alternateFunctions"), specification);
+	std::vector<std::string> alternateFunctions = Split(alternateFunctionsStr, ',');
+
+	for (auto const& x : sections)
+	{
+		if (!x.second && x.first.optional)
+		{
+			Replace(final, Section(x.first.name).start, "");
+		}
+		else
+		{
+			Section s("");
+
+			if (highQuality && x.first.releaseName != "")
+			{
+				s = Section(x.first.releaseName);
+			}
+			else
+			{
+				s = Section(x.first.name);
+			}
+
+			std::string function = defaultSource;
+			for (size_t i = 0; i < alternateFunctions.size(); i++)
+			{
+				if (GetSectionName(alternateFunctions[i]) == GetSectionName(s.start))
+				{
+					std::string functionName = GetSectionValue(alternateFunctions[i]);
+					std::string newFunction = GetWholeSection(Section(functionName), alternateDefaultFunctions);
+					function = newFunction;
+					s = Section(functionName);
+				}
+			}
+
+			ReplaceSection(s, Section(x.first.name), function, final);
+		}
+	}
+
+	// Constants
+	const static size_t constSize = std::extent<decltype(constants2D)>::value;
+	for (size_t i = 0; i < constSize; i++)
+	{
+		Section s("");
+		ShaderSection c = constants2D[i];
+
+		std::string name = (highQuality && c.releaseName != "") ? (c.releaseName) : (c.name);
+
+		s = Section(name);
+
+		std::string section = GetSection(s, source);
+		if (section == "")
+		{
+			if ((section = GetSection(s, defaultSource)) == "")
+			{
+				// Default to normal name if a different one for release doesn't exist
+				s = Section(c.name);
+
+				if ((section = GetSection(s, source)) == "")
+				{
+					section = GetSection(s, defaultSource);
+				}
+			}
+		}
+
+		if (c.releaseName != "")
+		{
+			while (Replace(final, Section(c.name).start, section)) {}
+		}
+		else
+		{
+			while (Replace(final, s.start, section)) {}
+		}
+	}
+
+
+	Section help("helperFunctions");
+	std::string functions = GetSection(help, source);
+
+
+	Section include("include");
+	std::string includes = GetSection(include, source);
+
+	if (includes != "")
+	{
+		includes.erase(std::remove(includes.begin(), includes.end(), '\n'), includes.end());
+		includes.erase(std::remove(includes.begin(), includes.end(), '\t'), includes.end());
+		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
+
+		std::vector<std::string> includeList = Fractal::Split(includes, ',');
+
+		std::string helperFunctions = FileManager::ReadFile(Fractal2D::helperFunctions);
+
+		for (size_t i = 0; i < includeList.size(); i++)
+		{
+			functions += GetSection(Section(includeList[i]), helperFunctions);
+		}
+	}
+
+	Replace(final, help.start, functions);
+
+
+	std::string flags = GetSection(Section("flags"), specification);
+
+	// Do this last, various reasons
+	const static size_t postShaderSize = std::extent<decltype(postShaderSections2D)>::value;
+	for (size_t i = 0; i < postShaderSize; i++)
+	{
+		Section s("");
+		ShaderSection c = postShaderSections2D[i];
+		if (c.optional && (source.find("<" + c.name + "Off>") != std::string::npos || flags.find("<" + c.name + "Off>") != std::string::npos))
+		{
+			Replace(final, Section(c.name).start, "");
+			continue;
+		}
+
+		s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
+
+		std::string sectionString;
+		if (c.multiple && source.find(s.start) != std::string::npos)
+		{
+			std::vector<std::string> versions;
+
+			versions = SplitNotInChar(GetSection(s, (source.find(s.start) == std::string::npos) ? defaultSource : source), ',', '<', '>');
+			std::string index = GetSection(s, specification);
+
+			if (shaderIndices.size() != 0 && shaderIndices.count(c.name))
+			{
+				int* indexPtr = shaderIndices[c.name];
+				if (*indexPtr < 0)* indexPtr = 0;
+				else if ((size_t)* indexPtr > versions.size() - 1)* indexPtr = versions.size() - 1;
+				index = std::to_string(*indexPtr);
+			}
+			else if (index == "") index = "0";
+
+
+			size_t indexInt = std::stoi(index);
+			if (indexInt > versions.size() - 1)
+			{
+				DebugPrint("Index was " + std::to_string(indexInt) + ", which is out of bounds at " + c.name);
+				BreakIfDebug();
+				continue;
+			}
+			sectionString = versions[indexInt];
+
+			if (sectionString[0] == '<') sectionString.erase(0, 1);
+			if (sectionString[sectionString.length() - 1] == '>') sectionString.erase(sectionString.length() - 1);
+		}
+		else
+		{
+			sectionString = (source.find(s.start) == std::string::npos) ? GetSection(s, defaultSource) : GetSection(s, source);
+		}
+
+		if (c.releaseName != "")
+		{
+			while (Replace(final, Section(c.name).start, sectionString)) {}
+		}
+		else
+		{
+			while (Replace(final, s.start, sectionString)) {}
+		}
+	}
+}
+
+void Fractal2D::ParseShader(std::string& source, std::string & final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections)
+{
+	std::map<ShaderSection, bool> sections = std::map<ShaderSection, bool>();
+
+	std::string specSection = GetSpecificationByIndex(spec, specIndex, FileManager::ReadFile(presetSpec2D));
+	if (specSection == "")
+	{
+		DebugPrint("Specification error");
+		return;
+	}
+
+	std::string tip = GetSection(Section("tip"), specSection);
+	if (tip != "" && highQuality) // Only print once
+	{
+		size_t start = tip.find("\"") + 1;
+		size_t end = tip.find_last_of("\"");
+		std::cout << tip.substr(start, end - start) << std::endl;
+	}
+
+	BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex);
+
+	std::string flags = GetSection(Section("flags"), specSection);
+
+	const static size_t sectionSize = std::extent<decltype(shaderSections2D)>::value;
+	for (size_t i = 0; i < sectionSize; i++)
+	{
+		ShaderSection c = shaderSections2D[i];
+		sections[c] = false;
+
+		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
+
+		if (flags.find("<" + GetSectionName(s.start) + "Default>") == std::string::npos)
+		{
+			sections[c] = ReplaceSection(s, Section(c.name), source, final);
+		}
+	}
+
+
+
+
+	ParseShaderDefault(sections, source, final, specSection, highQuality);
+
+	for (size_t i = 0; i < extraSections.size(); i++)
+	{
+		ShaderSection c = extraSections[i];
+
+		Section s = (highQuality && c.releaseName != "") ? Section(c.releaseName) : Section(c.name);
+
+		std::string sectionString;
+		if (c.multiple && source.find(s.start) != std::string::npos)
+		{
+			std::vector<std::string> versions;
+
+			versions = (source.find(s.start) == std::string::npos) ? SplitNotInChar(GetSection(s, default2DSource), ',', '<', '>') : SplitNotInChar(GetSection(s, source), ',', '<', '>');
+			std::string index = GetSection(s, specSection);
+
+			sectionString = versions[std::stoi(index)];
+
+			CleanString(sectionString, { '<', '>' });
+
+			while (Replace(final, s.start, sectionString)) {}
+		}
+		else
+		{
+			sectionString = (source.find(s.start) == std::string::npos) ? GetSection(s, source) : GetSection(s, source);
+			while (Replace(final, Section(c.name).start, sectionString)) {}
+		}
+	}
+}
+
 void Fractal2D::Init()
 {
+	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal2D;
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
 	SetUniformNames();

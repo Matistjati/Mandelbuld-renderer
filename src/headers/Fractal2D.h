@@ -4,6 +4,15 @@
 
 #include "Fractal.h"
 
+const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true),
+										   ShaderSection("main", false, "mainAA"),};
+
+const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, "", true), ShaderSection("color", false, "", true),};
+
+
+const ShaderSection constants2D[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("antiAliasing"),
+									  ShaderSection("escapeRadius"), };
+
 class Fractal2D : public Fractal
 {
 public:
@@ -25,8 +34,8 @@ public:
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void FindPathAndSaveImage() override;
-	void SetVariable(std::string name, std::string value) override; // TODO
-	void SetVariablesFromSpec(int* index, std::string specification) override; // TODO
+	void SetVariable(std::string name, std::string value) override;
+	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;
 	std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	std::pair<Shader*, Shader*> GenerateShader() override;
@@ -42,8 +51,13 @@ public:
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";
+	static const constexpr char* presetSpec2D = "shaders/2D/Base/PresetSpecs.fs";
+	static const constexpr char* default2DFractal = "shaders/2D/Base/2DFractalDefault.fs";
+	static const constexpr char* helperFunctions = "shaders/2D/Base/HelperFunctions.fs";
+	static const constexpr char* alternateDefaultFunctionsPath = "shaders/2D/Base/AlternateDefault.fs";
 
 private:
+	const static std::string& default2DSource;
 };
 
 #endif

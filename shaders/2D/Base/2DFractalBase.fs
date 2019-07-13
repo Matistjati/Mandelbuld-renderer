@@ -18,7 +18,7 @@ const float antiAliasing = <antiAliasing>;
 <helperFunctions>
 
 // Iterate a given point and return a color
-<iterate>
+<mainLoop>
 
 void main()
 {

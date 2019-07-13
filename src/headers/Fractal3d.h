@@ -21,9 +21,6 @@ const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, ""
 const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
 									ShaderSection("shadowSoftness"), ShaderSection("antiAliasing"), ShaderSection("zoomDetailRatio") };
 
-const ShaderSection cpuVariables[] = { ShaderSection("position"), ShaderSection("sun", false, "maxStepsRelease"),
-										ShaderSection("shadowSoftness", false), ShaderSection("antiAliasing", false), };
-
 class Fractal3D : public Fractal
 {
 public:
@@ -66,7 +63,7 @@ public:
 	static const constexpr char* path3DBase = "shaders/3D/Base/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";
 	static const constexpr char* helperFunctions = "shaders/3D/Base/HelperFunctions.fs";
-	static const constexpr char* presetSpec = "shaders/3D/Base/PresetSpecs.fs";
+	static const constexpr char* presetSpec3D = "shaders/3D/Base/PresetSpecs.fs";
 	static const constexpr char* alternateDefaultFunctionsPath = "shaders/3D/Base/AlternateDefault.fs";
 	static const constexpr char* fractal3dPath = "shaders/3D/Fractals/";
 

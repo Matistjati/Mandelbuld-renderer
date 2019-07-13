@@ -1,14 +1,13 @@
 <Mandelbrot>
 {
-	<distanceEstimator>
-		<distanceReturn>[mandelBoxDist]</distanceReturn>,
-		<distanceTrap>[defaultTrap]</distanceTrap>,
+	<mainLoop>
+		<loopTrap>none</loopTrap>,
 		<loopSetup>[defaultSetup]</loopSetup>,
-		<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
 		<loopBreakCondition>[defaultBreak]</loopBreakCondition>,
-	</distanceEstimator>
+	</mainLoop>
 	<cpuVariables>
 		<power>2</power>,
+		<position>[-1, 0]</position>,
 	</cpuVariables>
 }
 </Mandelbrot>
