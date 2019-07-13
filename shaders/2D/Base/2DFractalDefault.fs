@@ -1,7 +1,7 @@
 <escapeRadius>4</escapeRadius>
 <maxIterations>256</maxIterations>
-<maxIterationsRelease>512</maxIterationsRelease>
-<antiAliasing>4</antiAliasing>
+<maxIterationsRelease>2048</maxIterationsRelease>
+<antiAliasing>9</antiAliasing>
 
 <operations>
 	<complexSquare>w = complexSquare(w);</complexSquare>,

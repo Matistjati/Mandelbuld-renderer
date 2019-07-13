@@ -8,17 +8,9 @@ vec2 complexSquare(vec2 z)
 <iterationColorRed>
 vec3 iterationColorRed(float iterations)
 {
-	vec4 localColor = vec4(0.0, 0.0, 0.0, 1.0);
+	float c = 3 * log(iterations) / log(maxIterations)-clamp(1-(zoom),0,1);
 
-	if (iterations >= maxIterations)
-	{
-		return vec4(0, 0, 0, 1.0);
-	}
-	else
-	{
-		float c = 3 * log(iterations) / log(maxIterations);
-
-		return vec3(clamp(c, 0, 1), clamp(c - 1, 0, 1), clamp(c - 2, 0, 1));
-	}
+																		// Black interior- multiplication by 0- thus black if iterations==maxIterations
+	return vec3(clamp(c, 0, 1), clamp(c - 1, 0, 1), clamp(c - 2, 0, 1))*sign(1-iterations/maxIterations);
 }
 </iterationColorRed>
