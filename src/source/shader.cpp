@@ -99,7 +99,7 @@ void Shader::SetUniform(Uniform<glm::vec3> vector) const
 
 void Shader::SetUniform(const Uniform<Time> value) const
 {
-	glUniform1f(value.id, value.value.GetTotalTime());
+	glUniform1f(value.id, static_cast<float>(value.value.GetTotalTime()));
 }
 
 void Shader::SetUniform(Uniform<glm::vec4> vector) const

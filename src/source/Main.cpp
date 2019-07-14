@@ -16,7 +16,7 @@
 
 constexpr auto ConstScreenSizeX = 250;
 constexpr auto ConstScreenSizeY = 250;
-#define ConstWindowSize 1
+#define ConstWindowSize 0
 
 #define DefaultFractal Fractal2D
 #define DefaultFractalType fractal2D
