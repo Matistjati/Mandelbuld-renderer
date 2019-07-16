@@ -18,8 +18,7 @@ constexpr auto ConstScreenSizeX = 250;
 constexpr auto ConstScreenSizeY = 250;
 #define ConstWindowSize 0
 
-#define DefaultFractal Fractal2D
-#define DefaultFractalType fractal2D
+#define DefaultFractal Fractal3D
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
@@ -238,8 +237,6 @@ int main()
 #else
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
 #endif
-
-	fractal->fractalType = DefaultFractalType;
 
 	glfwSetWindowUserPointer(mainWindow, fractal);
 

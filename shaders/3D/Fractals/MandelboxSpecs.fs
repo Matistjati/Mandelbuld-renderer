@@ -69,7 +69,7 @@
 		MandelBox
 	</include>
 	<distanceEstimator>
-		<distanceBody>[boxFold, sphereFold, boxFold, sphereFold, sinY, triplexPow, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceBody>[[boxFold, sphereFold, boxFold, sphereFold, sinY, scaleAndTranslate, mandelBoxDerivative], [boxFold, sphereFold, boxFold, sphereFold, sinY, triplexPow, scaleAndTranslate, mandelBoxDerivative]]</distanceBody>,
 		<distanceTrap>[bulbForest]</distanceTrap>,
 	</distanceEstimator>
 

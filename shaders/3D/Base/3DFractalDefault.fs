@@ -71,6 +71,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		//w.x=sin(w.x);
 		//w.z=sin(w.z);
 		//w/=length(position);
+		//w*=rotation;
 
 		<distanceSetup>
 
@@ -103,7 +104,31 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		// w.x+=dot(position,position); pos {x=0.323416412 y=0.588775635 z=2.41064572 ...}
 
 		//w+=sin(dot(w,w));
-			//w.y=pow(w.y, 0.9);
+		//w.y=pow(w.y, 0.9);
+		//w.xy=vec2(sin(w.x),sin(w.y));
+
+		//w.y+=sin(w.x);
+		//w.y+=(c*rotation).x;
+		//			w+=(c*rotation);
+
+		//w.y+=fract(c).y*sign(w.y);
+		//w.y+=(c.y)*c.y;
+
+		//w.y+=dot(c*rotation,sun);
+		//w.y-=0.9; mandelbulb
+		//w.y+=length(c);
+		// w+=c*dot(sun,c);
+		
+		//			float r = length(w);
+		//	float theta = 2 * atan(w.x, w.z);
+		//	float phi = 1 * acos(w.y / r);
+
+		//	w = pow(r, 1) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
+
+
+		// 1: theta * 2
+
+		// 2: theta * r, phi * r
 
 		for(int i = 0; i < <maxIterations>; i++)
 		{
