@@ -6,5 +6,5 @@
 </color>
 
 <include>
-	iterationColorRed, complexSquare
+	iterationColorRed, complexSquare, complexPow
 </include>

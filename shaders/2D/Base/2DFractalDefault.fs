@@ -5,6 +5,7 @@
 
 <operations>
 	<complexSquare>w = complexSquare(w);</complexSquare>,
+	<complexPow>w = complexPow(w, parameter);</complexPow>,
 	<translate>w += c;</translate>,
 </operations>
 

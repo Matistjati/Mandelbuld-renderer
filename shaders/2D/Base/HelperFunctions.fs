@@ -5,6 +5,14 @@ vec2 complexSquare(vec2 z)
 }
 </complexSquare>
 
+<complexPow>
+vec2 complexPow(vec2 z, float power)
+{
+	float arg = atan(z.y,z.x) * power;
+	return pow(length(z), power) * vec2(cos(arg), sin(arg));
+}
+</complexPow>
+
 <iterationColorRed>
 vec3 iterationColorRed(float iterations)
 {

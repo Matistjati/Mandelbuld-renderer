@@ -4,7 +4,7 @@
 		Mandelbrot
 	</include>
 	<mainLoop>
-		<loopBody>[[complexSquare, translate]]</loopBody>,
+		<loopBody>[[complexPow(power), translate]]</loopBody>,
 		<loopTrap>none</loopTrap>,
 		<loopReturn>escapeColor</loopReturn>,
 	</mainLoop>
