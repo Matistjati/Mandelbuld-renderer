@@ -88,6 +88,10 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			camera.worldFlip.value *= -1;
 			explorationShader->SetUniform(camera.worldFlip);
 			break;
+		case GLFW_KEY_X:
+			time.value.ToogleTimePause();
+			explorationShader->SetUniform(time);
+			break;
 		}
 	}
 }
@@ -102,9 +106,7 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 		firstMouse = false;
 	}
 	Camera* c = &this->Fractal3D::camera;
-	camera.ProcessMouseMovement(static_cast<float>(newPos.x - mouseOffset.x),
-		static_cast<float>(mouseOffset.y - newPos.y) // reversed since y-coordinates go from bottom to top
-	);
+	camera.ProcessMouseMovement(glm::vec2(newPos.x - mouseOffset.x, mouseOffset.y - newPos.y) * camera.mouseSensitivity * (1/zoom.value)); // reversed since y-coordinates go from bottom to top
 
 	mouseOffset = newPos;
 
@@ -121,16 +123,9 @@ void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 
 void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if (zoom.value + yoffset < 1)
-	{
-		zoom.value = 1;
-	}
-	else
-	{
-		// This works surprisingly well
-		zoom.value += static_cast<float>(yoffset * time.value.deltaTime * scrollSpeed * zoom.value);
-	}
-	explorationShader->SetUniform(zoom);
+	zoom.value += static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed * zoom.value);
+	zoom.value = glm::max(1.0f, zoom.value);
+	explorationShader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 }
 
 void Fractal3D::SetUniforms(Shader* shader)
@@ -143,7 +138,7 @@ void Fractal3D::SetUniforms(Shader* shader)
 	shader->SetUniform(sun);
 	shader->SetUniform(power);
 	shader->SetUniform(genericParameter);
-	shader->SetUniform(zoom);
+	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 	GlErrorCheck();
 }
 
@@ -384,9 +379,11 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 			if (shaderIndices.size() != 0 && shaderIndices.count(c.name))
 			{
+				if (versions[versions.size() - 1][0] != '<') versions.pop_back();
+
 				int* indexPtr = shaderIndices[c.name];
-				if (*indexPtr < 0)* indexPtr = 0;
-				else if ((size_t)*indexPtr > versions.size() - 1)* indexPtr = versions.size() - 1;
+				if (*indexPtr < 0) *indexPtr = versions.size() - 1;
+				else if ((size_t)*indexPtr > versions.size() - 1) *indexPtr = 0;
 				index = std::to_string(*indexPtr);
 			}
 			else if (index == "") index = "0";
@@ -595,68 +592,68 @@ void Fractal3D::HandleKeyInput()
 			{
 				// WASD movement
 			case GLFW_KEY_W:
-				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_S:
-				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_A:
-				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_D:
-				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Up and down
 			case GLFW_KEY_SPACE:
-				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
-				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.value.deltaTime) * parameterChangeRate);
+				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Variable change rate
 			case GLFW_KEY_G:
-				parameterChangeRate += 0.5f * static_cast<float>(time.value.deltaTime);
+				parameterChangeRate += 0.5f * static_cast<float>(time.value.GetDeltaTime());
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 			case GLFW_KEY_T:
-				parameterChangeRate -= 0.5f * static_cast<float>(time.value.deltaTime);
+				parameterChangeRate -= 0.5f * static_cast<float>(time.value.GetDeltaTime());
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
 				// Camera roll
 			case GLFW_KEY_Q:
-				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.deltaTime * parameterChangeRate));
+				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
 				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
 			case GLFW_KEY_E:
-				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.deltaTime * parameterChangeRate));
+				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
 				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
-				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
+				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
 				explorationShader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
-				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
+				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
 				explorationShader->SetUniform(power);
 				break;
 
 			case GLFW_KEY_R:
-				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
+				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
 				explorationShader->SetUniform(genericParameter);
 				break;
 			case GLFW_KEY_F:
-				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
+				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
 				explorationShader->SetUniform(genericParameter);
 				break;
 
@@ -702,8 +699,7 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 	ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
 
 	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
-	std::cout << base;
-	std::cout << baseCopy;
+
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),

@@ -33,7 +33,7 @@ public:
 	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
-
+	float GetZoom() { return 1 / zoom.value; };
 
 	void Update() override;
 	void MouseCallback(GLFWwindow* window, double x, double y) override;

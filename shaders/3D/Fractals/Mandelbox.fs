@@ -2,11 +2,11 @@
 [innerRadius], [outerRadius], [foldingLimit], [scale]
 </extraSections>
 
-<maxIterations>8</maxIterations>
+<maxIterations>32</maxIterations>
 <maxSteps>100</maxSteps>
-<maxIterationsRelease>16</maxIterationsRelease>
+<maxIterationsRelease>8</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
-<antiAliasing>1</antiAliasing>
+<antiAliasing>2</antiAliasing>
 <zoomDetailRatio>.001</zoomDetailRatio>
 
 <maxDist>power*7</maxDist>
@@ -65,7 +65,6 @@
 	col.y += 0.8*cos(trap.x*power);
 	col.z += sqrt(sin(trap.z*power));>,
 
-	//col *= <color>;
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);

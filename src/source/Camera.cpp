@@ -145,9 +145,9 @@ glm::vec3 Camera::GetRightVector()
 	return glm::normalize(glm::cross(GetForwardVector(), worldUp));
 }
 
-void Camera::ProcessMovement(Camera_Movement direction, float deltaTime)
+void Camera::ProcessMovement(Camera_Movement direction, float magnitude)
 {
-	float velocity = movementSpeed * deltaTime;
+	float velocity = movementSpeed * magnitude;
 
 	if (direction == forward)
 		position.value += GetForwardVector() * velocity;
@@ -171,25 +171,11 @@ void Camera::ProcessRoll(float delta)
 	SetRoll(roll + delta);
 }
 
-void Camera::ProcessMouseMovement(float xoffset, float yoffset)
+void Camera::ProcessMouseMovement(glm::vec2 offset)
 {
-	xoffset *= mouseSensitivity;
-	yoffset *= mouseSensitivity;
+	SetYaw(yaw + offset.x);
 
-	SetYaw(yaw + xoffset);
-
-	const static float pitchLimit = 90.f;
+	const static float pitchLimit = 89.999f;
 	// Lock horizontal movement (making an "impossible" turn breaks movement)
-	if (pitch + yoffset > pitchLimit)
-	{
-		SetPitch(pitchLimit); // Left and right motion inverts at excactly 90 degrees, so we stay right below that
-	}
-	else if (pitch + yoffset < -pitchLimit)
-	{
-		SetPitch(-pitchLimit);
-	}
-	else
-	{
-		SetPitch(pitch + yoffset);
-	}
+	SetPitch(glm::clamp(GetPitch() + offset.y, -pitchLimit, pitchLimit));
 }

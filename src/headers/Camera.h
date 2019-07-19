@@ -74,10 +74,12 @@ public:
 	glm::vec3 GetRightVector();
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-	void ProcessMovement(Camera_Movement direction, float deltaTime);
+	void ProcessMovement(Camera_Movement direction, float magnitude);
 
 	// Processes input received from any keyboard-like input system. Accepts a 
 	void ProcessRoll(float offset);
+
+	void ProcessMouseMovement(glm::vec2 offset);
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(float xoffset, float yoffset);

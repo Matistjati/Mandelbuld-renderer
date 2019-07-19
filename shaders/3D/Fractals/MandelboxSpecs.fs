@@ -79,6 +79,7 @@
 	<variables>
 		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterationsRelease>8</maxIterationsRelease>,
+		<maxIterations>8</maxIterations>,
 		<maxStepsRelease>1000</maxStepsRelease>,
 	</variables>
 	<cpuVariables>

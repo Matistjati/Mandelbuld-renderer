@@ -14,8 +14,8 @@
 #include "headers/Fractal2D.h"
 #include "headers/Debug.h"
 
-constexpr auto ConstScreenSizeX = 250;
-constexpr auto ConstScreenSizeY = 250;
+constexpr auto ConstScreenSizeX = 500;
+constexpr auto ConstScreenSizeY = 500;
 #define ConstWindowSize 0
 
 #define DefaultFractal Fractal3D
@@ -265,7 +265,7 @@ int main()
 
 #if _DEBUG
 		// Set the window title to our fps
-		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.deltaTime).c_str());
+		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.GetDeltaTime()).c_str());
 #endif
 
 		// render, we use ray marching inside the fragment shader

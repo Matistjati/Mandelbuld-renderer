@@ -222,49 +222,49 @@ void Fractal2D::HandleKeyInput()
 			{
 				// WASD movement
 			case GLFW_KEY_W:
-				position.value.y += static_cast<float>(time.value.deltaTime * parameterChangeRate * zoom.value);
+				position.value.y += static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_S:
-				position.value.y -= static_cast<float>(time.value.deltaTime * parameterChangeRate * zoom.value);
+				position.value.y -= static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_A:
-				position.value.x -= static_cast<float>(time.value.deltaTime * parameterChangeRate * zoom.value);
+				position.value.x -= static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_D:
-				position.value.x += static_cast<float>(time.value.deltaTime * parameterChangeRate * zoom.value);
+				position.value.x += static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
 				explorationShader->SetUniform(position);
 				break;
 
 				// Variable change rate
 			case GLFW_KEY_G:
-				parameterChangeRate += 0.5f * static_cast<float>(time.value.deltaTime);
+				parameterChangeRate += 0.5f * static_cast<float>(time.value.GetDeltaTime());
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 			case GLFW_KEY_T:
-				parameterChangeRate -= 0.5f * static_cast<float>(time.value.deltaTime);
+				parameterChangeRate -= 0.5f * static_cast<float>(time.value.GetDeltaTime());
 				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
 				// Zooming using exponential decay
 			case GLFW_KEY_Q:
-				zoom.value *= static_cast<float>(exp(time.value.deltaTime * -parameterChangeRate));
+				zoom.value *= static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate));
 				explorationShader->SetUniform(zoom);
 				break;
 			case GLFW_KEY_E:
-				zoom.value /= static_cast<float>(exp(time.value.deltaTime * -parameterChangeRate));
+				zoom.value /= static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate));
 				explorationShader->SetUniform(zoom);
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
-				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
+				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime());
 				explorationShader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
-				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.deltaTime);
+				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime());
 				explorationShader->SetUniform(power);
 				break;
 

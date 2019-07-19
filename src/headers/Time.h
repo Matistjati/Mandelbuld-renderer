@@ -8,15 +8,21 @@
 class Time
 {
 public:
-	Time() : lastTime(0), deltaTime(0) { firstTime = glfwGetTime(); }
-	double deltaTime;
-	double PollTime(double globalTime);
-	double PollTime();
+	Time() : lastTime(0), deltaTime(0), timePaused(false), pausedTime(0) { firstTime = glfwGetTime(); }
+
+	void PollTime(double globalTime);
+	void PollTime();
+
+	double GetDeltaTime() const;
 	double GetTotalTime() const;
+	void ToogleTimePause();
 
 private:
+	double deltaTime;
 	double lastTime;
 	double firstTime;
+	double pausedTime;
+	bool timePaused;
 };
 
 #endif

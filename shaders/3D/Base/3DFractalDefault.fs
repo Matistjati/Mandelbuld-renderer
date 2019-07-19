@@ -218,7 +218,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 <render>
 	vec3 render(Ray ray, vec2 uv)
 	{
-		float px = 10000 / (screenSize.y * zoom / zoomDetailRatio);
+		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
 		vec4 trap;
 		float steps;
 
@@ -288,7 +288,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 	vec2 uv = gl_FragCoord.xy / screenSize * 2.0 - 1.0;
 
 	uv.x *= float(screenSize.x) / float(screenSize.y);
-	uv /= zoom;
+	uv *= zoom;
 
 	vec3 direction = normalize(vec3(uv.xy, 1));
 
@@ -312,7 +312,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 			frag.y += float(j)/antiAliasing;
 			vec2 uv = frag / screenSize * 2.0 - 1.0;
 			uv.x *= float(screenSize.x) / float(screenSize.y);
-			uv /= zoom;
+			uv *= zoom;
 
 			vec3 direction = normalize(vec3(uv.xy, 1));
 
