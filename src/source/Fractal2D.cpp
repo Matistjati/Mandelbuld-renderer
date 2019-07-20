@@ -30,7 +30,8 @@ void Fractal2D::Update() { }
 
 void Fractal2D::MouseCallback(GLFWwindow* window, double x, double y)
 {
-	mousePosition = { x, y };
+	mousePosition.value = { x, y };
+	explorationShader->SetUniform(mousePosition);
 }
 
 void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -68,6 +69,16 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			UpdateFractalShader();
 		}
 	}
+	else if (action == GLFW_PRESS)
+	{
+		switch (key)
+		{
+			case GLFW_KEY_X:
+				time.value.ToogleTimePause();
+				explorationShader->SetUniform(time);
+				break;
+		}
+	}
 }
 
 void Fractal2D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -85,6 +96,8 @@ void Fractal2D::SetUniforms(Shader* shader)
 	shader->SetUniform(screenSize);
 	shader->SetUniform(power);
 	shader->SetUniform(zoom);
+	shader->SetUniform(mousePosition);
+	shader->SetUniform(time);
 	GlErrorCheck();
 }
 
@@ -95,6 +108,8 @@ void Fractal2D::SetUniformLocations(Shader* shader)
 	screenSize.id = glGetUniformLocation(shader->id, screenSize.name.c_str());
 	power.id = glGetUniformLocation(shader->id, power.name.c_str());
 	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
+	mousePosition.id = glGetUniformLocation(shader->id, mousePosition.name.c_str());
+	time.id = glGetUniformLocation(shader->id, time.name.c_str());
 	GlErrorCheck();
 }
 
@@ -104,6 +119,8 @@ void Fractal2D::SetUniformNames()
 	power.name = "power";
 	screenSize.name = "screenSize";
 	zoom.name = "zoom";
+	mousePosition.name = "mousePosition";
+	time.name = "time";
 }
 
 void Fractal2D::SaveImage(const std::string path)
@@ -170,7 +187,7 @@ void Fractal2D::SetVariable(std::string name, std::string value)
 	else if (name == "mousePosition")
 	{
 		std::vector<std::string> components = Split(value, ',');
-		mousePosition = glm::vec2(std::stof(components[0]), std::stof(components[1]));
+		mousePosition.value = glm::vec2(std::stof(components[0]), std::stof(components[1]));
 	}
 }
 
@@ -311,7 +328,7 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
-
+	std::cout << baseCopy;
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
 									   (new Shader(vertexSource, base,     false)));
 }

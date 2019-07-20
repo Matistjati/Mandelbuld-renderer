@@ -4,10 +4,10 @@
 
 <maxIterations>32</maxIterations>
 <maxSteps>100</maxSteps>
-<maxIterationsRelease>8</maxIterationsRelease>
+<maxIterationsRelease>32</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
-<zoomDetailRatio>.001</zoomDetailRatio>
+<zoomDetailRatio>.01</zoomDetailRatio>
 
 <maxDist>power*7</maxDist>
 <maxDistRelease>power*15</maxDistRelease>
@@ -16,7 +16,6 @@
 <outerRadius>power+1</outerRadius> // power + distance(w, sun); // Try adding something other than 1
 <scale>genericParameter</scale>
 <foldingLimit>power</foldingLimit> // +cos(sin(sin(sin(w.y))))
-<zoom>.01</zoom>
 
 <uniforms>
 	uniform float power = 1;

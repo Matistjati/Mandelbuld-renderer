@@ -19,7 +19,7 @@ public:
 	Uniform<float> power;
 	Uniform<glm::vec2> position;
 
-	glm::vec2 mousePosition;
+	Uniform<glm::vec2> mousePosition;
 
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex);

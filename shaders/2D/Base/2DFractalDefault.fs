@@ -7,6 +7,7 @@
 	<complexSquare>w = complexSquare(w);</complexSquare>,
 	<complexPow>w = complexPow(w, parameter);</complexPow>,
 	<translate>w += c;</translate>,
+	<lineFold>w-=2 * min(0, dot(w, parameter)) * parameter;</lineFold>,
 </operations>
 
 <loopSetup>
