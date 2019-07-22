@@ -167,11 +167,11 @@ int main()
 #else
 	// glfw window creation
 	glm::ivec2 screenSize = Fractal::GetMonitorSize();
-	#if _DEBUG
-		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, NULL, NULL);
-	#else
-		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), NULL);
-	#endif
+#if _DEBUG
+	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, NULL, NULL);
+#else
+	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), NULL);
+#endif
 #endif
 
 	if (!mainWindow)
@@ -254,6 +254,66 @@ int main()
 	}
 
 	GlErrorCheck();
+
+
+	Shader c("C:/Users/Matis/source/repos/Mandelbulb/shaders/mandelbrotcompute.fs", true);
+
+	glUseProgram(c.id);
+
+	GLuint buffHandle;
+	glGenBuffers(1, &buffHandle);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, 1920 * 1080 * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+
+
+	GlErrorCheck();
+	glUseProgram(c.id);
+	glDispatchCompute(1920 / 8, 1080 / 8, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+	GlErrorCheck();
+
+	GlErrorCheck();
+
+	glm::vec4* ptr;
+	ptr = (glm::vec4*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	GlErrorCheck();
+
+	Pixel* rgb = (Pixel*)malloc(1920 * 1080 * sizeof(Pixel));
+	if (rgb == nullptr)
+	{
+		return -1;
+	}
+
+	for (size_t i = 0; i < 1920 * (1080); i++)
+	{
+		Pixel* image = &rgb[i];
+		glm::vec4* buffer = &ptr[i];
+
+		image->red = (int)(buffer->x * 255);
+		image->green = (int)(buffer->y * 255);
+		image->blue = (int)(buffer->z * 255);
+		image->alpha = (int)(buffer->a * 255);
+	}
+
+	Image image(1920, 1080, rgb);
+
+	try
+	{
+		image.Save("C:/Users/Matis/source/repos/Mandelbulb/TestImage/test.png");
+		DebugPrint("Successfully saved image \"test.png\"");
+	}
+	catch (const std::exception& e)
+	{
+		DebugPrint("Error saving image: " + *e.what());
+		return -1;
+	}
+
+
+
+
+
 
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))

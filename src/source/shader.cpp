@@ -6,6 +6,8 @@
 #include <string>
 #include "headers/Debug.h"
 #include <vector>
+#include <map>
+#include "headers/FileManager.h"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {
@@ -53,6 +55,46 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	GlErrorCheck();
+}
+
+Shader::Shader(const std::string& computePath, bool path)
+{
+	std::string cShaderCode;
+	if (path)
+	{
+		cShaderCode = FileManager::ReadFile(computePath);
+	}
+	else
+	{
+		cShaderCode = computePath;
+	}
+
+
+
+
+	id = glCreateProgram();
+	unsigned int compute = CompileShader(GL_COMPUTE_SHADER, cShaderCode);
+
+	glAttachShader(id, compute);
+	glLinkProgram(id);
+
+
+	int success;
+	glGetProgramiv(id, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		int length;
+		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
+		std::vector<char> infoLog(length);
+		glGetProgramInfoLog(id, length, NULL, &infoLog[0]);
+		std::cerr << "Error: program linking failed\n" << std::string(infoLog.begin(), infoLog.end()) << std::endl;
+	}
+
+
+	glValidateProgram(id);
+
+	glDeleteShader(compute);
 	GlErrorCheck();
 }
 
@@ -217,6 +259,8 @@ std::string Shader::ParseShader(const std::string& file)
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
+	static std::map<int, std::string> shaderTypeToString = { {GL_VERTEX_SHADER, "vertex"}, {GL_FRAGMENT_SHADER, "fragment"}, {GL_COMPUTE_SHADER, "compute"} };
+
 	unsigned int id = glCreateShader(type);
 	const char* src = source.c_str();
 	glShaderSource(id, 1, &src, nullptr);
@@ -232,8 +276,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 		std::vector<char> infoLog(length);
 		glGetShaderInfoLog(id, length, NULL, &infoLog[0]);
 
-		std::cerr << "Failed to compile " <<
-			((type == GL_VERTEX_SHADER) ? " vertex " : " fragment ") << " shader.\nError: " << std::string(infoLog.begin(), infoLog.end()) << std::endl;
+		std::cerr << "Failed to compile " << shaderTypeToString[type] << " shader.\nError: " << std::string(infoLog.begin(), infoLog.end()) << std::endl;
 		glDeleteShader(id);
 		return -1;
 	}

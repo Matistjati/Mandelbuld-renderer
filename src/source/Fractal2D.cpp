@@ -133,7 +133,7 @@ void Fractal2D::SaveImage(const std::string path)
 
 
 
-	Pixel* data = (Pixel*)malloc(screenSize.value.x * screenSize.value.y * 4);
+	Pixel* data = (Pixel*)malloc(screenSize.value.x * screenSize.value.y * sizeof(Pixel));
 	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 
