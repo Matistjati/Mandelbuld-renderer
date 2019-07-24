@@ -11,24 +11,8 @@
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {
-	const char* vShaderCode;
-	const char* fShaderCode;
-	if (path)
-	{
-		std::string vertexCode = ParseShader(vertexPath);
-		std::string fragmentCode = ParseShader(fragmentPath);
-
-		vShaderCode = vertexCode.c_str();
-		fShaderCode = fragmentCode.c_str();
-	}
-	else
-	{
-		vShaderCode = vertexPath.c_str();
-		fShaderCode = fragmentPath.c_str();
-	}
-
-
-
+	std::string vShaderCode = path ? FileManager::ReadFile(vertexPath).c_str() : vertexPath.c_str();
+	std::string fShaderCode = path ? FileManager::ReadFile(fragmentPath).c_str() : fragmentPath.c_str();
 
 	id = glCreateProgram();
 	unsigned int vertex = CompileShader(GL_VERTEX_SHADER, vShaderCode);
@@ -60,18 +44,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 
 Shader::Shader(const std::string& computePath, bool path)
 {
-	std::string cShaderCode;
-	if (path)
-	{
-		cShaderCode = FileManager::ReadFile(computePath);
-	}
-	else
-	{
-		cShaderCode = computePath;
-	}
-
-
-
+	std::string cShaderCode = path ? FileManager::ReadFile(computePath) : computePath;
 
 	id = glCreateProgram();
 	unsigned int compute = CompileShader(GL_COMPUTE_SHADER, cShaderCode);
@@ -232,29 +205,6 @@ void Shader::SetUniformStr(const std::string &name, float x, float y, float z, f
 void Shader::SetUniformStr(const std::string& name, glm::vec3 vector) const
 {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);
-}
-
-std::string Shader::ParseShader(const std::string& file)
-{
-	std::ifstream stream;
-
-	stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	std::string str;
-	try
-	{
-		stream.open(file);
-
-		str = std::string((std::istreambuf_iterator<char>(stream)),
-			std::istreambuf_iterator<char>());
-	}
-	catch (std::system_error& e)
-	{
-		std::cerr << e.code().message() << std::endl;
-	}
-
-
-	return str;
 }
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)

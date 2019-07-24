@@ -11,11 +11,17 @@
 template<typename T>
 struct Uniform;
 
+enum ShaderType
+{
+	fragment, compute
+};
+
 class Shader
 {
 public:
 	// the program ID
 	unsigned int id;
+	ShaderType type;
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path);
@@ -51,7 +57,6 @@ public:
 	void SetUniformStr(const std::string &name, glm::vec3 vector) const;
 
 private:
-	std::string ParseShader(const std::string& file);
 	unsigned int CompileShader(unsigned int type, const std::string& source);
 };
 

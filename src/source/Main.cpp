@@ -259,45 +259,95 @@ int main()
 	Shader c("C:/Users/Matis/source/repos/Mandelbulb/shaders/mandelbrotcompute.fs", true);
 
 	glUseProgram(c.id);
-
+	const int x = 500;
+	const int y = 500;
 	GLuint buffHandle;
 	glGenBuffers(1, &buffHandle);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 1920 * 1080 * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
 
+
+	GLuint importance;
+	glGenBuffers(1, &importance);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, importance);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, importance);
+	std::vector<glm::vec2> pos(x* y);
+	for (size_t i = 0; i < x; i++)
+	{
+		for (size_t j = 0; j < y; j++)
+		{
+			pos[i * y + j] = glm::normalize(glm::vec2((float(i)/float(x))*2-1, (float(j) / float(y)) * 2 - 1))*2.f;
+		}
+	}
+	glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec2), &pos[0], GL_DYNAMIC_DRAW);
+
+	int timeLocation = glGetUniformLocation(c.id, "time");
+	int sizeLocation = glGetUniformLocation(c.id, "screenSize");
+
+	glUniform2f(sizeLocation, (float)x, (float)y);
 
 	GlErrorCheck();
 	glUseProgram(c.id);
-	glDispatchCompute(1920 / 8, 1080 / 8, 1);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+	int count = 0;
+	while (fractal->time.value.GetTotalTime() < 2) //glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS
+	{
+		fractal->time.value.PollTime();
+		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.GetDeltaTime()).c_str());
+
+		count++;
+		glUniform1i(timeLocation, count);
+		glDispatchCompute(x / 16, y / 16, 1);
+
+		glfwSwapBuffers(mainWindow);
+		glfwPollEvents();
+
+	}
 	GlErrorCheck();
 
-	GlErrorCheck();
+
+
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+
 
 	glm::vec4* ptr;
 	ptr = (glm::vec4*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-	GlErrorCheck();
 
-	Pixel* rgb = (Pixel*)malloc(1920 * 1080 * sizeof(Pixel));
+	Pixel* rgb = (Pixel*)malloc(x * y * sizeof(Pixel));
 	if (rgb == nullptr)
 	{
 		return -1;
 	}
 
-	for (size_t i = 0; i < 1920 * (1080); i++)
-	{
-		Pixel* image = &rgb[i];
-		glm::vec4* buffer = &ptr[i];
 
-		image->red = (int)(buffer->x * 255);
-		image->green = (int)(buffer->y * 255);
-		image->blue = (int)(buffer->z * 255);
-		image->alpha = (int)(buffer->a * 255);
+	
+
+	const int brightArea = int(0.38046875 * x * x + 0.5 * y);
+	glm::vec3 brightness = glm::vec3(ptr[brightArea].x, ptr[brightArea].y, ptr[brightArea].z);
+	brightness = glm::max(brightness, glm::vec3(1.f));
+
+	for (size_t i = 0; i < (x-1); i++)
+	{
+		for (size_t j = 0; j < y; j++)
+		{
+			size_t index = i * y + j;
+			glm::vec3 c = glm::vec3(ptr[index].x, ptr[index].y, ptr[index].z);
+			glm::vec4 col = glm::vec4((c / brightness), 1.0);
+
+
+			Pixel* image = &rgb[index];
+			image->red = (int)(col.x* 10);
+			image->green = (int)(col.y* 10);
+			image->blue = (int)(col.z*10);
+			image->alpha = (int)(255);
+		}
+
+
 	}
 
-	Image image(1920, 1080, rgb);
+	Image image(x, y, rgb);
 
 	try
 	{
@@ -312,8 +362,7 @@ int main()
 
 
 
-
-
+	return -1;
 
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))
