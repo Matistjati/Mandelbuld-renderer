@@ -62,7 +62,6 @@ vec3 mandel(vec2 coords, vec2 minVal, vec2 maxVal)
         w = mat2(w,-w.y,w.x)*w+coords;
         vec2 wUpper = vec2(w.x,abs(w.y));
 
-		
 		vec2 stepped = step(minVal,wUpper)*step(wUpper,maxVal);
 		//vec2 d = clamp(wUpper,minVal,maxVal)-wUpper;
 		//float v = float(abs(d.x)<0.001&&abs(d.y)<0.001);

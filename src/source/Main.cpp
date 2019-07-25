@@ -16,7 +16,7 @@
 
 constexpr auto ConstScreenSizeX = 500;
 constexpr auto ConstScreenSizeY = 500;
-#define ConstWindowSize 0
+#define ConstWindowSize 1
 
 #define DefaultFractal Fractal3D
 constexpr auto DefaultSpecIndex = 0;
@@ -256,7 +256,8 @@ int main()
 	GlErrorCheck();
 
 
-	Shader c("C:/Users/Matis/source/repos/Mandelbulb/shaders/mandelbrotcompute.fs", true);
+	Shader c("shaders/mandelbrotcompute.fs", true);
+	Shader s("shaders/Rectangle.glsl", "shaders/buddhaDisplay.fs", true);
 
 	glUseProgram(c.id);
 	const int x = 500;
@@ -264,8 +265,8 @@ int main()
 	GLuint buffHandle;
 	glGenBuffers(1, &buffHandle);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
 
 
 	GLuint importance;
@@ -289,15 +290,27 @@ int main()
 
 	GlErrorCheck();
 	glUseProgram(c.id);
+	GlErrorCheck();
 	int count = 0;
-	while (fractal->time.value.GetTotalTime() < 2) //glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS
+	while (glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS) //fractal->time.value.GetTotalTime() < 2
 	{
+		if (glfwGetKey(mainWindow, GLFW_KEY_R) == GLFW_PRESS)
+		{
+			// Synchronization is of no concern, as the nature of the buddhabrot is progressive; it doesn't change greatly after a single write
+			glUseProgram(s.id);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+			glBindVertexArray(VAO);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+		}
 		fractal->time.value.PollTime();
 		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.GetDeltaTime()).c_str());
 
 		count++;
+		glUseProgram(c.id);
 		glUniform1i(timeLocation, count);
-		glDispatchCompute(x / 16, y / 16, 1);
+		glDispatchCompute(32, 32, 1);
 
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
@@ -360,6 +373,7 @@ int main()
 		return -1;
 	}
 
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 
 	return -1;
