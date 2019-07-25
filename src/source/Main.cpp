@@ -16,7 +16,7 @@
 
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 1
+	#define ScreenSize 0
 
 	// Common screen resolutions
 	#if ScreenSize == 0
@@ -40,10 +40,7 @@
 	#endif
 #endif
 
-constexpr int ComputeSizeX = 32;
-constexpr int ComputeSizeY = 32;
-
-#define DefaultFractal Fractal3D
+#define DefaultFractal Fractal2D
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
@@ -281,137 +278,137 @@ int main()
 	GlErrorCheck();
 
 
-	Shader c("shaders/mandelbrotcompute.fs", true);
-	Shader s("shaders/Rectangle.glsl", "shaders/buddhaDisplay.fs", true);
+	//Shader c("shaders/mandelbrotcompute.fs", true);
+	//Shader s("shaders/Rectangle.glsl", "shaders/buddhaDisplay.fs", true);
 
-	glUseProgram(c.id);
+	//glUseProgram(c.id);
+	//const int x = fractal->screenSize.value.x;
+	//const int y = fractal->screenSize.value.y;
+	//GLuint buffHandle;
+	//glGenBuffers(1, &buffHandle);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
 
-	size_t size = fractal->screenSize.value.x * fractal->screenSize.value.y;
-	GLuint buffHandle;
-	glGenBuffers(1, &buffHandle);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
-	GLuint computeBufferIndex = glGetProgramResourceIndex(c.id, GL_SHADER_STORAGE_BLOCK, "densityMap");
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, computeBufferIndex, buffHandle);
+	//int computeBufferIndex = glGetProgramResourceIndex(c.id, GL_SHADER_STORAGE_BLOCK, "densityMap");
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, computeBufferIndex, buffHandle);
 
 
-	//GLuint importance;
+	///*GLuint importance;
 	//glGenBuffers(1, &importance);
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, importance);
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, importance);
-	//std::vector<glm::vec2> pos(size);
-	//for (size_t i = 0; i < fractal->screenSize.value.x; i++)
+	//std::vector<glm::vec2> pos(x* y);
+	//for (size_t i = 0; i < x; i++)
 	//{
-	//	for (size_t j = 0; j < fractal->screenSize.value.y; j++)
+	//	for (size_t j = 0; j < y; j++)
 	//	{
-	//		pos[i * fractal->screenSize.value.y + j] = glm::normalize(glm::vec2((float(i)/float(fractal->screenSize.value.y))*2-1, (float(j) / float(fractal->screenSize.value.y)) * 2 - 1))*2.f;
+	//		pos[i * y + j] = glm::normalize(glm::vec2((float(i)/float(x))*2-1, (float(j) / float(y)) * 2 - 1))*2.f;
 	//	}
 	//}
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(glm::vec2), &pos[0], GL_DYNAMIC_DRAW);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec2), &pos[0], GL_DYNAMIC_DRAW);*/
 
-	int timeLocation = glGetUniformLocation(c.id, "time");
-	int sizeLocation = glGetUniformLocation(c.id, "screenSize");
-	glUniform2f(sizeLocation, (float)fractal->screenSize.value.x, (float)fractal->screenSize.value.x);
+	//glUseProgram(s.id);
+	//int sizeLocationFragment = glGetUniformLocation(c.id, "screenSize");
+	//glUniform2f(sizeLocationFragment, (float)x, (float)y);
+	//GlErrorCheck();
 
-	glUseProgram(s.id);
-	int sizeLocationF = glGetUniformLocation(c.id, "screenSize");
-	glUniform2f(sizeLocation, (float)fractal->screenSize.value.x, (float)fractal->screenSize.value.x);
+	//
 
-	int fragmentBufferIndex = glGetProgramResourceIndex(c.id, GL_SHADER_STORAGE_BLOCK,
-		"densityMap");
+	//glUseProgram(c.id);
+	//int timeLocation = glGetUniformLocation(c.id, "time");
+	//int sizeLocation = glGetUniformLocation(c.id, "screenSize");
 
-	glUseProgram(c.id);
-	GlErrorCheck();
-	int count = 0;
+	//glUniform2f(sizeLocation, (float)x, (float)y);
 
-	glm::ivec2 finalComputeSize = glm::ivec2(fractal->screenSize.value.x + ComputeSizeX - 1, fractal->screenSize.value.y + ComputeSizeY - 1) / glm::ivec2(ComputeSizeX, ComputeSizeY);
+	//GlErrorCheck();
+	//GlErrorCheck();
+	//int count = 0;
+	//while (glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS) //fractal->time.value.GetTotalTime() < 2
+	//{
+	//	if (glfwGetKey(mainWindow, GLFW_KEY_R) == GLFW_PRESS)
+	//	{
+	//		// Synchronization is of no concern, as the nature of the buddhabrot is progressive; it doesn't change greatly after a single write
+	//		glUseProgram(s.id);
+	//		glUniform2f(sizeLocationFragment, (float)x, (float)y);
+	//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//		glBindVertexArray(VAO);
+	//		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+	//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+	//	}
+	//	fractal->time.value.PollTime();
+	//	glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.GetDeltaTime()).c_str());
 
-	while (glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS) //fractal->time.value.GetTotalTime() < 2
-	{
-		if (glfwGetKey(mainWindow, GLFW_KEY_R) == GLFW_PRESS)
-		{
-			// Synchronization is of no concern, as the nature of the buddhabrot is progressive; it doesn't change greatly after a single write
-			glUseProgram(s.id);
-			glUniform2f(sizeLocation, (float)fractal->screenSize.value.x, (float)fractal->screenSize.value.x);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBindVertexArray(VAO);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, fragmentBufferIndex, buffHandle);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
-		}
-		fractal->time.value.PollTime();
-		glfwSetWindowTitle(mainWindow, std::to_string(1 / fractal->time.value.GetDeltaTime()).c_str());
+	//	count++;
+	//	glUseProgram(c.id);
+	//	glUniform1i(timeLocation, count);
+	//	glDispatchCompute(x/16, y/16, 1);
 
-		count++;
-		glUseProgram(c.id);
-		glUniform1i(timeLocation, count);
-		glDispatchCompute(finalComputeSize.x, finalComputeSize.y, 1);
+	//	glfwSwapBuffers(mainWindow);
+	//	glfwPollEvents();
 
-		glfwSwapBuffers(mainWindow);
-		glfwPollEvents();
-
-	}
-	GlErrorCheck();
-
+	//}
+	//GlErrorCheck();
 
 
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, fragmentBufferIndex, buffHandle);
+
+	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
 
 
-	glm::vec4* ptr;
-	ptr = (glm::vec4*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	//glm::vec4* ptr;
+	//ptr = (glm::vec4*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 
-	Pixel* rgb = (Pixel*)malloc(size * sizeof(Pixel));
-	if (rgb == nullptr)
-	{
-		return -1;
-	}
-
-
-	
-
-	const int brightArea = int(0.38046875 * fractal->screenSize.value.x * fractal->screenSize.value.x + 0.5 * fractal->screenSize.value.y);
-	glm::vec3 brightness = glm::vec3(ptr[brightArea].x, ptr[brightArea].y, ptr[brightArea].z);
-	brightness = glm::max(brightness, glm::vec3(1.f));
-
-	for (size_t i = 0; i < (fractal->screenSize.value.x-1); i++)
-	{
-		for (size_t j = 0; j < fractal->screenSize.value.y; j++)
-		{
-			size_t index = i * fractal->screenSize.value.y + j;
-			glm::vec3 c = ptr[index];
-			c /= brightness;
+	//Pixel* rgb = (Pixel*)malloc(x * y * sizeof(Pixel));
+	//if (rgb == nullptr)
+	//{
+	//	return -1;
+	//}
 
 
-			Pixel* image = &rgb[index];
-			image->red = (int)(c.x* 10);
-			image->green = (int)(c.y* 10);
-			image->blue = (int)(c.z*10);
-			image->alpha = (int)(255);
-		}
+	//
+
+	//const int brightArea = int(0.38046875 * x * x + 0.5 * y);
+	//glm::vec3 brightness = glm::vec3(ptr[brightArea].x, ptr[brightArea].y, ptr[brightArea].z);
+	//brightness = glm::max(brightness, glm::vec3(1.f));
+
+	//for (size_t i = 0; i < (x-1); i++)
+	//{
+	//	for (size_t j = 0; j < y; j++)
+	//	{
+	//		size_t index = i * y + j;
+	//		glm::vec3 c = glm::vec3(ptr[index].x, ptr[index].y, ptr[index].z);
+	//		glm::vec4 col = glm::vec4((c / brightness), 1.0);
 
 
-	}
-
-	Image image(fractal->screenSize.value.x, fractal->screenSize.value.y, rgb);
-
-	try
-	{
-		image.Save("C:/Users/Matis/source/repos/Mandelbulb/TestImage/test.png");
-		DebugPrint("Successfully saved image \"test.png\"");
-	}
-	catch (const std::exception& e)
-	{
-		DebugPrint("Error saving image: " + *e.what());
-		return -1;
-	}
-
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	//		Pixel* image = &rgb[index];
+	//		image->red = (int)(col.x* 10);
+	//		image->green = (int)(col.y* 10);
+	//		image->blue = (int)(col.z*10);
+	//		image->alpha = (int)(255);
+	//	}
 
 
-	return -1;
+	//}
+
+	//Image image(x, y, rgb);
+
+	//try
+	//{
+	//	image.Save("C:/Users/Matis/source/repos/Mandelbulb/TestImage/test.png");
+	//	DebugPrint("Successfully saved image \"test.png\"");
+	//}
+	//catch (const std::exception& e)
+	//{
+	//	DebugPrint("Error saving image: " + *e.what());
+	//	return -1;
+	//}
+
+	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+
+	//return -1;
 
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))

@@ -126,6 +126,6 @@ void main()
     	sum += mandel(pos,minVal,maxVal);
     }
 
-    
-    points[fragCoord].xyz += sum;
+    vec3 prev = points[fragCoord].rgb;
+    points[fragCoord] = vec4(prev + sum,1);
 }

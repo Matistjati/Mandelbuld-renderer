@@ -148,5 +148,8 @@
     <None Include="shaders\2D\Base\PresetSpecs.fs">
       <Filter>Resource Files\2D\Default</Filter>
     </None>
+    <None Include="shaders\Rectangle.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
