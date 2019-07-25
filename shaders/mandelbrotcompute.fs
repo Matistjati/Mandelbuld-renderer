@@ -3,7 +3,7 @@
 //How many orbits should be drawn per frame? 
 //Setting this too high on low-end hardware will cause the browser to become sluggish,
 //but setting it so low that the shader runs at the 60 fps cap is a waste of time.
-#define orbitsPerFrame 100
+#define orbitsPerFrame 10
 
 //How many iterations per orbit the code should do. Setting this higher will lead
 //to more pronounced features, but rendering will take longer.
@@ -16,13 +16,13 @@ const float stepsPerOrbit3 = 250.;
 #define startPointAttemptsIter 500
 
 
-uniform vec2 screenSize = vec2(500, 500);
+vec2 screenSize = vec2(600, 600);
 uniform int time;
-layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout(std430, binding = 0) buffer destBuffer
+layout(std430, binding = 0) buffer densityMap
 {
-	vec4 data[];
+	vec4 points[];
 };
 
 uint intHash(uint x) {
@@ -126,6 +126,6 @@ void main()
     	sum += mandel(pos,minVal,maxVal);
     }
 
-    vec3 prev = data[fragCoord].rgb;
-    data[fragCoord] = vec4(prev + sum,1);
+    
+    points[fragCoord].xyz += sum;
 }
