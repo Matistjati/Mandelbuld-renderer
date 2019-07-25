@@ -14,9 +14,31 @@
 #include "headers/Fractal2D.h"
 #include "headers/Debug.h"
 
-constexpr auto ConstScreenSizeX = 500;
-constexpr auto ConstScreenSizeY = 500;
 #define ConstWindowSize 1
+#if ConstWindowSize
+	#define ScreenSize 1
+
+	// Common screen resolutions
+	#if ScreenSize == 0
+		constexpr auto ConstScreenSizeX = 500;
+		constexpr auto ConstScreenSizeY = 500;
+	#elif ScreenSize == 1
+		constexpr auto ConstScreenSizeX = 1280;
+		constexpr auto ConstScreenSizeY = 720;
+	#elif ScreenSize == 2
+		constexpr auto ConstScreenSizeX = 1920;
+		constexpr auto ConstScreenSizeY = 1080;
+	#elif ScreenSize == 3
+		constexpr auto ConstScreenSizeX = 2560;
+		constexpr auto ConstScreenSizeY = 1440;
+	#elif ScreenSize == 4
+		constexpr auto ConstScreenSizeX = 3840;
+		constexpr auto ConstScreenSizeY = 2160;
+	#elif ScreenSize == 5
+		constexpr auto ConstScreenSizeX = 7680;
+		constexpr auto ConstScreenSizeY = 4320;
+	#endif
+#endif
 
 #define DefaultFractal Fractal3D
 constexpr auto DefaultSpecIndex = 0;
@@ -260,16 +282,18 @@ int main()
 	Shader s("shaders/Rectangle.glsl", "shaders/buddhaDisplay.fs", true);
 
 	glUseProgram(c.id);
-	const int x = 500;
-	const int y = 500;
+	const int x = fractal->screenSize.value.x;
+	const int y = fractal->screenSize.value.y;
 	GLuint buffHandle;
 	glGenBuffers(1, &buffHandle);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
+
+	int computeBufferIndex = glGetProgramResourceIndex(c.id, GL_SHADER_STORAGE_BLOCK, "densityMap");
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, computeBufferIndex, buffHandle);
 
 
-	GLuint importance;
+	/*GLuint importance;
 	glGenBuffers(1, &importance);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, importance);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, importance);
@@ -281,15 +305,22 @@ int main()
 			pos[i * y + j] = glm::normalize(glm::vec2((float(i)/float(x))*2-1, (float(j) / float(y)) * 2 - 1))*2.f;
 		}
 	}
-	glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec2), &pos[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, x * y * sizeof(glm::vec2), &pos[0], GL_DYNAMIC_DRAW);*/
 
+	glUseProgram(s.id);
+	int sizeLocationFragment = glGetUniformLocation(c.id, "screenSize");
+	glUniform2f(sizeLocationFragment, (float)x, (float)y);
+	GlErrorCheck();
+
+	
+
+	glUseProgram(c.id);
 	int timeLocation = glGetUniformLocation(c.id, "time");
 	int sizeLocation = glGetUniformLocation(c.id, "screenSize");
 
 	glUniform2f(sizeLocation, (float)x, (float)y);
 
 	GlErrorCheck();
-	glUseProgram(c.id);
 	GlErrorCheck();
 	int count = 0;
 	while (glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS) //fractal->time.value.GetTotalTime() < 2
@@ -298,6 +329,7 @@ int main()
 		{
 			// Synchronization is of no concern, as the nature of the buddhabrot is progressive; it doesn't change greatly after a single write
 			glUseProgram(s.id);
+			glUniform2f(sizeLocationFragment, (float)x, (float)y);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 			glBindVertexArray(VAO);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);
@@ -310,7 +342,7 @@ int main()
 		count++;
 		glUseProgram(c.id);
 		glUniform1i(timeLocation, count);
-		glDispatchCompute(32, 32, 1);
+		glDispatchCompute(x/16, y/16, 1);
 
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();

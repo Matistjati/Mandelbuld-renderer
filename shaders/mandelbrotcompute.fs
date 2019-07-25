@@ -20,9 +20,9 @@ uniform vec2 screenSize = vec2(500, 500);
 uniform int time;
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-layout(std430, binding = 0) buffer destBuffer
+layout(std430, binding = 0) buffer densityMap
 {
-	vec4 data[];
+	vec4 points[];
 };
 
 uint intHash(uint x) {
@@ -126,6 +126,6 @@ void main()
     	sum += mandel(pos,minVal,maxVal);
     }
 
-    vec3 prev = data[fragCoord].rgb;
-    data[fragCoord] = vec4(prev + sum,1);
+    vec3 prev = points[fragCoord].rgb;
+    points[fragCoord] = vec4(prev + sum,1);
 }
