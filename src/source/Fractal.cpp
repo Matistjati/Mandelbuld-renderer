@@ -377,16 +377,26 @@ std::vector<std::string> Fractal::GetFractalNames(std::vector<std::string> names
 	{
 		return { names[0].substr(0, names[0].find_last_of('.')) };
 	}
+	const static size_t shaderSuffixesLength = std::extent<decltype(shaderSuffixes)>::value;
 	for (size_t i = 0; i < names.size(); i++)
 	{
-		if (names[i].find("Specs") == std::string::npos)
+		bool isWithoutSuffix = true;
+		for (size_t j = 0; j < shaderSuffixesLength; j++)
 		{
-			std::string name = names[i].substr(0, names[i].find_last_of('.'));
-			if (name + "Specs.fs" == names[i+1])
+			if (names[i].find(shaderSuffixes[j]) != std::string::npos)
 			{
-				finalNames.push_back(name);
-				i++;
+				isWithoutSuffix = false;
+				break;
 			}
+		}
+		if (isWithoutSuffix)
+		{
+			size_t fileTypeDelimeter = names[i].find('.');
+			if (fileTypeDelimeter != std::string::npos)
+			{
+				names[i] = names[i].substr(0, fileTypeDelimeter);
+			}
+			finalNames.push_back(names[i]);
 		}
 	}
 	return finalNames;

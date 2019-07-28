@@ -7,6 +7,7 @@
 #include <glm.hpp>
 #include "headers/Uniform.h"
 #include "headers/Time.h"
+#include <map>
 
 template<typename T>
 struct Uniform;
@@ -16,12 +17,22 @@ enum ShaderType
 	fragment, compute
 };
 
+struct Buffer
+{
+public:
+	Buffer(int id, int binding) : id(id), binding(binding) {}
+	Buffer(int id) : id(id), binding(-1) {}
+	int id;
+	int binding;
+};
+
 class Shader
 {
 public:
 	// the program ID
 	unsigned int id;
 	ShaderType type;
+	std::map<std::string, Buffer> buffers;
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path);

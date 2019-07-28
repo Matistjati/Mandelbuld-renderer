@@ -18,60 +18,27 @@ const float stepsPerOrbit3 = 250.;
 
 vec2 screenSize = vec2(600, 600);
 uniform int time;
-layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
 };
 
-uint intHash(uint x) {
-    x = ((x >> 16) ^ x) * 0x45d9f3bU;
-    x = ((x >> 16) ^ x) * 0x45d9f3bU;
-    x = (x >> 16) ^ x;
-    return x;
-}
-vec2 hash2(uint n, out uint hash)
-{
-    uint ih =intHash(n);
-    hash = intHash(ih);
-    uvec2 k = uvec2(ih,hash);
-    return vec2(k & uvec2(0xffffffffU))/float(0xffffffffU);
-}
 
-bool notInMainCardioid(vec2 z)
-{
-	vec2 c=z-vec2(0.25,0);
-	float q = dot(c,c);
-	return q*(q+(z.x-0.25))>0.25*z.y*z.y;
-}
-
-
-bool notInMainBulb(vec2 z)
-{
-    z += vec2(1,0);
-    return bool(step(0.062499999,dot(z,z)));
-}
 
 vec3 mandel(vec2 coords, vec2 minVal, vec2 maxVal)
 {
-    vec3 cnt = vec3(0.0);
+    vec3 count = vec3(0.0);
     vec2 w = coords;
     for(int i=0;i < stepsPerOrbit1; ++i)
     {
         w = mat2(w,-w.y,w.x)*w+coords;
-        vec2 wUpper = vec2(w.x,abs(w.y));
 
-		vec2 stepped = step(minVal,wUpper)*step(wUpper,maxVal);
-		//vec2 d = clamp(wUpper,minVal,maxVal)-wUpper;
-		//float v = float(abs(d.x)<0.001&&abs(d.y)<0.001);
-        //cnt += vec3(v) * vec3(1, step(i/stepsPerOrbit2,1.), step(i/stepsPerOrbit3,1.));
-        cnt += vec3(stepped.x*stepped.y) * vec3(1, step(i,stepsPerOrbit2), step(i,stepsPerOrbit3));
 
         if(dot(w,w) > 20.0)
-            return cnt;
+            return count;
     }
-    return step(4.0,dot(w,w))*cnt;
+    return ;
 }
 
 bool pointEscapes(vec2 c)

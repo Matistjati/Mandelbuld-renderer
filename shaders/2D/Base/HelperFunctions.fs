@@ -22,3 +22,49 @@ vec3 iterationColorRed(float iterations)
 	return vec3(clamp(c, 0, 1), clamp(c - 1, 0, 1), clamp(c - 2, 0, 1))*sign(1-iterations/maxIterations);
 }
 </iterationColorRed>
+
+<periodicLastPositionColor>
+vec3 periodicLastPositionColor(vec2 w)
+{
+	return vec3(sin(w.x/length(w)),cos(w.y*dot(w,w)),  cos(20*length(w)));
+}
+</periodicLastPositionColor>
+
+<intHash>
+uint intHash(uint x)
+{
+    x = ((x >> 16) ^ x) * 0x45d9f3bU;
+    x = ((x >> 16) ^ x) * 0x45d9f3bU;
+    x = (x >> 16) ^ x;
+    return x;
+}
+</intHash>
+
+<hash2>
+vec2 hash2(uint n, out uint hash)
+{
+    uint ih =intHash(n);
+    hash = intHash(ih);
+    uvec2 k = uvec2(ih,hash);
+    return vec2(k & uvec2(0xffffffffU))/float(0xffffffffU);
+}
+</hash2>
+
+<notInMainCardioid>
+/*reference: https://en.wikipedia.org/wiki/Mandelbrot_set#Optimizations */
+bool notInMainCardioid(vec2 z)
+{
+	vec2 c=z-vec2(0.25,0);
+	float q = dot(c,c);
+	return q*(q+(z.x-0.25))>0.25*z.y*z.y;
+}
+</notInMainCardioid>
+
+<notInMainBulb>
+/*reference: https://en.wikipedia.org/wiki/Mandelbrot_set#Optimizations */
+bool notInMainBulb(vec2 z)
+{
+    z += vec2(1,0);
+    return bool(step(0.062499999,dot(z,z)));
+}
+</notInMainBulb>

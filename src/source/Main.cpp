@@ -16,7 +16,7 @@
 
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 0
+	#define ScreenSize 1
 
 	// Common screen resolutions
 	#if ScreenSize == 0
@@ -216,43 +216,7 @@ int main()
 #endif
 
 
-	const float vertices[12] =
-	{
-		// Positions
-		 1.f,  1.f, 0.0f, // top right
-		 1.f, -1.f, 0.0f, // bottom right
-		-1.f,  1.f, 0.0f, // top left
-		-1.f, -1.f, 0.0f, // bottom left
-	};
 
-	const unsigned int indices[6] =
-	{
-		0, 1, 2,
-		1, 2, 3
-	};
-
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	unsigned int buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(VAO);
-
-	unsigned int EBO;
-	glGenBuffers(1, &EBO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBindVertexArray(VAO);
 
 #if ConstWindowSize
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, glm::ivec2(ConstScreenSizeX, ConstScreenSizeY));
@@ -434,9 +398,10 @@ int main()
 		fractal->HandleKeyInput();
 	}
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &vertexArray);
+	glDeleteBuffers(1, &vertexIndices);
 	delete fractal;
+	glfwDestroyWindow(mainWindow);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	glfwTerminate();

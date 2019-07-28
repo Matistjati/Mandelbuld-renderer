@@ -151,5 +151,17 @@
     <None Include="shaders\Rectangle.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\2D\Fractals\buddhabrot.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
+    </None>
+    <None Include="shaders\2D\Fractals\buddhabrotSpecs.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
+    </None>
+    <None Include="shaders\2D\Base\2DFractalBaseCompute.fs">
+      <Filter>Resource Files\2D\Default</Filter>
+    </None>
+    <None Include="shaders\2D\Fractals\buddhabrotRender.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
+    </None>
   </ItemGroup>
 </Project>

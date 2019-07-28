@@ -4,7 +4,7 @@
 
 #include "Fractal.h"
 
-const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true),
+const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers", true),
 										   ShaderSection("main", false, "mainAA"),};
 
 const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, "", true), ShaderSection("color", false, "", true),};
@@ -25,7 +25,7 @@ public:
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex);
 
 	void Update() override;
-	void MouseCallback(GLFWwindow* window, double x, double y) override; // TODO
+	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
 	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override {}
@@ -51,10 +51,13 @@ public:
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";
+	static const constexpr char* path2DBaseCompute = "shaders/2D/Base/2DFractalBaseCompute.fs";
 	static const constexpr char* presetSpec2D = "shaders/2D/Base/PresetSpecs.fs";
 	static const constexpr char* default2DFractal = "shaders/2D/Base/2DFractalDefault.fs";
 	static const constexpr char* helperFunctions = "shaders/2D/Base/HelperFunctions.fs";
 	static const constexpr char* alternateDefaultFunctionsPath = "shaders/2D/Base/AlternateDefault.fs";
+
+	static const constexpr char* computeRenderBufferName = "renderInput";
 
 private:
 	const static std::string& default2DSource;

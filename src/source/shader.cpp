@@ -9,8 +9,20 @@
 #include <map>
 #include "headers/FileManager.h"
 
+void Shader::use()
+{
+	glUseProgram(id);
+}
+
+Shader::~Shader()
+{
+	glDeleteProgram(id);
+	GlErrorCheck();
+}
+
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {
+	type = fragment;
 	std::string vShaderCode = path ? FileManager::ReadFile(vertexPath).c_str() : vertexPath.c_str();
 	std::string fShaderCode = path ? FileManager::ReadFile(fragmentPath).c_str() : fragmentPath.c_str();
 
@@ -37,6 +49,46 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 
 	glValidateProgram(id);
 
+	const float vertices[12] =
+	{
+		// Positions
+		 1.f,  1.f, 0.0f, // top right
+		 1.f, -1.f, 0.0f, // bottom right
+		-1.f,  1.f, 0.0f, // top left
+		-1.f, -1.f, 0.0f, // bottom left
+	};
+
+	const unsigned int indices[6] =
+	{
+		0, 1, 2,
+		1, 2, 3
+	};
+
+	unsigned int vertexArray;
+	glGenVertexArrays(1, &vertexArray);
+	glBindVertexArray(vertexArray);
+
+	unsigned int vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(vertexArray);
+
+	unsigned int vertexIndices;
+	glGenBuffers(1, &vertexIndices);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexIndices);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexIndices);
+	glBindVertexArray(vertexArray);
+
+	//buffers[Fractal::rectangleVertexBufferName]
+
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 	GlErrorCheck();
@@ -44,6 +96,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 
 Shader::Shader(const std::string& computePath, bool path)
 {
+	type = compute;
 	std::string cShaderCode = path ? FileManager::ReadFile(computePath) : computePath;
 
 	id = glCreateProgram();
@@ -71,15 +124,31 @@ Shader::Shader(const std::string& computePath, bool path)
 	GlErrorCheck();
 }
 
-Shader::~Shader()
+unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
-	glDeleteProgram(id);
-	GlErrorCheck();
-}
+	static std::map<int, std::string> shaderTypeToString = { {GL_VERTEX_SHADER, "vertex"}, {GL_FRAGMENT_SHADER, "fragment"}, {GL_COMPUTE_SHADER, "compute"} };
 
-void Shader::use()
-{
-	glUseProgram(id);
+	unsigned int id = glCreateShader(type);
+	const char* src = source.c_str();
+	glShaderSource(id, 1, &src, nullptr);
+	glCompileShader(id);
+
+	int success;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+	if (success == GL_FALSE)
+	{
+		DebugPrint(source);
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		std::vector<char> infoLog(length);
+		glGetShaderInfoLog(id, length, NULL, &infoLog[0]);
+
+		std::cerr << "Failed to compile " << shaderTypeToString[type] << " shader.\nError: " << std::string(infoLog.begin(), infoLog.end()) << std::endl;
+		glDeleteShader(id);
+		return -1;
+	}
+
+	return id;
 }
 
 void Shader::SetUniform(const Uniform<float> value) const
@@ -205,31 +274,4 @@ void Shader::SetUniformStr(const std::string &name, float x, float y, float z, f
 void Shader::SetUniformStr(const std::string& name, glm::vec3 vector) const
 {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);
-}
-
-unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
-{
-	static std::map<int, std::string> shaderTypeToString = { {GL_VERTEX_SHADER, "vertex"}, {GL_FRAGMENT_SHADER, "fragment"}, {GL_COMPUTE_SHADER, "compute"} };
-
-	unsigned int id = glCreateShader(type);
-	const char* src = source.c_str();
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
-
-	int success;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-	if (success == GL_FALSE)
-	{
-		DebugPrint(source);
-		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-		std::vector<char> infoLog(length);
-		glGetShaderInfoLog(id, length, NULL, &infoLog[0]);
-
-		std::cerr << "Failed to compile " << shaderTypeToString[type] << " shader.\nError: " << std::string(infoLog.begin(), infoLog.end()) << std::endl;
-		glDeleteShader(id);
-		return -1;
-	}
-
-	return id;
 }

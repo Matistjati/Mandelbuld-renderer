@@ -6,12 +6,6 @@
 
 const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
 
-template <typename T>
-T clamp(const T& n, const T& lower, const T& upper)
-{
-	return std::max(lower, std::min(n, upper));
-}
-
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	screenSize, Time(), {}), power(2), position({ 0,0 })
@@ -76,6 +70,23 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			case GLFW_KEY_X:
 				time.value.ToogleTimePause();
 				explorationShader->SetUniform(time);
+				break;
+
+			case GLFW_KEY_R:
+				if (explorationShader->type == compute)
+				{
+					renderShader->use();
+					SetUniforms(renderShader);
+
+					/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+					glBindVertexArray(VAO);
+					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);*/
+					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+					//glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
+
+
+					explorationShader->use();
+				}
 				break;
 		}
 	}
@@ -296,7 +307,6 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 {
 	GlErrorCheck();
 
-	std::string base = FileManager::ReadFile(Fractal2D::path2DBase);
 
 	std::vector<ShaderSection> sections{};
 
@@ -319,16 +329,69 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 		}
 	}
 
+	std::string sourceCopy;
+	std::string base;
+	std::string type = GetSection(Section("type"), source);
+	if (type != "")
+	{
+		if (type == "compute")
+		{
+			const static int maxDimensions = 3;
+			sourceCopy = FileManager::ReadFile("shaders/2d/fractals/" + GetSection(Section("render"), source));
+			base = FileManager::ReadFile(Fractal2D::path2DBaseCompute);
+			std::string dimensionsStr = GetSection(Section("localSizeDimensions"), source);
+			int dimensions;
+			if (dimensionsStr == "") dimensions = 1;
+			else dimensions = std::stoi(dimensionsStr);
+
+			int workGroupMaxProduct;
+			glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupMaxProduct);
+
+			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
+
+			int workGroups[maxDimensions] = { 1, 1, 1 };
+			for (size_t i = 0; i < dimensions; i++)
+			{
+				workGroups[i] = maxProductRoot;
+			}
+
+			for (size_t i = 0; i < maxDimensions; i++)
+			{
+				int maxGroupSize;
+				glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &maxGroupSize);
+				if (workGroups[i] > maxGroupSize)
+				{
+					workGroups[i] = 1;
+				}
+			}
+
+			if (!Replace(base, "<sizeX>", std::to_string(workGroups[0]))) DebugPrint("Could not replace compute shader <sizeX> with " + std::to_string(workGroups[0]));
+			if (!Replace(base, "<sizeY>", std::to_string(workGroups[1]))) DebugPrint("Could not replace compute shader <sizeY> with " + std::to_string(workGroups[1]));
+			if (!Replace(base, "<sizeZ>", std::to_string(workGroups[2]))) DebugPrint("Could not replace compute shader <sizeZ> with " + std::to_string(workGroups[2]));
+		}
+		else if (type == "fragment")
+		{
+			base = FileManager::ReadFile(Fractal2D::path2DBase);
+		}
+	}
+	else
+	{
+		base = FileManager::ReadFile(Fractal2D::path2DBase);
+		sourceCopy = std::string(source);
+	}
+
+
 	const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
 
-	std::string sourceCopy = std::string(source);
 	std::string baseCopy = std::string(base);
-	ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
+	ParseShader(source, baseCopy, &specification, false, specIndex, fractalIndex, sections);
 
-	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
+	ParseShader(sourceCopy, base, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
+
 	std::cout << baseCopy;
+
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
 									   (new Shader(vertexSource, base,     false)));
 }
@@ -386,7 +449,7 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 			if (!Replace(source, from, variables[i]))
 			{
-				DebugPrint("Could not replace variable from specification");
+				DebugPrint("Couldn't replace variable " + sectionName + " from specification");
 			}
 		}
 	}
@@ -466,6 +529,31 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		{
 			while (Replace(final, s.start, section)) {}
 		}
+	}
+
+	Section extraParameters("extraParameters");
+	std::string parameters;
+	bool replaced = false;
+	if ((parameters = GetSection(extraParameters, source)) != "")
+	{
+		CleanString(parameters, { '[', ']', '\n' });
+		std::vector<std::string> params = Split(parameters, ',');
+
+		if (params.size() != 0)
+		{
+			std::string finalParams = "";
+			for (size_t i = 0; i < params.size(); i++)
+			{
+				finalParams += "," + params[i];
+			}
+
+			replaced = Replace(final, extraParameters.start, finalParams);
+		}
+	}
+	
+	if (!replaced)
+	{
+		Replace(final, extraParameters.start, "");
 	}
 
 
@@ -576,7 +664,14 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 		std::cout << tip.substr(start, end - start) << std::endl;
 	}
 
-	BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex);
+	if (source.find(Section("mainLoopOff").start) == std::string::npos)
+	{
+		BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex);
+	}
+	else
+	{
+		Replace(final, Section("mainLoop").start, "");
+	}
 
 	std::string flags = GetSection(Section("flags"), specSection);
 

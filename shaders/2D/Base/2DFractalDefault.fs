@@ -14,9 +14,9 @@
 	<defaultSetup>vec2 c = w;</defaultSetup>,
 </loopSetup>
 
-<iterateReturn>
+<loopReturn>
 	<escapeColor>iterationColorRed(float(i));</escapeColor>,
-</iterateReturn>
+</loopReturn>
 
 <loopTrap>
 	<none></none>,
@@ -28,7 +28,7 @@
 </loopBreakCondition>
 
 <mainLoop>
-	vec3 mainLoop(vec2 w, out float iterations)
+	vec3 mainLoop(vec2 w, out float iterations<extraParameters>)
 	{
 		<loopSetup>
 

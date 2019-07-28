@@ -59,6 +59,7 @@ enum FractalType
 	fractal2D = 1,
 };
 
+
 class Fractal
 {
 public:
@@ -120,6 +121,10 @@ public:
 
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
+	static const constexpr char* rectangleVertexBufferName = "vertices";
+	static const constexpr char* rectangleVertexBufferIndexName = "verticesIndex";
+
+	static const constexpr char* shaderSuffixes[] = { "Render", "MapImage", "Specs" };
 
 protected:
 	static bool Replace(std::string& str, const std::string& from, const std::string& to);
