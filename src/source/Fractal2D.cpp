@@ -20,7 +20,11 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	Init();
 }
 
-void Fractal2D::Update() { }
+void Fractal2D::Update()
+{
+	frame.value++;
+	explorationShader->SetUniform(frame);
+}
 
 void Fractal2D::MouseCallback(GLFWwindow* window, double x, double y)
 {
@@ -93,6 +97,7 @@ void Fractal2D::SetUniforms(Shader* shader)
 	shader->SetUniform(zoom);
 	shader->SetUniform(mousePosition);
 	shader->SetUniform(time);
+	shader->SetUniform(frame);
 	GlErrorCheck();
 }
 
@@ -102,6 +107,7 @@ void Fractal2D::SetUniformLocations(Shader* shader)
 	position.id = glGetUniformLocation(shader->id, position.name.c_str());
 	screenSize.id = glGetUniformLocation(shader->id, screenSize.name.c_str());
 	power.id = glGetUniformLocation(shader->id, power.name.c_str());
+	frame.id = glGetUniformLocation(shader->id, frame.name.c_str());
 	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
 	mousePosition.id = glGetUniformLocation(shader->id, mousePosition.name.c_str());
 	time.id = glGetUniformLocation(shader->id, time.name.c_str());
@@ -116,6 +122,7 @@ void Fractal2D::SetUniformNames()
 	zoom.name = "zoom";
 	mousePosition.name = "mousePosition";
 	time.name = "time";
+	frame.name = "frame";
 }
 
 void Fractal2D::SaveImage(const std::string path)
@@ -683,6 +690,8 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 
 void Fractal2D::Init()
 {
+	frame.value = 0;
+
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal2D;
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));

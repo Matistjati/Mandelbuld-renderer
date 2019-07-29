@@ -67,6 +67,7 @@ public:
 	// utility uniform functions
 	void SetUniform(Uniform<float> value) const;
 	void SetUniform(Uniform<int> value) const;
+	void SetUniform(Uniform<unsigned int> value) const;
 	void SetUniform(Uniform<bool> value) const;
 	void SetUniform(Uniform<glm::ivec2> vector) const;
 	void SetUniform(Uniform<glm::vec2> vector) const;

@@ -9,6 +9,7 @@ uniform vec3 sun;
 uniform mat3 rotation;
 uniform float zoom;
 uniform float time;
+uniform uint frame = uint(0);
 
 <uniforms>
 

@@ -69,7 +69,7 @@ public:
 	Uniform<glm::ivec2> screenSize;
 	Uniform<float> zoom;
 	Uniform<Time> time;
-
+	Uniform<unsigned int> frame;
 
 	FractalType fractalType;
 	int fractalIndex;

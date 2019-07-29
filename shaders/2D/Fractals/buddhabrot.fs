@@ -1,7 +1,7 @@
 <escapeRadius>20</escapeRadius>
 <maxIterations>1000</maxIterations>
 <maxIterationsRelease>1000</maxIterationsRelease>
-<pointsPerFrame>500</pointsPerFrame>
+<pointsPerFrame>70</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
 
 <type>compute</type>
@@ -17,6 +17,7 @@ layout(std430, binding = 0) buffer densityMap
 };
 </buffers>
 
+uniform int count;
 
 <constants>
 	const float maxIterationsGreen = maxIterations/2;
@@ -42,9 +43,9 @@ layout(std430, binding = 0) buffer densityMap
     
 	float _;    
     vec3 sum = vec3(0.0);
-    for(int idx=0;idx < pointsPerFrame;++idx)
+    for(int i = 0; i < pointsPerFrame; i++)
     {
-        int seed = int(time*pointsPerFrame*2+idx*2+uv.y);
+        int seed = (abs(int(frame))*pointsPerFrame * 2 + i * 2 + int(step(uv.y, 0.5)));
 
     	vec2 pos = getStartValue(seed);
 		if (pos.x<-1000) continue; // We didn't find a point

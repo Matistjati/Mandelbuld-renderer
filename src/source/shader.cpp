@@ -190,6 +190,10 @@ Buffer Shader::GenerateBufferForProgram(std::string source)
 		GlErrorCheck();
 		return Buffer(buffer, binding, type);
 	}
+	else
+	{
+		return Buffer(-1, -1, Buffer::BufferType::none, "");
+	}
 }
 
 void Shader::SetUniform(const Uniform<float> value) const
@@ -200,6 +204,11 @@ void Shader::SetUniform(const Uniform<float> value) const
 void Shader::SetUniform(Uniform<int> value) const
 {
 	glUniform1i(value.id, value.value);
+}
+
+void Shader::SetUniform(Uniform<unsigned int> value) const
+{
+	glUniform1ui(value.id, value.value);
 }
 
 void Shader::SetUniform(Uniform<bool> value) const

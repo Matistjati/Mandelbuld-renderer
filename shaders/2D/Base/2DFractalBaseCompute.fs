@@ -9,6 +9,7 @@ uniform vec2 mousePosition = vec2(0,0);
 uniform float zoom = 1;
 uniform float time = 0;
 uniform float power = 2;
+uniform uint frame = uint(0);
 
 <uniforms>
 

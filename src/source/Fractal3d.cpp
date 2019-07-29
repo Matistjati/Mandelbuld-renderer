@@ -139,6 +139,7 @@ void Fractal3D::SetUniforms(Shader* shader)
 	shader->SetUniform(power);
 	shader->SetUniform(genericParameter);
 	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
+	shader->SetUniform(frame);
 	GlErrorCheck();
 }
 
@@ -152,6 +153,7 @@ void Fractal3D::SetUniformLocations(Shader* shader)
 	sun.id = glGetUniformLocation(shader->id, sun.name.c_str());
 	power.id = glGetUniformLocation(shader->id, power.name.c_str());
 	genericParameter.id = glGetUniformLocation(shader->id, genericParameter.name.c_str());
+	frame.id = glGetUniformLocation(shader->id, frame.name.c_str());
 	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
 	GlErrorCheck();
 }
@@ -166,6 +168,7 @@ void Fractal3D::SetUniformNames()
 	power.name = "power";
 	genericParameter.name = "genericParameter";
 	zoom.name = "zoom";
+	frame.name = "frame";
 }
 
 void Fractal3D::SaveImage(const std::string path)
@@ -226,6 +229,8 @@ void Fractal3D::Update()
 		std::abs(sin(t * 0.1)) * -1,
 		cos(t * 0.25)));
 
+	frame.value++;
+	explorationShader->SetUniform(frame);
 	explorationShader->SetUniform(sun);
 }
 
@@ -489,6 +494,8 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 void Fractal3D::Init()
 {
+	frame.value = 0;
+
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal3D;
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
