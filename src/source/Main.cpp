@@ -215,9 +215,6 @@ int main()
 	std::cout << glGetString(GL_VERSION) << std::endl;
 #endif
 
-
-
-
 #if ConstWindowSize
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, glm::ivec2(ConstScreenSizeX, ConstScreenSizeY));
 #else
@@ -388,6 +385,13 @@ int main()
 		glfwSetWindowTitle(mainWindow, title.c_str());
 #endif
 
+		fractal->explorationShader->use();
+		if (fractal->explorationShader->type == fragment)
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+			glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+		}
+
 		// render, we use ray marching inside the fragment shader
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -398,8 +402,6 @@ int main()
 		fractal->HandleKeyInput();
 	}
 
-	glDeleteVertexArrays(1, &vertexArray);
-	glDeleteBuffers(1, &vertexIndices);
 	delete fractal;
 	glfwDestroyWindow(mainWindow);
 

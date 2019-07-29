@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include "headers/FileManager.h"
+#include "headers/Fractal.h"
 
 void Shader::use()
 {
@@ -17,6 +18,11 @@ void Shader::use()
 Shader::~Shader()
 {
 	glDeleteProgram(id);
+
+	for (auto& buffer : buffers)
+	{
+		buffer.second.Delete();
+	}
 	GlErrorCheck();
 }
 
@@ -87,7 +93,10 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexIndices);
 	glBindVertexArray(vertexArray);
 
-	//buffers[Fractal::rectangleVertexBufferName]
+
+
+	buffers[Fractal::rectangleVertexBufferName] = Buffer(vertexArray, Buffer::BufferType::vertexArray);
+	buffers[Fractal::rectangleVertexBufferIndexName] = Buffer(vertexIndices);
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);

@@ -331,6 +331,7 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 
 	std::string sourceCopy;
 	std::string base;
+	std::string baseCopy;
 	std::string type = GetSection(Section("type"), source);
 	if (type != "")
 	{
@@ -338,6 +339,12 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 		{
 			const static int maxDimensions = 3;
 			sourceCopy = FileManager::ReadFile("shaders/2d/fractals/" + GetSection(Section("render"), source));
+			std::string copyType = GetSection(Section("type"), sourceCopy);
+
+			if (copyType == "" || copyType == "fragment") baseCopy = FileManager::ReadFile(path2DBase);
+			else if (copyType == "compute") copyType = FileManager::ReadFile(path2DBaseCompute);
+
+
 			base = FileManager::ReadFile(Fractal2D::path2DBaseCompute);
 			std::string dimensionsStr = GetSection(Section("localSizeDimensions"), source);
 			int dimensions;
@@ -350,12 +357,12 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
 
 			int workGroups[maxDimensions] = { 1, 1, 1 };
-			for (size_t i = 0; i < dimensions; i++)
+			for (int i = 0; i < dimensions; i++)
 			{
 				workGroups[i] = maxProductRoot;
 			}
 
-			for (size_t i = 0; i < maxDimensions; i++)
+			for (int i = 0; i < maxDimensions; i++)
 			{
 				int maxGroupSize;
 				glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &maxGroupSize);
@@ -372,28 +379,48 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 		else if (type == "fragment")
 		{
 			base = FileManager::ReadFile(Fractal2D::path2DBase);
+			baseCopy = base;
+			sourceCopy = source;
 		}
 	}
 	else
 	{
 		base = FileManager::ReadFile(Fractal2D::path2DBase);
+		baseCopy = base;
 		sourceCopy = std::string(source);
 	}
+	std::string copyType = GetSection(Section("type"), sourceCopy);
 
+	if (source.find("std430"!=0))
+	{
+		Replace(base, "#version 330", "#version 430");
+	}
+	if (sourceCopy.find("std430"!=0))
+	{
+		Replace(baseCopy, "#version 330", "#version 430");
+	}
 
 	const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
 
-	std::string baseCopy = std::string(base);
-	ParseShader(source, baseCopy, &specification, false, specIndex, fractalIndex, sections);
+	ParseShader(source, base, &specification, false, specIndex, fractalIndex, sections);
 
-	ParseShader(sourceCopy, base, &specification, true, specIndex, fractalIndex, sections);
+	ParseShader(sourceCopy, baseCopy, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
-	std::cout << baseCopy;
 
-	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
-									   (new Shader(vertexSource, base,     false)));
+	Shader* shaderA;
+	Shader* shaderB;
+
+	if (type == "fragment") shaderA = new Shader(vertexSource, base, false);
+	else if (type == "compute") shaderA = new Shader(base, false);
+	else shaderA = new Shader(vertexSource, base, false); // Assume fragment
+
+	if (copyType == "fragment") shaderB = new Shader(vertexSource, baseCopy, false);
+	else if (copyType == "compute") shaderB = new Shader(baseCopy, false);
+	else shaderB = new Shader(vertexSource, baseCopy, false); // Assume fragment
+
+	return std::pair<Shader*, Shader*>(shaderA, shaderB);
 }
 
 std::pair<Shader*, Shader*> Fractal2D::GenerateShader()

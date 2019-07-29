@@ -20,10 +20,29 @@ enum ShaderType
 struct Buffer
 {
 public:
-	Buffer(int id, int binding) : id(id), binding(binding) {}
-	Buffer(int id) : id(id), binding(-1) {}
-	int id;
+	enum BufferType
+	{
+		vertexArray,
+		buffer,
+		none
+	};
+	Buffer(unsigned int id, int binding, BufferType type) : id(id), binding(binding), type(type) {}
+	Buffer(unsigned int id, int binding) : id(id), binding(binding), type(buffer) {}
+	Buffer(unsigned int id, BufferType type) : id(id), binding(-1), type(type) {}
+	Buffer(unsigned int id) : id(id), binding(-1), type(buffer) {}
+	Buffer() : id(-1), binding(-1), type(none) {}
+	BufferType type;
+	unsigned int id;
 	int binding;
+
+	void Delete()
+	{
+		if (glIsBuffer(id))
+		{
+			if (type == vertexArray) glDeleteVertexArrays(1, &id);
+			else if (type == buffer) glDeleteBuffers(1, &id);
+		}
+	}
 };
 
 class Shader

@@ -39,15 +39,15 @@ layout(std430, binding = 0) buffer densityMap
     vec2 minVal = vec2(uv.x*3.5-2.5,abs(uv.y*2.0-1.0));
     vec2 maxVal = minVal + vec2(3.5,2.0)/screenSize.xy;
     
-    
+	float _;    
     vec3 sum = vec3(0.0);
     for(int idx=0;idx < pointsPerFrame;++idx)
     {
-        int seed = (time*pointsPerFrame*2+idx*2+int(step(uv.y,0.5)));
+        int seed = int(time*pointsPerFrame*2+idx*2+uv.y);
 
     	vec2 pos = getStartValue(seed);
 		if (pos.x<-1000) continue; // We didn't find a point
-    	sum += mandel(pos,minVal,maxVal);
+    	sum += mainLoop(pos,_,minVal,maxVal);
     }
 
     vec3 prev = points[fragCoord].rgb;
@@ -55,13 +55,13 @@ layout(std430, binding = 0) buffer densityMap
 </main>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, getStartValue
 </include>
 
 <loopTrap>
 	<addIfWithinMinMax>vec2 wUpper = vec2(w.x,abs(w.y));
 					   vec2 stepped = step(minVal,wUpper)*step(wUpper,maxVal);
-					   count += vec3(stepped.x*stepped.y) * vec3(1, step(i,stepsPerOrbit2), step(i,stepsPerOrbit3));</addIfWithinMinMax>,
+					   count += vec3(stepped.x*stepped.y) * vec3(1, step(i,maxIterationsGreen), step(i,maxIterationsBlue));</addIfWithinMinMax>,
 </loopTrap>
 
 <loopReturn>

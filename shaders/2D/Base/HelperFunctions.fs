@@ -68,3 +68,23 @@ bool notInMainBulb(vec2 z)
     return bool(step(0.062499999,dot(z,z)));
 }
 </notInMainBulb>
+
+<getStartValue>
+vec2 getStartValue(int seed)
+{
+    uint hash = uint(seed);
+
+    vec2 retval = vec2(-1000);
+    for(int i = 0; i <startPointAttempts; ++i)
+    {
+        vec2 random = hash2(hash,hash);
+        vec2 point = vec2(random.x * 3.5-2.5,random.y*1.55);
+
+        if (notInMainBulb(point) && notInMainCardioid(point))
+		{
+			return point;
+		}
+    }
+    return retval;
+}
+</getStartValue>
