@@ -72,22 +72,6 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 				explorationShader->SetUniform(time);
 				break;
 
-			case GLFW_KEY_R:
-				if (explorationShader->type == compute)
-				{
-					renderShader->use();
-					SetUniforms(renderShader);
-
-					/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-					glBindVertexArray(VAO);
-					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffHandle);*/
-					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-					//glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffHandle);
-
-
-					explorationShader->use();
-				}
-				break;
 		}
 	}
 }
@@ -137,7 +121,6 @@ void Fractal2D::SetUniformNames()
 void Fractal2D::SaveImage(const std::string path)
 {
 	renderShader->use();
-	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -296,6 +279,29 @@ void Fractal2D::HandleKeyInput()
 				explorationShader->SetUniform(power);
 				break;
 
+
+			case GLFW_KEY_R:
+				if (explorationShader->type == compute)
+				{
+					renderShader->use();
+					SetUniformLocations(renderShader);
+					SetUniforms(renderShader);
+
+					ComputeShader* explShader = reinterpret_cast<ComputeShader*>(explorationShader);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+					glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
+					glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].id);
+					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
+					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+					explorationShader->use();
+					SetUniformLocations(explorationShader);
+					SetUniforms(explorationShader);
+					glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
+					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
+				}
+				break;
+
 			default:
 				break;
 			}
@@ -306,7 +312,6 @@ void Fractal2D::HandleKeyInput()
 std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
 	GlErrorCheck();
-
 
 	std::vector<ShaderSection> sections{};
 
@@ -329,98 +334,25 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 		}
 	}
 
-	std::string sourceCopy;
-	std::string base;
-	std::string baseCopy;
-	std::string type = GetSection(Section("type"), source);
-	if (type != "")
+	std::string highQualitySource;
+
+	std::string renderSource = GetSection(Section("render"), source);
+	if (renderSource != "")
 	{
-		if (type == "compute")
-		{
-			const static int maxDimensions = 3;
-			sourceCopy = FileManager::ReadFile("shaders/2d/fractals/" + GetSection(Section("render"), source));
-			std::string copyType = GetSection(Section("type"), sourceCopy);
-
-			if (copyType == "" || copyType == "fragment") baseCopy = FileManager::ReadFile(path2DBase);
-			else if (copyType == "compute") copyType = FileManager::ReadFile(path2DBaseCompute);
-
-
-			base = FileManager::ReadFile(Fractal2D::path2DBaseCompute);
-			std::string dimensionsStr = GetSection(Section("localSizeDimensions"), source);
-			int dimensions;
-			if (dimensionsStr == "") dimensions = 1;
-			else dimensions = std::stoi(dimensionsStr);
-
-			int workGroupMaxProduct;
-			glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupMaxProduct);
-
-			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
-
-			int workGroups[maxDimensions] = { 1, 1, 1 };
-			for (int i = 0; i < dimensions; i++)
-			{
-				workGroups[i] = maxProductRoot;
-			}
-
-			for (int i = 0; i < maxDimensions; i++)
-			{
-				int maxGroupSize;
-				glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &maxGroupSize);
-				if (workGroups[i] > maxGroupSize)
-				{
-					workGroups[i] = 1;
-				}
-			}
-
-			if (!Replace(base, "<sizeX>", std::to_string(workGroups[0]))) DebugPrint("Could not replace compute shader <sizeX> with " + std::to_string(workGroups[0]));
-			if (!Replace(base, "<sizeY>", std::to_string(workGroups[1]))) DebugPrint("Could not replace compute shader <sizeY> with " + std::to_string(workGroups[1]));
-			if (!Replace(base, "<sizeZ>", std::to_string(workGroups[2]))) DebugPrint("Could not replace compute shader <sizeZ> with " + std::to_string(workGroups[2]));
-		}
-		else if (type == "fragment")
-		{
-			base = FileManager::ReadFile(Fractal2D::path2DBase);
-			baseCopy = base;
-			sourceCopy = source;
-		}
+		highQualitySource = FileManager::ReadFile("shaders/2d/fractals/" + renderSource);
 	}
 	else
 	{
-		base = FileManager::ReadFile(Fractal2D::path2DBase);
-		baseCopy = base;
-		sourceCopy = std::string(source);
-	}
-	std::string copyType = GetSection(Section("type"), sourceCopy);
-
-	if (source.find("std430"!=0))
-	{
-		Replace(base, "#version 330", "#version 430");
-	}
-	if (sourceCopy.find("std430"!=0))
-	{
-		Replace(baseCopy, "#version 330", "#version 430");
+		highQualitySource = std::string(source);
 	}
 
 	const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
 
-	ParseShader(source, base, &specification, false, specIndex, fractalIndex, sections);
-
-	ParseShader(sourceCopy, baseCopy, &specification, true, specIndex, fractalIndex, sections);
-
-	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
 
-	Shader* shaderA;
-	Shader* shaderB;
-
-	if (type == "fragment") shaderA = new Shader(vertexSource, base, false);
-	else if (type == "compute") shaderA = new Shader(base, false);
-	else shaderA = new Shader(vertexSource, base, false); // Assume fragment
-
-	if (copyType == "fragment") shaderB = new Shader(vertexSource, baseCopy, false);
-	else if (copyType == "compute") shaderB = new Shader(baseCopy, false);
-	else shaderB = new Shader(vertexSource, baseCopy, false); // Assume fragment
-
-	return std::pair<Shader*, Shader*>(shaderA, shaderB);
+	return std::pair<Shader*, Shader*>(CreateShader(source, &specification, false, fractalIndex, specIndex, sections),
+									   CreateShader(highQualitySource, &specification, true, fractalIndex, specIndex, sections));
+	
 }
 
 std::pair<Shader*, Shader*> Fractal2D::GenerateShader()
@@ -756,6 +688,9 @@ void Fractal2D::Init()
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
 	SetUniformNames();
 
+	SetUniformLocations(renderShader);
+	SetUniforms(renderShader);
+
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
 	explorationShader->use();
@@ -765,4 +700,75 @@ void Fractal2D::Init()
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
 	return {};
+}
+
+Shader* Fractal2D::CreateShader(std::string source, const std::string* specification, bool highQuality, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections)
+{
+	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
+
+	std::string base;
+	std::string type = GetSection(Section("type"), source);
+	if (type != "")
+	{
+		if (type == "fragment")
+		{
+			base = FileManager::ReadFile(Fractal2D::path2DBase);
+		}
+		else if (type == "compute")
+		{
+			const static int maxDimensions = 3;
+
+			base = FileManager::ReadFile(Fractal2D::path2DBaseCompute);
+
+			std::string dimensionNumber = GetSection(Section("localSizeDimensions"), source);
+			if (dimensionNumber == "") dimensionNumber = "1";
+
+			int dimensions;
+			dimensions = std::stoi(dimensionNumber);
+			if (dimensions > maxDimensions) dimensions = maxDimensions;
+
+			int workGroupMaxProduct;
+			glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupMaxProduct);
+
+			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
+
+			int workGroups[maxDimensions] = { 1, 1, 1 };
+			for (int i = 0; i < dimensions; i++)
+			{
+				workGroups[i] = maxProductRoot;
+				int maxGroupSize;
+				glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &maxGroupSize);
+				if (workGroups[i] > maxGroupSize)
+				{
+					workGroups[i] = 1;
+				}
+			}
+
+			if (!Replace(base, "<sizeX>", std::to_string(workGroups[0]))) DebugPrint("Could not replace compute shader <sizeX> with " + std::to_string(workGroups[0]));
+			if (!Replace(base, "<sizeY>", std::to_string(workGroups[1]))) DebugPrint("Could not replace compute shader <sizeY> with " + std::to_string(workGroups[1]));
+			if (!Replace(base, "<sizeZ>", std::to_string(workGroups[2]))) DebugPrint("Could not replace compute shader <sizeZ> with " + std::to_string(workGroups[2]));
+
+			if (source.find("std430" != 0))
+			{
+				Replace(base, "#version 330", "#version 430");
+			}
+
+			ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
+
+			return new ComputeShader(base, false, { workGroups[0], workGroups[1], workGroups[2] });
+		}
+	}
+	else // Assume fragment shader
+	{
+		base = FileManager::ReadFile(Fractal2D::path2DBase);
+	}
+
+	if (source.find("std430" != 0))
+	{
+		Replace(base, "#version 330", "#version 430");
+	}
+	ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
+
+	return new Shader(vertexSource, base, false);
+
 }

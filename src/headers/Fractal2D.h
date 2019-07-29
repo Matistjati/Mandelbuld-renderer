@@ -61,6 +61,7 @@ public:
 
 private:
 	const static std::string& default2DSource;
+	Shader* CreateShader(std::string source, const std::string* specification, bool highQuality, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections);
 };
 
 #endif

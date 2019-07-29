@@ -26,7 +26,11 @@ public:
 		buffer,
 		none
 	};
+	Buffer(unsigned int id, int binding, BufferType type, std::string name) : id(id), binding(binding), type(type), name(name) {}
+	Buffer(unsigned int id, int binding, std::string name) : id(id), binding(binding), type(buffer), name(name) {}
+	Buffer(unsigned int id, BufferType type, std::string name) : id(id), binding(-1), type(type), name(name) {}
 	Buffer(unsigned int id, int binding, BufferType type) : id(id), binding(binding), type(type) {}
+	Buffer(unsigned int id, std::string name) : id(id), binding(-1), type(buffer), name(name) {}
 	Buffer(unsigned int id, int binding) : id(id), binding(binding), type(buffer) {}
 	Buffer(unsigned int id, BufferType type) : id(id), binding(-1), type(type) {}
 	Buffer(unsigned int id) : id(id), binding(-1), type(buffer) {}
@@ -34,6 +38,7 @@ public:
 	BufferType type;
 	unsigned int id;
 	int binding;
+	std::string name;
 
 	void Delete()
 	{
@@ -55,7 +60,7 @@ public:
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path);
-	Shader(const std::string& computePath, bool path);
+	Shader(unsigned int id, ShaderType type);
 	~Shader();
 	// use/activate the shader
 	void use();
@@ -86,8 +91,20 @@ public:
 	void SetUniformStr(const std::string &name, float x, float y, float z, float w) const;
 	void SetUniformStr(const std::string &name, glm::vec3 vector) const;
 
-private:
+protected:
 	unsigned int CompileShader(unsigned int type, const std::string& source);
+	Buffer GenerateBufferForProgram(std::string source);
+};
+
+class ComputeShader : public Shader
+{
+public:
+	Buffer mainBuffer;
+	glm::ivec3 groupSize;
+	ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize);
+	void Invoke(glm::ivec2 screenSize);
+protected:
+	unsigned int CreateProgram(std::string source);
 };
 
 #endif

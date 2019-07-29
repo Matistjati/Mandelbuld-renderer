@@ -12,10 +12,10 @@ uniform float power = 2;
 
 <uniforms>
 
-<buffers>
-
 const float maxIterations = <maxIterations>;
 const float antiAliasing = <antiAliasing>;
+
+<buffers>
 
 <constants>
 

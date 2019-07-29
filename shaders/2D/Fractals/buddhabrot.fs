@@ -1,7 +1,7 @@
 <escapeRadius>20</escapeRadius>
 <maxIterations>1000</maxIterations>
 <maxIterationsRelease>1000</maxIterationsRelease>
-<pointsPerFrame>10</pointsPerFrame>
+<pointsPerFrame>500</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
 
 <type>compute</type>
@@ -10,6 +10,7 @@
 
 
 <buffers>
+/*<bufferType>mainBuffer</bufferType>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];

@@ -9,6 +9,8 @@
 #include <map>
 #include "headers/FileManager.h"
 #include "headers/Fractal.h"
+#include <algorithm>
+#include "headers/Fractal2D.h"
 
 void Shader::use()
 {
@@ -18,6 +20,7 @@ void Shader::use()
 Shader::~Shader()
 {
 	glDeleteProgram(id);
+	GlErrorCheck();
 
 	for (auto& buffer : buffers)
 	{
@@ -98,40 +101,21 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	buffers[Fractal::rectangleVertexBufferName] = Buffer(vertexArray, Buffer::BufferType::vertexArray);
 	buffers[Fractal::rectangleVertexBufferIndexName] = Buffer(vertexIndices);
 
+	if (fShaderCode.find("<bufferType>") != std::string::npos)
+	{
+		Buffer buffer = GenerateBufferForProgram(fShaderCode);
+
+		buffers[buffer.name] = buffer;
+	}
+
+
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 	GlErrorCheck();
 }
 
-Shader::Shader(const std::string& computePath, bool path)
-{
-	type = compute;
-	std::string cShaderCode = path ? FileManager::ReadFile(computePath) : computePath;
+Shader::Shader(unsigned int id, ShaderType type) : id(id), type(type) {}
 
-	id = glCreateProgram();
-	unsigned int compute = CompileShader(GL_COMPUTE_SHADER, cShaderCode);
-
-	glAttachShader(id, compute);
-	glLinkProgram(id);
-
-
-	int success;
-	glGetProgramiv(id, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		int length;
-		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
-		std::vector<char> infoLog(length);
-		glGetProgramInfoLog(id, length, NULL, &infoLog[0]);
-		std::cerr << "Error: program linking failed\n" << std::string(infoLog.begin(), infoLog.end()) << std::endl;
-	}
-
-
-	glValidateProgram(id);
-
-	glDeleteShader(compute);
-	GlErrorCheck();
-}
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
@@ -158,6 +142,54 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	}
 
 	return id;
+}
+
+Buffer Shader::GenerateBufferForProgram(std::string source)
+{
+	size_t bufferTypeStart = source.find("<bufferType>");
+	// TODO: multiple buffers
+	if (bufferTypeStart != std::string::npos)
+	{
+		bufferTypeStart += (std::string("<bufferType>")).length();
+		std::string type = source.substr(bufferTypeStart, source.find("</bufferType>") - bufferTypeStart);
+
+		int binding = -1;
+
+		size_t bindingStart = source.find("binding", bufferTypeStart);
+
+		if (bindingStart != std::string::npos)
+		{
+			bindingStart += std::string("binding").length();
+			std::string bindingStr = source.substr(bindingStart, source.find(')', bindingStart) - bindingStart);
+			static const std::vector<char> blackList = { '=',' ' };
+
+			for (size_t i = 0; i < blackList.size(); i++)
+			{
+				bindingStr.erase(std::remove(bindingStr.begin(), bindingStr.end(), blackList[i]), bindingStr.end());
+			}
+
+			binding = std::stoi(bindingStr);
+		}
+		else
+		{
+			DebugPrint("Fatal error: could not find binding for mainbuffer at compute shader");
+			binding = 0;
+		}
+
+		int viewPort[4];
+		glGetIntegerv(GL_VIEWPORT, &viewPort[0]);
+
+		GLuint buffer;
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, viewPort[2] * viewPort[3] * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, buffer);
+
+
+		GlErrorCheck();
+		return Buffer(buffer, binding, type);
+	}
 }
 
 void Shader::SetUniform(const Uniform<float> value) const
@@ -283,4 +315,60 @@ void Shader::SetUniformStr(const std::string &name, float x, float y, float z, f
 void Shader::SetUniformStr(const std::string& name, glm::vec3 vector) const
 {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);
+}
+
+ComputeShader::ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize)
+	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute), groupSize(groupSize)
+{
+	glUseProgram(id);
+	std::string source = path ? FileManager::ReadFile(computePath) : computePath;
+	Buffer buffer = GenerateBufferForProgram(source);
+	
+	if (buffer.name == "mainBuffer")
+	{
+		mainBuffer = buffer;
+	}
+	else
+	{
+		buffers[buffer.name] = buffer;
+	}
+
+}
+
+void ComputeShader::Invoke(glm::ivec2 screenSize)
+{
+	this->use();
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, mainBuffer.id);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, mainBuffer.binding, mainBuffer.id);
+	glDispatchCompute(screenSize.x / groupSize.x + (screenSize.x % groupSize.x != 0), screenSize.y / groupSize.y + (screenSize.y % groupSize.y != 0), groupSize.z);
+}
+
+unsigned int ComputeShader::CreateProgram(std::string source)
+{
+	type = compute;
+
+	id = glCreateProgram();
+	unsigned int compute = CompileShader(GL_COMPUTE_SHADER, source);
+
+	glAttachShader(id, compute);
+	glLinkProgram(id);
+
+
+	int success;
+	glGetProgramiv(id, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		int length;
+		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
+		std::vector<char> infoLog(length);
+		glGetProgramInfoLog(id, length, NULL, &infoLog[0]);
+		std::cerr << "Error: program linking failed\n" << std::string(infoLog.begin(), infoLog.end()) << std::endl;
+	}
+
+
+	glValidateProgram(id);
+
+	glDeleteShader(compute);
+	GlErrorCheck();
+	return id;
 }

@@ -16,7 +16,7 @@
 
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 1
+	#define ScreenSize 0
 
 	// Common screen resolutions
 	#if ScreenSize == 0
@@ -370,7 +370,9 @@ int main()
 
 
 	//return -1;
-
+	
+	fractal->explorationShader->use(); 
+	GlErrorCheck();
 	// render loop
 	while (!glfwWindowShouldClose(mainWindow))
 	{
@@ -390,10 +392,14 @@ int main()
 		{
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 			glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+			// rendering, we use ray marching inside the fragment shader
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+		else if (fractal->explorationShader->type == compute)
+		{
+			reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
 		}
 
-		// render, we use ray marching inside the fragment shader
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(mainWindow);
@@ -403,9 +409,9 @@ int main()
 	}
 
 	delete fractal;
-	glfwDestroyWindow(mainWindow);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
+	glfwDestroyWindow(mainWindow);
 	glfwTerminate();
 	return 0;
 }

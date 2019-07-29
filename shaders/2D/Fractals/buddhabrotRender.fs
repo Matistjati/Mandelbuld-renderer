@@ -3,7 +3,8 @@
 </flags>
 
 <buffers>
-layout(std430, binding=0) buffer renderInput
+/*<bufferType>renderInput</bufferType>*/
+layout(std430, binding=1) buffer renderInput
 {
     vec4 points[];
 };
