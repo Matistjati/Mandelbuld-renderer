@@ -128,6 +128,7 @@ void Fractal2D::SetUniformNames()
 void Fractal2D::SaveImage(const std::string path)
 {
 	renderShader->use();
+	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
