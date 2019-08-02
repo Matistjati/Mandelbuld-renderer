@@ -81,10 +81,10 @@ void Image::Save(const char * path)
 		for (int x = 0; x < width; ++x)
 		{
 			Pixel* pixel = PixelAt(x, y);
-			*row++ = pixel->red;
-			*row++ = pixel->green;
-			*row++ = pixel->blue;
-			*row++ = pixel->alpha;
+			*row++ = pixel->r;
+			*row++ = pixel->g;
+			*row++ = pixel->b;
+			*row++ = pixel->a;
 		}
 	}
 

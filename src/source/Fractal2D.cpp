@@ -8,14 +8,16 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	screenSize, Time(), {}), power(2), position({ 0,0 })
+	screenSize, Time(), {}, 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	power(2), position({ 0,0 })
 {
 	Init();
 }
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	GetMonitorSize(), Time(), {}), power(2), position({ 0,0 })
+	GetMonitorSize(), Time(), {}, 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	power(2), position({ 0,0 })
 {
 	Init();
 }
@@ -712,6 +714,36 @@ std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 	return {};
 }
 
+std::vector<int> GetPrimeFactors(int n)
+{
+	std::vector<int> factors = std::vector<int>();
+
+
+	while (n % 2 == 0)
+	{
+		factors.push_back(2);
+		n /= 2;
+	}
+
+	int root = int(ceil(sqrt(n)));
+
+	for (int i = 3; i <= root; i+=2)
+	{
+		if (n % i == 0)
+		{
+			factors.push_back(i);
+			n /= i;
+		}
+	}
+
+	if (n > 2)
+	{
+		factors.push_back(n);
+	}
+
+	return factors;
+}
+
 Shader* Fractal2D::CreateShader(std::string source, const std::string* specification, bool highQuality, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections)
 {
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
@@ -741,6 +773,11 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 			glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupMaxProduct);
 
 			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
+
+			int viewPort[4];
+			glGetIntegerv(GL_VIEWPORT, &viewPort[0]);
+
+			std::vector<int> factors[2] = { GetPrimeFactors(viewPort[2]), GetPrimeFactors(viewPort[3]) };
 
 			int workGroups[maxDimensions] = { 1, 1, 1 };
 			for (int i = 0; i < dimensions; i++)

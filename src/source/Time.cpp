@@ -46,3 +46,8 @@ void Time::ToogleTimePause()
 	}
 	timePaused = !timePaused;
 }
+
+void Time::SetTotalTime(double time)
+{
+	firstTime = glfwGetTime() - time;
+}

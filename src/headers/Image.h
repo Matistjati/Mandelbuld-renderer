@@ -9,13 +9,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <glm.hpp>
+
+#define byte unsigned char
 
 struct Pixel
 {
-	unsigned char red;
-	unsigned char green;
-	unsigned char blue;
-	unsigned char alpha;
+	byte r;
+	byte g;
+	byte b;
+	byte a;
+
+	Pixel(byte red, byte green, byte blue, byte alpha) : r(red), g(green), b(blue), a(alpha) {}
+
+	byte& operator[](int index)
+	{
+		switch (index)
+		{
+		default: return r;
+		case 0:  return r;
+		case 1:  return g;
+		case 2:  return b;
+		case 3:  return a;
+		}
+	}
+
+	static size_t Size() { return 4; }
+
+	operator glm::ivec4() const
+	{
+		return glm::ivec4(r, g, b, a);
+	}
+
+	Pixel& operator=(const glm::ivec4 other)
+	{
+		//r = other.r;
+		g = other.g;
+		b = other.b;
+		a = other.a;
+		return *this;
+	}
 };
 
 

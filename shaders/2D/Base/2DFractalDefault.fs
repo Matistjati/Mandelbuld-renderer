@@ -7,6 +7,7 @@
 	<complexSquare>w = complexSquare(w);</complexSquare>,
 	<complexPow>w = complexPow(w, parameter);</complexPow>,
 	<translate>w += c;</translate>,
+	<translateRotated>w+=c*mat2(cos(parameter),-sin(parameter),sin(parameter),cos(parameter));</translateRotated>,
 	<lineFold>w-=2 * min(0, dot(w, parameter)) * parameter;</lineFold>,
 </operations>
 
@@ -31,7 +32,7 @@
 	vec3 mainLoop(vec2 w, out float iterations<extraParameters>)
 	{
 		<loopSetup>
-
+		w*=mat2(cos(time),-sin(time),sin(time),cos(time));
 		float i = 0;
 		for (; i < maxIterations; i++)
 		{

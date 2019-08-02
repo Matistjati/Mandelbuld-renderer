@@ -16,6 +16,7 @@ public:
 	double GetDeltaTime() const;
 	double GetTotalTime() const;
 	void ToogleTimePause();
+	void SetTotalTime(double time);
 
 private:
 	double deltaTime;

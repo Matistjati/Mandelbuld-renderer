@@ -402,6 +402,190 @@ std::vector<std::string> Fractal::GetFractalNames(std::vector<std::string> names
 	return finalNames;
 }
 
+
+void ScrollCallBackDelegate(GLFWwindow* window, double xoffset, double yoffset)
+{
+	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function ScrollCallBack");
+		break;
+	case FractalType::fractal2D:
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->ScrollCallback(window, xoffset, yoffset);
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->ScrollCallback(window, xoffset, yoffset);
+		break;
+	}
+}
+
+void MouseCallbackDelegate(GLFWwindow* window, double xpos, double ypos)
+{
+	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function MouseCallback");
+		break;
+	case FractalType::fractal2D:
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
+		break;
+	}
+}
+
+void FrameBufferSizeCallbackDelegate(GLFWwindow* window, int width, int height)
+{
+	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function FrameBufferSizeCallback");
+		break;
+	case FractalType::fractal2D:
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->FramebufferSizeCallback(window, width, height);
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->FramebufferSizeCallback(window, width, height);
+		break;
+	}
+}
+
+
+void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS && (mods & GLFW_MOD_ALT) == GLFW_MOD_ALT)
+	{
+		Fractal* fractal = reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window));
+		bool update = true;
+		switch (key)
+		{
+		default:
+			update = false;
+			break;
+		case GLFW_KEY_Q:
+			fractal->specIndex++;
+			fractal->fractalIndex = 0;
+			break;
+		case GLFW_KEY_A:
+			fractal->specIndex--;
+			fractal->specIndex = std::max(fractal->specIndex, 0);
+			fractal->fractalIndex = 0;
+			break;
+
+		case GLFW_KEY_W:
+			fractal->fractalIndex++;
+			break;
+		case GLFW_KEY_S:
+			fractal->fractalIndex--;
+			fractal->fractalIndex = std::max(fractal->fractalIndex, 0);
+			break;
+
+		case GLFW_KEY_E:
+			fractal->fractalNameIndex++;
+			fractal->fractalIndex = 0;
+			fractal->specIndex = 0;
+			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
+			break;
+		case GLFW_KEY_D:
+			fractal->fractalNameIndex--;
+			fractal->fractalIndex = 0;
+			fractal->specIndex = 0;
+			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
+			break;
+
+		case GLFW_KEY_R:
+			fractal->fractalNameIndex = 0;
+			fractal->fractalIndex = 0;
+			fractal->specIndex = 0;
+			if (fractal->fractalType == FractalType::fractal2D)
+			{
+				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			}
+			else
+			{
+				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+			delete fractal;
+			fractal = (Fractal*)glfwGetWindowUserPointer(window);
+			update = true;
+			break;
+		}
+		if (update)
+		{
+			fractal->UpdateFractalShader();
+			return;
+		}
+	}
+	switch (((Fractal*)glfwGetWindowUserPointer(window))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function KeyCallback");
+		break;
+	case FractalType::fractal2D:
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->KeyCallback(window, key, scancode, action, mods);
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->KeyCallback(window, key, scancode, action, mods);
+		break;
+	}
+}
+
+void Fractal::MainLoop(GLFWwindow* window, Fractal* fractal)
+{
+	glfwSetCursorPosCallback(window, MouseCallbackDelegate);
+	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
+	glfwSetKeyCallback(window, KeyCallbackDelegate);
+	glfwSetScrollCallback(window, ScrollCallBackDelegate);
+
+	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
+
+	if (fractal->fractalType == fractal3D)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+
+	fractal->explorationShader->use();
+	GlErrorCheck();
+
+	// render loop
+	while (!glfwWindowShouldClose(window))
+	{
+		fractal->time.value.PollTime();
+		fractal->explorationShader->SetUniform(fractal->time);
+
+		fractal->Update();
+
+#if _DEBUG
+		// Set the window title to our fps
+		std::string title = std::to_string(1 / fractal->time.value.GetDeltaTime());
+		glfwSetWindowTitle(window, title.c_str());
+#endif
+
+		fractal->explorationShader->use();
+		if (fractal->explorationShader->type == fragment)
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+			glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+			// rendering, we use ray marching inside the fragment shader
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+		else if (fractal->explorationShader->type == compute)
+		{
+			reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
+		}
+
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+		fractal = (Fractal*)glfwGetWindowUserPointer(window);
+		fractal->HandleKeyInput();
+	}
+}
+
 void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 {
 	std::vector<std::string> fractals = FileManager::GetDirectoryFileNames(fractalPath);
@@ -433,10 +617,77 @@ void Fractal::UpdateFractalShader()
 	}
 }
 
+int GetCompositeness(int n)
+{
+	int count = 0;
+
+
+	while (n % 2 == 0)
+	{
+		count++;
+		n /= 2;
+	}
+
+	int root = int(ceil(sqrt(n)));
+
+	for (int i = 3; i <= root; i += 2)
+	{
+		if (n % i == 0)
+		{
+			count++;
+			n /= i;
+		}
+	}
+
+	if (n > 2)
+	{
+		count++;
+	}
+
+	return count;
+}
+
+int GetMostCompositeInRange(int n, float deviation)
+{
+	int lowerBound = int(n - n * deviation);
+	int upperBound = int(n + n * deviation);
+
+	std::vector<int> numbers(upperBound - lowerBound);
+
+	for (size_t i = 0; i < numbers.size(); i++)
+	{
+		numbers[i] = GetCompositeness(lowerBound + i);
+	}
+
+	int maxFactors = -1;
+	int maxNumber = -1;
+
+	for (int i = 0; i < numbers.size(); i++)
+	{
+		if (numbers[i] > maxFactors)
+		{
+			maxFactors = numbers[i];
+			maxNumber = lowerBound + i;
+		}
+	}
+
+	return maxNumber;
+}
+
 glm::ivec2 Fractal::GetMonitorSize()
 {
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	return glm::ivec2(mode->width, mode->height);
+	glm::ivec2 result = { mode->width, mode->height };
+
+	for (int i = 0; i < result.length(); i++)
+	{
+		if (GetCompositeness(result[i]) == 1)
+		{
+			result[i] = GetMostCompositeInRange(result[i], 0.01);
+		}
+	}
+
+	return result;
 }
 
 
