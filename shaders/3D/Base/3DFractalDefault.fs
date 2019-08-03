@@ -23,17 +23,17 @@
 
 <distanceSetup>
 	<scaleInit>float Scale = <scale>;</scaleInit>,
-	<defaultSetup>vec3 c = w; float m; vec4 trap = vec4(abs(w),m); float dr = 1.0;</defaultSetup>,
-	<mandelBulbInit>vec3 c = w; float m = dot(w,w); vec4 trap = vec4(abs(w),m); float dr = 1.0;</mandelBulbInit>,
+	<defaultSetup>vec3 c = w; float m; vec4 trap = vec4(abs(w),m); float dw = 1.0;</defaultSetup>,
+	<mandelBulbInit>vec3 c = w; float m = dot(w,w); vec4 trap = vec4(abs(w),m); float dw = 1.0;</mandelBulbInit>,
 </distanceSetup>
 
 <operations>
 	<boxFold>boxFold(w, <foldingLimit>);</boxFold>,
-	<sphereFold>m = dot(w, w);	sphereFold(w, dr, m, <innerRadius>, <outerRadius>);</sphereFold>,
-	<triplexPow>w = triplexPow(w, power, dr, m);</triplexPow>,
+	<sphereFold>m = dot(w, w);	sphereFold(w, dw, m, <innerRadius>, <outerRadius>);</sphereFold>,
+	<triplexPow>w = triplexPow(w, power, dw, m);</triplexPow>,
 	<scaleAndTranslate>w=Scale*w + c;</scaleAndTranslate>,
 	<translate>w+=c;</translate>,
-	<mandelBoxDerivative>dr = dr*abs(Scale)+1.0;</mandelBoxDerivative>,
+	<mandelBoxDerivative>dw = dw*abs(Scale)+1.0;</mandelBoxDerivative>,
 	<sinY>w.y = sin(w.y);</sinY>,
 	<addLength>w+=length(w);</addLength>,
 	<mulW>w*=parameter;</mulW>,
@@ -42,8 +42,8 @@
 </operations>
 
 <distanceReturn>
-	<mandelBoxDist>length(w)/abs(dr);</mandelBoxDist>,
-	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dr);</mandelBulbDist>,
+	<mandelBoxDist>length(w)/abs(dw);</mandelBoxDist>,
+	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dw);</mandelBulbDist>,
 </distanceReturn>
 
 <distanceTrap>
@@ -74,25 +74,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		//w*=rotation;
 
 		<distanceSetup>
-
-
-		/*const vec3 n1 = vec3(0, 1, 0);
-		const vec3 n2 = vec3(-0.9510565, 0.30901, 0);
-		const vec3 n3 = vec3(-0.588, -0.809, 0);
-		const vec3 n4 = vec3(0.588, -0.809, 0);
-		const vec3 n5 = vec3(0.9510565, 0.30901, 0);*/
-
-		/*			w-=2 * min(0, dot(w, n1)) * n1;
-			w-=2 * min(0, dot(w, n2)) * n2;
-			w-=2 * min(0, dot(w, n5)) * n5;
-			w-=2 * min(0, dot(w, n4)) * n4;
-			w-=2 * min(0, dot(w, n3)) * n3;*/
-
-		/*			w-=2 * min(0, dot(w, n2)) * n2;
-			w-=2 * min(0, dot(w, n4)) * n4;
-			w-=2 * min(0, dot(w, n5)) * n5;
-			w-=2 * min(0, dot(w, n1)) * n1;
-			w-=2 * min(0, dot(w, n3)) * n3;*/
 
 		//			w*=rotation;
 		//			w+=position;
