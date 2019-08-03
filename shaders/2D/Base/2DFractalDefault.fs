@@ -32,7 +32,7 @@
 	vec3 mainLoop(vec2 w, out float iterations<extraParameters>)
 	{
 		<loopSetup>
-		w*=mat2(cos(time),-sin(time),sin(time),cos(time));
+
 		float i = 0;
 		for (; i < maxIterations; i++)
 		{

@@ -181,8 +181,8 @@ void Fractal3D::SaveImage(const std::string path)
 
 
 	
-	Pixel* data = (Pixel*)malloc(screenSize.value.x * screenSize.value.y * 4);
-	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
+	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 
 	explorationShader->use();

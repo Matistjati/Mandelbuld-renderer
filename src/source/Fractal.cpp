@@ -592,7 +592,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	const double dt = 0.3;
 	const double pi2 = 6.28318530717958647692528676655;
 	const int imageCount = int(pi2 / dt) + 1;
-	const int pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
+	const size_t pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
 
 
 	//fractal->zoom.value = 0.0150609445;
@@ -631,7 +631,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	}
 	GlErrorCheck();
 
-	for (int i = 0; i < pixelCount; i++)
+	for (size_t i = 0; i < pixelCount; i++)
 	{
 		images[i] /= imageCount;
 	}
@@ -641,12 +641,11 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 
 	try
 	{
+		const static std::string baseName = "TestImage/image";
 		int count = 0;
-		while (FileManager::FileExists("C:/users/matis/desktop/avg"+std::to_string(count)+".png"))
-		{
-			count++;
-		}
-		image.Save(std::string("C:/users/matis/desktop/avg" + std::to_string(count) + ".png").c_str());
+		while (FileManager::FileExists(baseName + std::to_string(count) + ".png")) count++;
+
+		image.Save((baseName + std::to_string(count) + ".png").c_str());
 	}
 	catch (const std::exception& e)
 	{

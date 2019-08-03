@@ -69,13 +69,13 @@ struct Pixel
 class Image
 {
 public:
-	Image(int width, int height, Pixel* pixels);
+	Image(int width, int height, std::vector<Pixel> pixels);
 	Image(int width, int height, std::vector<glm::ivec4> pixels);
-	~Image();
+
 	void Save(const char *path);
 	void FlipVertically();
 
-	Pixel* pixels;
+	std::vector<Pixel> pixels;
 	int width;
 	int height;
 private:

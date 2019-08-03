@@ -2,29 +2,21 @@
 #include <stdexcept>
 #include <iostream>
 
-Image::Image(int width, int height, Pixel * pixels) : width(width), height(height)
-{
-	if (pixels == nullptr) throw std::invalid_argument("pixels is null");
-	this->pixels = pixels;
-}
+Image::Image(int width, int height, std::vector<Pixel> pixels) : width(width), height(height), pixels(pixels)
+{}
 
 Image::Image(int width, int height, std::vector<glm::ivec4> pixels) : width(width), height(height)
 {
-	Pixel* data = (Pixel*)malloc(width * height * sizeof(Pixel));
+	std::vector<Pixel> data = std::vector<Pixel>(width * height);
 
-	if (data == nullptr) throw new std::exception("Out of memory");
-
-	for (size_t i = 0; i < width * height; i++)
+	size_t pixelCount = width * height;
+	for (size_t i = 0; i < pixelCount; i++)
 	{
 		data[i] = Pixel(pixels[i]);
 	}
 	this->pixels = data;
 }
 
-Image::~Image()
-{
-	free(pixels);
-}
 
 // You know i stole the code when there are comments in it :)
 void Image::Save(const char * path)
@@ -127,7 +119,7 @@ void Image::FlipVertically()
 
 inline Pixel* Image::PixelAt(int x, int y)
 {
-	return pixels + width * y + x;
+	return &pixels[width * y + x];
 }
 
 inline void Image::Swap(Pixel * a, Pixel * b)

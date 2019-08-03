@@ -20,7 +20,7 @@ enum Purpose
 	explore,
 };
 
-constexpr Purpose programPurpose = singleImage;
+constexpr Purpose programPurpose = explore;
 
 // Screensize
 #define ConstWindowSize 1
@@ -53,7 +53,7 @@ constexpr Purpose programPurpose = singleImage;
 #define DefaultFractal Fractal2D
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalIndex = 0;
-constexpr auto DefaultFractalNameIndex = 1;
+constexpr auto DefaultFractalNameIndex = 0;
 constexpr auto ProgramName = "Mandelbulb";
 
 

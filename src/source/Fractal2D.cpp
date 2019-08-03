@@ -137,8 +137,8 @@ void Fractal2D::SaveImage(const std::string path)
 
 
 
-	Pixel* data = (Pixel*)malloc(screenSize.value.x * screenSize.value.y * sizeof(Pixel));
-	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
+	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 
 	explorationShader->use();
@@ -164,17 +164,12 @@ void Fractal2D::SaveImage(const std::string path)
 
 void Fractal2D::FindPathAndSaveImage()
 {
-	const std::string baseName = "TestImage/image";
+	const static std::string baseName = "TestImage/image";
 	int count = 0;
-	while (1)
-	{
-		if (!FileManager::FileExists((baseName + std::to_string(count) + ".png")))
-		{
-			SaveImage(baseName + std::to_string(count) + ".png");
-			return;
-		}
-		count++;
-	}
+	// Finding the first unused file with name-pattern imageN.png where n is the number ascending
+	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
+
+	SaveImage(baseName + std::to_string(count) + ".png");
 }
 
 void Fractal2D::SetVariable(std::string name, std::string value)
