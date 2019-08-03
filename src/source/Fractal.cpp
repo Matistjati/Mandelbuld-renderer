@@ -2,6 +2,7 @@
 #include "headers/Fractal2d.h"
 #include "headers/Fractal3d.h"
 #include "headers/Debug.h"
+#include "headers/Image.h"
 #include <headers/FileManager.h>
 #include <iostream>
 #include <fstream>
@@ -533,7 +534,7 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-void Fractal::MainLoop(GLFWwindow* window, Fractal* fractal)
+void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 {
 	glfwSetCursorPosCallback(window, MouseCallbackDelegate);
 	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
@@ -583,6 +584,94 @@ void Fractal::MainLoop(GLFWwindow* window, Fractal* fractal)
 		glfwPollEvents();
 		fractal = (Fractal*)glfwGetWindowUserPointer(window);
 		fractal->HandleKeyInput();
+	}
+}
+
+void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
+{
+	const double dt = 0.1;
+	const double pi2 = 6.28318530717958647692528676655;
+	const int imageCount = int(pi2 / dt) + 1;
+	const int pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
+
+
+
+	//fractal->zoom.value = 0.0150609445;
+	//(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.73962032;
+	//(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.210820600;
+	fractal->zoom.value = 1.3f;
+	(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.23962032f;
+	(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.f;
+
+
+	fractal->renderShader->use();
+	fractal->SetUniformLocations(fractal->renderShader);
+	fractal->SetUniforms(fractal->renderShader);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+
+
+	std::vector<Pixel*> images = std::vector<Pixel*>(imageCount);
+	int count = 0;
+	for (double time = 0; time < pi2; time+=dt, count++)
+	{
+		fractal->time.value.SetTotalTime(time);
+		fractal->explorationShader->SetUniform(fractal->time);
+
+
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+
+		Pixel* data = (Pixel*)malloc(pixelCount * sizeof(Pixel));
+		glReadPixels(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		images[count] = data;
+		GlErrorCheck();
+	}
+
+	Pixel* dataAverage = (Pixel*)malloc(pixelCount * sizeof(Pixel));
+
+	if (dataAverage == nullptr)
+	{
+		throw new std::exception("Out of memory");
+	}
+
+	for (int i = 0; i < pixelCount; i++)
+	{
+		int sumR = 0;
+		int sumG = 0;
+		int sumB = 0;
+		int sumA = 0;
+		for (int j = 0; j < imageCount; j++)
+		{
+			Pixel* cur = images[j];
+			sumR += cur[i].r;
+			sumG += cur[i].g;
+			sumB += cur[i].b;
+			sumA += cur[i].a;
+		}
+		dataAverage[i] = Pixel(sumR / imageCount, sumG / imageCount, sumB / imageCount, sumA / imageCount);
+	}
+
+
+
+	Image image(fractal->screenSize.value.x, fractal->screenSize.value.y, dataAverage);
+
+	image.FlipVertically();
+
+	try
+	{
+		int count = 0;
+		while (FileManager::FileExists("C:/users/matis/desktop/avg"+std::to_string(count)+".png"))
+		{
+			count++;
+		}
+		image.Save(std::string("C:/users/matis/desktop/avg" + std::to_string(count) + ".png").c_str());
+	}
+	catch (const std::exception& e)
+	{
+		DebugPrint("Error saving image: " + *e.what());
 	}
 }
 
@@ -662,7 +751,7 @@ int GetMostCompositeInRange(int n, float deviation)
 	int maxFactors = -1;
 	int maxNumber = -1;
 
-	for (int i = 0; i < numbers.size(); i++)
+	for (size_t i = 0; i < numbers.size(); i++)
 	{
 		if (numbers[i] > maxFactors)
 		{
@@ -683,7 +772,7 @@ glm::ivec2 Fractal::GetMonitorSize()
 	{
 		if (GetCompositeness(result[i]) == 1)
 		{
-			result[i] = GetMostCompositeInRange(result[i], 0.01);
+			result[i] = GetMostCompositeInRange(result[i], 0.01f);
 		}
 	}
 

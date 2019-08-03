@@ -93,7 +93,8 @@ public:
 		fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices)
 	{}
 
-	static void MainLoop(GLFWwindow* window, Fractal* fractal);
+	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
+	static void GenerateSingleImage(GLFWwindow* window, Fractal* fractal);
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
 	void UpdateFractalShader();
 	static glm::ivec2 GetMonitorSize();
