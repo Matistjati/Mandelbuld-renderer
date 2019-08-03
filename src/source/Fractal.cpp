@@ -589,11 +589,10 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 
 void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 {
-	const double dt = 0.1;
+	const double dt = 0.3;
 	const double pi2 = 6.28318530717958647692528676655;
 	const int imageCount = int(pi2 / dt) + 1;
 	const int pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
-
 
 
 	//fractal->zoom.value = 0.0150609445;
@@ -611,53 +610,33 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
 
 
-	std::vector<Pixel*> images = std::vector<Pixel*>(imageCount);
-	int count = 0;
-	for (double time = 0; time < pi2; time+=dt, count++)
+	std::vector<glm::ivec4> images = std::vector<glm::ivec4>(pixelCount);
+	std::vector<Pixel> currentImage = std::vector<Pixel>(pixelCount);
+
+	GlErrorCheck();
+	for (double time = 0; time < pi2; time+=dt)
 	{
 		fractal->time.value.SetTotalTime(time);
 		fractal->explorationShader->SetUniform(fractal->time);
 
 
-
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glReadPixels(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &currentImage[0]);
 
 
-
-		Pixel* data = (Pixel*)malloc(pixelCount * sizeof(Pixel));
-		glReadPixels(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		images[count] = data;
-		GlErrorCheck();
+		for (size_t i = 0; i < pixelCount; i++)
+		{
+			images[i] += (glm::ivec4)currentImage[i];
+		}
 	}
-
-	Pixel* dataAverage = (Pixel*)malloc(pixelCount * sizeof(Pixel));
-
-	if (dataAverage == nullptr)
-	{
-		throw new std::exception("Out of memory");
-	}
+	GlErrorCheck();
 
 	for (int i = 0; i < pixelCount; i++)
 	{
-		int sumR = 0;
-		int sumG = 0;
-		int sumB = 0;
-		int sumA = 0;
-		for (int j = 0; j < imageCount; j++)
-		{
-			Pixel* cur = images[j];
-			sumR += cur[i].r;
-			sumG += cur[i].g;
-			sumB += cur[i].b;
-			sumA += cur[i].a;
-		}
-		dataAverage[i] = Pixel(sumR / imageCount, sumG / imageCount, sumB / imageCount, sumA / imageCount);
+		images[i] /= imageCount;
 	}
 
-
-
-	Image image(fractal->screenSize.value.x, fractal->screenSize.value.y, dataAverage);
-
+	Image image(fractal->screenSize.value.x, fractal->screenSize.value.y, images);
 	image.FlipVertically();
 
 	try

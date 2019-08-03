@@ -4,11 +4,21 @@
 
 Image::Image(int width, int height, Pixel * pixels) : width(width), height(height)
 {
-	if (pixels == nullptr)
-	{
-		throw std::invalid_argument("pixels is null");
-	}
+	if (pixels == nullptr) throw std::invalid_argument("pixels is null");
 	this->pixels = pixels;
+}
+
+Image::Image(int width, int height, std::vector<glm::ivec4> pixels) : width(width), height(height)
+{
+	Pixel* data = (Pixel*)malloc(width * height * sizeof(Pixel));
+
+	if (data == nullptr) throw new std::exception("Out of memory");
+
+	for (size_t i = 0; i < width * height; i++)
+	{
+		data[i] = Pixel(pixels[i]);
+	}
+	this->pixels = data;
 }
 
 Image::~Image()
