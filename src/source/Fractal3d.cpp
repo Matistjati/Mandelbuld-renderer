@@ -1,5 +1,5 @@
 #include "headers/FileManager.h"
-#include "headers/Fractal3d.h"
+#include "headers/Fractal3D.h"
 #include "headers/Image.h"
 #include "headers/Debug.h"
 #include <map>

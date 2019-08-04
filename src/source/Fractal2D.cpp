@@ -536,11 +536,16 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 		std::vector<std::string> includeList = Fractal::Split(includes, ',');
 
-		std::string helperFunctions = FileManager::ReadFile(Fractal2D::helperFunctions);
+		const static std::string helperFunctions = FileManager::ReadFile(Fractal2D::helperFunctions);
 
 		for (size_t i = 0; i < includeList.size(); i++)
 		{
-			functions += GetSection(Section(includeList[i]), helperFunctions);
+			std::string content = "";
+			if ((content = GetSection(Section(includeList[i]), helperFunctions)) == "")
+			{
+				content = GetSection(Section(includeList[i]), source);
+			}
+			functions += content;
 		}
 	}
 

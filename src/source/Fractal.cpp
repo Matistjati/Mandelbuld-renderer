@@ -1,6 +1,6 @@
 #include "headers/Fractal.h"
-#include "headers/Fractal2d.h"
-#include "headers/Fractal3d.h"
+#include "headers/Fractal2D.h"
+#include "headers/Fractal3D.h"
 #include "headers/Debug.h"
 #include "headers/Image.h"
 #include <headers/FileManager.h>
@@ -598,8 +598,8 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	//fractal->zoom.value = 0.0150609445;
 	//(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.73962032;
 	//(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.210820600;
-	fractal->zoom.value = 1.3f;
-	(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.23962032f;
+	fractal->zoom.value = 2.16f;
+	(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.18303f;
 	(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.f;
 
 

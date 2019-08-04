@@ -9,6 +9,7 @@
 	<translate>w += c;</translate>,
 	<translateRotated>w+=c*mat2(cos(parameter),-sin(parameter),sin(parameter),cos(parameter));</translateRotated>,
 	<lineFold>w-=2 * min(0, dot(w, parameter)) * parameter;</lineFold>,
+	<complexTan>parameter = complexTan(parameter);</complexTan>,
 </operations>
 
 <loopSetup>

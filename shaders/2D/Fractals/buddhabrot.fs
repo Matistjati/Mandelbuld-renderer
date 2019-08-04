@@ -57,7 +57,7 @@ uniform int count;
 </main>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, getStartValue
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, getStartValue, complexTan
 </include>
 
 <loopTrap>
@@ -77,3 +77,23 @@ uniform int count;
 <loopBreakCondition>
 	<distanceBreakReturnCount>if (dot(w,w) > <escapeRadius>) return count;</distanceBreakReturnCount>,
 </loopBreakCondition>
+
+<getStartValue>
+vec2 getStartValue(int seed)
+{
+    uint hash = uint(seed);
+
+    vec2 retval = vec2(-1000);
+    for(int i = 0; i <startPointAttempts; ++i)
+    {
+        vec2 random = hash2(hash,hash);
+        vec2 point = vec2(random.x * 3.5-2.5,random.y*1.55);
+
+        if (notInMainBulb(point) && notInMainCardioid(point))
+		{
+			return point;
+		}
+    }
+    return retval;
+}
+</getStartValue>

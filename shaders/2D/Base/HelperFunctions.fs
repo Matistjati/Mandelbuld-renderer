@@ -13,22 +13,16 @@ vec2 complexPow(vec2 z, float power)
 }
 </complexPow>
 
-<iterationColorRed>
-vec3 iterationColorRed(float iterations)
+<complexTan>
+vec2 complexTan(vec2 w)
 {
-	float c = 3 * log(iterations) / log(maxIterations)-clamp(1-(zoom),0,1);
+	vec2 w2 = w * 2;
 
-																		// Black interior- multiplication by 0- thus black if iterations==maxIterations
-	return vec3(clamp(c, 0, 1), clamp(c - 1, 0, 1), clamp(c - 2, 0, 1))*sign(1-iterations/maxIterations);
-}
-</iterationColorRed>
+	float denominator = cos(w2.x)+cosh(w2.y);
 
-<periodicLastPositionColor>
-vec3 periodicLastPositionColor(vec2 w)
-{
-	return vec3(sin(w.x/length(w)),cos(w.y*dot(w,w)),  cos(20*length(w)));
+	return vec2(sin(w2.x)/denominator, sinh(w2.y)/denominator);
 }
-</periodicLastPositionColor>
+</complexTan>
 
 <intHash>
 uint intHash(uint x)
@@ -68,23 +62,3 @@ bool notInMainBulb(vec2 z)
     return bool(step(0.062499999,dot(z,z)));
 }
 </notInMainBulb>
-
-<getStartValue>
-vec2 getStartValue(int seed)
-{
-    uint hash = uint(seed);
-
-    vec2 retval = vec2(-1000);
-    for(int i = 0; i <startPointAttempts; ++i)
-    {
-        vec2 random = hash2(hash,hash);
-        vec2 point = vec2(random.x * 3.5-2.5,random.y*1.55);
-
-        if (notInMainBulb(point) && notInMainCardioid(point))
-		{
-			return point;
-		}
-    }
-    return retval;
-}
-</getStartValue>

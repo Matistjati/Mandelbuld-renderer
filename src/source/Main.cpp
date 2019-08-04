@@ -10,7 +10,7 @@
 #include "headers/shader.h"
 #include "headers/Image.h"
 #include "headers/FileManager.h"
-#include "headers/Fractal3d.h"
+#include "headers/Fractal3D.h"
 #include "headers/Fractal2D.h"
 #include "headers/Debug.h"
 
@@ -20,12 +20,12 @@ enum Purpose
 	explore,
 };
 
-constexpr Purpose programPurpose = explore;
+constexpr Purpose programPurpose = Purpose::explore;
 
 // Screensize
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 2
+	#define ScreenSize 0
 
 	// Common screen resolutions
 	#if ScreenSize == 0
@@ -52,8 +52,8 @@ constexpr Purpose programPurpose = explore;
 // Starting fractal
 #define DefaultFractal Fractal2D
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalIndex = 0;
-constexpr auto DefaultFractalNameIndex = 0;
+constexpr auto DefaultFractalIndex = 3;
+constexpr auto DefaultFractalNameIndex = 1;
 constexpr auto ProgramName = "Mandelbulb";
 
 
@@ -70,11 +70,11 @@ int main()
 #else
 	// glfw window creation
 	glm::ivec2 screenSize = Fractal::GetMonitorSize();
-#if _DEBUG
-	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, NULL, NULL);
-#else
-	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), NULL);
-#endif
+	#if _DEBUG
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, NULL, NULL);
+	#else
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), NULL);
+	#endif
 #endif
 
 	if (!mainWindow)
