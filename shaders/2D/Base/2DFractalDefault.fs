@@ -10,6 +10,8 @@
 	<translateRotated>w+=c*mat2(cos(parameter),-sin(parameter),sin(parameter),cos(parameter));</translateRotated>,
 	<lineFold>w-=2 * min(0, dot(w, parameter)) * parameter;</lineFold>,
 	<complexTan>parameter = complexTan(parameter);</complexTan>,
+	<complexSin>parameter = complexSin(parameter);</complexSin>,
+	<complexCos>parameter = complexCos(parameter);</complexCos>,
 </operations>
 
 <loopSetup>
@@ -18,6 +20,7 @@
 
 <loopReturn>
 	<escapeColor>iterationColorRed(float(i));</escapeColor>,
+	<escapeColorPeriodicCos>escapeColorPeriodic(i, parameter, parameter1, parameter2);</escapeColorPeriodicCos>,
 </loopReturn>
 
 <loopTrap>
@@ -60,8 +63,28 @@
 </main>
 
 <mainAA>
+// Average
+#if 1
 	vec3 col = vec3(0.0);
-	float minIterations = 1e9; // Big starting value, assuring that iterations will always be less than this
+
+	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
+	vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
+	for (float i = 0; i < antiAliasing; i++)
+	{
+		vec2 c = mix(p, p2, i/antiAliasing) * zoom + position;
+
+		float iterations = 0;
+		col += mainLoop(c, iterations);
+
+	}
+	col /= antiAliasing;
+    color = vec4(col.xyz, 1.0);
+
+#else
+// Minimum iteration count
+
+	vec3 col = vec3(0.0);
+
 	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
 	vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
 	for (float i = 0; i < antiAliasing; i++)
@@ -75,6 +98,7 @@
 	}
 
     color = vec4(col.xyz, 1.0);
+#endif
 </mainAA>
 
 /*

@@ -797,7 +797,7 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 
 	std::string distanceSpec = GetSection(targetSection, specification);
 
-	std::vector<std::string> distanceSections = SplitNotInChar(distanceSpec, ',', '[', ']');
+	std::vector<std::string> distanceSections = SplitNotInChar(distanceSpec, ',', { {'[', ']'}, {'(', ')'} });
 
 	for (size_t k = 0; k < distanceSections.size(); k++)
 	{
@@ -879,7 +879,37 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 							parameterStart++;
 							std::string parameterValue = toReplace[j].substr(parameterStart, parameterEnd - parameterStart);
 
-							while (Replace(newSection, "parameter", parameterValue)) {}
+							std::vector<std::string> parameters = SplitNotInChar(parameterValue, ',', { { '(', ')' } });
+
+							// The first parameter is simply named parameter instead of parameter0
+							// This causes conflict with the normal replace function, since it will match with parameter1, parameter2, etc.
+							if (parameters.size())
+							{
+								while (true)
+								{
+									size_t start = newSection.find("parameter");
+									if (start == std::string::npos) break;
+
+									char parameterPostfix = newSection[start + std::string("parameter").length()];
+									if (parameterPostfix < 48 || parameterPostfix > 57) // The postfix isn't a number
+									{
+										Replace(newSection, "parameter", parameters[0]);
+									}
+									else
+									{
+										break;
+									}
+								}
+							}
+
+							if (parameters.size() > 1)
+							{
+								for (size_t i = 1; i < parameters.size(); i++)
+								{
+									while (Replace(newSection, "parameter" + std::to_string(i), parameters[i])) {}
+								}
+							}
+
 						}
 					}
 

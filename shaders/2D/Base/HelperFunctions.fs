@@ -24,6 +24,20 @@ vec2 complexTan(vec2 w)
 }
 </complexTan>
 
+<complexSin>
+vec2 complexSin(vec2 w)
+{
+	return vec2(sin(w.x)*cosh(w.y), cos(w.x)*sinh(w.y));
+}
+</complexSin>
+
+<complexCos>
+vec2 complexCos(vec2 w)
+{
+	return vec2(cos(w.x)*cosh(w.y), -sin(w.x)*sinh(w.y));
+}
+</complexCos>
+
 <intHash>
 uint intHash(uint x)
 {

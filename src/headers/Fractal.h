@@ -130,6 +130,7 @@ public:
 
 protected:
 	static bool Replace(std::string& str, const std::string& from, const std::string& to);
+	static bool ReplaceExact(std::string& str, const std::string& from, const std::string& to);
 	static bool ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool ReplaceSection(Section section, std::string& origin, std::string& dest);
 	static std::string GetSection(Section s, std::string from, size_t start = 0);
