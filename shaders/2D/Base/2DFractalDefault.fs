@@ -42,6 +42,8 @@
 		{
 			<loopBody>
 
+			<loopExtraOperations>
+
 			<loopTrap>
 
 			<loopBreakCondition>

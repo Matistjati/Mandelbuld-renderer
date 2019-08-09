@@ -68,6 +68,15 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			update = true;
 			break;
 
+		case GLFW_KEY_W:
+			(*shaderIndices["loopExtraOperations"])++;
+			update = true;
+			break;
+		case GLFW_KEY_S:
+			(*shaderIndices["loopExtraOperations"])--;
+			update = true;
+			break;
+
 		case GLFW_KEY_X:
 			BreakIfDebug();
 			break;
@@ -719,7 +728,7 @@ void Fractal2D::Init()
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
-	return { {"loopReturn", new int(0)} };
+	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)} };
 }
 
 std::vector<int> GetPrimeFactors(int n)

@@ -601,7 +601,9 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	fractal->zoom.value = 2.16f;
 	(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.18303f;
 	(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.f;
-
+	*fractal->shaderIndices["loopExtraOperations"] = 2;
+	*fractal->shaderIndices["loopReturn"] = 1;
+	fractal->UpdateFractalShader();
 
 	fractal->renderShader->use();
 	fractal->SetUniformLocations(fractal->renderShader);

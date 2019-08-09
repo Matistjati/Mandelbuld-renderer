@@ -68,6 +68,15 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			update = true;
 			break;
 
+		case GLFW_KEY_W:
+			(*shaderIndices["distanceSetup"])++;
+			update = true;
+			break;
+		case GLFW_KEY_S:
+			(*shaderIndices["distanceSetup"])--;
+			update = true;
+			break;
+
 		case GLFW_KEY_X:
 			BreakIfDebug();
 			break;
@@ -509,7 +518,7 @@ void Fractal3D::Init()
 
 std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()
 {
-	return { {"coloring", new int(0)} };
+	return { {"coloring", new int(0)}, {"distanceSetup", new int(0)}, };
 }
 
 // This is really nasty, be careful

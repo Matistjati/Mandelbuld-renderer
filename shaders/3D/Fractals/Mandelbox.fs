@@ -2,12 +2,12 @@
 [innerRadius], [outerRadius], [foldingLimit], [scale]
 </extraSections>
 
-<maxIterations>32</maxIterations>
+<maxIterations>8</maxIterations>
 <maxSteps>100</maxSteps>
-<maxIterationsRelease>32</maxIterationsRelease>
+<maxIterationsRelease>8</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
-<zoomDetailRatio>.01</zoomDetailRatio>
+<zoomDetailRatio>.1</zoomDetailRatio>
 
 <maxDist>power*7</maxDist>
 <maxDistRelease>power*15</maxDistRelease>

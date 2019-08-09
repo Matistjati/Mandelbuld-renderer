@@ -22,6 +22,12 @@
 </sun>
 
 <distanceSetup>
+	<sinTanW>w = sin(w); w = tan(w);</sinTanW>,
+	<sinW>w = sin(w);</sinW>,
+	<tanW>w=tan(w);</tanW>,
+	<sinWxz>w.xz=sin(w.xz);</sinWxz>,
+	<subWLength>w-=length(w);</subWLength>,
+	<addPositionToW>w+=position;</addPositionToW>,
 	<scaleInit>float Scale = <scale>;</scaleInit>,
 	<defaultSetup>vec3 c = w; float m; vec4 trap = vec4(abs(w),m); float dw = 1.0;</defaultSetup>,
 	<mandelBulbInit>vec3 c = w; float m = dot(w,w); vec4 trap = vec4(abs(w),m); float dw = 1.0;</mandelBulbInit>,
@@ -62,25 +68,14 @@
 <distanceEstimator>
 float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 	{
-		//w = sin(w); w = tan(w);
-		//w = sin(w);
-
-		//w=tan(w);
-		//w-=length(w);
-
-		//w.x=sin(w.x);
-		//w.z=sin(w.z);
-		//w/=length(position);
-		//w*=rotation;
-
 		<distanceSetup>
 
-		//			w*=rotation;
-		//			w+=position;
+		//w*=rotation;
+					
 
 
 
-		//			w+=cross(w, position);
+		//		w+=cross(w, position);
 
 		// w.x+=dot(position,position); pos {x=0.323416412 y=0.588775635 z=2.41064572 ...}
 

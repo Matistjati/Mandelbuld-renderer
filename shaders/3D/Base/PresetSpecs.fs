@@ -21,7 +21,8 @@
 	<distanceEstimator>
 		<distanceReturn>[mandelBoxDist]</distanceReturn>,
 		<distanceTrap>[defaultTrap]</distanceTrap>,
-		<distanceSetup>[scaleInit, defaultSetup]</distanceSetup>,
+		<distanceSetup>[[scaleInit, defaultSetup], [sinTanW, scaleInit, defaultSetup], [scaleInit, defaultSetup, sinTanW], [tanW, scaleInit, defaultSetup],
+						[sinWxz, scaleInit, defaultSetup], [subWLength, scaleInit, defaultSetup],]</distanceSetup>,
 		<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
 		<distanceBreakCondition>[none]</distanceBreakCondition>,
 	</distanceEstimator>
@@ -37,7 +38,7 @@
 <distanceEstimator>
 	<distanceReturn>[mandelBulbDist]</distanceReturn>,
 	<distanceTrap>[defaultTrap]</distanceTrap>,
-	<distanceSetup>[mandelBulbInit]</distanceSetup>,
+	<distanceSetup>[[mandelBulbInit], [sinTanW, mandelBulbInit], [sinW, mandelBulbInit], [sinWxz, mandelBulbInit]]</distanceSetup>,
 	<distanceTrapReturn>[mandelBulbTrapReturn]</distanceTrapReturn>,
 	<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
 </distanceEstimator>

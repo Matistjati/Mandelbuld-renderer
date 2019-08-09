@@ -26,33 +26,27 @@ constexpr Purpose programPurpose = Purpose::explore;
 #define ConstWindowSize 1
 #if ConstWindowSize
 	#define ScreenSize 2
-
+	
 	// Common screen resolutions
 	#if ScreenSize == 0
-		constexpr auto ConstScreenSizeX = 500;
-		constexpr auto ConstScreenSizeY = 500;
+		const glm::ivec2 screenSize = { 500, 500 };
 	#elif ScreenSize == 1
-		constexpr auto ConstScreenSizeX = 1280;
-		constexpr auto ConstScreenSizeY = 720;
+		const glm::ivec2 screenSize = { 1280, 720 };
 	#elif ScreenSize == 2
-		constexpr auto ConstScreenSizeX = 1920;
-		constexpr auto ConstScreenSizeY = 1080;
+		const glm::ivec2 screenSize = { 1920, 1080 };
 	#elif ScreenSize == 3
-		constexpr auto ConstScreenSizeX = 2560;
-		constexpr auto ConstScreenSizeY = 1440;
+		const glm::ivec2 screenSize = { 2560, 1440 };
 	#elif ScreenSize == 4
-		constexpr auto ConstScreenSizeX = 3840;
-		constexpr auto ConstScreenSizeY = 2160;
+		const glm::ivec2 screenSize = { 3840, 2160 };
 	#elif ScreenSize == 5
-		constexpr auto ConstScreenSizeX = 7680;
-		constexpr auto ConstScreenSizeY = 4320;
+		const glm::ivec2 screenSize = { 7680, 4320 };
 	#endif
 #endif
 
 // Starting fractal
 #define DefaultFractal Fractal2D
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalIndex = 5;
+constexpr auto DefaultFractalIndex = 2;
 constexpr auto DefaultFractalNameIndex = 1;
 constexpr auto ProgramName = "Mandelbulb";
 
@@ -66,14 +60,14 @@ int main()
 	}
 
 #if ConstWindowSize
-	GLFWwindow* mainWindow = glfwCreateWindow(ConstScreenSizeX, ConstScreenSizeY, ProgramName, NULL, NULL);
+	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 #else
 	// glfw window creation
 	glm::ivec2 screenSize = Fractal::GetMonitorSize();
 	#if _DEBUG
-		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, NULL, NULL);
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 	#else
-		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), NULL);
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), nullptr);
 	#endif
 #endif
 
@@ -97,13 +91,14 @@ int main()
 #endif
 
 #if ConstWindowSize
-	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, glm::ivec2(ConstScreenSizeX, ConstScreenSizeY));
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
 #else
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
 #endif
 
 	glfwSetWindowUserPointer(mainWindow, fractal);
 
+	// Executing the main purpose of the current run
 	if (programPurpose == explore)
 	{
 		Fractal::RenderLoop(mainWindow, fractal);
