@@ -25,7 +25,12 @@
 	<sinTanW>w = sin(w); w = tan(w);</sinTanW>,
 	<sinW>w = sin(w);</sinW>,
 	<tanW>w=tan(w);</tanW>,
+	<powY>w.y=pow(w.y,0.9);</powY>,
 	<sinWxz>w.xz=sin(w.xz);</sinWxz>,
+	<addYcMulRot>w.y+=(c*rotation).x;</addYcMulRot>,
+	<addWcMulRot>w+=(c*rotation);</addWcMulRot>,
+	<subY9>w.y-=0.9;</subY9>,
+	<addYsinX>w.y+=sin(w.x);</addYsinX>,
 	<subWLength>w-=length(w);</subWLength>,
 	<addPositionToW>w+=position;</addPositionToW>,
 	<scaleInit>float Scale = <scale>;</scaleInit>,
@@ -43,6 +48,9 @@
 	<sinY>w.y = sin(w.y);</sinY>,
 	<addLength>w+=length(w);</addLength>,
 	<mulW>w*=parameter;</mulW>,
+	<addW>w+=parameter;</addW>,
+	<addWY>w.y+=parameter;</addWY>,
+	<setY>w.y=parameter;</setY>,
 	<planeFold>w-=2 * min(0, dot(w, parameter)) * parameter;</planeFold>,
 	<setW>w=parameter;</setW>,
 </operations>
@@ -70,28 +78,17 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 	{
 		<distanceSetup>
 
-		//w*=rotation;
-					
 
-
-
-		//		w+=cross(w, position);
-
-		// w.x+=dot(position,position); pos {x=0.323416412 y=0.588775635 z=2.41064572 ...}
-
-		//w+=sin(dot(w,w));
-		//w.y=pow(w.y, 0.9);
 		//w.xy=vec2(sin(w.x),sin(w.y));
 
-		//w.y+=sin(w.x);
-		//w.y+=(c*rotation).x;
-		//			w+=(c*rotation);
+		
+		
+					
 
 		//w.y+=fract(c).y*sign(w.y);
 		//w.y+=(c.y)*c.y;
 
 		//w.y+=dot(c*rotation,sun);
-		//w.y-=0.9; mandelbulb
 		//w.y+=length(c);
 		// w+=c*dot(sun,c);
 		
@@ -109,6 +106,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 		for(int i = 0; i < <maxIterations>; i++)
 		{
 			<distanceBody>
+			
+
+			<distanceExtraOperations>
 
 			<distanceTrap>
 

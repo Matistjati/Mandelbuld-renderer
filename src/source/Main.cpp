@@ -44,10 +44,10 @@ constexpr Purpose programPurpose = Purpose::explore;
 #endif
 
 // Starting fractal
-#define DefaultFractal Fractal2D
+#define DefaultFractal Fractal3D
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalIndex = 2;
-constexpr auto DefaultFractalNameIndex = 1;
+constexpr auto DefaultFractalIndex = 0;
+constexpr auto DefaultFractalNameIndex = 0;
 constexpr auto ProgramName = "Mandelbulb";
 
 
