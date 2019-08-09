@@ -758,7 +758,7 @@ glm::ivec2 Fractal::GetMonitorSize()
 }
 
 
-void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index)
+void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, int*> indices)
 {
 	std::string distanceDeclaration;
 	size_t distanceStart = source.find(targetSection.start);
@@ -816,11 +816,13 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 				{
 					std::vector<std::string> sequences = SplitNotInChar(sectionValue, ',', '[', ']');
 
+					int* relevantIndex = (indices.count(sectionName)) ? indices[sectionName] : index;
 
-					if (index < 0) index = 0;
-					else if ((*index) > (int)sequences.size() - 1) (*index) = sequences.size() - 1;
 
-					sectionValue = sequences[*index];
+					if (*relevantIndex < 0) *relevantIndex = 0;
+					else if (*relevantIndex > (int)sequences.size() - 1) *relevantIndex = sequences.size() - 1;
+
+					sectionValue = sequences[*relevantIndex];
 				}
 
 				CleanString(sectionValue, { '[', ']' });
@@ -922,9 +924,9 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 	}
 }
 
-void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification)
+void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, int*> indices)
 {
 	int* index = new int(-1);
-	BuildMainLoop(targetSection, source, defaultSource, target, specification, index);
+	BuildMainLoop(targetSection, source, defaultSource, target, specification, index, indices);
 	delete index;
 }

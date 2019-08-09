@@ -8,7 +8,7 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	screenSize, Time(), {}, 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	screenSize, Time(), GetDefaultShaderIndices(), 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
 {
 	Init();
@@ -16,7 +16,7 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	GetMonitorSize(), Time(), {}, 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
 {
 	Init();
@@ -59,6 +59,14 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			FindPathAndSaveImage();
 			break;
 
+		case GLFW_KEY_Q:
+			(*shaderIndices["loopReturn"])++;
+			update = true;
+			break;
+		case GLFW_KEY_A:
+			(*shaderIndices["loopReturn"])--;
+			update = true;
+			break;
 
 		case GLFW_KEY_X:
 			BreakIfDebug();
@@ -635,7 +643,7 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 
 	if (source.find(Section("mainLoopOff").start) == std::string::npos)
 	{
-		BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex);
+		BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex, (shaderIndices.size() == 0) ? GetDefaultShaderIndices() : shaderIndices);
 	}
 	else
 	{
@@ -711,7 +719,7 @@ void Fractal2D::Init()
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
-	return {};
+	return { {"loopReturn", new int(0)} };
 }
 
 std::vector<int> GetPrimeFactors(int n)

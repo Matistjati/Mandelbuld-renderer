@@ -441,7 +441,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 		std::cout << tip.substr(start, end - start) << std::endl;
 	}
 
-	BuildMainLoop(Section("distanceEstimator"),	source, default3DSource, final, specSection, fractalIndex);
+	BuildMainLoop(Section("distanceEstimator"),	source, default3DSource, final, specSection, fractalIndex, shaderIndices.size() == 0 ? GetDefaultShaderIndices() : shaderIndices);
 
 	std::string flags = GetSection(Section("flags"), specSection);
 

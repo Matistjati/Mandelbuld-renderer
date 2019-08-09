@@ -119,7 +119,6 @@ public:
 	virtual std::pair<Shader*, Shader*> GenerateShader() = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
 	virtual std::string GetFractalFolderPath() = 0;
-	virtual std::map<std::string, int*> GetDefaultShaderIndices() = 0;
 
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";
@@ -130,7 +129,6 @@ public:
 
 protected:
 	static bool Replace(std::string& str, const std::string& from, const std::string& to);
-	static bool ReplaceExact(std::string& str, const std::string& from, const std::string& to);
 	static bool ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool ReplaceSection(Section section, std::string& origin, std::string& dest);
 	static std::string GetSection(Section s, std::string from, size_t start = 0);
@@ -145,8 +143,8 @@ protected:
 	static std::vector<std::string> SplitNotInChar(std::string str, char splitBy, std::vector<std::pair<char, char>> ignore);
 	static std::string GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets);
 	static void LinkSpecification(std::string& source, std::string& target);
-	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index);
-	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification);
+	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, int*> indices);
+	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, int*> indices);
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);
