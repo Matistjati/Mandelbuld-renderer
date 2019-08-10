@@ -34,13 +34,13 @@ An example image rendered in realtime with a 1070 ti<br/>
 
 [General on 3D distance estimators and shading](http://blog.hvidtfeldts.net/index.php/2011/06/distance-estimated-3d-fractals-part-i/)<br/>
 
-[An algorith for polygonizing a scalar field (what we use for 3D fractals). This can be used for 3D printing]([http://paulbourke.net/geometry/polygonise/](http://paulbourke.net/geometry/polygonise/))<br/>
+[An algorith for polygonizing a scalar field (what we use for 3D fractals). This can be used for 3D printing](http://paulbourke.net/geometry/polygonise/)<br/>
 
 [In-depth techniques for coloring the mandelbrot set](https://www.math.univ-toulouse.fr/~cheritat/wiki-draw/index.php/Mandelbrot_set)<br/>
 
-[An overview of the buddhabrot and ways to optimize it]([https://benedikt-bitterli.me/buddhabrot/](https://benedikt-bitterli.me/buddhabrot/))<br/>
+[An overview of the buddhabrot and ways to optimize it](https://benedikt-bitterli.me/buddhabrot/)<br/>
 
-[An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)]([http://www.steckles.com/buddha/](http://www.steckles.com/buddha/))<br/>
+[An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)](http://www.steckles.com/buddha/)<br/>
 
 
 <br/>
