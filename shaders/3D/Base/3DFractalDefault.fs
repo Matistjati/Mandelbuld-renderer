@@ -51,8 +51,10 @@
 	<addW>w+=parameter;</addW>,
 	<addWY>w.y+=parameter;</addWY>,
 	<setY>w.y=parameter;</setY>,
+	<setXY>w.xy=parameter;</setXY>,
 	<planeFold>w-=2 * min(0, dot(w, parameter)) * parameter;</planeFold>,
 	<setW>w=parameter;</setW>,
+	<mandelbulbModded>float r = length(w); float theta = 2 * atan(w.x, w.z); float phi = 1 * acos(w.y / r); parameter; w = r * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));</mandelbulbModded>,
 </operations>
 
 <distanceReturn>
@@ -74,39 +76,13 @@
 </distanceBreakCondition>
 
 <distanceEstimator>
-float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
+	float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
 	{
 		<distanceSetup>
-
-
-		//w.xy=vec2(sin(w.x),sin(w.y));
-
-		
-		
-					
-
-		//w.y+=fract(c).y*sign(w.y);
-		//w.y+=(c.y)*c.y;
-
-		//w.y+=dot(c*rotation,sun);
-		//w.y+=length(c);
-		// w+=c*dot(sun,c);
-		
-		//			float r = length(w);
-		//	float theta = 2 * atan(w.x, w.z);
-		//	float phi = 1 * acos(w.y / r);
-
-		//	w = pow(r, 1) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
-
-
-		// 1: theta * 2
-
-		// 2: theta * r, phi * r
 
 		for(int i = 0; i < <maxIterations>; i++)
 		{
 			<distanceBody>
-			
 
 			<distanceExtraOperations>
 

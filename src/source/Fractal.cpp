@@ -883,37 +883,43 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 							parameterStart++;
 							std::string parameterValue = toReplace[j].substr(parameterStart, parameterEnd - parameterStart);
 
-							std::vector<std::string> parameters = SplitNotInChar(parameterValue, ',', { { '(', ')' } });
-
-							// The first parameter is simply named parameter instead of parameter0
-							// This causes conflict with the normal replace function, since it will match with parameter1, parameter2, etc.
-							if (parameters.size())
+							if (parameterValue == "")
 							{
-								while (true)
-								{
-									size_t start = newSection.find("parameter");
-									if (start == std::string::npos) break;
+								Replace(newSection, "parameter", parameterValue);
+							}
+							else
+							{
+								std::vector<std::string> parameters = SplitNotInChar(parameterValue, ',', { { '(', ')' } });
 
-									char parameterPostfix = newSection[start + std::string("parameter").length()];
-									if (parameterPostfix < 48 || parameterPostfix > 57) // The postfix isn't a number
+								// The first parameter is simply named parameter instead of parameter0
+								// This causes conflict with the normal replace function, since it will match with parameter1, parameter2, etc.
+								if (parameters.size())
+								{
+									while (true)
 									{
-										Replace(newSection, "parameter", parameters[0]);
+										size_t start = newSection.find("parameter");
+										if (start == std::string::npos) break;
+
+										char parameterPostfix = newSection[start + std::string("parameter").length()];
+										if (parameterPostfix < 48 || parameterPostfix > 57) // The postfix isn't a number
+										{
+											Replace(newSection, "parameter", parameters[0]);
+										}
+										else
+										{
+											break;
+										}
 									}
-									else
+								}
+
+								if (parameters.size() > 1)
+								{
+									for (size_t i = 1; i < parameters.size(); i++)
 									{
-										break;
+										while (Replace(newSection, "parameter" + std::to_string(i), parameters[i])) {}
 									}
 								}
 							}
-
-							if (parameters.size() > 1)
-							{
-								for (size_t i = 1; i < parameters.size(); i++)
-								{
-									while (Replace(newSection, "parameter" + std::to_string(i), parameters[i])) {}
-								}
-							}
-
 						}
 					}
 
