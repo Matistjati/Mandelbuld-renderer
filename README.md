@@ -5,18 +5,18 @@ An example image rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 # **Controls**<br/>
 ## **General**<br/>
-**Alt+R/F**: Change between 2D and 3D fractals. 
-**Alt+E/D**: Change the current fractal file. Fractals will often be very different between files, but ones in the same will be similiar.
-**Alt+W/S**: Change the "specification" in the file. The fractal will be different rather different.
-**Alt+Q/A**: Change the operations for the main loop. This will have the least difference, but the change will still be easily noticable.
+**Alt+R/F**: Change between 2D and 3D fractals. <br/>
+**Alt+E/D**: Change the current fractal file. Fractals will often be very different between files, but ones in the same will be similiar.<br/>
+**Alt+W/S**: Change the "specification" in the file. The fractal will be different rather different.<br/>
+**Alt+Q/A**: Change the operations for the main loop. This will have the least difference, but the change will still be easily noticable.<br/>
 
-**Ctrl+Z**: Save an image of the current screen (some parameters will be different, making the image look better at the cost of rendering speed).
-**Ctrl+X**: Break if a debugger is attached.
-**Ctrl+Q/A, W/A, E/D etc**: change some aspects of the fractal, like the coloring method, initial parameter changes and adding extra operations to the main loop.
+**Ctrl+Z**: Save an image of the current screen (some parameters will be different, making the image look better at the cost of rendering speed).<br/>
+**Ctrl+X**: Break if a debugger is attached.<br/>
+**Ctrl+Q/A, W/A, E/D etc**: change some aspects of the fractal, like the coloring method, initial parameter changes and adding extra operations to the main loop.<br/>
 
-**X**: Pause time (this affects things like the sun and some 2d fractals)
-**Z**: flip the fractal across the horizontal axis.
-**WASD**: movement
+**X**: Pause time (this affects things like the sun and some 2d fractals)<br/>
+**Z**: flip the fractal across the horizontal axis.<br/>
+**WASD**: movement<br/>
 **C/V**: Increase/decrease the power used for the set.<br/>
 ## **3D**<br/>
 **Space/shift**: Up/down<br/>
@@ -40,7 +40,7 @@ An example image rendered in realtime with a 1070 ti<br/>
 
 [An overview of the buddhabrot and ways to optimize it]([https://benedikt-bitterli.me/buddhabrot/](https://benedikt-bitterli.me/buddhabrot/))<br/>
 
-[An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)]([http://www.steckles.com/buddha/](http://www.steckles.com/buddha/))
+[An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)]([http://www.steckles.com/buddha/](http://www.steckles.com/buddha/))<br/>
 
 
 <br/>
