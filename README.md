@@ -41,6 +41,3 @@ An example image rendered in realtime with a 1070 ti<br/>
 [An overview of the buddhabrot and ways to optimize it](https://benedikt-bitterli.me/buddhabrot/)<br/>
 
 [An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)](http://www.steckles.com/buddha/)<br/>
-
-
-<br/>
