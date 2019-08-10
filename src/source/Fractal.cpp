@@ -218,8 +218,10 @@ std::vector<std::string> Fractal::SplitNotInChar(std::string str, char splitBy, 
 std::string Fractal::GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets)
 {
 	int n = std::count(specification->begin(), specification->end(), '{');
-	if (index < 0) index = 0;
-	else if (*index > n - 1) (*index) = n - 1;
+
+	// Wrap around if index is out range
+	if (*index < 0) *index = n - 1;
+	else if (*index > n - 1) *index = 0;
 
 	int bracketCount = 0;
 	int bracketLevel = 0;
@@ -470,7 +472,6 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_A:
 			fractal->specIndex--;
-			fractal->specIndex = std::max(fractal->specIndex, 0);
 			fractal->fractalIndex = 0;
 			break;
 
@@ -479,7 +480,6 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_S:
 			fractal->fractalIndex--;
-			fractal->fractalIndex = std::max(fractal->fractalIndex, 0);
 			break;
 
 		case GLFW_KEY_E:
@@ -495,6 +495,7 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
 			break;
 
+		case GLFW_KEY_F:
 		case GLFW_KEY_R:
 			fractal->fractalNameIndex = 0;
 			fractal->fractalIndex = 0;
@@ -504,7 +505,7 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			}
-			else
+			else if (fractal->fractalType == FractalType::fractal3D)
 			{
 				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -659,8 +660,10 @@ void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 {
 	std::vector<std::string> fractals = FileManager::GetDirectoryFileNames(fractalPath);
 	std::vector<std::string> fractalNames = GetFractalNames(fractals);
-	*index = std::max(*index, 0);
-	if (*index > (int)fractalNames.size() - 1)* index = (int)fractalNames.size() - 1;
+
+	// If index is out range, wrap around
+	if (*index < 0)* index = fractalNames.size() - 1;
+	if (*index > (int)fractalNames.size() - 1)* index = 0;
 	fractalName = fractalNames[*index];
 }
 
@@ -821,8 +824,8 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 					int* relevantIndex = (indices.count(sectionName)) ? indices[sectionName] : index;
 
 
-					if (*relevantIndex < 0) *relevantIndex = 0;
-					else if (*relevantIndex > (int)sequences.size() - 1) *relevantIndex = sequences.size() - 1;
+					if (*relevantIndex < 0) *relevantIndex = sequences.size() - 1;
+					else if (*relevantIndex > (int)sequences.size() - 1) *relevantIndex = 0;
 
 					sectionValue = sequences[*relevantIndex];
 				}
