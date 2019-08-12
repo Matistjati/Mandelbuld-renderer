@@ -63,10 +63,11 @@ enum FractalType
 class Fractal
 {
 public:
+	static Uniform<glm::ivec2> screenSize;
+	static GLFWwindow* window;
 	float parameterChangeRate = 1;
 	Shader* explorationShader;
 	Shader* renderShader;
-	Uniform<glm::ivec2> screenSize;
 	Uniform<float> zoom;
 	Uniform<Time> time;
 	Uniform<unsigned int> frame;
@@ -89,9 +90,11 @@ public:
 	// Nothing fancy
 	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
-		: explorationShader(shaders.first), renderShader(shaders.second), screenSize(screenSize), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), fractalIndex(fractalIndex), specIndex(specIndex),
+		: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), fractalIndex(fractalIndex), specIndex(specIndex),
 		fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices)
-	{}
+	{
+		Fractal::screenSize = screenSize;
+	}
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
 	static void GenerateSingleImage(GLFWwindow* window, Fractal* fractal);

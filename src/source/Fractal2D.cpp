@@ -305,22 +305,7 @@ void Fractal2D::HandleKeyInput()
 			case GLFW_KEY_R:
 				if (explorationShader->type == compute)
 				{
-					renderShader->use();
-					SetUniformLocations(renderShader);
-					SetUniforms(renderShader);
-
-					ComputeShader* explShader = reinterpret_cast<ComputeShader*>(explorationShader);
-					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-					glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
-					glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].id);
-					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
-					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-					explorationShader->use();
-					SetUniformLocations(explorationShader);
-					SetUniforms(explorationShader);
-					glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
-					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
+					RenderComputeShader();
 				}
 				break;
 
@@ -724,11 +709,43 @@ void Fractal2D::Init()
 	SetUniforms(explorationShader);
 	explorationShader->use();
 	GlErrorCheck();
+
+	if (explorationShader->type == compute)
+	{
+		ComputeShader* compute = reinterpret_cast<ComputeShader*>(explorationShader);
+		compute->Invoke(screenSize.value);
+		
+		// Draw to both front and back buffers to avoid stuttering
+		RenderComputeShader();
+		glfwSwapBuffers(window);
+		RenderComputeShader();
+		glfwSwapBuffers(window);
+	}
 }
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
 	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)} };
+}
+
+void Fractal2D::RenderComputeShader()
+{
+	renderShader->use();
+	SetUniformLocations(renderShader);
+	SetUniforms(renderShader);
+
+	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(explorationShader);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].id);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	explorationShader->use();
+	SetUniformLocations(explorationShader);
+	SetUniforms(explorationShader);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
 }
 
 std::vector<int> GetPrimeFactors(int n)
@@ -791,10 +808,7 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 
 			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
 
-			int viewPort[4];
-			glGetIntegerv(GL_VIEWPORT, &viewPort[0]);
-
-			std::vector<int> factors[2] = { GetPrimeFactors(viewPort[2]), GetPrimeFactors(viewPort[3]) };
+			std::vector<int> factors[2] = { GetPrimeFactors(screenSize.value.x), GetPrimeFactors(screenSize.value.y) };
 
 			int workGroups[maxDimensions] = { 1, 1, 1 };
 			for (int i = 0; i < dimensions; i++)
@@ -817,9 +831,14 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 				Replace(base, "#version 330", "#version 430");
 			}
 
+			int renderingFrequency;
+			std::string renderingFrequencyStr = GetSection(Section("renderFrequency"), source);
+
+			renderingFrequency = (renderingFrequencyStr == "") ? ComputeShader::DefaultRenderingFrequency : std::stoi(renderingFrequencyStr);
+
 			ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
 
-			return new ComputeShader(base, false, { workGroups[0], workGroups[1], workGroups[2] });
+			return new ComputeShader(base, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
 		}
 	}
 	else // Assume fragment shader

@@ -61,9 +61,11 @@ int main()
 
 #if ConstWindowSize
 	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
+	Fractal::screenSize = Uniform<glm::ivec2>(screenSize, "screenSize", -1);
 #else
 	// glfw window creation
 	glm::ivec2 screenSize = Fractal::GetMonitorSize();
+	Fractal::screenSize = Uniform<glm::ivec2>(screenSize, "screenSize", -1);
 	#if _DEBUG
 		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 	#else
@@ -77,6 +79,8 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	Fractal::window = mainWindow;
 
 	glfwMakeContextCurrent(mainWindow);
 

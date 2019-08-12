@@ -100,9 +100,11 @@ protected:
 class ComputeShader : public Shader
 {
 public:
+	const static int DefaultRenderingFrequency = 144;
 	Buffer mainBuffer;
 	glm::ivec3 groupSize;
-	ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize);
+	int renderingFrequency;
+	ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize, int renderingFrequency);
 	void Invoke(glm::ivec2 screenSize);
 protected:
 	unsigned int CreateProgram(std::string source);

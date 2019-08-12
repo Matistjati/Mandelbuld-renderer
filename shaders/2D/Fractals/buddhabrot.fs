@@ -3,6 +3,7 @@
 <maxIterationsRelease>1000</maxIterationsRelease>
 <pointsPerFrame>70</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
+<renderFrequency>50</renderFrequency>
 
 <type>compute</type>
 <render>buddhabrotRender.fs</render>

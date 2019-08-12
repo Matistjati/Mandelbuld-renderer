@@ -10,6 +10,9 @@
 #include <sstream>
 #include <algorithm>
 
+Uniform<glm::ivec2> Fractal::screenSize;
+GLFWwindow* Fractal::window;
+
 bool Fractal::Replace(std::string& str, const std::string& from, const std::string& to)
  {
 	 size_t start_pos = str.find(from);
@@ -49,10 +52,13 @@ std::string Fractal::GetSection(Section s, std::string from, size_t start)
 {
 	int startIndex = from.find(s.start, start);
 	int endIndex = from.find(s.end, startIndex);
-	if (startIndex == std::string::npos || endIndex == std::string::npos)
+
+	if (startIndex == std::string::npos) return "";
+	else if (endIndex == std::string::npos)
 	{
-		return "";
+		std::cout << "Could not find closing tag for section " + s.start << std::endl;
 	}
+
 	startIndex += s.start.length();
 
 	return from.substr(startIndex, endIndex - startIndex);
@@ -576,7 +582,15 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->explorationShader->type == compute)
 		{
-			reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
+			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->explorationShader);
+			compute->Invoke(fractal->screenSize.value);
+			if (fractal->frame.value % compute->renderingFrequency == 0)
+			{
+				// Draw to both front and back buffers to avoid stuttering
+				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
+				glfwSwapBuffers(window);
+				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
+			}
 		}
 
 

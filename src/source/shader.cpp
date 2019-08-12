@@ -176,13 +176,10 @@ Buffer Shader::GenerateBufferForProgram(std::string source)
 			binding = 0;
 		}
 
-		int viewPort[4];
-		glGetIntegerv(GL_VIEWPORT, &viewPort[0]);
-
 		GLuint buffer;
 		glGenBuffers(1, &buffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, viewPort[2] * viewPort[3] * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, buffer);
 
@@ -326,8 +323,8 @@ void Shader::SetUniformStr(const std::string& name, glm::vec3 vector) const
 	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);
 }
 
-ComputeShader::ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize)
-	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute), groupSize(groupSize)
+ComputeShader::ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize, int renderingFrequency)
+	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute), groupSize(groupSize), renderingFrequency(renderingFrequency)
 {
 	glUseProgram(id);
 	std::string source = path ? FileManager::ReadFile(computePath) : computePath;
