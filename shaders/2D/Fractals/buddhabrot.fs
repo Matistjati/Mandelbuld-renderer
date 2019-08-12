@@ -23,6 +23,7 @@ uniform int count;
 <constants>
 	const float maxIterationsGreen = maxIterations/2;
 	const float maxIterationsBlue = maxIterations/4;
+	const vec4 screenEdges = vec4(vec2(-2.5, 1), vec2(1, -1));
 	const int pointsPerFrame = <pointsPerFrame>;
 	const int startPointAttempts = <startPointAttempts>;
 </constants>
@@ -39,8 +40,8 @@ uniform int count;
 	uint fragCoord = gl_GlobalInvocationID.y*int(screenSize.x)+gl_GlobalInvocationID.x;
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
-    vec2 minVal = vec2(uv.x*3.5-2.5,abs(uv.y*2.0-1.0));
-    vec2 maxVal = minVal + vec2(3.5,2.0)/screenSize.xy;
+    vec2 minVal = map01ToInterval(uv, screenEdges);
+    vec2 maxVal = minVal + vec2(abs(screenEdges.x) + abs(screenEdges.z), abs(screenEdges.y) + abs(screenEdges.w))/screenSize.xy;
     
 	float _;    
     vec3 sum = vec3(0.0);
@@ -58,7 +59,7 @@ uniform int count;
 </main>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, getStartValue, complexTan
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, getStartValue, map01ToInterval, complexTan
 </include>
 
 <loopTrap>
@@ -98,3 +99,15 @@ vec2 getStartValue(int seed)
     return retval;
 }
 </getStartValue>
+
+<map01ToInterval>
+float map01ToInterval(float value, vec2 range)
+{
+	return value*(range.y-range.x)+range.x;
+}
+
+vec2 map01ToInterval(vec2 value, vec4 range)
+{
+	return vec2(value.x*(range.z-range.x)+range.x, value.y*(range.w-range.y)+range.y);
+}
+</map01ToInterval>
