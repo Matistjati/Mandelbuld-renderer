@@ -14,7 +14,7 @@
 /*<bufferType>mainBuffer</bufferType>*/
 layout(std430, binding = 0) buffer densityMap
 {
-	vec4 points[];
+	uvec4 points[];
 };
 </buffers>
 
@@ -44,7 +44,7 @@ uniform int count;
     vec2 maxVal = minVal + vec2(abs(screenEdges.x) + abs(screenEdges.z), abs(screenEdges.y) + abs(screenEdges.w))/screenSize.xy;
     
 	float _;    
-    vec3 sum = vec3(0.0);
+    uvec4 sum = uvec4(0);
     for(int i = 0; i < pointsPerFrame; i++)
     {
         int seed = (abs(int(frame))*pointsPerFrame * 2 + i * 2 + int(step(uv.y, 0.5)));
@@ -54,8 +54,8 @@ uniform int count;
     	sum += mainLoop(pos,_,minVal,maxVal);
     }
 
-    vec3 prev = points[fragCoord].rgb;
-    points[fragCoord] = vec4(prev + sum,1);
+    uvec4 prev = points[fragCoord];
+    points[fragCoord] = prev + sum;
 </main>
 
 <include>
@@ -65,15 +65,15 @@ uniform int count;
 <loopTrap>
 	<addIfWithinMinMax>vec2 wUpper = vec2(w.x,abs(w.y));
 					   vec2 stepped = step(minVal,wUpper)*step(wUpper,maxVal);
-					   count += vec3(stepped.x*stepped.y) * vec3(1, step(i,maxIterationsGreen), step(i,maxIterationsBlue));</addIfWithinMinMax>,
+					   count += uvec4(uint(stepped.x*stepped.y)) * uvec4(1, step(i,maxIterationsGreen), step(i,maxIterationsBlue), 1);</addIfWithinMinMax>,
 </loopTrap>
 
 <loopReturn>
-	<steppedCount>step(4.0,dot(w,w))*count;</steppedCount>,
+	<steppedCount>uvec4(step(4.0,dot(w,w))*count);</steppedCount>,
 </loopReturn>
 
 <loopSetup>
-	<countSetup>vec2 c = w; vec3 count = vec3(0.0);</countSetup>,
+	<countSetup>vec2 c = w; uvec4 count = uvec4(0.0);</countSetup>,
 </loopSetup>
 
 <loopBreakCondition>
@@ -111,3 +111,26 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 	return vec2(value.x*(range.z-range.x)+range.x, value.y*(range.w-range.y)+range.y);
 }
 </map01ToInterval>
+
+<mainLoop>
+	uvec4 mainLoop(vec2 w, out float iterations<extraParameters>)
+	{
+		<loopSetup>
+
+		float i = 0;
+		for (; i < maxIterations; i++)
+		{
+			<loopBody>
+
+			<loopExtraOperations>
+
+			<loopTrap>
+
+			<loopBreakCondition>
+		}
+
+		iterations = i/maxIterations;
+
+		return <loopReturn>
+	}
+</mainLoop>

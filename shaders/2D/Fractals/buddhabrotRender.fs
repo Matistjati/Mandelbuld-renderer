@@ -6,7 +6,7 @@
 /*<bufferType>renderInput</bufferType>*/
 layout(std430, binding=1) buffer renderInput
 {
-    vec4 points[];
+    uvec4 points[];
 };
 </buffers>
 
