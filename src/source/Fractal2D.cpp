@@ -163,9 +163,26 @@ void Fractal2D::SaveImage(const std::string path)
 	SetUniforms(explorationShader);
 	GlErrorCheck();
 
+
 	Image image(screenSize.value.x, screenSize.value.y, data);
 
 	image.FlipVertically();
+
+	// Finding brightest pixels
+	/*std::vector<std::pair<glm::ivec2, float>> asd;
+
+	for (size_t i = 0; i < screenSize.value.x; i++)
+	{
+		for (size_t j = 0; j < screenSize.value.y; j++)
+		{
+			Pixel c = (data[i * screenSize.value.y + j]);
+			asd.push_back({ { i,j }, (float)sqrt(c.r * c.r + c.g * c.g + c.b * c.b) });
+
+		}
+	}
+	std::sort(asd.begin(), asd.end(), [](const std::pair<glm::ivec2, float>& left, const std::pair<glm::ivec2, float>& right) {
+		return left.second > right.second;
+		});*/
 
 	try
 	{

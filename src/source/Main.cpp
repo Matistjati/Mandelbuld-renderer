@@ -25,11 +25,11 @@ constexpr Purpose programPurpose = Purpose::explore;
 // Screensize
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 2
+	#define ScreenSize 0
 	
 	// Common screen resolutions
 	#if ScreenSize == 0
-		const glm::ivec2 screenSize = { 500, 500 };
+		const glm::ivec2 screenSize = { 800, 450 };
 	#elif ScreenSize == 1
 		const glm::ivec2 screenSize = { 1280, 720 };
 	#elif ScreenSize == 2

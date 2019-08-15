@@ -63,8 +63,7 @@ uniform int count;
 </include>
 
 <loopTrap>
-	<addIfWithinMinMax>vec2 wUpper = vec2(w.x,abs(w.y));
-					   vec2 stepped = step(minVal,wUpper)*step(wUpper,maxVal);
+	<addIfWithinMinMax>vec2 stepped = step(minVal,w)*step(w,maxVal);
 					   count += uvec4(uint(stepped.x*stepped.y)) * uvec4(1, step(i,maxIterationsGreen), step(i,maxIterationsBlue), 1);</addIfWithinMinMax>,
 </loopTrap>
 
