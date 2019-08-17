@@ -31,6 +31,7 @@ uniform int count;
 	const float maxIterationsGreen = maxIterations/2;
 	const float maxIterationsBlue = maxIterations/4;
 	const int minIterations = 50;
+	const int mutationAttemps = 4;
 	const vec4 screenEdges = vec4(vec2(-2.5, 1), vec2(1, -1));
 	const int pointsPerFrame = <pointsPerFrame>;
 	const int startPointAttempts = <startPointAttempts>;
@@ -107,7 +108,7 @@ vec2 getStartValue(int seed)
 {
 	uint hash = uint(seed);
 
-	float c = abs(fract(sin(seed)*62758.5453123)); // Do a random choice based on the seed
+	float c = abs(fract(sin(seed++)*62758.5453123)); // Do a random choice based on the seed
 
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
@@ -141,7 +142,20 @@ vec2 getStartValue(int seed)
 	}
 	else
 	{
-		return prev.xy+hash2(hash,hash)*0.01; // Return a point we already know is good with a small mutation
+		for (int i = 0; i < mutationAttemps; i++)
+		{
+			vec2 delta = hash2(hash,hash)*0.01; // Return a point we already know is good with a small mutation
+			float escapeCount = EscapeCount(delta+prev.xy);
+			if (escapeCount > 0)
+			{
+				if (escapeCount > prev.z)
+				{
+					desirability[index] = vec4(prev.xy+delta, escapeCount, -1);
+				}
+				return delta+prev.xy;
+			}
+		}
+		
 	}
 }
 </getStartValue>
