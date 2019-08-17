@@ -18,5 +18,5 @@ layout(std430, binding=1) buffer renderInput
 	vec4 colA = points[int(gl_FragCoord.y*screenSize.x+gl_FragCoord.x+screenSize.x*0.525)];
 	vec4 colB = points[int((screenSize.y - gl_FragCoord.y)*screenSize.x+gl_FragCoord.x+screenSize.x*0.525)];
 	brightness = max(brightness, vec4(1.f));
-	color = vec4(((colA.xyz+colB.xyz)/brightness.xyz)*0.01, 1);
+	color = vec4(((colA.xyz+colB.xyz)/brightness.xyz)*0.25, 1);
 </mainAA>
