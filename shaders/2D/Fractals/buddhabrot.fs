@@ -56,7 +56,7 @@ uniform int count;
     uvec4 sum = uvec4(0);
     for(int i = 0; i < pointsPerFrame; i++)
     {
-        int seed = (abs(int(frame))*pointsPerFrame * 2 + i * 2 + int(step(uv.y, 0.5)));
+        int seed = (abs(int(frame))*pointsPerFrame * 2 + i * 2);
 
     	vec2 pos = getStartValue(seed);
 		if(pos.x<-100) continue;
