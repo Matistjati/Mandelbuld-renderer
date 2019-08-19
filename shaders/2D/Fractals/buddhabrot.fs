@@ -1,4 +1,4 @@
-<escapeRadius>20</escapeRadius>
+<escapeRadius>8000</escapeRadius>
 <maxIterations>200</maxIterations>
 <maxIterationsRelease>1000</maxIterationsRelease>
 <pointsPerFrame>70</pointsPerFrame>
@@ -28,9 +28,9 @@ layout(std430, binding = 2) buffer desirabilityMap
 uniform int count;
 
 <constants>
-	const float maxIterationsGreen = maxIterations/2;
+	const float maxIterationsGreen = maxIterations/4;
 	const float maxIterationsBlue = maxIterations/4;
-	const int minIterations = 50;
+	const int minIterations = int(maxIterations*0.05);
 	const int mutationAttemps = 4;
 	const vec4 screenEdges = vec4(vec2(-2.5, 1), vec2(1, -1));
 	const int pointsPerFrame = <pointsPerFrame>;
@@ -52,7 +52,7 @@ uniform int count;
     vec2 minVal = map01ToInterval(uv, screenEdges);
     vec2 maxVal = minVal + vec2(abs(screenEdges.x) + abs(screenEdges.z), abs(screenEdges.y) + abs(screenEdges.w))/screenSize.xy;
     
-	float _;    
+	float _;
     uvec4 sum = uvec4(0);
     for(int i = 0; i < pointsPerFrame; i++)
     {
@@ -120,7 +120,7 @@ vec2 getStartValue(int seed)
 			// Generate a random point
 			vec2 random = hash2(hash,hash);
 			// Map it from [0,1) to fractal space
-			vec2 point = vec2(random.x * 3.5-2.5,random.y*1.55);
+			vec2 point = map01ToInterval(random, screenEdges);
 
 			// Checking if it is inside the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
 			if (notInMainBulb(point) && notInMainCardioid(point))
