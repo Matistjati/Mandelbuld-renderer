@@ -1,6 +1,6 @@
-<escapeRadius>8000</escapeRadius>
+<escapeRadius>1e3</escapeRadius>
 <maxIterations>200</maxIterations>
-<maxIterationsRelease>1000</maxIterationsRelease>
+<maxIterationsRelease>200</maxIterationsRelease>
 <pointsPerFrame>70</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
 <renderFrequency>50</renderFrequency>
@@ -18,6 +18,7 @@ layout(std430, binding = 0) buffer densityMap
 };
 
 /*<bufferType>privateBuffer</bufferType>*/
+/*<cpuInitialize>buddhaBrotImportanceMap(1000, 50, -2.5, 1, 1, -1)</cpuInitialize>*/
 layout(std430, binding = 2) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
@@ -30,11 +31,15 @@ uniform int count;
 <constants>
 	const float maxIterationsGreen = maxIterations/4;
 	const float maxIterationsBlue = maxIterations/4;
-	const int minIterations = int(maxIterations*0.05);
+	const int minIterations = 20;
 	const int mutationAttemps = 4;
 	const vec4 screenEdges = vec4(vec2(-2.5, 1), vec2(1, -1));
 	const int pointsPerFrame = <pointsPerFrame>;
 	const int startPointAttempts = <startPointAttempts>;
+
+	// Compute shaders are weird, for some reason i need to shift x
+	#define IndexPoints(X,Y) uint(X+Y*screenSize.x+screenSize.x*(.5))
+
 </constants>
 
 <extraSections>
@@ -46,7 +51,9 @@ uniform int count;
 </extraParameters>
 
 <main>
-	uint fragCoord = gl_GlobalInvocationID.y*int(screenSize.x)+gl_GlobalInvocationID.x;
+	uint fragCoord = IndexPoints(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
+
+	//points[fragCoord] = uvec4(desirability[int(gl_GlobalInvocationID.x*screenSize.y+gl_GlobalInvocationID.y)].zzz*256, 256);
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
     vec2 minVal = map01ToInterval(uv, screenEdges);
@@ -62,9 +69,10 @@ uniform int count;
 		if(pos.x<-100) continue;
     	sum += mainLoop(pos,_,minVal,maxVal);
     }
-
+	
     uvec4 prev = points[fragCoord];
     points[fragCoord] = prev + sum;
+
 </main>
 
 <include>
@@ -104,6 +112,24 @@ int EscapeCount(vec2 z)
 </EscapeCount>
 
 <getStartValue>
+int IHash(int a){
+	a = (a ^ 61) ^ (a >> 16);
+	a = a + (a << 3);
+	a = a ^ (a >> 4);
+	a = a * 0x27d4eb2d;
+	a = a ^ (a >> 15);
+	return a;
+}
+
+float Hash(int a){
+	return float(IHash(a)) / float(0x7FFFFFFF);
+}
+
+vec2 rand2(int seed){
+    return vec2(Hash(seed^0x348C5F93),
+                Hash(seed^0x8593D5BB));
+}
+
 vec2 getStartValue(int seed)
 {
 	uint hash = uint(seed);
@@ -155,7 +181,6 @@ vec2 getStartValue(int seed)
 				return delta+prev.xy;
 			}
 		}
-		
 	}
 }
 </getStartValue>

@@ -825,17 +825,21 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 
 			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
 
-			std::vector<int> factors[2] = { GetPrimeFactors(screenSize.value.x), GetPrimeFactors(screenSize.value.y) };
+			std::vector<int> factors[3] = { GetPrimeFactors(screenSize.value.x), GetPrimeFactors(screenSize.value.y), {1} };
 
 			int workGroups[maxDimensions] = { 1, 1, 1 };
 			for (int i = 0; i < dimensions; i++)
 			{
-				workGroups[i] = maxProductRoot;
 				int maxGroupSize;
 				glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &maxGroupSize);
-				if (workGroups[i] > maxGroupSize)
+				for (size_t j = 0; j < factors[i].size(); j++)
 				{
-					workGroups[i] = 1;
+					workGroups[i] *= factors[i][j];
+					if (workGroups[i] > maxGroupSize || workGroups[i] > maxProductRoot)
+					{
+						workGroups[i] /= factors[i][j];
+						break;
+					}
 				}
 			}
 

@@ -11,6 +11,8 @@
 #include "headers/Fractal.h"
 #include <algorithm>
 #include "headers/Fractal2D.h"
+#include "headers/BufferInitialization.h"
+#include <sstream> 
 
 void Shader::use()
 {
@@ -103,9 +105,19 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 
 	if (fShaderCode.find("<bufferType>") != std::string::npos)
 	{
-		Buffer buffer = GenerateBufferForProgram(fShaderCode);
+		std::vector<Buffer> buffer = GenerateBuffersForProgram(fShaderCode);
 
-		buffers[buffer.name] = buffer;
+		for (size_t i = 0; i < buffer.size(); i++)
+		{
+			if (buffer[i].name.find("private") != std::string::npos)
+			{
+				continue;
+			}
+			else
+			{
+				buffers[buffer[i].name] = buffer[i];
+			}
+		}
 	}
 
 
@@ -144,53 +156,93 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	return id;
 }
 
-Buffer Shader::GenerateBufferForProgram(std::string source)
+std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 {
-	size_t bufferTypeStart = source.find("<bufferType>");
-	// TODO: multiple buffers
-	if (bufferTypeStart != std::string::npos)
+	std::vector<Buffer> buffers(0);
+	size_t offset = 0;
+	while (true)
 	{
-		bufferTypeStart += (std::string("<bufferType>")).length();
-		std::string type = source.substr(bufferTypeStart, source.find("</bufferType>") - bufferTypeStart);
-
-		int binding = -1;
-
-		size_t bindingStart = source.find("binding", bufferTypeStart);
-
-		if (bindingStart != std::string::npos)
+		size_t bufferTypeStart = source.find("<bufferType>", offset);
+		// TODO: multiple buffers
+		if (bufferTypeStart != std::string::npos)
 		{
-			bindingStart += std::string("binding").length();
-			std::string bindingStr = source.substr(bindingStart, source.find(')', bindingStart) - bindingStart);
-			static const std::vector<char> blackList = { '=',' ' };
+			bufferTypeStart += (std::string("<bufferType>")).length();
+			std::string type = source.substr(bufferTypeStart, source.find("</bufferType>") - bufferTypeStart);
 
-			for (size_t i = 0; i < blackList.size(); i++)
+			int binding = -1;
+
+			size_t bindingStart = source.find("binding", bufferTypeStart);
+
+			if (bindingStart != std::string::npos)
 			{
-				bindingStr.erase(std::remove(bindingStr.begin(), bindingStr.end(), blackList[i]), bindingStr.end());
+				bindingStart += std::string("binding").length();
+				std::string bindingStr = source.substr(bindingStart, source.find(')', bindingStart) - bindingStart);
+				static const std::vector<char> blackList = { '=',' ' };
+
+				for (size_t i = 0; i < blackList.size(); i++)
+				{
+					bindingStr.erase(std::remove(bindingStr.begin(), bindingStr.end(), blackList[i]), bindingStr.end());
+				}
+
+				binding = std::stoi(bindingStr);
+			}
+			else
+			{
+				DebugPrint("Fatal error: could not find binding for mainbuffer at compute shader");
+				binding = 0;
 			}
 
-			binding = std::stoi(bindingStr);
+			GLuint buffer;
+			glGenBuffers(1, &buffer);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
+
+			std::vector<glm::vec4> data(Fractal::screenSize.value.x * Fractal::screenSize.value.y);
+			size_t end = source.find(";", bufferTypeStart);
+			size_t bufferInitStart = source.find("<cpuInitialize>", offset);
+			if (bufferInitStart != std::string::npos && bufferInitStart < end)
+			{
+				bufferInitStart += (std::string("<cpuInitialize>")).length();
+				std::string type = source.substr(bufferInitStart, source.find("</cpuInitialize>") - bufferInitStart);
+
+				std::string functionName = type.substr(0, type.find("("));
+				if (BufferInitialization::functions.count(functionName))
+				{
+					std::vector<float> params;
+					size_t paramStart = type.find("(");
+					if (paramStart != std::string::npos)
+					{
+						std::string parameters = type.substr(paramStart + 1, type.length() - paramStart);
+						std::vector<std::string> values;
+						std::stringstream test(parameters);
+						std::string segment;
+
+						while (std::getline(test, segment, ','))
+						{
+							values.push_back(segment);
+						}
+
+						for (size_t i = 0; i < values.size(); i++)
+						{
+							params.push_back(std::stof(values[i]));
+						}
+					}
+					BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
+				}
+			}
+			glBufferData(GL_SHADER_STORAGE_BUFFER, Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4), &data[0], GL_DYNAMIC_DRAW);
+
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, buffer);
+
+			offset = bufferTypeStart;
+			GlErrorCheck();
+			buffers.push_back(Buffer(buffer, binding, type));
 		}
 		else
 		{
-			DebugPrint("Fatal error: could not find binding for mainbuffer at compute shader");
-			binding = 0;
+			break;
 		}
-
-		GLuint buffer;
-		glGenBuffers(1, &buffer);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
-
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, buffer);
-
-
-		GlErrorCheck();
-		return Buffer(buffer, binding, type);
 	}
-	else
-	{
-		return Buffer(-1, -1, Buffer::BufferType::none, "");
-	}
+	return buffers;
 }
 
 void Shader::SetUniform(const Uniform<float> value) const
@@ -328,17 +380,23 @@ ComputeShader::ComputeShader(const std::string& computePath, bool path, glm::ive
 {
 	glUseProgram(id);
 	std::string source = path ? FileManager::ReadFile(computePath) : computePath;
-	Buffer buffer = GenerateBufferForProgram(source);
+	std::vector<Buffer> buffer = GenerateBuffersForProgram(source);
 	
-	if (buffer.name == "mainBuffer")
+	for (size_t i = 0; i < buffer.size(); i++)
 	{
-		mainBuffer = buffer;
+		if (buffer[i].name.find("private") != std::string::npos)
+		{
+			continue;
+		}
+		if (buffer[i].name == "mainBuffer")
+		{
+			mainBuffer = buffer[i];
+		}
+		else
+		{
+			buffers[buffer[i].name] = buffer[i];
+		}
 	}
-	else
-	{
-		buffers[buffer.name] = buffer;
-	}
-
 }
 
 void ComputeShader::Invoke(glm::ivec2 screenSize)
@@ -346,7 +404,7 @@ void ComputeShader::Invoke(glm::ivec2 screenSize)
 	this->use();
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, mainBuffer.id);
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, mainBuffer.binding, mainBuffer.id);
-	glDispatchCompute(screenSize.x / groupSize.x + (screenSize.x % groupSize.x != 0), screenSize.y / groupSize.y + (screenSize.y % groupSize.y != 0), groupSize.z);
+	glDispatchCompute(screenSize.x / groupSize.x, screenSize.y / groupSize.y + (screenSize.y % groupSize.y != 0), groupSize.z);
 }
 
 unsigned int ComputeShader::CreateProgram(std::string source)

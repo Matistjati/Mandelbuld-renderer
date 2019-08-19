@@ -8,9 +8,8 @@
 #include "headers/Uniform.h"
 #include "headers/Time.h"
 #include <map>
+#include <vector>
 
-template<typename T>
-struct Uniform;
 
 enum ShaderType
 {
@@ -94,7 +93,7 @@ public:
 
 protected:
 	unsigned int CompileShader(unsigned int type, const std::string& source);
-	Buffer GenerateBufferForProgram(std::string source);
+	std::vector<Buffer> GenerateBuffersForProgram(std::string source);
 };
 
 class ComputeShader : public Shader
