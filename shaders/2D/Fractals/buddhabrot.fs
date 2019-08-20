@@ -18,7 +18,7 @@ layout(std430, binding = 0) buffer densityMap
 };
 
 /*<bufferType>privateBuffer</bufferType>*/
-/*<cpuInitialize>buddhaBrotImportanceMap(1000, 50, -2.5, 1, 1, -1)</cpuInitialize>*/
+/*<cpuInitialize>buddhaBrotImportanceMap(200, 30, -2.5, 1, 1, -1)</cpuInitialize>*/
 layout(std430, binding = 2) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
@@ -139,7 +139,8 @@ vec2 getStartValue(int seed)
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
 	
-	if (c > 0.5)
+	// 40 % chance to mutate with a whole new point, 60% to mutate an existing point with a small step
+	if (c > 0.6)
 	{
 		for(int i = 0; i <startPointAttempts; ++i)
 		{
@@ -155,11 +156,7 @@ vec2 getStartValue(int seed)
 				// We only want to iterate points that are interesting enough
 				if (escapeCount > minIterations)
 				{
-					// Is the point better than the old champion for this pixel? If so, replace it. Also has a 20% chance to mutate as to ensure that we get a wide coverage of different points
-					if (float(escapeCount) > prev.z || c > 0.8)
-					{
-						desirability[index] = vec4(point, escapeCount, -1);
-					}
+					desirability[index] = vec4(point, escapeCount, -1);
 					return point;
 				}
 			}
@@ -170,15 +167,18 @@ vec2 getStartValue(int seed)
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			vec2 delta = hash2(hash,hash)*0.01; // Return a point we already know is good with a small mutation
-			float escapeCount = EscapeCount(delta+prev.xy);
-			if (escapeCount > 0)
+			vec2 point = hash2(hash,hash)*0.01+prev.xy; // Return a point we already know is good with a small mutation
+			if (notInMainBulb(point) && notInMainCardioid(point))
 			{
-				if (escapeCount > prev.z)
+				float escapeCount = EscapeCount(point);
+				if (escapeCount > 0 || escapeCount > minIterations)
 				{
-					desirability[index] = vec4(prev.xy+delta, escapeCount, -1);
+					if (escapeCount > prev.z)
+					{
+						desirability[index] = vec4(point, escapeCount, -1);
+					}
+					return point;
 				}
-				return delta+prev.xy;
 			}
 		}
 	}

@@ -1,4 +1,8 @@
 #include "headers/BufferInitialization.h"
+#include <iostream>
+#include <random>
+#include <chrono>
+#include <functional>
 
 bool notInMainCardioid(float zx, float zy)
 {
@@ -16,6 +20,8 @@ bool notInMainBulb(float zx, float zy)
 
 void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize, std::vector<float> params)
 {
+	const float dxy = 0.01;
+	std::vector<glm::vec4> goodPoints;
 	for (size_t x = 0; x < screenSize.x; x++)
 	{
 		for (size_t y = 0; y < screenSize.y; y++)
@@ -45,10 +51,21 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 					}
 				}
 				float good = i > params[1] && i != params[0];
-				
-				data[x * screenSize.y + y] = glm::vec4(glm::vec2(cx, cy), i / params[0], good);
+				if (good)
+				{
+					goodPoints.push_back(glm::vec4(cx, cy, i, good));
+				}
 			}
 		}
+	}
+
+	std::mt19937::result_type seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	auto image_rand_index = std::bind(std::uniform_int_distribution<int>(0, goodPoints.size()-1),
+		std::mt19937(seed));
+	for (size_t i = 0; i < data.size(); i++)
+	{
+		int index = image_rand_index();
+		data[i] = goodPoints[index];
 	}
 }
 
