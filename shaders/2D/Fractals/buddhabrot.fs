@@ -1,7 +1,7 @@
 <escapeRadius>1e3</escapeRadius>
-<maxIterations>200</maxIterations>
-<maxIterationsRelease>200</maxIterationsRelease>
-<pointsPerFrame>70</pointsPerFrame>
+<maxIterations>1000</maxIterations>
+<maxIterationsRelease>1</maxIterationsRelease>
+<pointsPerFrame>1</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
 <renderFrequency>50</renderFrequency>
 
@@ -14,7 +14,7 @@
 /*<bufferType>mainBuffer</bufferType>*/
 layout(std430, binding = 0) buffer densityMap
 {
-	uvec4 points[];
+	vec4 points[];
 };
 
 /*<bufferType>privateBuffer</bufferType>*/
@@ -29,16 +29,18 @@ layout(std430, binding = 2) buffer desirabilityMap
 uniform int count;
 
 <constants>
-	const float maxIterationsGreen = maxIterations/4;
-	const float maxIterationsBlue = maxIterations/4;
-	const int minIterations = 20;
+	const float maxIterationsRed = maxIterations/5;
+	const float maxIterationsGreen = maxIterations/20;
+	const float maxIterationsBlue = maxIterations;
+	const int minIterations = 50;
 	const int mutationAttemps = 4;
-	const vec4 screenEdges = vec4(vec2(-2.5, 1), vec2(1, -1));
+	// The area in the complex plane
+	const vec4 screenEdges = vec4(vec2(-2.5, -1), vec2(1, 1));
 	const int pointsPerFrame = <pointsPerFrame>;
 	const int startPointAttempts = <startPointAttempts>;
 
 	// Compute shaders are weird, for some reason i need to shift x
-	#define IndexPoints(X,Y) uint(X+Y*screenSize.x+screenSize.x*(.5))
+	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
 
 </constants>
 
@@ -53,47 +55,34 @@ uniform int count;
 <main>
 	uint fragCoord = IndexPoints(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
 
-	//points[fragCoord] = uvec4(desirability[int(gl_GlobalInvocationID.x*screenSize.y+gl_GlobalInvocationID.y)].zzz*256, 256);
-
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
-    vec2 minVal = map01ToInterval(uv, screenEdges);
-    vec2 maxVal = minVal + vec2(abs(screenEdges.x) + abs(screenEdges.z), abs(screenEdges.y) + abs(screenEdges.w))/screenSize.xy;
-    
+
 	float _;
-    uvec4 sum = uvec4(0);
-    for(int i = 0; i < pointsPerFrame; i++)
-    {
-        int seed = (abs(int(frame))*pointsPerFrame * 2 + i * 2);
+	for(int i = 0; i < pointsPerFrame; i++)
+	{
+		int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y))+int(intHash(frame));
 
-    	vec2 pos = getStartValue(seed);
-		if(pos.x<-100) continue;
-    	sum += mainLoop(pos,_,minVal,maxVal);
-    }
-	
-    uvec4 prev = points[fragCoord];
-    points[fragCoord] = prev + sum;
+    	vec2 w = getStartValue(seed);
 
+		if(w.x<-100) continue;
+
+		mainLoop(w);
+	}
 </main>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, getStartValue, complexTan
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, getStartValue, complexTan, complexSin
 </include>
 
 <loopTrap>
-	<addIfWithinMinMax>count += int(clamp(3.-length((w-p)*screenSize.xy),0.,1.))*uvec4(1, step(i,maxIterationsGreen), step(i,maxIterationsBlue), 1);</addIfWithinMinMax>,
+	<incrementWPosition>points[IndexPoints(int(clamp(mapRange(screenEdges.x, screenEdges.z, 0, screenSize.x, w.x),0,screenSize.x)),
+										   int(clamp(screenSize.y-mapRange(screenEdges.y, screenEdges.w, 0, screenSize.y, w.y),0,screenSize.y)))]+=
+										   vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);</incrementWPosition>,
 </loopTrap>
 
 <loopReturn>
-	<steppedCount>uvec4(step(4.0,dot(w,w))*count);</steppedCount>,
+	<nothing>;</nothing>,
 </loopReturn>
-
-<loopSetup>
-	<countSetup>vec2 c = w; uvec4 count = uvec4(0.0); vec2 p = mix(minVal, maxVal, 0.5);</countSetup>,
-</loopSetup>
-
-<loopBreakCondition>
-	<distanceBreakReturnCount>if (dot(w,w) > <escapeRadius>) return count;</distanceBreakReturnCount>,
-</loopBreakCondition>
 
 <EscapeCount>
 int EscapeCount(vec2 z)
@@ -112,24 +101,6 @@ int EscapeCount(vec2 z)
 </EscapeCount>
 
 <getStartValue>
-int IHash(int a){
-	a = (a ^ 61) ^ (a >> 16);
-	a = a + (a << 3);
-	a = a ^ (a >> 4);
-	a = a * 0x27d4eb2d;
-	a = a ^ (a >> 15);
-	return a;
-}
-
-float Hash(int a){
-	return float(IHash(a)) / float(0x7FFFFFFF);
-}
-
-vec2 rand2(int seed){
-    return vec2(Hash(seed^0x348C5F93),
-                Hash(seed^0x8593D5BB));
-}
-
 vec2 getStartValue(int seed)
 {
 	uint hash = uint(seed);
@@ -186,6 +157,11 @@ vec2 getStartValue(int seed)
 </getStartValue>
 
 <map01ToInterval>
+float mapRange(float a1,float a2,float b1,float b2,float s)
+{
+	return b1 + (s-a1)*(b2-b1)/(a2-a1);
+}
+
 float map01ToInterval(float value, vec2 range)
 {
 	return value*(range.y-range.x)+range.x;
@@ -204,7 +180,7 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 
 
 <mainLoop>
-	uvec4 mainLoop(vec2 w, out float iterations<extraParameters>)
+	void mainLoop(vec2 w)
 	{
 		<loopSetup>
 
@@ -219,8 +195,6 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 
 			<loopBreakCondition>
 		}
-
-		iterations = i/maxIterations;
 
 		return <loopReturn>
 	}

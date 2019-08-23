@@ -5,10 +5,10 @@
 		Mandelbrot
 	</include>
 	<mainLoop>
-		<loopBody>[[complexSquare, translate], [complexSquare, translate, lineFold(vec2(cos(time), sin(time)))], [complexSquare, translate, complexTan(w)]]</loopBody>,
-		<loopTrap>addIfWithinMinMax</loopTrap>,
-		<loopReturn>steppedCount</loopReturn>,
-		<loopSetup>countSetup</loopSetup>,
-		<loopBreakCondition>distanceBreakReturnCount</loopBreakCondition>,
+		<loopBody>[[mandelbrotIter], [mandelbrotIter, complexTan(w)], [complexTan(w)], [mandelbrotIter, complexSin(w)], [complexSin(w)], [mandelbrotIter, lineFold(vec2(cos(time), sin(time)))]]</loopBody>,
+		<loopTrap>incrementWPosition</loopTrap>,
+		<loopReturn>nothing</loopReturn>,
+		<loopSetup>defaultSetup</loopSetup>,
+		<loopBreakCondition>defaultBreak</loopBreakCondition>,
 	</mainLoop>
 }

@@ -25,7 +25,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 // Screensize
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 0
+	#define ScreenSize 2
 	
 	// Common screen resolutions
 	#if ScreenSize == 0
@@ -44,10 +44,10 @@ constexpr Purpose programPurpose = Purpose::explore;
 #endif
 
 // Starting fractal
-#define DefaultFractal Fractal2D
-constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalIndex = 0;
-constexpr auto DefaultFractalNameIndex = 0;
+constexpr auto DefaultSpecIndex = 0;
+constexpr auto DefaultFractalNameIndex = 1;
+#define DefaultFractal Fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
 

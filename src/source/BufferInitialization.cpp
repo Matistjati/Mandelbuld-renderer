@@ -6,7 +6,7 @@
 
 bool notInMainCardioid(float zx, float zy)
 {
-	float cx = zx - 0.25;
+	float cx = zx - 0.25f;
 
 	float q = cx*cx+zy*zy;
 	return q * (q + (cx)) > 0.25f * zy * zy;
@@ -20,11 +20,11 @@ bool notInMainBulb(float zx, float zy)
 
 void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize, std::vector<float> params)
 {
-	const float dxy = 0.01;
+	const float dxy = 0.01f;
 	std::vector<glm::vec4> goodPoints;
-	for (size_t x = 0; x < screenSize.x; x++)
+	for (int x = 0; x < screenSize.x; x++)
 	{
-		for (size_t y = 0; y < screenSize.y; y++)
+		for (int y = 0; y < screenSize.y; y++)
 		{
 			float maxIter = params[0];
 			// Map into fractal space
@@ -59,7 +59,7 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 		}
 	}
 
-	std::mt19937::result_type seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	std::mt19937::result_type seed = (std::mt19937::result_type)std::chrono::high_resolution_clock::now().time_since_epoch().count();
 	auto image_rand_index = std::bind(std::uniform_int_distribution<int>(0, goodPoints.size()-1),
 		std::mt19937(seed));
 	for (size_t i = 0; i < data.size(); i++)

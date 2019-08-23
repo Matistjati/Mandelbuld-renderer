@@ -12,6 +12,7 @@
 	<complexTan>parameter = complexTan(parameter);</complexTan>,
 	<complexSin>parameter = complexSin(parameter);</complexSin>,
 	<complexCos>parameter = complexCos(parameter);</complexCos>,
+	<mandelbrotIter>w=mat2(w,-w.y,w.x)*w+c;</mandelbrotIter>,
 </operations>
 
 <loopSetup>
