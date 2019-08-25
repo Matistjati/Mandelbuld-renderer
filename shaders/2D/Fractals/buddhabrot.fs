@@ -29,8 +29,8 @@ layout(std430, binding = 2) buffer desirabilityMap
 uniform int count;
 
 <constants>
-	const float maxIterationsRed = maxIterations/5;
-	const float maxIterationsGreen = maxIterations/20;
+	const float maxIterationsRed = maxIterations/20;
+	const float maxIterationsGreen = maxIterations/5;
 	const float maxIterationsBlue = maxIterations;
 	const int minIterations = 50;
 	const int mutationAttemps = 4;
@@ -75,10 +75,32 @@ uniform int count;
 </include>
 
 <loopTrap>
-	<incrementWPosition>points[IndexPoints(int(clamp(mapRange(screenEdges.x, screenEdges.z, 0, screenSize.x, w.x),0,screenSize.x)),
-										   int(clamp(screenSize.y-mapRange(screenEdges.y, screenEdges.w, 0, screenSize.y, w.y),0,screenSize.y)))]+=
-										   vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);</incrementWPosition>,
+	<incrementWPosition>
+	// The position we use. We can for example mix between zr, zi to cr, ci for a transition between the buddhabrot and mandelbrot sets.
+	//vec2 coord = vec2(mix(c, w, 1));
+	vec2 coord = vec2(w);
+
+	// Converting a position in fractal space to image space- google map one range to another
+	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
+	// That position is then turned into a linear index using 2d array math
+	int index = int(
+				// X component
+				int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x))+
+				// Y component
+			    int(clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y))*screenSize.x+screenSize.x*0.5);
+
+	// Poor nebulabrot attempt
+	// Smoothstep- more smooth image
+	/*points[index] += vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);*/
+	// Step- too detailed?
+	points[index] += vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
+	
+	</incrementWPosition>,
 </loopTrap>
+
+<loopSetup>
+	<buddhaMapSetup>vec2 c = w;vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));</buddhaMapSetup>,
+</loopSetup>
 
 <loopReturn>
 	<nothing>;</nothing>,
@@ -91,10 +113,7 @@ int EscapeCount(vec2 z)
 	for (int i = 0; i < maxIterations; i++)
 	{
 		z=mat2(z,-z.y,z.x)*z+c;
-		if (dot(z,z)>4)
-		{
-			return i;
-		}
+		if (dot(z,z)>4) return i;
 	}
 	return -1;
 }
@@ -157,21 +176,6 @@ vec2 getStartValue(int seed)
 </getStartValue>
 
 <map01ToInterval>
-float mapRange(float a1,float a2,float b1,float b2,float s)
-{
-	return b1 + (s-a1)*(b2-b1)/(a2-a1);
-}
-
-float map01ToInterval(float value, vec2 range)
-{
-	return value*(range.y-range.x)+range.x;
-}
-
-vec2 mapTo01(vec2 value, vec4 range)
-{
-	return clamp(vec2((value.x-range.x)/(range.z-range.x), (value.y-range.y)/(range.w-range.y)),vec2(0), vec2(1));
-}
-
 vec2 map01ToInterval(vec2 value, vec4 range)
 {
 	return vec2(value.x*(range.z-range.x)+range.x, value.y*(range.w-range.y)+range.y);
@@ -183,7 +187,7 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 	void mainLoop(vec2 w)
 	{
 		<loopSetup>
-
+		
 		float i = 0;
 		for (; i < maxIterations; i++)
 		{
