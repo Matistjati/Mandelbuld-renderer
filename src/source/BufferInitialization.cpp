@@ -3,6 +3,7 @@
 #include <random>
 #include <chrono>
 #include <functional>
+#include <stdint.h>
 
 bool notInMainCardioid(float zx, float zy)
 {
@@ -16,6 +17,19 @@ bool notInMainBulb(float zx, float zy)
 {
 	zx += 1;
 	return zx*zx+zy*zy > 0.062499999f;
+}
+
+uint32_t random(uint32_t upperBound)
+{
+	static uint32_t x = 123456789;
+	static uint32_t y = 362436069;
+	static uint32_t z = 521288629;
+	static uint32_t w = 88675123;
+	uint32_t t;
+	t = x ^ (x << 11);
+	x = y; y = z; z = w;
+	w = w ^ (w >> 19) ^ (t ^ (t >> 8));
+	return uint32_t(float(w)/float(UINT32_MAX)*upperBound);
 }
 
 void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize, std::vector<float> params)
@@ -59,12 +73,9 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 		}
 	}
 
-	std::mt19937::result_type seed = (std::mt19937::result_type)std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	auto image_rand_index = std::bind(std::uniform_int_distribution<int>(0, goodPoints.size()-1),
-		std::mt19937(seed));
 	for (size_t i = 0; i < data.size(); i++)
 	{
-		int index = image_rand_index();
+		uint32_t index = random(goodPoints.size());
 		data[i] = goodPoints[index];
 	}
 }

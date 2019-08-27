@@ -670,6 +670,90 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	}
 }
 
+void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
+{
+	const double imageCount = 100;
+	const double pi2 = 6.28318530717958647692528676655;
+	const double dt = pi2 / imageCount;
+	const int framesPerImage = 5;
+
+	const size_t pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
+
+	GlErrorCheck();
+
+	fractal->UpdateFractalShader();
+
+	fractal->renderShader->use();
+	fractal->SetUniformLocations(fractal->renderShader);
+	fractal->SetUniforms(fractal->renderShader);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+
+	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
+
+	for (double time = 0; time < pi2; time += dt)
+	{
+		if (fractal->explorationShader->type == compute)
+		{
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
+			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+		}
+		fractal->time.value.SetTotalTime(time);
+		fractal->explorationShader->SetUniform(fractal->time);
+		fractal->frame.value = 0;
+		fractal->explorationShader->SetUniform(fractal->frame);
+
+		for (size_t i = 0; i < framesPerImage; i++)
+		{
+			if (fractal->explorationShader->type == fragment)
+			{
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+				glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+				// rendering, we use ray marching inside the fragment shader
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			}
+			else if (fractal->explorationShader->type == compute)
+			{
+				ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->explorationShader);
+				compute->Invoke(fractal->screenSize.value);
+			}
+			fractal->Update();
+		}
+		
+
+		if (fractal->explorationShader->type == fragment)
+		{
+			fractal->FindPathAndSaveImage();
+		}
+		else if (fractal->explorationShader->type == compute)
+		{
+			const static std::string baseName = "TestImage/image";
+			int count = 0;
+			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
+			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
+
+			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
+			
+			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+
+			Image image(screenSize.value.x, screenSize.value.y, &data);
+
+			image.FlipVertically();
+
+			try
+			{
+				image.Save((baseName + std::to_string(count) + ".png").c_str());
+				DebugPrint("Successfully saved image \"" + FileManager::GetFileName(baseName + std::to_string(count) + ".png") + "\"");
+			}
+			catch (const std::exception& e)
+			{
+				DebugPrint("Error saving image: " + *e.what());
+				return;
+			}
+		}		
+	}
+	GlErrorCheck();
+}
+
 void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 {
 	std::vector<std::string> fractals = FileManager::GetDirectoryFileNames(fractalPath);

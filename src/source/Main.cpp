@@ -16,11 +16,12 @@
 
 enum Purpose
 {
-	singleImage,
 	explore,
+	singleImage,
+	imageSequence
 };
 
-constexpr Purpose programPurpose = Purpose::explore;
+constexpr Purpose programPurpose = Purpose::imageSequence;
 
 // Screensize
 #define ConstWindowSize 1
@@ -110,6 +111,10 @@ int main()
 	else if (programPurpose == singleImage)
 	{
 		Fractal::GenerateSingleImage(mainWindow, fractal);
+	}
+	else if (programPurpose == imageSequence)
+	{
+		Fractal::ImageSequence(mainWindow, fractal);
 	}
 	else
 	{

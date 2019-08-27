@@ -77,8 +77,13 @@ uniform int count;
 <loopTrap>
 	<incrementWPosition>
 	// The position we use. We can for example mix between zr, zi to cr, ci for a transition between the buddhabrot and mandelbrot sets.
-	//vec2 coord = vec2(mix(c, w, 1));
-	vec2 coord = vec2(w);
+	// Time will be in range [0,2pi), which we map to [0,1)
+	//vec2 coord = vec2(mix(c, w, time/6.28318530717958647692528676655));
+	//vec2 coord = vec2(w.x,mix(w.y, c.y, time/6.28318530717958647692528676655));
+	//vec2 coord = vec2(mix(w.x, c.x, time/6.28318530717958647692528676655), mix(c.y,w.y, time/6.28318530717958647692528676655));
+	//vec2 coord = vec2(mix(w.x, c.x, time/6.28318530717958647692528676655), mix(c.y,w.y, time/6.28318530717958647692528676655));
+	vec2 coord = vec2(mix(c.x, w.y, time/6.28318530717958647692528676655), mix(w.y,c.x, time/6.28318530717958647692528676655));
+	//vec2 coord = vec2(w);
 
 	// Converting a position in fractal space to image space- google map one range to another
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y

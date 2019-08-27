@@ -2,19 +2,27 @@
 #include <stdexcept>
 #include <iostream>
 
-Image::Image(int width, int height, std::vector<Pixel> pixels) : width(width), height(height), pixels(pixels)
+Image::Image(int width, int height, std::vector<Pixel> *pixels) : width(width), height(height), pixels(pixels), containsCopy(false)
 {}
 
-Image::Image(int width, int height, std::vector<glm::ivec4> pixels) : width(width), height(height)
+Image::Image(int width, int height, std::vector<glm::ivec4> pixels) : width(width), height(height), containsCopy(true)
 {
-	std::vector<Pixel> data = std::vector<Pixel>(width * height);
+	std::vector<Pixel> *data = new std::vector<Pixel>(width * height);
 
 	size_t pixelCount = width * height;
 	for (size_t i = 0; i < pixelCount; i++)
 	{
-		data[i] = Pixel(pixels[i]);
+		(*data)[i] = Pixel(pixels[i]);
 	}
 	this->pixels = data;
+}
+
+Image::~Image()
+{
+	if (containsCopy)
+	{
+		delete pixels;
+	}
 }
 
 
@@ -112,14 +120,14 @@ void Image::FlipVertically()
 	{
 		for (int i = 0; i < height / 2; i++)
 		{
-			Swap(&pixels[j + width * i], &pixels[j + width * (height - i - 1)]);
+			Swap(&(*pixels)[j + width * i], &(*pixels)[j + width * (height - i - 1)]);
 		}
 	}
 }
 
 inline Pixel* Image::PixelAt(int x, int y)
 {
-	return &pixels[width * y + x];
+	return &(*pixels)[width * y + x];
 }
 
 inline void Image::Swap(Pixel * a, Pixel * b)

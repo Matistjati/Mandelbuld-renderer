@@ -164,7 +164,7 @@ void Fractal2D::SaveImage(const std::string path)
 	GlErrorCheck();
 
 
-	Image image(screenSize.value.x, screenSize.value.y, data);
+	Image image(screenSize.value.x, screenSize.value.y, &data);
 
 	image.FlipVertically();
 

@@ -208,7 +208,7 @@ void Fractal3D::SaveImage(const std::string path)
 	SetUniforms(explorationShader);
 	GlErrorCheck();
 
-	Image image(screenSize.value.x, screenSize.value.y, data);
+	Image image(screenSize.value.x, screenSize.value.y, &data);
 
 	image.FlipVertically();
 
