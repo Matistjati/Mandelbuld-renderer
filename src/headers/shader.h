@@ -76,6 +76,7 @@ public:
 	void SetUniform(Uniform<glm::mat3> &mat) const;
 	void SetUniform(Uniform<Time> time) const;
 	void SetUniform(unsigned int id, float x, float y, float z) const;
+	void SetUniform(unsigned int id, float value) const;
 	void SetUniform(unsigned int id, int value) const;
 	void SetUniformStr(Uniform<glm::vec2> vector) const;
 	void SetUniformStr(Uniform<glm::vec3> vector) const;

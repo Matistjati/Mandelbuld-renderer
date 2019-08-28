@@ -63,7 +63,6 @@ uniform int count;
 		int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y))+int(intHash(frame));
 
     	vec2 w = getStartValue(seed);
-
 		if(w.x<-100) continue;
 
 		mainLoop(w);
@@ -76,14 +75,22 @@ uniform int count;
 
 <loopTrap>
 	<incrementWPosition>
+	const float pi2 = 6.28318530717958647692528676655;
+	float t = time/pi2;
 	// The position we use. We can for example mix between zr, zi to cr, ci for a transition between the buddhabrot and mandelbrot sets.
 	// Time will be in range [0,2pi), which we map to [0,1)
-	//vec2 coord = vec2(mix(c, w, time/6.28318530717958647692528676655));
-	//vec2 coord = vec2(w.x,mix(w.y, c.y, time/6.28318530717958647692528676655));
-	//vec2 coord = vec2(mix(w.x, c.x, time/6.28318530717958647692528676655), mix(c.y,w.y, time/6.28318530717958647692528676655));
-	//vec2 coord = vec2(mix(w.x, c.x, time/6.28318530717958647692528676655), mix(c.y,w.y, time/6.28318530717958647692528676655));
-	vec2 coord = vec2(mix(c.x, w.y, time/6.28318530717958647692528676655), mix(w.y,c.x, time/6.28318530717958647692528676655));
-	//vec2 coord = vec2(w);
+	//vec2 coord = vec2(mix(c,w,t));
+	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
+	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
+	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
+	//vec2 coord = vec2(mix(c.x, w.y, t), mix(w.y,c.x, t));
+	
+	//vec2 coord = vec2(mix(c.x, w.x, 0.1), w.y);
+	//vec2 coord = vec2(w.x, mix(w.y,c.x,0.3));
+	//vec2 coord = vec2(mix(c.x, w.x,0.5), mix(mix(c.y,w.y,0.5),c.x,0.5));
+	
+	
+	vec2 coord = vec2(w);
 
 	// Converting a position in fractal space to image space- google map one range to another
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
@@ -151,7 +158,10 @@ vec2 getStartValue(int seed)
 				// We only want to iterate points that are interesting enough
 				if (escapeCount > minIterations)
 				{
-					desirability[index] = vec4(point, escapeCount, -1);
+					if (escapeCount > prev.z)
+					{
+						desirability[index] = vec4(point, escapeCount, -1);
+					}
 					return point;
 				}
 			}
@@ -162,11 +172,11 @@ vec2 getStartValue(int seed)
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			vec2 point = hash2(hash,hash)*0.01+prev.xy; // Return a point we already know is good with a small mutation
+			vec2 point = (hash2(hash,hash)*2-1)*.001+prev.xy; // Return a point we already know is good with a small mutation
 			if (notInMainBulb(point) && notInMainCardioid(point))
 			{
 				float escapeCount = EscapeCount(point);
-				if (escapeCount > 0 || escapeCount > minIterations)
+				if (escapeCount > minIterations)
 				{
 					if (escapeCount > prev.z)
 					{

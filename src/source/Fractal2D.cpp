@@ -858,7 +858,7 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 			renderingFrequency = (renderingFrequencyStr == "") ? ComputeShader::DefaultRenderingFrequency : std::stoi(renderingFrequencyStr);
 
 			ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
-			DebugPrint(base);
+
 			return new ComputeShader(base, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
 		}
 	}

@@ -91,4 +91,8 @@ void FileManager::SetCorrectDirectory()
 		}
 		correctWorkingDir = true;
 	}
+	else
+	{
+		correctWorkingDir = true;
+	}
 }

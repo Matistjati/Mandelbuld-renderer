@@ -305,6 +305,11 @@ void Shader::SetUniform(unsigned int id, float x, float y, float z) const
 	glUniform3f(id, x, y, z);
 }
 
+void Shader::SetUniform(unsigned int id, float value) const
+{
+	glUniform1f(id, value);
+}
+
 void Shader::SetUniform(unsigned int id, int value) const
 {
 	glUniform1i(id, value);

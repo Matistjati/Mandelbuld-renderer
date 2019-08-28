@@ -18,10 +18,9 @@ layout(std430, binding=1) buffer renderInput
 
 	vec4 col = points[IndexPoints(gl_FragCoord.x, gl_FragCoord.y)];
 
+	// Buddhabrot Wx,Wy
 	//color = vec4((col.xyz/brightness.xyz)*0.1, 1);
 
 	// A poor approximation used for buddhagrams
-	color = vec4((col.xyz/(float(frame)*200))*0.1, 1);
-
-	//color = col / 512;
+	color = vec4((col.xyz/(float(frame)*300*vec3(0.05, 0.2, 1)))*0.1, 1);
 </mainAA>

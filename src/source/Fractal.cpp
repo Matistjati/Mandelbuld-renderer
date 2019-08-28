@@ -683,9 +683,9 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	fractal->UpdateFractalShader();
 
-	fractal->renderShader->use();
-	fractal->SetUniformLocations(fractal->renderShader);
-	fractal->SetUniforms(fractal->renderShader);
+	fractal->explorationShader->use();
+	fractal->SetUniformLocations(fractal->explorationShader);
+	fractal->SetUniforms(fractal->explorationShader);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 
 	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
@@ -697,10 +697,13 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
 			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
 		}
-		fractal->time.value.SetTotalTime(time);
-		fractal->explorationShader->SetUniform(fractal->time);
+
+		fractal->explorationShader->use();
 		fractal->frame.value = 0;
 		fractal->explorationShader->SetUniform(fractal->frame);
+		fractal->time.value.SetTotalTime(time);
+		fractal->explorationShader->SetUniform(fractal->time);
+
 
 		for (size_t i = 0; i < framesPerImage; i++)
 		{
@@ -713,12 +716,10 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			}
 			else if (fractal->explorationShader->type == compute)
 			{
-				ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->explorationShader);
-				compute->Invoke(fractal->screenSize.value);
+				reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
 			}
 			fractal->Update();
 		}
-		
 
 		if (fractal->explorationShader->type == fragment)
 		{
