@@ -50,7 +50,6 @@ public:
 	static std::map<std::string, int*> GetDefaultShaderIndices();
 	void RenderComputeShader();
 
-
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";
 	static const constexpr char* path2DBaseCompute = "shaders/2D/Base/2DFractalBaseCompute.fs";

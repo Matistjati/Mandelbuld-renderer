@@ -95,11 +95,14 @@ uniform int count;
 	// Converting a position in fractal space to image space- google map one range to another
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
+	int x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
+
 	int index = int(
 				// X component
-				int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x))+
+				x+
 				// Y component
-			    int(clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y))*screenSize.x+screenSize.x*0.5);
+				// The steps are to avoid points outside of the image accumulating on the left and right sides
+			    step(1,x)*step(x,screenSize.x-1)*int(clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y))*screenSize.x+screenSize.x*0.5);
 
 	// Poor nebulabrot attempt
 	// Smoothstep- more smooth image

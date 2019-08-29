@@ -38,7 +38,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 	#elif ScreenSize == 3
 		const glm::ivec2 screenSize = { 2560, 1440 };
 	#elif ScreenSize == 4
-		const glm::ivec2 screenSize = { 3840, 2160 };
+		const glm::ivec2 screenSize = { 4096, 2160 };
 	#elif ScreenSize == 5
 		const glm::ivec2 screenSize = { 7680, 4320 };
 	#endif
@@ -62,6 +62,8 @@ int main()
 
 #if ConstWindowSize
 	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
+	glfwSetWindowSizeLimits(mainWindow, 0, 0, screenSize.x, screenSize.y);
+	glfwSetWindowSize(mainWindow, screenSize.x, screenSize.y);
 	Fractal::screenSize = Uniform<glm::ivec2>(screenSize, "screenSize", -1);
 #else
 	// glfw window creation

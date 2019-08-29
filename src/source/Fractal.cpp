@@ -732,6 +732,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
 			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
 
+			
 			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
 			
 			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
