@@ -79,7 +79,10 @@ uniform int count;
 	float t = time/pi2;
 	// The position we use. We can for example mix between zr, zi to cr, ci for a transition between the buddhabrot and mandelbrot sets.
 	// Time will be in range [0,2pi), which we map to [0,1)
-	//vec2 coord = vec2(mix(c,w,t));
+
+	// Mix outside 0,1?
+
+	vec2 coord = vec2(mix(c,w,t));
 	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
@@ -89,20 +92,22 @@ uniform int count;
 	//vec2 coord = vec2(w.x, mix(w.y,c.x,0.3));
 	//vec2 coord = vec2(mix(c.x, w.x,0.5), mix(mix(c.y,w.y,0.5),c.x,0.5));
 	
-	
-	vec2 coord = vec2(w);
+	//vec2 coord = vec2(c.x,w.y); //vec2 c = vec2(w.y,0)
+	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
-	// Converting a position in fractal space to image space- google map one range to another
+	//vec2 coord = vec2(w);
+
+	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
 	int x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
-
+	int y = int(clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
 	int index = int(
 				// X component
 				x+
 				// Y component
 				// The steps are to avoid points outside of the image accumulating on the left and right sides
-			    step(1,x)*step(x,screenSize.x-1)*int(clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y))*screenSize.x+screenSize.x*0.5);
+			    step(1,x)*step(x,screenSize.x-1)*y*screenSize.x+screenSize.x*0.5);
 
 	// Poor nebulabrot attempt
 	// Smoothstep- more smooth image

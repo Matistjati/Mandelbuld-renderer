@@ -8,7 +8,7 @@ layout(std430, binding=1) buffer renderInput
 {
     vec4 points[];
 };
-#define IndexPoints(X,Y) uint(X+Y*screenSize.x+screenSize.x)
+#define IndexPoints(X,Y) uint(X+(Y-step(2,Y)*2)*screenSize.x+screenSize.x)
 </buffers>
 
 
@@ -22,6 +22,6 @@ layout(std430, binding=1) buffer renderInput
 	//color = vec4((col.xyz/brightness.xyz)*0.1, 1);
 
 	// A poor approximation used for buddhagrams
-	color = vec4((col.xyz/(float(frame)*3000*vec3(0.05, 0.2, 1))), 1);
+	color = vec4((col.xyz/(float(frame)*5000))*vec3(20, 5, 1), 1);
 	//color = vec4((col.xyz/(float(frame)*3000)), 1);
 </mainAA>

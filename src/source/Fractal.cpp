@@ -672,10 +672,12 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 
 void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 {
-	const double imageCount = 100;
-	const double pi2 = 6.28318530717958647692528676655;
-	const double dt = pi2 / imageCount;
-	const int framesPerImage = 5;
+	const static int standardWork = 1920 * 1080;
+	const static double imageCount = 500;
+	const static double pi2 = 6.28318530717958647692528676655;
+	const static double dt = pi2 / imageCount;
+	const static int standardFPI = 5;
+	const size_t framesPerImage = std::max(standardFPI, int(float(standardFPI) / (float((fractal->screenSize.value.x * fractal->screenSize.value.y)) / standardWork)));
 
 	const size_t pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
 
@@ -727,7 +729,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->explorationShader->type == compute)
 		{
-			const static std::string baseName = "TestImage/image";
+			const static std::string baseName = "AnimationTemp/goodboi/";
 			int count = 0;
 			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
 			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
