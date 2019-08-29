@@ -189,6 +189,7 @@ vec2 getStartValue(int seed)
 				}
 			}
 		}
+		return vec2(-1000);
 	}
 }
 </getStartValue>
