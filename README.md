@@ -1,7 +1,10 @@
 
 # Mandelbuld-renderer (name subject to change)
 A fractal renderer written using opengl.<br/>
-An example image rendered in realtime with a 1070 ti<br/>
+It supports many fractals, including the mandelbrot, mandelbulb, mandelbox, buddhabrot, buddhagram and variations of these<br/>
+A 4096 x 2160 with 1000 as max iteration count<br/>
+![Alt text](/Images/buddhabrot.png?raw=true)
+A mandelbulb rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 # **Controls**<br/>
 ## **General**<br/>
