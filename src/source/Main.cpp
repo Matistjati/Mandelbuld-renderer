@@ -21,12 +21,12 @@ enum Purpose
 	imageSequence
 };
 
-constexpr Purpose programPurpose = Purpose::imageSequence;
+constexpr Purpose programPurpose = Purpose::explore;
 
 // Screensize
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 0
+	#define ScreenSize 2
 	
 	// Common screen resolutions
 	#if ScreenSize == 0

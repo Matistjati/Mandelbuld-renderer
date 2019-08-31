@@ -26,8 +26,6 @@ layout(std430, binding = 2) buffer desirabilityMap
 };
 </buffers>
 
-uniform int count;
-
 <constants>
 	const float maxIterationsRed = maxIterations/20;
 	const float maxIterationsGreen = maxIterations/5;
@@ -41,6 +39,7 @@ uniform int count;
 
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
+	#define Colorwheel 1
 
 </constants>
 
@@ -82,7 +81,7 @@ uniform int count;
 
 	// Mix outside 0,1?
 
-	vec2 coord = vec2(mix(c,w,t));
+	//vec2 coord = vec2(mix(c,w,t));
 	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
@@ -95,7 +94,7 @@ uniform int count;
 	//vec2 coord = vec2(c.x,w.y); //vec2 c = vec2(w.y,0)
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
-	//vec2 coord = vec2(w);
+	vec2 coord = vec2(w);
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
@@ -109,17 +108,28 @@ uniform int count;
 				// The steps are to avoid points outside of the image accumulating on the left and right sides
 			    step(1,x)*step(x,screenSize.x-1)*y*screenSize.x+screenSize.x*0.5);
 
-	// Poor nebulabrot attempt
+
+#if Colorwheel
+    // Into color
+	points[index] += vec4(wheelColor, 1.0);
+#else
+	// Nebulabrot
 	// Smoothstep- more smooth image
 	/*points[index] += vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);*/
+
 	// Step- too detailed?
 	points[index] += vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
-	
+#endif
 	</incrementWPosition>,
 </loopTrap>
 
 <loopSetup>
-	<buddhaMapSetup>vec2 c = w;vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));</buddhaMapSetup>,
+	<buddhaMapSetup>vec2 c = w;vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));
+	#if Colorwheel
+	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
+	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
+	vec3 wheelColor = hsl2rgb( vec3(hue, 1.0, 0.5));
+	#endif</buddhaMapSetup>,
 </loopSetup>
 
 <loopReturn>
@@ -127,6 +137,12 @@ uniform int count;
 </loopReturn>
 
 <EscapeCount>
+vec3 hsl2rgb(vec3 c)
+{
+    vec3 rgb = clamp( abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
+    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
+}
+
 int EscapeCount(vec2 z)
 {
 	vec2 c = z;
