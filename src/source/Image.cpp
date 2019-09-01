@@ -125,6 +125,12 @@ void Image::FlipVertically()
 	}
 }
 
+void Image::FlipAndSave(const std::string path)
+{
+	this->FlipVertically();
+	this->Save(path);
+}
+
 inline Pixel* Image::PixelAt(int x, int y)
 {
 	return &(*pixels)[width * y + x];

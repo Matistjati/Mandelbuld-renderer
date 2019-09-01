@@ -18,7 +18,7 @@ layout(std430, binding = 0) buffer densityMap
 };
 
 /*<bufferType>privateBuffer</bufferType>*/
-/*<cpuInitialize>buddhaBrotImportanceMap(200, 30, -2.5, 1, 1, -1)</cpuInitialize>*/
+/*<cpuInitialize>buddhaBrotImportanceMap(<maxIterations>, 30, -2.5, 1, 1, -1)</cpuInitialize>*/
 layout(std430, binding = 2) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding

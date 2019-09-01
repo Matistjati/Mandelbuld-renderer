@@ -75,6 +75,7 @@ public:
 	~Image();
 	void Save(const std::string path);
 	void FlipVertically();
+	void FlipAndSave(const std::string path);
 
 	std::vector<Pixel> *pixels;
 	int width;

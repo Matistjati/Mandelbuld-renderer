@@ -747,12 +747,10 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 			Image image(screenSize.value.x, screenSize.value.y, &data);
 
-			image.FlipVertically();
-
 			try
 			{
 				std::string path = baseName + std::to_string(count) + ".png";
-				imageSaveThread = std::thread(&Image::Save, image, path);
+				imageSaveThread = std::thread(&Image::FlipAndSave, image, path);
 				
 				DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
 			}
