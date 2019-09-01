@@ -265,3 +265,5 @@ Image/
 Image.png
 TestImage/
 AnimationTemp/
+#Plugin
+.leu
