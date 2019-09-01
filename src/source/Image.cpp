@@ -26,35 +26,35 @@ Image::~Image()
 }
 
 
-// You know i stole the code when there are comments in it :)
-void Image::Save(const char * path)
+// You know i "borrowed" the code when there are comments in it :)
+void Image::Save(const std::string path)
 {
 	FILE * fp;
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
-	png_byte ** row_pointers = NULL;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
+	png_byte ** row_pointers = nullptr;
 
 
 	// Trial and error (By someone else)
 	const int pixel_size = 4;
 	const int depth = 8;
 
-	fp = fopen(path, "wb");
-	if (!(fp))
+	fp = fopen(path.c_str(), "wb");
+	if (!fp)
 	{
-		std::cout << "Error saving image: bad file path: \"" << path << "\"" << std::endl;
-		return;
+		std::cout << "Error saving image : bad file path : " << path << std::endl;
+		throw std::invalid_argument("Error saving image: bad file path: " + path);
 	}
 
-	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (png_ptr == NULL)
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (png_ptr == nullptr)
 	{
 		fclose(fp);
 		throw std::invalid_argument("Could not create png pointer");
 	}
 
 	info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL)
+	if (info_ptr == nullptr)
 	{
 		fclose(fp);
 		throw std::invalid_argument("Could not create info pointer");

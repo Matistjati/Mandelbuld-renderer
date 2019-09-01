@@ -22,5 +22,5 @@ layout(std430, binding=1) buffer renderInput
 
 	// A poor approximation used for buddhagrams
 	//color = vec4((col.xyz/(float(frame)*4000))*vec3(20, 5, 1), 1);
-	color = vec4((col.xyz/(float(frame)*1500)), 1);
+	color = vec4((col.xyz/(float(frame)*1000)), 1);
 </mainAA>

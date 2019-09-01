@@ -59,7 +59,7 @@ layout(std430, binding = 2) buffer desirabilityMap
 	float _;
 	for(int i = 0; i < pointsPerFrame; i++)
 	{
-		int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y))+int(intHash(frame));
+		int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
 
     	vec2 w = getStartValue(seed);
 		if(w.x<-100) continue;

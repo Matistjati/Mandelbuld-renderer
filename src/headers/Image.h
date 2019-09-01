@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <glm.hpp>
 #include <vector>
+#include <string>
 
 #define byte unsigned char
 
@@ -72,7 +73,7 @@ public:
 	Image(int width, int height, std::vector<Pixel> *pixels);
 	Image(int width, int height, std::vector<glm::ivec4> pixels);
 	~Image();
-	void Save(const char *path);
+	void Save(const std::string path);
 	void FlipVertically();
 
 	std::vector<Pixel> *pixels;

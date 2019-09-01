@@ -21,7 +21,7 @@ enum Purpose
 	imageSequence
 };
 
-constexpr Purpose programPurpose = Purpose::explore;
+constexpr Purpose programPurpose = Purpose::imageSequence;
 
 // Screensize
 #define ConstWindowSize 1

@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <thread>
 
 Uniform<glm::ivec2> Fractal::screenSize;
 GLFWwindow* Fractal::window;
@@ -692,6 +693,12 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
 
+	const static std::string baseName = "TestImage/image";
+	int count = 0;
+	// Find the current lowest count
+	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
+
+	std::thread imageSaveThread([]() {});
 	for (double time = 0; time < pi2; time += dt)
 	{
 		if (fractal->explorationShader->type == compute)
@@ -729,14 +736,13 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->explorationShader->type == compute)
 		{
-			const static std::string baseName = "AnimationTemp/goodboi/";
-			int count = 0;
+			const static std::string baseName = "TestImage/image";
 			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
 			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
 
-			
 			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
 			
+			imageSaveThread.join();
 			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 			Image image(screenSize.value.x, screenSize.value.y, &data);
@@ -745,15 +751,18 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 			try
 			{
-				image.Save((baseName + std::to_string(count) + ".png").c_str());
-				DebugPrint("Successfully saved image \"" + FileManager::GetFileName(baseName + std::to_string(count) + ".png") + "\"");
+				std::string path = baseName + std::to_string(count) + ".png";
+				imageSaveThread = std::thread(&Image::Save, image, path);
+				
+				DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
 			}
 			catch (const std::exception& e)
 			{
 				DebugPrint("Error saving image: " + *e.what());
 				return;
 			}
-		}		
+			
+		}
 	}
 	GlErrorCheck();
 }

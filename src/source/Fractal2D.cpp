@@ -322,7 +322,11 @@ void Fractal2D::HandleKeyInput()
 			case GLFW_KEY_R:
 				if (explorationShader->type == compute)
 				{
+					// Draw to both front and back buffers to avoid stuttering
 					RenderComputeShader();
+					glfwSwapBuffers(window);
+					RenderComputeShader();
+					glfwSwapBuffers(window);
 				}
 				break;
 

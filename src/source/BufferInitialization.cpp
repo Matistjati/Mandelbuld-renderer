@@ -73,10 +73,13 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 		}
 	}
 
-	for (size_t i = 0; i < data.size(); i++)
+	if (goodPoints.size() > 0)
 	{
-		uint32_t index = random(goodPoints.size());
-		data[i] = goodPoints[index];
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			uint32_t index = random(goodPoints.size());
+			data[i] = goodPoints[index];
+		}
 	}
 }
 
