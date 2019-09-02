@@ -21,7 +21,7 @@ enum Purpose
 	imageSequence
 };
 
-constexpr Purpose programPurpose = Purpose::explore;
+constexpr Purpose programPurpose = Purpose::imageSequence;
 
 // Screensize
 #define ConstWindowSize 1
@@ -51,6 +51,19 @@ constexpr auto DefaultFractalNameIndex = 0;
 #define DefaultFractal Fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
+
+void GLAPIENTRY
+MessageCallback(GLenum source, GLenum type,	GLuint id, GLenum severity,
+	GLsizei length, const GLchar* message, const void* userParam)
+{
+	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		type, severity, message);
+	if (type == GL_DEBUG_TYPE_ERROR)
+	{
+		BreakIfDebug();
+	}
+}
 
 int main()
 {
@@ -93,7 +106,11 @@ int main()
 		return -1;
 	}
 
+
 #if _DEBUG
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
+
 	std::cout << glGetString(GL_VERSION) << std::endl;
 #endif
 

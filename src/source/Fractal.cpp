@@ -591,6 +591,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
 				glfwSwapBuffers(window);
 				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
+				glfwSwapBuffers(window);
 			}
 		}
 
@@ -689,7 +690,6 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	fractal->explorationShader->use();
 	fractal->SetUniformLocations(fractal->explorationShader);
 	fractal->SetUniforms(fractal->explorationShader);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 
 	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
 
@@ -736,30 +736,34 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->explorationShader->type == compute)
 		{
+			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
+
+			imageSaveThread.join();
+
 			const static std::string baseName = "TestImage/image";
 			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
 			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
 
-			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
-			
-			imageSaveThread.join();
 			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 			Image image(screenSize.value.x, screenSize.value.y, &data);
 
-			try
+			std::string path = baseName + std::to_string(count) + ".png";
+
+			const static auto Save = [](Image image, std::string path)
 			{
-				std::string path = baseName + std::to_string(count) + ".png";
-				imageSaveThread = std::thread(&Image::FlipAndSave, image, path);
-				
-				DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
-			}
-			catch (const std::exception& e)
-			{
-				DebugPrint("Error saving image: " + *e.what());
-				return;
-			}
-			
+				try
+				{
+					image.Save(path);
+					DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
+				}
+				catch (const std::exception& e)
+				{
+					DebugPrint("Error saving image: " + *e.what());
+					return;
+				}
+			};
+			imageSaveThread = std::thread(Save, image, path);
 		}
 	}
 	GlErrorCheck();
