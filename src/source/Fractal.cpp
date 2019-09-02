@@ -698,6 +698,16 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	// Find the current lowest count
 	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
 
+	unsigned int pboIds[2];
+	glGenBuffers(2, pboIds);
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
+	glBufferData(GL_PIXEL_PACK_BUFFER, screenSize.value.x*screenSize.value.y*4, 0, GL_STREAM_READ);
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
+	glBufferData(GL_PIXEL_PACK_BUFFER, screenSize.value.x * screenSize.value.y * 4, 0, GL_STREAM_READ);
+
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+
 	std::thread imageSaveThread([]() {});
 	for (double time = 0; time < pi2; time += dt)
 	{
@@ -736,6 +746,15 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->explorationShader->type == compute)
 		{
+			static int index = 0;
+			int nextIndex = 0;
+
+			// increment current index first then get the next index
+			// "index" is used to read pixels from a framebuffer to a PBO
+			// "nextIndex" is used to process pixels in the other PBO
+			index = (index + 1) % 2;
+			nextIndex = (index + 1) % 2;
+
 			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
 
 			imageSaveThread.join();
@@ -744,26 +763,37 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
 			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
 
-			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-			Image image(screenSize.value.x, screenSize.value.y, &data);
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+			Pixel* src = (Pixel*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
 
-			std::string path = baseName + std::to_string(count) + ".png";
-
-			const static auto Save = [](Image image, std::string path)
+			if (src)
 			{
-				try
+				data.assign(src, src + screenSize.value.x * screenSize.value.y);
+				Image image(screenSize.value.x, screenSize.value.y, &data);
+
+				std::string path = baseName + std::to_string(count) + ".png";
+
+				const static auto Save = [](Image image, std::string path)
 				{
-					image.Save(path);
-					DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
-				}
-				catch (const std::exception& e)
-				{
-					DebugPrint("Error saving image: " + *e.what());
-					return;
-				}
-			};
-			imageSaveThread = std::thread(Save, image, path);
+					try
+					{
+						image.Save(path);
+						DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
+					}
+					catch (const std::exception& e)
+					{
+						DebugPrint("Error saving image: " + *e.what());
+						return;
+					}
+				};
+				imageSaveThread = std::thread(Save, image, path);
+				glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+			}
+
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		}
 	}
 	GlErrorCheck();
