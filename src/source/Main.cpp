@@ -26,7 +26,7 @@ constexpr Purpose programPurpose = Purpose::imageSequence;
 // Screensize
 #define ConstWindowSize 1
 #if ConstWindowSize
-	#define ScreenSize 3
+	#define ScreenSize 2
 	
 	// Common screen resolutions
 	#if ScreenSize == 0

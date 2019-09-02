@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <thread>
 
+#define DoNothing [](){}
+
 Uniform<glm::ivec2> Fractal::screenSize;
 GLFWwindow* Fractal::window;
 
@@ -708,7 +710,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 
-	std::thread imageSaveThread([]() {});
+	std::thread imageSaveThread(DoNothing);
 	for (double time = 0; time < pi2; time += dt)
 	{
 		if (fractal->explorationShader->type == compute)
@@ -765,6 +767,13 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
 			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+			// We will get junk nothing for the first image
+			if (time == 0)
+			{
+				imageSaveThread = std::thread(DoNothing);
+				continue;
+			}
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
 			Pixel* src = (Pixel*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
