@@ -362,9 +362,24 @@ void Shader::SetUniformStr(Uniform<int> value) const
 	glUniform1i(glGetUniformLocation(id, value.name.c_str()), value.value);
 }
 
+void Shader::SetUniformStr(Uniform<unsigned int> value) const
+{
+	glUniform1ui(glGetUniformLocation(id, value.name.c_str()), value.value);
+}
+
 void Shader::SetUniformStr(Uniform<float> value) const
 {
 	glUniform1f(glGetUniformLocation(id, value.name.c_str()), value.value);
+}
+
+void Shader::SetUniformStr(const std::string& name, int x) const
+{
+	glUniform1i(glGetUniformLocation(id, name.c_str()), x);
+}
+
+void Shader::SetUniformStr(const std::string& name, float x) const
+{
+	glUniform1f(glGetUniformLocation(id, name.c_str()), x);
 }
 
 void Shader::SetUniformStr(const std::string & name, float x, float y) const

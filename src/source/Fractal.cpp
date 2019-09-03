@@ -12,17 +12,18 @@
 #include <thread>
 
 #define DoNothing [](){}
+#define EmptyThread std::thread(DoNothing)
 
 Uniform<glm::ivec2> Fractal::screenSize;
 GLFWwindow* Fractal::window;
 
 bool Fractal::Replace(std::string& str, const std::string& from, const std::string& to)
- {
-	 size_t start_pos = str.find(from);
-	 if (start_pos == std::string::npos)
-		 return false;
-	 str.replace(start_pos, from.length(), to);
-	 return true;
+{
+	size_t start_pos = str.find(from);
+	if (start_pos == std::string::npos)
+		return false;
+	str.replace(start_pos, from.length(), to);
+	return true;
 }
 
 bool Fractal::ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest)
@@ -229,8 +230,8 @@ std::string Fractal::GetSpecificationByIndex(const std::string* specification, i
 	int n = std::count(specification->begin(), specification->end(), '{');
 
 	// Wrap around if index is out range
-	if (*index < 0) *index = n - 1;
-	else if (*index > n - 1) *index = 0;
+	if (*index < 0)* index = n - 1;
+	else if (*index > n - 1)* index = 0;
 
 	int bracketCount = 0;
 	int bracketLevel = 0;
@@ -257,7 +258,7 @@ std::string Fractal::GetSpecificationByIndex(const std::string* specification, i
 			}
 		}
 	}
-	
+
 
 	if (startIndex == 0)
 	{
@@ -294,7 +295,7 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 
 	for (size_t i = 0; i < sections.size(); i++)
 	{
-		std::string sectionName = GetSectionName(sections[i]);  
+		std::string sectionName = GetSectionName(sections[i]);
 		if (target.find(sectionName) == std::string::npos)
 		{
 			target += sections[i];
@@ -309,7 +310,7 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 				// Don't overwrite
 				if (target.find(GetSectionName(innerSections[i])) == std::string::npos)
 				{
-					target.insert(sectionStart + 1, innerSections[i]+ ",");
+					target.insert(sectionStart + 1, innerSections[i] + ",");
 				}
 			}
 		}
@@ -347,7 +348,7 @@ std::vector<std::string> Fractal::GetOuterSections(std::string& source)
 std::vector<std::string> Fractal::GetSections(std::string& source)
 {
 	std::vector<std::string> sections(0);
-	
+
 	size_t sectionEnd = -1;
 	std::string sectionName;
 	for (size_t i = 0; i < source.length(); i++)
@@ -635,7 +636,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	std::vector<Pixel> currentImage = std::vector<Pixel>(pixelCount);
 
 	GlErrorCheck();
-	for (double time = 0; time < pi2; time+=dt)
+	for (double time = 0; time < pi2; time += dt)
 	{
 		fractal->time.value.SetTotalTime(time);
 		fractal->explorationShader->SetUniform(fractal->time);
@@ -676,30 +677,38 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 
 void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 {
+	const static std::string baseName = "TestImage/image";
 	const static int standardWork = 1920 * 1080;
-	const static double imageCount = 500;
+	const static int imageCount = 500; 
 	const static double pi2 = 6.28318530717958647692528676655;
-	const static double dt = pi2 / imageCount;
-	const static int standardFPI = 5;
+	const static double dt = pi2 / double(imageCount-1); // Don't worry about the -1, you will get x images
+	const static int standardFPI = 5; // FPI: frames per image
 	const size_t framesPerImage = std::max(standardFPI, int(float(standardFPI) / (float((fractal->screenSize.value.x * fractal->screenSize.value.y)) / standardWork)));
 
 	const size_t pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
 
-	GlErrorCheck();
+	glfwSetCursorPosCallback(window, MouseCallbackDelegate);
+	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
+	glfwSetKeyCallback(window, KeyCallbackDelegate);
+	glfwSetScrollCallback(window, ScrollCallBackDelegate);
 
-	fractal->UpdateFractalShader();
+	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
+
+	if (fractal->fractalType == fractal3D)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 
 	fractal->explorationShader->use();
-	fractal->SetUniformLocations(fractal->explorationShader);
-	fractal->SetUniforms(fractal->explorationShader);
+	GlErrorCheck();
 
-	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
-
-	const static std::string baseName = "TestImage/image";
 	int count = 0;
 	// Find the current lowest count
 	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
 
+	std::vector<Pixel> data = std::vector<Pixel>(pixelCount);
+
+	// Ping pong buffering with pbos to render quicker
 	unsigned int pboIds[2];
 	glGenBuffers(2, pboIds);
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
@@ -710,8 +719,12 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 
+	// render loop
+	double imageRenderTime = glfwGetTime();
 	std::thread imageSaveThread(DoNothing);
-	for (double time = 0; time < pi2; time += dt)
+	Image image(screenSize.value.x, screenSize.value.y, &data);
+
+	for (size_t i = 0; i < imageCount; i++)
 	{
 		if (fractal->explorationShader->type == compute)
 		{
@@ -722,11 +735,16 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		fractal->explorationShader->use();
 		fractal->frame.value = 0;
 		fractal->explorationShader->SetUniform(fractal->frame);
-		fractal->time.value.SetTotalTime(time);
-		fractal->explorationShader->SetUniform(fractal->time);
+		fractal->explorationShader->SetUniform(fractal->time.id, float(i*dt));
 
 
-		for (size_t i = 0; i < framesPerImage; i++)
+#if _DEBUG
+		// Set the window title to our fps
+		std::string title = std::to_string(glfwGetTime() - imageRenderTime);
+		glfwSetWindowTitle(window, title.c_str());
+#endif
+		imageRenderTime = glfwGetTime();
+		for (size_t j = 0; j < framesPerImage; j++)
 		{
 			if (fractal->explorationShader->type == fragment)
 			{
@@ -748,6 +766,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->explorationShader->type == compute)
 		{
+			// Ping pong buffering
 			static int index = 0;
 			int nextIndex = 0;
 
@@ -757,21 +776,26 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			index = (index + 1) % 2;
 			nextIndex = (index + 1) % 2;
 
-			reinterpret_cast<Fractal2D*>(fractal)->Fractal2D::RenderComputeShader();
+			fractal->renderShader->use();
+			fractal->renderShader->SetUniformStr(fractal->frame);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+			fractal->explorationShader->use();
+			fractal->SetUniformLocations(fractal->explorationShader);
 
 			imageSaveThread.join();
 
-			const static std::string baseName = "TestImage/image";
-			// Finding the first unused file with name-pattern imageN.png where n is the number ascending
-			while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
+			std::string path;
+			while (FileManager::FileExists(path = (baseName + std::to_string(count) + ".png"))) count++;
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
 			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-			// We will get junk nothing for the first image
-			if (time == 0)
+			// We use ping pong buffers, but still want the first and last
+			if (i == 0)
 			{
-				imageSaveThread = std::thread(DoNothing);
+				imageSaveThread = EmptyThread;
 				continue;
 			}
 
@@ -781,15 +805,13 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			if (src)
 			{
 				data.assign(src, src + screenSize.value.x * screenSize.value.y);
-				Image image(screenSize.value.x, screenSize.value.y, &data);
-
-				std::string path = baseName + std::to_string(count) + ".png";
+				glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
 
 				const static auto Save = [](Image image, std::string path)
 				{
 					try
 					{
-						image.Save(path);
+						image.FlipAndSave(path);
 						DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
 					}
 					catch (const std::exception& e)
@@ -799,13 +821,57 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 					}
 				};
 				imageSaveThread = std::thread(Save, image, path);
-				glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+
 			}
+			// We use ping pong buffers, but still want the first and last
+			if (i == imageCount - 1)
+			{
+				imageSaveThread.join();
+
+				std::string path;
+				while (FileManager::FileExists(path = (baseName + std::to_string(count) + ".png"))) count++;
+
+				index = (index + 1) % 2;
+				nextIndex = (index + 1) % 2;
+				
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+				Pixel* src = (Pixel*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+
+				if (src)
+				{
+					data.assign(src, src + screenSize.value.x * screenSize.value.y);
+					glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
+
+					const static auto Save = [](Image image, std::string path)
+					{
+						try
+						{
+							image.FlipAndSave(path);
+							DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
+						}
+						catch (const std::exception& e)
+						{
+							DebugPrint("Error saving image: " + *e.what());
+							return;
+						}
+					};
+					imageSaveThread = std::thread(Save, image, path);
+
+				}
+			}
+
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		}
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+		fractal = (Fractal*)glfwGetWindowUserPointer(window);
+		fractal->HandleKeyInput();
 	}
-	GlErrorCheck();
+
+	if (imageSaveThread.joinable()) imageSaveThread.join();
 }
 
 void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
@@ -976,8 +1042,8 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 					int* relevantIndex = (indices.count(sectionName)) ? indices[sectionName] : index;
 
 
-					if (*relevantIndex < 0) *relevantIndex = sequences.size() - 1;
-					else if (*relevantIndex > (int)sequences.size() - 1) *relevantIndex = 0;
+					if (*relevantIndex < 0)* relevantIndex = sequences.size() - 1;
+					else if (*relevantIndex > (int)sequences.size() - 1)* relevantIndex = 0;
 
 					sectionValue = sequences[*relevantIndex];
 				}

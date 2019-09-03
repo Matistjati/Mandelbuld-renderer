@@ -86,7 +86,10 @@ public:
 	void SetUniformStr(Uniform<glm::mat4> &mat) const;
 	void SetUniformStr(Uniform<bool> value) const;
 	void SetUniformStr(Uniform<int> value) const;
+	void SetUniformStr(Uniform<unsigned int> value) const;
 	void SetUniformStr(Uniform<float> value) const;
+	void SetUniformStr(const std::string &name, int x) const;
+	void SetUniformStr(const std::string &name, float x) const;
 	void SetUniformStr(const std::string &name, float x, float y) const;
 	void SetUniformStr(const std::string &name, float x, float y, float z) const;
 	void SetUniformStr(const std::string &name, float x, float y, float z, float w) const;

@@ -111,17 +111,26 @@ void Image::Save(const std::string path)
 	}
 	png_free(png_ptr, row_pointers);
 
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+
 	fclose(fp);
 }
 
 void Image::FlipVertically()
 {
-	for (int j = 0; j < width; j++)
+	try
 	{
-		for (int i = 0; i < height / 2; i++)
+		for (int j = 0; j < width; j++)
 		{
-			Swap(&(*pixels)[j + width * i], &(*pixels)[j + width * (height - i - 1)]);
+			for (int i = 0; i < height / 2; i++)
+			{
+				Swap(&(*pixels)[j + width * i], &(*pixels)[j + width * (height - i - 1)]);
+			}
 		}
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what();
 	}
 }
 
