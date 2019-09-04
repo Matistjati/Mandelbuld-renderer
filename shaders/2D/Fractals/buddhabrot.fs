@@ -1,9 +1,20 @@
+<extraSections>
+[pointsPerFrame], [startPointAttempts], [minIterations], [leftEdge], [rightEdge], [topEdge], [bottomEdge]
+</extraSections>
+
 <escapeRadius>1e3</escapeRadius>
 <maxIterations>1000</maxIterations>
-<maxIterationsRelease>1</maxIterationsRelease>
+<minIterations>50</minIterations>
 <pointsPerFrame>1</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
 <renderFrequency>50</renderFrequency>
+
+// The area in the complex plane we render
+<leftEdge>-2.5</leftEdge>
+<rightEdge>1</rightEdge>
+<topEdge>1</topEdge>
+<bottomEdge>-1</bottomEdge>
+
 
 <type>compute</type>
 <render>buddhabrotRender.fs</render>
@@ -18,7 +29,7 @@ layout(std430, binding = 0) buffer densityMap
 };
 
 /*<bufferType>privateBuffer</bufferType>*/
-/*<cpuInitialize>buddhaBrotImportanceMap(<maxIterations>, 30, -2.5, 1, 1, -1)</cpuInitialize>*/
+/*<cpuInitialize>buddhaBrotImportanceMap(<maxIterations>, <minIterations>, <leftEdge>, <topEdge>, <rightEdge>, <bottomEdge>)</cpuInitialize>*/
 layout(std430, binding = 2) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
@@ -30,10 +41,10 @@ layout(std430, binding = 2) buffer desirabilityMap
 	const float maxIterationsRed = maxIterations/20;
 	const float maxIterationsGreen = maxIterations/5;
 	const float maxIterationsBlue = maxIterations;
-	const int minIterations = 50;
+	const int minIterations = <minIterations>;
 	const int mutationAttemps = 4;
 	// The area in the complex plane
-	const vec4 screenEdges = vec4(vec2(-2.5, -1), vec2(1, 1));
+	const vec4 screenEdges = vec4(vec2(<leftEdge>, <topEdge>), vec2(<rightEdge>, <bottomEdge>));
 	const int pointsPerFrame = <pointsPerFrame>;
 	const int startPointAttempts = <startPointAttempts>;
 
@@ -42,14 +53,6 @@ layout(std430, binding = 2) buffer desirabilityMap
 	#define Colorwheel 1
 
 </constants>
-
-<extraSections>
-[pointsPerFrame], [startPointAttempts]
-</extraSections>
-
-<extraParameters>
-[vec2 minVal, vec2 maxVal]
-</extraParameters>
 
 <main>
 	uint fragCoord = IndexPoints(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
@@ -81,7 +84,7 @@ layout(std430, binding = 2) buffer desirabilityMap
 
 	// Mix outside 0,1?
 
-	vec2 coord = vec2(mix(c,w,t));
+	//vec2 coord = vec2(mix(c,w,t));
 	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
@@ -94,7 +97,7 @@ layout(std430, binding = 2) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,w.y); //vec2 c = vec2(w.y,0)
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
-	//vec2 coord = vec2(w);
+	vec2 coord = vec2(w);
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
