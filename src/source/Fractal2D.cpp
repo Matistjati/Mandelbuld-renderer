@@ -77,6 +77,15 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			update = true;
 			break;
 
+		case GLFW_KEY_E:
+			(*shaderIndices["loopSetup"])++;
+			update = true;
+			break;
+		case GLFW_KEY_D:
+			(*shaderIndices["loopSetup"])--;
+			update = true;
+			break;
+
 		case GLFW_KEY_X:
 			BreakIfDebug();
 			break;
@@ -423,6 +432,8 @@ std::string Fractal2D::GetFractalFolderPath()
 
 void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string & final, std::string specification, bool highQuality)
 {
+	std::string defaultSource = default2DSource;
+
 	// Bool in sections is for done or not 
 	if (specification.find(Section("variables").start) != std::string::npos)
 	{
@@ -436,12 +447,14 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 			if (!Replace(source, from, variables[i]))
 			{
-				DebugPrint("Couldn't replace variable " + sectionName + " from specification");
+				from = c.start + GetSection(c, defaultSource) + c.end;
+				if (!Replace(defaultSource, from, variables[i]))
+				{
+					DebugPrint("Couldn't replace variable " + sectionName + " from specification");
+				}
 			}
 		}
 	}
-
-	std::string defaultSource = default2DSource;
 
 	const static std::string alternateDefaultFunctions = FileManager::ReadFile(alternateDefaultFunctionsPath);
 	std::string alternateFunctionsStr = GetSection(Section("alternateFunctions"), specification);
@@ -746,7 +759,7 @@ void Fractal2D::Init()
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
-	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)} };
+	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)}, {"loopSetup", new int(0)} };
 }
 
 void Fractal2D::RenderComputeShader()

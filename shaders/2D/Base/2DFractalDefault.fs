@@ -1,4 +1,4 @@
-<escapeRadius>4</escapeRadius>
+<escapeRadius>4.</escapeRadius>
 <maxIterations>256</maxIterations>
 <maxIterationsRelease>2048</maxIterationsRelease>
 <antiAliasing>9</antiAliasing>
@@ -14,15 +14,19 @@
 	<complexSin>parameter = complexSin(parameter);</complexSin>,
 	<complexCos>parameter = complexCos(parameter);</complexCos>,
 	<mandelbrotIter>w=mat2(w,-w.y,w.x)*w+c;</mandelbrotIter>,
+	<setW>w=parameter;</setW>,
 </operations>
 
 <loopSetup>
 	<defaultSetup>vec2 c = w;</defaultSetup>,
+	<juliaSetupPosition>vec2 c = (2*(screenSize.xy/2)-screenSize)/screenSize.y * zoom + position;</juliaSetupPosition>,
+	<juliaSetupMouse>vec2 c = mousePosition/screenSize*2-1;</juliaSetupMouse>,
 </loopSetup>
 
 <loopReturn>
 	<escapeColor>iterationColorRed(float(i));</escapeColor>,
 	<escapeColorPeriodicCos>escapeColorPeriodic(i, parameter, parameter1, parameter2);</escapeColorPeriodicCos>,
+	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log(log(length(w)))/log(2), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
 </loopReturn>
 
 <loopTrap>

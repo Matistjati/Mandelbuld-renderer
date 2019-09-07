@@ -478,11 +478,9 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_Q:
 			fractal->specIndex++;
-			fractal->fractalIndex = 0;
 			break;
 		case GLFW_KEY_A:
 			fractal->specIndex--;
-			fractal->fractalIndex = 0;
 			break;
 
 		case GLFW_KEY_W:
@@ -494,22 +492,15 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 
 		case GLFW_KEY_E:
 			fractal->fractalNameIndex++;
-			fractal->fractalIndex = 0;
-			fractal->specIndex = 0;
 			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
 			break;
 		case GLFW_KEY_D:
 			fractal->fractalNameIndex--;
-			fractal->fractalIndex = 0;
-			fractal->specIndex = 0;
 			fractal->SetFractalNameFromIndex(&fractal->fractalNameIndex, fractal->GetFractalFolderPath());
 			break;
 
 		case GLFW_KEY_F:
 		case GLFW_KEY_R:
-			fractal->fractalNameIndex = 0;
-			fractal->fractalIndex = 0;
-			fractal->specIndex = 0;
 			if (fractal->fractalType == FractalType::fractal2D)
 			{
 				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
