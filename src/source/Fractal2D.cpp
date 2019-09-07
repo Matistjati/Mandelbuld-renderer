@@ -721,7 +721,7 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 		}
 		else
 		{
-			sectionString = (source.find(s.start) == std::string::npos) ? GetSection(s, source) : GetSection(s, source);
+			sectionString = (source.find(s.end) != std::string::npos) ? GetSection(s, source) : GetSection(s, default2DSource);
 			while (Replace(final, Section(c.name).start, sectionString)) {}
 		}
 	}

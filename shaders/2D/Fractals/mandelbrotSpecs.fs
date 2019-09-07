@@ -39,6 +39,6 @@
 		<loopReturn>[[escapeColorLast]]</loopReturn>,
 	</mainLoop>
 	<variables>
-		<escapeRadius>10000000.</escapeRadius>,
+		<escapeRadius>1000.</escapeRadius>,
 	</variables>
 }

@@ -20,13 +20,13 @@
 <loopSetup>
 	<defaultSetup>vec2 c = w;</defaultSetup>,
 	<juliaSetupPosition>vec2 c = (2*(screenSize.xy/2)-screenSize)/screenSize.y * zoom + position;</juliaSetupPosition>,
-	<juliaSetupMouse>vec2 c = mousePosition/screenSize*2-1;</juliaSetupMouse>,
+	<juliaSetupMouse>vec2 c = (2*(mousePosition)-screenSize)/screenSize.y * zoom + position;</juliaSetupMouse>,
 </loopSetup>
 
 <loopReturn>
 	<escapeColor>iterationColorRed(float(i));</escapeColor>,
 	<escapeColorPeriodicCos>escapeColorPeriodic(i, parameter, parameter1, parameter2);</escapeColorPeriodicCos>,
-	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log(log(length(w)))/log(2), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
+	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log(log(dot(w,w)))/log(power), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
 </loopReturn>
 
 <loopTrap>
@@ -57,6 +57,11 @@
 
 
 		iterations = i/maxIterations;
+
+		// Reduce error for smooth coloring
+		w = mat2(w,-w.y,w.x)*w+c; i++;
+		w = mat2(w,-w.y,w.x)*w+c; i++;
+		w = mat2(w,-w.y,w.x)*w+c; i++;
 
 		return <loopReturn>
 	}

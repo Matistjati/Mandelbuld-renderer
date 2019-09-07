@@ -1,6 +1,5 @@
 // Normal
 {
-
 	<include>
 		Mandelbrot
 	</include>
