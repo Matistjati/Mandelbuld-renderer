@@ -37,6 +37,10 @@ layout(std430, binding = 2) buffer desirabilityMap
 };
 </buffers>
 
+<include>
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, getStartValue, complexTan, complexSin
+</include>
+
 <constants>
 	const float maxIterationsRed = maxIterations/20;
 	const float maxIterationsGreen = maxIterations/5;
@@ -71,9 +75,7 @@ layout(std430, binding = 2) buffer desirabilityMap
 	}
 </main>
 
-<include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, getStartValue, complexTan, complexSin
-</include>
+
 
 <loopTrap>
 	<incrementWPosition>

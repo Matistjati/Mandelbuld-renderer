@@ -448,6 +448,22 @@ void MouseCallbackDelegate(GLFWwindow* window, double xpos, double ypos)
 	}
 }
 
+void MousePressCallbackDelegate(GLFWwindow* window, int button, int action, int mods)
+{
+	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
+	{
+	default:
+		DebugPrint("Case default reached in function MousePressCallback");
+		break;
+	case FractalType::fractal2D:
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->MousePressCallback(window, button, action, mods);
+		break;
+	case FractalType::fractal3D:
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->MousePressCallback(window, button, action, mods);
+		break;
+	}
+}
+
 void FrameBufferSizeCallbackDelegate(GLFWwindow* window, int width, int height)
 {
 	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
@@ -539,6 +555,7 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 {
 	glfwSetCursorPosCallback(window, MouseCallbackDelegate);
+	glfwSetMouseButtonCallback(window, MousePressCallbackDelegate);
 	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
 	glfwSetKeyCallback(window, KeyCallbackDelegate);
 	glfwSetScrollCallback(window, ScrollCallBackDelegate);

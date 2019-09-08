@@ -18,6 +18,7 @@ class Fractal2D : public Fractal
 public:
 	Uniform<float> power;
 	Uniform<glm::vec2> position;
+	Uniform<glm::vec4> clickPositions;
 
 	Uniform<glm::vec2> mousePosition;
 
@@ -26,6 +27,7 @@ public:
 
 	void Update() override;
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
+	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
 	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override {}

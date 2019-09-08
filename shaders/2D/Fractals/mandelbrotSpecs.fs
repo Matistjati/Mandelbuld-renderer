@@ -18,7 +18,7 @@
 		Mandelbrot
 	</include>
 	<mainLoop>
-		<loopSetup>[[juliaSetupPosition], [juliaSetupMouse]]</loopSetup>,
+		<loopSetup>[[juliaSetupMouse], [juliaSetupPosition]]</loopSetup>,
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
 				   ]</loopBody>,
 		<loopTrap>none</loopTrap>,

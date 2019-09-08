@@ -131,6 +131,18 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 	explorationShader->SetUniform(camera.GetRotationMatrix());
 }
 
+void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		holdingMouse = true;
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		holdingMouse = false;
+	}
+}
+
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	screenSize.value = glm::ivec2(width, height);

@@ -80,6 +80,7 @@ public:
 
 	std::map<int, bool> keys;
 	std::map<std::string, int*> shaderIndices;
+	bool holdingMouse;
 
 	~Fractal()
 	{
@@ -91,7 +92,7 @@ public:
 	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
 		: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), fractalIndex(fractalIndex), specIndex(specIndex),
-		fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices)
+		fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false)
 	{
 		Fractal::screenSize = screenSize;
 	}
@@ -105,6 +106,7 @@ public:
 
 	virtual void Update() = 0;
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
+	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
 	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;

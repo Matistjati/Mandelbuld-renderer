@@ -26,12 +26,35 @@ void Fractal2D::Update()
 {
 	frame.value++;
 	explorationShader->SetUniform(frame);
+
+	if (holdingMouse)
+	{
+		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
+		clickPositions.value = glm::vec4(mouse, position.value);
+		explorationShader->SetUniform(clickPositions);
+	}
 }
 
 void Fractal2D::MouseCallback(GLFWwindow* window, double x, double y)
 {
 	mousePosition.value = { x, y };
 	explorationShader->SetUniform(mousePosition);
+}
+
+void Fractal2D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		holdingMouse = true;
+		// Map from screen space to fractal space
+		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
+		clickPositions.value = glm::vec4(mouse, position.value);
+		explorationShader->SetUniform(clickPositions);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		holdingMouse = false;
+	}
 }
 
 void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -126,6 +149,7 @@ void Fractal2D::SetUniforms(Shader* shader)
 	shader->SetUniform(mousePosition);
 	shader->SetUniform(time);
 	shader->SetUniform(frame);
+	shader->SetUniform(clickPositions);
 	GlErrorCheck();
 }
 
@@ -139,6 +163,7 @@ void Fractal2D::SetUniformLocations(Shader* shader)
 	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
 	mousePosition.id = glGetUniformLocation(shader->id, mousePosition.name.c_str());
 	time.id = glGetUniformLocation(shader->id, time.name.c_str());
+	clickPositions.id = glGetUniformLocation(shader->id, clickPositions.name.c_str());
 	GlErrorCheck();
 }
 
@@ -151,6 +176,7 @@ void Fractal2D::SetUniformNames()
 	mousePosition.name = "mousePosition";
 	time.name = "time";
 	frame.name = "frame";
+	clickPositions.name = "clickPositions";
 }
 
 void Fractal2D::SaveImage(const std::string path)

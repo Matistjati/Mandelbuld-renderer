@@ -19,8 +19,8 @@
 
 <loopSetup>
 	<defaultSetup>vec2 c = w;</defaultSetup>,
+	<juliaSetupMouse>vec2 c = clickPositions.xy + clickPositions.zw;</juliaSetupMouse>,
 	<juliaSetupPosition>vec2 c = (2*(screenSize.xy/2)-screenSize)/screenSize.y * zoom + position;</juliaSetupPosition>,
-	<juliaSetupMouse>vec2 c = (2*(mousePosition)-screenSize)/screenSize.y * zoom + position;</juliaSetupMouse>,
 </loopSetup>
 
 <loopReturn>
@@ -69,6 +69,13 @@
 
 <main>
     vec2 c = (2*gl_FragCoord.xy-screenSize)/screenSize.y * zoom + position;
+
+	/*if (distance(c, (2*vec2(mousePosition.x,screenSize.y-mousePosition.y)-screenSize)/screenSize.y * zoom + position) < 0.1)
+	{
+		color = vec4(0);
+		return;
+	}*/
+
 
 	float iterations;
 	vec3 col = mainLoop(c, iterations);

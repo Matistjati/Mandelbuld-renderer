@@ -16,7 +16,7 @@
 <iterationColorRed>
 vec3 iterationColorRed(float iterations)
 {
-	float c = 3 * log(iterations) / log(maxIterations)+clamp(log((zoom)),0,1);
+	float c = 3 * log(iterations) / log(maxIterations)-clamp(exp(-zoom),0,1);
 
 																		// Black interior- multiplication by 0- thus black if iterations==maxIterations
 	return vec3(clamp(c, 0, 1), clamp(c - 1, 0, 1), clamp(c - 2, 0, 1))*(step(iterations,maxIterations-1));
