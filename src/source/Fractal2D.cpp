@@ -27,6 +27,11 @@ void Fractal2D::Update()
 	frame.value++;
 	explorationShader->SetUniform(frame);
 
+	time.value.PollTime();
+	explorationShader->SetUniform(time);
+	deltaTime.value = time.value.GetDeltaTime();
+	explorationShader->SetUniform(deltaTime);
+
 	if (holdingMouse)
 	{
 		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;

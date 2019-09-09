@@ -573,9 +573,6 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		fractal->time.value.PollTime();
-		fractal->explorationShader->SetUniform(fractal->time);
-
 		fractal->Update();
 
 #if _DEBUG
@@ -726,6 +723,9 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
+	// Set dt
+	fractal->deltaTime.value = (float)dt;
+	fractal->explorationShader->SetUniform(fractal->deltaTime);
 
 	// render loop
 	double imageRenderTime = glfwGetTime();
@@ -765,7 +765,8 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			{
 				reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
 			}
-			fractal->Update();
+			fractal->frame.value++;
+			fractal->explorationShader->SetUniform(fractal->frame);
 		}
 
 		if (fractal->explorationShader->type == fragment)

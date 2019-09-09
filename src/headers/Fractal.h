@@ -70,6 +70,7 @@ public:
 	Shader* renderShader;
 	Uniform<float> zoom;
 	Uniform<Time> time;
+	Uniform<float> deltaTime;
 	Uniform<unsigned int> frame;
 
 	FractalType fractalType;
@@ -91,8 +92,8 @@ public:
 	// Nothing fancy
 	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
-		: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), fractalIndex(fractalIndex), specIndex(specIndex),
-		fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false)
+		: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
+		fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false)
 	{
 		Fractal::screenSize = screenSize;
 	}

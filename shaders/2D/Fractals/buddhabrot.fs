@@ -28,9 +28,15 @@ layout(std430, binding = 0) buffer densityMap
 	vec4 points[];
 };
 
+/*<bufferType>nextFrame</bufferType>*/
+layout(std430, binding = 2) buffer densityMap2
+{
+	vec4 points2[];
+};
+
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotImportanceMap(<maxIterations>, <minIterations>, <leftEdge>, <topEdge>, <rightEdge>, <bottomEdge>)</cpuInitialize>*/
-layout(std430, binding = 2) buffer desirabilityMap
+layout(std430, binding = 1) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
 	vec4 desirability[];
@@ -38,7 +44,7 @@ layout(std430, binding = 2) buffer desirabilityMap
 </buffers>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, getStartValue, complexTan, complexSin
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, hslToRgb, getStartValue, complexTan, complexSin
 </include>
 
 <constants>
@@ -105,13 +111,9 @@ layout(std430, binding = 2) buffer desirabilityMap
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
 	int x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
-	int y = int(clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
-	int index = int(
-				// X component
-				x+
-				// Y component
-				// The steps are to avoid points outside of the image accumulating on the left and right sides
-			    step(1,x)*step(x,screenSize.x-1)*y*screenSize.x+screenSize.x*0.5);
+	// The steps are to avoid points outside of the image accumulating on the left and right sides
+	int y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
+	int index = int(x + y * screenSize.x + screenSize.x * 0.5);
 
 
 #if Colorwheel
@@ -125,6 +127,15 @@ layout(std430, binding = 2) buffer desirabilityMap
 	// Step- too detailed?
 	points[index] += vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
 #endif
+
+	/*coord = c;
+
+	x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
+	y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
+	index = int(x+y*screenSize.x+screenSize.x*0.5);
+	points2[index] += vec4(wheelColor, 1.0);*/
+
+
 	</incrementWPosition>,
 </loopTrap>
 
@@ -133,7 +144,7 @@ layout(std430, binding = 2) buffer desirabilityMap
 	#if Colorwheel
 	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
 	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec3 wheelColor = hsl2rgb( vec3(hue, 1.0, 0.5));
+	vec3 wheelColor = hslToRgb(vec3(hue, 1.0, 0.5));
 	#endif</buddhaMapSetup>,
 </loopSetup>
 
@@ -142,12 +153,6 @@ layout(std430, binding = 2) buffer desirabilityMap
 </loopReturn>
 
 <EscapeCount>
-vec3 hsl2rgb(vec3 c)
-{
-    vec3 rgb = clamp( abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
-    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
-}
-
 int EscapeCount(vec2 z)
 {
 	vec2 c = z;
@@ -159,6 +164,21 @@ int EscapeCount(vec2 z)
 	return -1;
 }
 </EscapeCount>
+
+<hslToRgb>
+vec3 hslToRgb(vec3 c)
+{
+    vec3 rgb = clamp( abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
+    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
+}
+</hslToRgb>
+
+<mapCoordToIndex>
+int mapCoordToIndex(vec2 coord, vec2 map)
+{
+}
+</mapCoordToIndex>
+
 
 <getStartValue>
 vec2 getStartValue(int seed)

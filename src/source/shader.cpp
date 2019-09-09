@@ -163,11 +163,11 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 	while (true)
 	{
 		size_t bufferTypeStart = source.find("<bufferType>", offset);
-		// TODO: multiple buffers
+
 		if (bufferTypeStart != std::string::npos)
 		{
 			bufferTypeStart += (std::string("<bufferType>")).length();
-			std::string type = source.substr(bufferTypeStart, source.find("</bufferType>") - bufferTypeStart);
+			std::string type = source.substr(bufferTypeStart, source.find("</bufferType>", bufferTypeStart) - bufferTypeStart);
 
 			int binding = -1;
 

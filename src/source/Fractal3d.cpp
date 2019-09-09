@@ -253,15 +253,20 @@ void Fractal3D::FindPathAndSaveImage()
 
 void Fractal3D::Update()
 {
+	time.value.PollTime();
+	explorationShader->SetUniform(time);
+	deltaTime.value = time.value.GetDeltaTime();
+	explorationShader->SetUniform(deltaTime);
+
 	// Move sun in shader
 	double t = time.value.GetTotalTime();
 	sun.value = glm::normalize(glm::vec3(sin(t * 0.25),
 		std::abs(sin(t * 0.1)) * -1,
 		cos(t * 0.25)));
+	explorationShader->SetUniform(sun);
 
 	frame.value++;
 	explorationShader->SetUniform(frame);
-	explorationShader->SetUniform(sun);
 }
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality)

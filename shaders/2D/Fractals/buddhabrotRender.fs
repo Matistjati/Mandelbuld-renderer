@@ -4,7 +4,7 @@
 
 <buffers>
 /*<bufferType>renderInput</bufferType>*/
-layout(std430, binding=1) buffer renderInput
+layout(std430, binding=0) buffer renderInput
 {
     vec4 points[];
 };
