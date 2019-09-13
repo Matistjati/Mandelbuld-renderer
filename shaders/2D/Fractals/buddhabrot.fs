@@ -28,12 +28,6 @@ layout(std430, binding = 0) buffer densityMap
 	vec4 points[];
 };
 
-/*<bufferType>nextFrame</bufferType>*/
-layout(std430, binding = 2) buffer densityMap2
-{
-	vec4 points2[];
-};
-
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotImportanceMap(<maxIterations>, <minIterations>, <leftEdge>, <topEdge>, <rightEdge>, <bottomEdge>)</cpuInitialize>*/
 layout(std430, binding = 1) buffer desirabilityMap
@@ -48,9 +42,12 @@ layout(std430, binding = 1) buffer desirabilityMap
 </include>
 
 <constants>
-	const float maxIterationsRed = maxIterations/20;
-	const float maxIterationsGreen = maxIterations/5;
-	const float maxIterationsBlue = maxIterations;
+	const float redIter = 20;
+	const float greenIter = 5;
+	const float blueIter = 1;
+	const float maxIterationsRed = maxIterations/redIter;
+	const float maxIterationsGreen = maxIterations/greenIter;
+	const float maxIterationsBlue = maxIterations/blueIter;
 	const int minIterations = <minIterations>;
 	const int mutationAttemps = 4;
 	// The area in the complex plane
@@ -60,7 +57,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Colorwheel 1
+	#define Colorwheel 0
 
 </constants>
 
@@ -118,24 +115,15 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 #if Colorwheel
     // Into color
-	points[index] += vec4(wheelColor, 1.0);
+	points[index] += color;
 #else
 	// Nebulabrot
 	// Smoothstep- more smooth image
 	/*points[index] += vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);*/
 
 	// Step- too detailed?
-	points[index] += vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
+	points[index] += color*vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
 #endif
-
-	/*coord = c;
-
-	x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
-	y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
-	index = int(x+y*screenSize.x+screenSize.x*0.5);
-	points2[index] += vec4(wheelColor, 1.0);*/
-
-
 	</incrementWPosition>,
 </loopTrap>
 
@@ -144,7 +132,9 @@ layout(std430, binding = 1) buffer desirabilityMap
 	#if Colorwheel
 	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
 	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec3 wheelColor = hslToRgb(vec3(hue, 1.0, 0.5));
+	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.001,1);
+	#else
+	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
 	#endif</buddhaMapSetup>,
 </loopSetup>
 
@@ -153,13 +143,14 @@ layout(std430, binding = 1) buffer desirabilityMap
 </loopReturn>
 
 <EscapeCount>
-int EscapeCount(vec2 z)
+int EscapeCount(vec2 w)
 {
-	vec2 c = z;
+	vec2 c = w;
 	for (int i = 0; i < maxIterations; i++)
 	{
-		z=mat2(z,-z.y,z.x)*z+c;
-		if (dot(z,z)>4) return i;
+		w=mat2(w,-w.y,w.x)*w+c;
+
+		if (dot(w,w)>4) return i;
 	}
 	return -1;
 }
@@ -172,13 +163,6 @@ vec3 hslToRgb(vec3 c)
     return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
 }
 </hslToRgb>
-
-<mapCoordToIndex>
-int mapCoordToIndex(vec2 coord, vec2 map)
-{
-}
-</mapCoordToIndex>
-
 
 <getStartValue>
 vec2 getStartValue(int seed)

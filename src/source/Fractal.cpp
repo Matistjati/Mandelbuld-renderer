@@ -800,6 +800,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
 			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
 
 			// We use ping pong buffers, but still want the first and last
 			if (i == 0)
