@@ -21,7 +21,7 @@ enum Purpose
 	imageSequence
 };
 
-constexpr Purpose programPurpose = Purpose::imageSequence;
+constexpr Purpose programPurpose = Purpose::explore;
 
 // Screensize
 #define ConstWindowSize 1
@@ -40,12 +40,14 @@ constexpr Purpose programPurpose = Purpose::imageSequence;
 	#elif ScreenSize == 4
 		const glm::ivec2 screenSize = { 4096, 2160 };
 	#elif ScreenSize == 5
+		const glm::ivec2 screenSize = { 6400, 4096 };
+	#elif ScreenSize == 6
 		const glm::ivec2 screenSize = { 7680, 4320 };
 	#endif
 #endif
 
 // Starting fractal
-constexpr auto DefaultFractalIndex = 2;
+constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
 #define DefaultFractal Fractal2D
