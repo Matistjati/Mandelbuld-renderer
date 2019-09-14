@@ -14,7 +14,30 @@
 	<complexSin>parameter = complexSin(parameter);</complexSin>,
 	<complexCos>parameter = complexCos(parameter);</complexCos>,
 	<mandelbrotIter>w=mat2(w,-w.y,w.x)*w+c;</mandelbrotIter>,
+	<trictornIter>w=vec2(w.x*w.x-w.y*w.y,-2*w.x*w.y)+c;</trictornIter>,
 	<setW>w=parameter;</setW>,
+
+	// Header magic for certain buddhabrots
+	<firstMandelbrotIter>
+	#ifndef mandelbrotIter
+	#define mandelbrotIter
+	w = complexSquare(w)+c;
+	#endif</firstMandelbrotIter>,
+
+	<notFirstComplexSin>
+	#if ComplexSinFirstPassed
+		parameter = complexSin(parameter);
+	#else
+		#define ComplexSinFirstPassed 1
+	#endif</notFirstComplexSin>,
+	
+	<notFirstComplexTan>
+	#if ComplexTanFirstPassed
+		parameter = complexTan(parameter);
+	#else
+		#define ComplexTanFirstPassed 1
+	#endif
+	</notFirstComplexTan>,
 </operations>
 
 <loopSetup>

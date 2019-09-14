@@ -38,7 +38,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 </buffers>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, EscapeCount, hslToRgb, getStartValue, complexTan, complexSin
+	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
 </include>
 
 <constants>
@@ -57,7 +57,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Colorwheel 0
+	#define Colorwheel 1
 
 </constants>
 
@@ -90,7 +90,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// Mix outside 0,1?
 
 	//vec2 coord = vec2(mix(c,w,t));
-	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
+	vec2 coord = vec2(w.x,mix(w.y, c.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(c.x, w.y, t), mix(w.y,c.x, t));
@@ -102,7 +102,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,w.y); //vec2 c = vec2(w.y,0)
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
-	vec2 coord = vec2(w);
+	//vec2 coord = c;
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
@@ -132,7 +132,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	#if Colorwheel
 	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
 	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.001,1);
+	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.005,1);
 	#else
 	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
 	#endif</buddhaMapSetup>,
@@ -148,7 +148,7 @@ int EscapeCount(vec2 w)
 	vec2 c = w;
 	for (int i = 0; i < maxIterations; i++)
 	{
-		w=mat2(w,-w.y,w.x)*w+c;
+		<loopBody>
 
 		if (dot(w,w)>4) return i;
 	}

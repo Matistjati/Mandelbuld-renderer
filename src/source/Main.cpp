@@ -21,7 +21,7 @@ enum Purpose
 	imageSequence
 };
 
-constexpr Purpose programPurpose = Purpose::explore;
+constexpr Purpose programPurpose = Purpose::imageSequence;
 
 // Screensize
 #define ConstWindowSize 1
@@ -45,7 +45,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 #endif
 
 // Starting fractal
-constexpr auto DefaultFractalIndex = 0;
+constexpr auto DefaultFractalIndex = 2;
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
 #define DefaultFractal Fractal2D

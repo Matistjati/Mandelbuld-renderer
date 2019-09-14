@@ -684,7 +684,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 {
 	const static std::string baseName = "TestImage/image";
 	const static int standardWork = 1920 * 1080;
-	const static int imageCount = 500; 
+	const static int imageCount = 100; 
 	const static double pi2 = 6.28318530717958647692528676655;
 	const static double dt = pi2 / double(imageCount-1); // Don't worry about the -1, you will get x images
 	const static int standardFPI = 5; // FPI: frames per image
@@ -786,12 +786,11 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			nextIndex = (index + 1) % 2;
 
 			fractal->renderShader->use();
-			fractal->renderShader->SetUniformStr(fractal->frame);
+			fractal->renderShader->SetUniform(fractal->frame);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 			fractal->explorationShader->use();
-			fractal->SetUniformLocations(fractal->explorationShader);
 
 			imageSaveThread.join();
 
@@ -1157,7 +1156,7 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 					final += newSection;
 				}
 
-				Replace(target, Section(sectionName).start, final);
+				while (Replace(target, Section(sectionName).start, final));
 			}
 		}
 	}

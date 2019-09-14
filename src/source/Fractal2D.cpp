@@ -587,38 +587,6 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		Replace(final, extraParameters.start, "");
 	}
 
-
-	Section help("helperFunctions");
-	std::string functions = GetSection(help, source);
-
-
-	Section include("include");
-	std::string includes = GetSection(include, source);
-
-	if (includes != "")
-	{
-		includes.erase(std::remove(includes.begin(), includes.end(), '\n'), includes.end());
-		includes.erase(std::remove(includes.begin(), includes.end(), '\t'), includes.end());
-		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
-
-		std::vector<std::string> includeList = Fractal::Split(includes, ',');
-
-		const static std::string helperFunctions = FileManager::ReadFile(Fractal2D::helperFunctions);
-
-		for (size_t i = 0; i < includeList.size(); i++)
-		{
-			std::string content = "";
-			if ((content = GetSection(Section(includeList[i]), helperFunctions)) == "")
-			{
-				content = GetSection(Section(includeList[i]), source);
-			}
-			functions += content;
-		}
-	}
-
-	Replace(final, help.start, functions);
-
-
 	std::string flags = GetSection(Section("flags"), specification);
 
 	// Do this last, various reasons
@@ -699,6 +667,36 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 		size_t end = tip.find_last_of("\"");
 		std::cout << tip.substr(start, end - start) << std::endl;
 	}
+
+	Section help("helperFunctions");
+	std::string functions = GetSection(help, source);
+
+
+	Section include("include");
+	std::string includes = GetSection(include, source);
+
+	if (includes != "")
+	{
+		includes.erase(std::remove(includes.begin(), includes.end(), '\n'), includes.end());
+		includes.erase(std::remove(includes.begin(), includes.end(), '\t'), includes.end());
+		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
+
+		std::vector<std::string> includeList = Fractal::Split(includes, ',');
+
+		const static std::string helperFunctions = FileManager::ReadFile(Fractal2D::helperFunctions);
+
+		for (size_t i = 0; i < includeList.size(); i++)
+		{
+			std::string content = "";
+			if ((content = GetSection(Section(includeList[i]), helperFunctions)) == "")
+			{
+				content = GetSection(Section(includeList[i]), source);
+			}
+			functions += content;
+		}
+	}
+
+	Replace(final, help.start, functions);
 
 	if (source.find(Section("mainLoopOff").start) == std::string::npos)
 	{
