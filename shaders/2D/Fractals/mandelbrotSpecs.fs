@@ -1,34 +1,19 @@
-// Mandelbrot 0
+// Mandelbrot and julia 0
 {
 	<include>
 		Mandelbrot
 	</include>
 	<mainLoop>
+		<loopSetup>[[defaultSetup], [juliaSetupMouse], [juliaSetupPosition]]</loopSetup>,
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
-				   ]</loopBody>,
+				   [tricornIter], [celticIter],]</loopBody>,
 		<loopTrap>none</loopTrap>,
-		<loopReturn>[[escapeColorPeriodicCos(0.05, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))], [escapeColor], [escapeColorLast], 
-					 [escapeColorPeriodicCosSmooth(0.05, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))]]</loopReturn>,
+		<loopReturn>[[escapeColorPeriodicCosSmooth(0.05, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))], [escapeColor], [escapeColorLast], 
+					 [escapeColorPeriodicCos(0.05, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))]]</loopReturn>,
 	</mainLoop>
 }
 
-// Julia 1
-{
-	<include>
-		Mandelbrot
-	</include>
-	<mainLoop>
-		<loopSetup>[[juliaSetupMouse], [juliaSetupPosition]]</loopSetup>,
-		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
-				   ]</loopBody>,
-		<loopTrap>none</loopTrap>,
-		<loopReturn>[[escapeColorPeriodicCos(0.05, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))], [escapeColor], [escapeColorLast], 
-					 [escapeColorPeriodicCosSmooth(0.05, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))]]</loopReturn>,
-	</mainLoop>
-}
-
-
-// Exp-fractal 2
+// Exp-fractal 1
 {
 	<include>
 		Mandelbrot

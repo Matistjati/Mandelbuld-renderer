@@ -91,7 +91,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	//vec2 coord = vec2(mix(c,w,t));
 	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
-	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
+	vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(c.x, w.y, t), mix(w.y,c.x, t));
 	
@@ -103,7 +103,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-	vec2 coord = w;
+	//vec2 coord = w;
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
