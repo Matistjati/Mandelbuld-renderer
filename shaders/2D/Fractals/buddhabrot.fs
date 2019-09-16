@@ -91,7 +91,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	//vec2 coord = vec2(mix(c,w,t));
 	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
-	vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
+	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
 	//vec2 coord = vec2(mix(c.x, w.y, t), mix(w.y,c.x, t));
 	
@@ -103,7 +103,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-	//vec2 coord = w;
+	vec2 coord = w;
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
@@ -129,14 +129,15 @@ layout(std430, binding = 1) buffer desirabilityMap
 </loopTrap>
 
 <loopSetup>
-	<buddhaMapSetup>vec2 c = w;vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));
+	<buddhaMapSetup>vec2 w = vec2(0);vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));
 	#if Colorwheel
 	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
 	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
 	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.001,1);
 	#else
 	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
-	#endif</buddhaMapSetup>,
+	#endif
+	c/=dot(c,c);</buddhaMapSetup>,
 </loopSetup>
 
 <loopReturn>
@@ -234,7 +235,7 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 
 
 <mainLoop>
-	void mainLoop(vec2 w)
+	void mainLoop(vec2 c)
 	{
 		<loopSetup>
 		

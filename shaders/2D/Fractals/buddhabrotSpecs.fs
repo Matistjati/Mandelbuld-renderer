@@ -8,7 +8,7 @@
 				   [firstMandelbrotIter, notFirstComplexSin(w)], [mandelbrotIter, lineFold(vec2(cos(time), sin(time)))], [celticIter], [heartIter], ]</loopBody>,
 		<loopTrap>incrementWPosition</loopTrap>,
 		<loopReturn>nothing</loopReturn>,
-		<loopSetup>buddhaMapSetup</loopSetup>,
+		<loopSetup>[[buddhaMapSetup], [buddhaMapSetupInverse]]</loopSetup>,
 		<loopBreakCondition>defaultBreak</loopBreakCondition>,
 	</mainLoop>
 }

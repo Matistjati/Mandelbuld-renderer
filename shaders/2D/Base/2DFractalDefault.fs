@@ -44,9 +44,10 @@
 </operations>
 
 <loopSetup>
-	<defaultSetup>vec2 c = w;</defaultSetup>,
-	<juliaSetupMouse>vec2 c = clickPositions.xy + clickPositions.zw;</juliaSetupMouse>,
-	<juliaSetupPosition>vec2 c = (2*(screenSize.xy/2)-screenSize)/screenSize.y * zoom + position;</juliaSetupPosition>,
+	<defaultSetup>vec2 w = vec2(0);</defaultSetup>,
+	<juliaSetupMouse>vec2 w = c; c = clickPositions.xy + clickPositions.zw;</juliaSetupMouse>,
+	<inverseSetup>vec2 w = vec2(0); c /= dot(c,c);</inverseSetup>,
+	<cSetup>vec2 w = c;</cSetup>,
 </loopSetup>
 
 <loopReturn>
@@ -65,7 +66,7 @@
 </loopBreakCondition>
 
 <mainLoop>
-	vec3 mainLoop(vec2 w, out float iterations<extraParameters>)
+	vec3 mainLoop(vec2 c, out float iterations<extraParameters>)
 	{
 		<loopSetup>
 
@@ -77,7 +78,6 @@
 			<loopExtraOperations>
 
 			<loopTrap>
-
 			<loopBreakCondition>
 		}
 
