@@ -2,14 +2,15 @@
 [innerRadius], [outerRadius], [foldingLimit], [scale]
 </extraSections>
 
-<maxIterations>8</maxIterations>
+<maxIterations>140</maxIterations>
 <maxSteps>100</maxSteps>
 <maxIterationsRelease>8</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
-<zoomDetailRatio>.1</zoomDetailRatio>
+<zoomDetailRatio>.05</zoomDetailRatio>
+<escapeRadius>400</escapeRadius>
 
-<maxDist>power*7</maxDist>
+<maxDist>power*10</maxDist>
 <maxDistRelease>power*15</maxDistRelease>
 
 <innerRadius>power-1</innerRadius> // power - distance(w, sun);

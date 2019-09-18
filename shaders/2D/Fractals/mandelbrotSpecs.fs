@@ -4,7 +4,7 @@
 		Mandelbrot
 	</include>
 	<mainLoop>
-		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup]]</loopSetup>,
+		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye]]</loopSetup>,
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
 				   [tricornIter], [celticIter],]</loopBody>,
 		<loopTrap>none</loopTrap>,

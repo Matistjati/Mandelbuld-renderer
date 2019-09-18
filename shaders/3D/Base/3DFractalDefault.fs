@@ -5,6 +5,7 @@
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2<antiAliasing>
 <zoomDetailRatio>.001</zoomDetailRatio>
+<escapeRadius>4</escapeRadius>
 
 <sceneDistance>
 	float sceneDistance(vec3 position, out vec4 resColor)
@@ -72,7 +73,7 @@
 
 <distanceBreakCondition>
 	<none></none>,
-	<defaultBreak>if (m > 2) break;</defaultBreak>,
+	<defaultBreak>if (m > <escapeRadius>) break;</defaultBreak>,
 </distanceBreakCondition>
 
 <distanceEstimator>

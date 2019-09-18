@@ -29,7 +29,7 @@ void Fractal2D::Update()
 
 	time.value.PollTime();
 	explorationShader->SetUniform(time);
-	deltaTime.value = time.value.GetDeltaTime();
+	deltaTime.value = (float)time.value.GetDeltaTime();
 	explorationShader->SetUniform(deltaTime);
 
 	if (holdingMouse)

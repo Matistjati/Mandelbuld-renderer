@@ -46,7 +46,8 @@
 <loopSetup>
 	<defaultSetup>vec2 w = vec2(0);</defaultSetup>,
 	<juliaSetupMouse>vec2 w = c; c = clickPositions.xy + clickPositions.zw;</juliaSetupMouse>,
-	<inverseSetup>vec2 w = vec2(0); c /= dot(c,c);</inverseSetup>,
+	<inverseSetup>vec2 w = vec2(0); vec2 t=mix(c,mat2(c,-c.y,c.x)*c,sin(time));c=t/dot(c,c);</inverseSetup>,
+	<inverseSetupEye>vec2 w = vec2(0); c = mat2(c,-c.y,c.x)*c; c/=dot(c,c);</inverseSetupEye>,
 	<cSetup>vec2 w = c;</cSetup>,
 </loopSetup>
 
@@ -78,6 +79,7 @@
 			<loopExtraOperations>
 
 			<loopTrap>
+
 			<loopBreakCondition>
 		}
 
