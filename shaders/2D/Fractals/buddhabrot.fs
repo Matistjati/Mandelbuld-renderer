@@ -137,7 +137,17 @@ layout(std430, binding = 1) buffer desirabilityMap
 	#else
 	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
 	#endif
-	c/=dot(c,c);</buddhaMapSetup>,
+	</buddhaMapSetup>,
+	
+	<buddhaMapSetupInverse>vec2 w = vec2(0);vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));
+	#if Colorwheel
+	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
+	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
+	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.001,1);
+	#else
+	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
+	#endif
+	c/=dot(c,c);</buddhaMapSetupInverse>,
 </loopSetup>
 
 <loopReturn>

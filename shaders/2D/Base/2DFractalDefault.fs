@@ -134,6 +134,7 @@
 
 	vec3 col = vec3(0.0);
 
+	float minIterations = 1e9;
 	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
 	vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
 	for (float i = 0; i < antiAliasing; i++)
