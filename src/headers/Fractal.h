@@ -2,7 +2,6 @@
 #ifndef FRACTAL_H
 #define FRACTAL_H
 
-#include "glew.h"
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -14,6 +13,7 @@
 #include <headers/Time.h>
 #include <utility>
 #include <string>
+#include <nanogui/nanogui.h>
 
 class Shader;
 
@@ -83,6 +83,8 @@ public:
 	std::map<std::string, int*> shaderIndices;
 	bool holdingMouse;
 
+	nanogui::Screen* gui;
+
 	~Fractal()
 	{
 		delete explorationShader;
@@ -90,13 +92,8 @@ public:
 	};
 
 	// Nothing fancy
-	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
-		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "")
-		: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
-		fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false)
-	{
-		Fractal::screenSize = screenSize;
-	}
+	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, nanogui::Screen* gui, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "");
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
 	static void GenerateSingleImage(GLFWwindow* window, Fractal* fractal);

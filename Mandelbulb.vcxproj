@@ -85,14 +85,16 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include;$(SolutionDir)opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\glad\include;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\eigen;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\glfw\include;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\nanovg\src;C:\Users\Matis\Desktop\nanosrc\nanogui\include;C:\Users\Matis\Desktop\nanogui2</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLEW_STATIC;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)Image\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Debug\nanogui.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;libpng16.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)Image\lib;$(SolutionDir)Dependencies\nanogui\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -142,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="opengl\include\glad\src\glad.c" />
     <ClCompile Include="src/source/Fractal.cpp" />
     <ClCompile Include="src/source/Fractal3D.cpp" />
     <ClCompile Include="src/source/Uniform.cpp" />
@@ -153,6 +156,7 @@
     <ClCompile Include="src\source\BufferInitialization.cpp" />
     <ClCompile Include="src\source\FileManager.cpp" />
     <ClCompile Include="src\source\Fractal2D.cpp" />
+    <ClCompile Include="src\source\GUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/Debug.h" />
@@ -167,6 +171,7 @@
     <ClInclude Include="src\headers\BufferInitialization.h" />
     <ClInclude Include="src\headers\FileManager.h" />
     <ClInclude Include="src\headers\Fractal2D.h" />
+    <ClInclude Include="src\headers\GUI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\2D\Base\2DFractalBase.fs" />

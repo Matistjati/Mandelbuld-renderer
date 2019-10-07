@@ -3,20 +3,21 @@
 #include "headers/Debug.h"
 #include "headers/Image.h"
 #include <algorithm>
+#include <nanogui/nanogui.h>
 
 const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
 
-Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
+Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize, nanogui::Screen* gui)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	screenSize, Time(), GetDefaultShaderIndices(), 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	screenSize, Time(), GetDefaultShaderIndices(), gui, 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
 {
 	Init();
 }
 
-Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
+Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, nanogui::Screen* gui)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	GetMonitorSize(), Time(), GetDefaultShaderIndices(), gui, 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
 {
 	Init();
@@ -186,6 +187,8 @@ void Fractal2D::SetUniformNames()
 
 void Fractal2D::SaveImage(const std::string path)
 {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
 	renderShader->use();
 	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
@@ -415,7 +418,6 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 	}
 
 	const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
-
 
 
 	return std::pair<Shader*, Shader*>(CreateShader(source, &specification, false, fractalIndex, specIndex, sections),
@@ -917,7 +919,10 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 	{
 		Replace(base, "#version 330", "#version 430");
 	}
+
 	ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
+
+	std::cout << base;
 
 	return new Shader(vertexSource, base, false);
 }

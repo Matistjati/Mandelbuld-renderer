@@ -1,6 +1,24 @@
+// Don't let windows.h define macros which will mess up some compilation later
+#define NOMINMAX
 #include <windows.h>
-#include <glew.h>
+
+#define NANOGUI_GLAD
+#if defined(NANOGUI_GLAD)
+	#if defined(NANOGUI_SHARED) && !defined(GLAD_GLAPI_EXPORT)
+		#define GLAD_GLAPI_EXPORT
+	#endif
+
+	#include <glad/glad.h>
+	#else
+		#if defined(__APPLE__)
+			#define GLFW_INCLUDE_GLCOREARB
+		#else
+			#define GL_GLEXT_PROTOTYPES
+	#endif
+#endif
+
 #include <GLFW/glfw3.h>
+#include <nanogui/nanogui.h>
 
 #include <iostream>
 #include <string>
@@ -13,6 +31,7 @@
 #include "headers/Fractal3D.h"
 #include "headers/Fractal2D.h"
 #include "headers/Debug.h"
+#include "headers/GUI.h"
 
 enum Purpose
 {
@@ -27,7 +46,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 #define ConstWindowSize 1
 #if ConstWindowSize
 	#define ScreenSize 2
-	
+
 	// Common screen resolutions
 	#if ScreenSize == 0
 		const glm::ivec2 screenSize = { 800, 450 };
@@ -49,13 +68,12 @@ constexpr Purpose programPurpose = Purpose::explore;
 // Starting fractal
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalNameIndex = 0;
+constexpr auto DefaultFractalNameIndex = 1;
 #define DefaultFractal Fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
-
 void GLAPIENTRY
-MessageCallback(GLenum source, GLenum type,	GLuint id, GLenum severity,
+MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
 	GLsizei length, const GLchar* message, const void* userParam)
 {
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
@@ -66,6 +84,8 @@ MessageCallback(GLenum source, GLenum type,	GLuint id, GLenum severity,
 		BreakIfDebug();
 	}
 }
+
+using namespace nanogui;
 
 int main()
 {
@@ -98,16 +118,16 @@ int main()
 		return -1;
 	}
 
-	Fractal::window = mainWindow;
-
 	glfwMakeContextCurrent(mainWindow);
 
-	if (glewInit() != GLEW_OK)
+	Fractal::window = mainWindow;
+
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		DebugPrint("Glew error");
+		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
 
 #if _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
@@ -116,8 +136,10 @@ int main()
 	std::cout << glGetString(GL_VERSION) << std::endl;
 #endif
 
+	// Create a nanogui screen and pass the glfw pointer to initialize
+
 #if ConstWindowSize
-	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize, new nanogui::Screen());
 #else
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
 #endif

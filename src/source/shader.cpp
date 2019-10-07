@@ -1,5 +1,5 @@
 #include "headers/Shader.h"
-#include <glew.h>
+#include <glad/include/glad/glad.h>
 
 #include <iostream>
 #include <fstream>
@@ -287,7 +287,7 @@ void Shader::SetUniform(Uniform<glm::vec3> vector) const
 	glUniform3f(vector.id, vector.value.x, vector.value.y, vector.value.z);
 }
 
-void Shader::SetUniform(const Uniform<Time> value) const
+void Shader::SetUniform(Uniform<Time> value) const
 {
 	glUniform1f(value.id, static_cast<float>(value.value.GetTotalTime()));
 }

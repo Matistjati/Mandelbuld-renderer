@@ -1,4 +1,4 @@
-<escapeRadius>4.</escapeRadius>
+<escapeRadius>8.</escapeRadius>
 <maxIterations>256</maxIterations>
 <maxIterationsRelease>2048</maxIterationsRelease>
 <antiAliasing>9</antiAliasing>
@@ -54,7 +54,7 @@
 <loopReturn>
 	<escapeColor>iterationColorRed(float(i));</escapeColor>,
 	<escapeColorPeriodicCos>escapeColorPeriodic(i, parameter, parameter1, parameter2);</escapeColorPeriodicCos>,
-	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log(log(dot(w,w)))/log(power), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
+	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log2(log2(dot(w,w)/log2(<escapeRadius>)))/log2(power), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
 </loopReturn>
 
 <loopTrap>
@@ -113,7 +113,7 @@
 
 <mainAA>
 // Average
-#if 1
+#if 0
 	vec3 col = vec3(0.0);
 
 	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;

@@ -3,6 +3,7 @@
 #include "headers/Fractal3D.h"
 #include "headers/Debug.h"
 #include "headers/Image.h"
+#include "headers/GUI.h"
 #include <headers/FileManager.h>
 #include <iostream>
 #include <fstream>
@@ -10,6 +11,7 @@
 #include <sstream>
 #include <algorithm>
 #include <thread>
+#include <nanogui/nanogui.h>
 
 #define DoNothing [](){}
 #define EmptyThread std::thread(DoNothing)
@@ -432,25 +434,31 @@ void ScrollCallBackDelegate(GLFWwindow* window, double xoffset, double yoffset)
 	}
 }
 
-void MouseCallbackDelegate(GLFWwindow* window, double xpos, double ypos)
+void MouseCallbackDelegate(GLFWwindow* window, double x, double y)
 {
-	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
+	Fractal* fractal = (reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)));
+	fractal->gui->cursorPosCallbackEvent(x, y);
+
+	switch (fractal->fractalType)
 	{
 	default:
 		DebugPrint("Case default reached in function MouseCallback");
 		break;
 	case FractalType::fractal2D:
-		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
+		(reinterpret_cast<Fractal2D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, x, y);
 		break;
 	case FractalType::fractal3D:
-		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, xpos, ypos);
+		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->MouseCallback(window, x, y);
 		break;
 	}
 }
 
 void MousePressCallbackDelegate(GLFWwindow* window, int button, int action, int mods)
 {
-	switch ((reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)))->fractalType)
+	Fractal* fractal = (reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)));
+	fractal->gui->mouseButtonCallbackEvent(button, action, mods);
+
+	switch (fractal->fractalType)
 	{
 	default:
 		DebugPrint("Case default reached in function MousePressCallback");
@@ -480,12 +488,19 @@ void FrameBufferSizeCallbackDelegate(GLFWwindow* window, int width, int height)
 	}
 }
 
+void CharPressCallback(GLFWwindow* window, unsigned int codepoint)
+{
+	Fractal* fractal = (reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)));
+	fractal->gui->charCallbackEvent(codepoint);
+}
 
 void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	Fractal* fractal = reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window));
+	fractal->gui->keyCallbackEvent(key, scancode, action, mods);
+
 	if (action == GLFW_PRESS && (mods & GLFW_MOD_ALT) == GLFW_MOD_ALT)
 	{
-		Fractal* fractal = reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window));
 		bool update = true;
 		switch (key)
 		{
@@ -519,12 +534,12 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_R:
 			if (fractal->fractalType == FractalType::fractal2D)
 			{
-				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
+				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value, fractal->gui));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			}
 			else if (fractal->fractalType == FractalType::fractal3D)
 			{
-				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
+				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value, fractal->gui));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 			delete fractal;
@@ -550,6 +565,15 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 		(reinterpret_cast<Fractal3D*>(glfwGetWindowUserPointer(window)))->KeyCallback(window, key, scancode, action, mods);
 		break;
 	}
+}
+
+Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, nanogui::Screen* gui, float zoom, FractalType f, int fractalIndex,
+	int specIndex, int fractalNameIndex, std::string fractalName)
+	: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
+	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), gui(gui)
+{
+	Fractal::screenSize = screenSize;
+	this->gui = new GUI(window, this);
 }
 
 void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
@@ -602,7 +626,9 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 				glfwSwapBuffers(window);
 			}
 		}
-
+		fractal->gui->drawContents();
+		fractal->gui->drawWidgets();
+		fractal->explorationShader->use();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

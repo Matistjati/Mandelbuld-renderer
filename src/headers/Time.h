@@ -2,7 +2,7 @@
 #ifndef TIME_H
 #define TIME_H
 
-#include <glew.h>
+#include <glad/include/glad/glad.h>
 #include <GLFW/glfw3.h>
 
 class Time

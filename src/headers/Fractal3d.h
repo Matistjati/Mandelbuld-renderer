@@ -30,9 +30,9 @@ public:
 	Uniform<float> genericParameter;
 
 
-	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification);
-	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
-	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
+	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification, nanogui::Screen* gui);
+	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize, nanogui::Screen* gui);
+	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, nanogui::Screen* gui);
 	float GetZoom() { return 1 / zoom.value; };
 
 	void Update() override;
