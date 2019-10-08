@@ -8,14 +8,14 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
-Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification, nanogui::Screen* gui)
-	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices(), gui), camera(camera), sun(sun), power(power), genericParameter(1)
+Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
+	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1)
 {
 	Init();
 }
 
-Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize, nanogui::Screen* gui)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), gui, 1.f, fractal3D, fractalIndex, specIndex,
+Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
+	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
@@ -24,8 +24,8 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 	Init();
 }
 
-Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, nanogui::Screen* gui)
-	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), gui, 1.f, fractal3D, fractalIndex, specIndex,
+Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
+	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
@@ -252,6 +252,11 @@ void Fractal3D::FindPathAndSaveImage()
 		}
 		count++;
 	}
+}
+
+void Fractal3D::PopulateGUI()
+{
+
 }
 
 void Fractal3D::Update()

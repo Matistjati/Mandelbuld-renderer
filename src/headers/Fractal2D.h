@@ -22,9 +22,10 @@ public:
 
 	Uniform<glm::vec2> mousePosition;
 
-	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize, nanogui::Screen* gui);
-	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, nanogui::Screen* gui);
+	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
+	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex);
 
+	void PopulateGUI();
 	void Update() override;
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;

@@ -3,6 +3,9 @@
 	<include>
 		Mandelbrot
 	</include>
+	<cpuVariables>
+		<power>2</power>
+	</cpuVariables>
 	<mainLoop>
 		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye]]</loopSetup>,
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
@@ -19,10 +22,13 @@
 		Mandelbrot
 	</include>
 	<mainLoop>
-		<loopBody>[[setW(exp(w.x*power)*vec2(cos(w.y*power)*power,sin(w.y*power)*power))]]</loopBody>,
+		<loopBody>[[setW(exp(w.x*power)*vec2(cos(w.y*power)*power,sin(w.y*power)*power)), translate]]</loopBody>,
 		<loopTrap>none</loopTrap>,
-		<loopReturn>[[escapeColorLast]]</loopReturn>,
+		<loopReturn>[[escapeColorPeriodicCosSmooth(0.2, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))]]</loopReturn>,
 	</mainLoop>
+	<cpuVariables>
+		<power>1.21</power>
+	</cpuVariables>
 	<variables>
 		<escapeRadius>1000.</escapeRadius>,
 	</variables>

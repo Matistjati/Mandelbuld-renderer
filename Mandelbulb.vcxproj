@@ -85,7 +85,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include;$(SolutionDir)opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\glad\include;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\eigen;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\glfw\include;C:\Users\Matis\Desktop\nanosrc\nanogui\ext\nanovg\src;C:\Users\Matis\Desktop\nanosrc\nanogui\include;C:\Users\Matis\Desktop\nanogui2</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include;$(SolutionDir)opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

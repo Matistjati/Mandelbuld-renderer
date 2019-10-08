@@ -534,12 +534,12 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_R:
 			if (fractal->fractalType == FractalType::fractal2D)
 			{
-				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value, fractal->gui));
+				glfwSetWindowUserPointer(window, new Fractal3D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			}
 			else if (fractal->fractalType == FractalType::fractal3D)
 			{
-				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value, fractal->gui));
+				glfwSetWindowUserPointer(window, new Fractal2D(fractal->specIndex, fractal->fractalIndex, fractal->fractalNameIndex, fractal->screenSize.value));
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 			delete fractal;
@@ -567,10 +567,10 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, nanogui::Screen* gui, float zoom, FractalType f, int fractalIndex,
+Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
 	: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
-	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), gui(gui)
+	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false)
 {
 	Fractal::screenSize = screenSize;
 	this->gui = new GUI(window, this);
@@ -580,8 +580,9 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 {
 	glfwSetCursorPosCallback(window, MouseCallbackDelegate);
 	glfwSetMouseButtonCallback(window, MousePressCallbackDelegate);
-	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
 	glfwSetKeyCallback(window, KeyCallbackDelegate);
+	glfwSetCharCallback(window, CharPressCallback);
+	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
 	glfwSetScrollCallback(window, ScrollCallBackDelegate);
 
 	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);

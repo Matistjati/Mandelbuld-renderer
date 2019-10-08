@@ -85,8 +85,6 @@ MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
 	}
 }
 
-using namespace nanogui;
-
 int main()
 {
 	if (!glfwInit())
@@ -139,7 +137,7 @@ int main()
 	// Create a nanogui screen and pass the glfw pointer to initialize
 
 #if ConstWindowSize
-	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize, new nanogui::Screen());
+	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
 #else
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
 #endif

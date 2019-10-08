@@ -6,11 +6,13 @@
 #include "nanogui/nanogui.h"
 #include "Fractal.h"
 
+class Fractal;
+
 class GUI : public nanogui::Screen
 {
 public:
 	Fractal* fractal;
-
+	nanogui::FormHelper* form;
 	GUI(GLFWwindow* mainWindow, Fractal* fractal);
 };
 

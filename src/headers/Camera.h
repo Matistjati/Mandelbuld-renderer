@@ -79,10 +79,8 @@ public:
 	// Processes input received from any keyboard-like input system. Accepts a 
 	void ProcessRoll(float offset);
 
-	void ProcessMouseMovement(glm::vec2 offset);
-
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-	void ProcessMouseMovement(float xoffset, float yoffset);
+	void ProcessMouseMovement(glm::vec2 offset);
 private:
 	// Euler Angles
 	float yaw;

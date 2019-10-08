@@ -3,10 +3,12 @@
 #define UNIFORM_H
 
 #include <string>
+#include "nanogui/formhelper.h"
 
 template<typename T>
 struct Uniform
 {
+	nanogui::detail::FormWidget<T, std::integral_constant<bool, true>>* guiElement;
 	std::string name;
 	unsigned int id;
 	T value;

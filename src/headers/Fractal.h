@@ -7,6 +7,7 @@
 
 #include "headers/Uniform.h"
 #include "headers/Shader.h"
+#include "headers/GUI.h"
 #include "glm.hpp"
 #include <vector>
 #include <map>
@@ -15,7 +16,9 @@
 #include <string>
 #include <nanogui/nanogui.h>
 
+
 class Shader;
+class GUI;
 
 struct Section
 {
@@ -83,7 +86,7 @@ public:
 	std::map<std::string, int*> shaderIndices;
 	bool holdingMouse;
 
-	nanogui::Screen* gui;
+	GUI* gui;
 
 	~Fractal()
 	{
@@ -92,7 +95,7 @@ public:
 	};
 
 	// Nothing fancy
-	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, nanogui::Screen* gui, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "");
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
@@ -102,6 +105,7 @@ public:
 	void UpdateFractalShader();
 	static glm::ivec2 GetMonitorSize();
 
+	virtual void PopulateGUI() = 0;
 	virtual void Update() = 0;
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
