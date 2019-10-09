@@ -5,9 +5,13 @@ GUI::GUI(GLFWwindow* mainWindow, Fractal* fractal) : nanogui::Screen(), fractal(
 	this->initialize(mainWindow, true);
 
 	// Create nanogui gui
-	bool enabled = true;
-	form = new nanogui::FormHelper(this);
-	nanogui::ref<nanogui::Window> nanoguiWindow = form->addWindow(Eigen::Vector2i(10, 10), "Fractal variables");
+	form = new Form(this);
+	nanoGuiWindow = form->addWindow(Eigen::Vector2i(10, 10), "Fractal variables");
 
 	this->setVisible(true);
 } 
+
+Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui)
+{
+
+}
