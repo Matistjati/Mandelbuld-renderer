@@ -26,50 +26,29 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 void Fractal2D::PopulateGUI()
 {
 	gui->form->setFixedSize({ 80,30 });
-	gui->form->addGroup("Basic types");
 
-	gui->form->addGroup("Validating fields");
+	gui->form->addGroup("General variables");
 
-	zoom.guiElement = gui->form->addVariable("Zoom", zoom.value);
-	zoom.guiElement->setCallback([this](float value) {
+	nanogui::detail::FormWidget<float, std::true_type>* zoomField = gui->form->addVariable("Zoom", zoom.value);
+	zoomField->setCallback([this](float value) {
 		this->zoom.value = value;
 		this->explorationShader->SetUniform(this->zoom);
 		});
 
-	gui->form->AddSlider("Power", power.value);
+	zoom.guiElement = zoomField;
+	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElement)->setValue(this->zoom.value); };
 
+ 	nanogui::Slider* slider = gui->form->AddSlider("Power",power.value);
 
-	//auto* panel = new nanogui::detail::FormWidget<float>(gui->nanoGuiWindow);
-
-	//nanogui::Label* labelW = new nanogui::Label(gui->nanoGuiWindow, "DAB");
-	//auto widget = new nanogui::detail::FormWidget<float>(gui->nanoGuiWindow);
-	//auto getter = [&]() -> float { return power.value; };
-	//auto setter = [&](const float& value) -> void { power.value = value; };
-	//auto refresh = [widget, getter] {
-	//	float value = getter(), current = widget->value();
-	//	if (value != current)
-	//		widget->setValue(value);
-	//};
-	//refresh();
-	//widget->setCallback(setter);
-	//widget->setEditable(true);
-	////widget->setFontSize(gui->nanoGuiWindow->mWidgetFontSize);
-	//nanogui::Vector2i fs = widget->fixedSize();
-	//widget->setFixedSize(nanogui::Vector2i(fs.x(),
-	//	fs.y()));
-
-	//if (gui->form->mLayout->rowCount() > 0)
-	//	mLayout->appendRow(mVariableSpacing);
-	//mLayout->appendRow(0);
-	//mLayout->setAnchor(labelW, AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
-	//mLayout->setAnchor(widget, AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
-
-	//panel->setLayout(new nanogui::BoxLayout(nanogui::Orientation::Horizontal,
-	//	nanogui::Alignment::Middle, 0, 20));
-
-	//nanogui::Slider* slider = new nanogui::Slider(panel);
-	//slider->setValue(0.5f);
-	//slider->setFixedWidth(80);
+	slider->setCallback([this](float value) {
+		this->power.value = value;
+		this->explorationShader->SetUniform(this->power);
+		});
+	slider->setValue(power.value);
+	slider->setRange({ 1.f,10.f });
+	
+	power.guiElement = slider;
+	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElement)->setValue(this->power.value); };
 
 	gui->form->addGroup("Other widgets");
 	gui->form->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");;
@@ -398,22 +377,24 @@ void Fractal2D::HandleKeyInput()
 				// Zooming using exponential decay
 			case GLFW_KEY_Q:
 				zoom.value *= static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate));
-				zoom.guiElement->setValue(zoom.value);
+				zoom.SetGuiValue();
 				explorationShader->SetUniform(zoom);
 				break;
 			case GLFW_KEY_E:
 				zoom.value /= static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate));
-				zoom.guiElement->setValue(zoom.value);
+				zoom.SetGuiValue();
 				explorationShader->SetUniform(zoom);
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
 				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime());
+				power.SetGuiValue();
 				explorationShader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
 				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime());
+				power.SetGuiValue();
 				explorationShader->SetUniform(power);
 				break;
 

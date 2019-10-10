@@ -8,7 +8,8 @@
 template<typename T>
 struct Uniform
 {
-	nanogui::detail::FormWidget<T, std::integral_constant<bool, true>>* guiElement;
+	void* guiElement;
+	std::function<void()> SetGuiValue;
 	std::string name;
 	unsigned int id;
 	T value;

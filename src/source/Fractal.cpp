@@ -929,6 +929,10 @@ void Fractal::UpdateFractalShader()
 	std::pair<Shader*, Shader*> shaders = this->GenerateShader();
 	this->explorationShader = shaders.first;
 	this->renderShader = shaders.second;
+
+	gui->removeChild(gui->childAt(0));
+	gui->nanoGuiWindow = gui->form->addWindow(Eigen::Vector2i(10, 10), gui->guiWindowName);
+
 	if (fractalType == fractal3D)
 	{
 		(reinterpret_cast<Fractal3D*> (this))->Init();

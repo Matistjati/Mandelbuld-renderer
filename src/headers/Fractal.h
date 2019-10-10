@@ -2,12 +2,12 @@
 #ifndef FRACTAL_H
 #define FRACTAL_H
 
+#include "headers/GUI.h"
 #include <GLFW/glfw3.h>
 #include <string>
 
 #include "headers/Uniform.h"
 #include "headers/Shader.h"
-#include "headers/GUI.h"
 #include "glm.hpp"
 #include <vector>
 #include <map>
