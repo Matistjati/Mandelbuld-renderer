@@ -19,7 +19,6 @@ public:
 
 	GUI(GLFWwindow* mainWindow, Fractal* fractal);
 	void ClearFocusPath();
-
 };
 
 
@@ -29,9 +28,8 @@ class Form : public nanogui::FormHelper
 public:
 	GUI* gui;
 	Form(GUI* gui);
-	//template<typename T>
-	//void AddSlider(std::string label, T& value);
 
+	// C++ doesnt let me define templated methods in another file
 	template <typename Type> nanogui::Slider*
 		AddSlider(const std::string& label, const std::function<void(const Type&)>& setter,
 			const std::function<Type()>& getter) {

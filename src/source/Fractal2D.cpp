@@ -7,6 +7,8 @@
 
 const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
 
+#define PrintSource 1
+
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
@@ -963,6 +965,10 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 	}
 
 	ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
+
+#if PrintSource
+	std::cout << base;
+#endif
 
 	return new Shader(vertexSource, base, false);
 }

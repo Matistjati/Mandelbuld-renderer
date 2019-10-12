@@ -1042,8 +1042,8 @@ void Fractal::PopulateGUI()
 
 
 	// Time
-	double* dummy = new double(-1);
-	auto timeField = gui->form->addVariable("Time", *dummy);
+	double dummy;
+	auto timeField = gui->form->addVariable("Time", dummy);
 	timeField->setCallback([this](double value) {
 		value = std::max(value, 0.);
 		this->time.value.SetTotalTime(value);
@@ -1052,6 +1052,14 @@ void Fractal::PopulateGUI()
 
 	time.guiElements = { timeField };
 	time.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<double, std::true_type>*)this->time.guiElements[0])->setValue(this->time.value.GetTotalTime()); };
+
+
+
+	// ParameterChangeRate
+	nanogui::Slider* paramSlider = gui->form->AddSlider("ParameterChangeRate", parameterChangeRate);
+
+	paramSlider->setValue(parameterChangeRate);
+	paramSlider->setRange({ 0.f,10.f });
 }
 
 void Fractal::Update()
@@ -1248,22 +1256,5 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 
 void Fractal::HandleKeyInput()
 {
-	for (auto const& key : keys)
-	{
-		if (key.second)
-		{
-			switch (key.first)
-			{
-				// Variable change rate
-			case GLFW_KEY_G:
-				parameterChangeRate += 0.5f * static_cast<float>(time.value.GetDeltaTime());
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
-				break;
-			case GLFW_KEY_T:
-				parameterChangeRate -= 0.5f * static_cast<float>(time.value.GetDeltaTime());
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
-				break;
-			}
-		}
-	}
+	
 }
