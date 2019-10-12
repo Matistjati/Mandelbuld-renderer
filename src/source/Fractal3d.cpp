@@ -15,7 +15,7 @@ Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShade
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
+	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
@@ -25,7 +25,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
-	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal3D, fractalIndex, specIndex,
+	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
@@ -256,15 +256,14 @@ void Fractal3D::FindPathAndSaveImage()
 
 void Fractal3D::PopulateGUI()
 {
+	Fractal::PopulateGUI();
 
+	gui->performLayout();
 }
 
 void Fractal3D::Update()
 {
-	time.value.PollTime();
-	explorationShader->SetUniform(time);
-	deltaTime.value = (float)time.value.GetDeltaTime();
-	explorationShader->SetUniform(deltaTime);
+	Fractal::Update();
 
 	// Move sun in shader
 	double t = time.value.GetTotalTime();
@@ -272,9 +271,6 @@ void Fractal3D::Update()
 		std::abs(sin(t * 0.1)) * -1,
 		cos(t * 0.25)));
 	explorationShader->SetUniform(sun);
-
-	frame.value++;
-	explorationShader->SetUniform(frame);
 }
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality)
@@ -548,6 +544,8 @@ void Fractal3D::Init()
 	SetUniforms(explorationShader);
 	explorationShader->use();
 	GlErrorCheck();
+
+	PopulateGUI();
 }
 
 std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()
@@ -634,6 +632,8 @@ void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 
 void Fractal3D::HandleKeyInput()
 {
+	Fractal::HandleKeyInput();
+
 	for (auto const& key : keys)
 	{
 		if (key.second)
@@ -666,16 +666,6 @@ void Fractal3D::HandleKeyInput()
 			case GLFW_KEY_LEFT_SHIFT:
 				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
-				break;
-
-				// Variable change rate
-			case GLFW_KEY_G:
-				parameterChangeRate += 0.5f * static_cast<float>(time.value.GetDeltaTime());
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
-				break;
-			case GLFW_KEY_T:
-				parameterChangeRate -= 0.5f * static_cast<float>(time.value.GetDeltaTime());
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
 				// Camera roll

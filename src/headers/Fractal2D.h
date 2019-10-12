@@ -26,7 +26,7 @@ public:
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex);
 
-	void PopulateGUI();
+	void PopulateGUI() override;
 	void Update() override;
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;

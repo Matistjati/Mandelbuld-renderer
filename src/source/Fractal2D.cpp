@@ -9,7 +9,7 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	screenSize, Time(), GetDefaultShaderIndices(), 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
 {
 	Init();
@@ -17,27 +17,18 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
-	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
 {
 	Init();
 }
 
-void Fractal2D::PopulateGUI()
+void Fractal2D::PopulateGUI() 
 {
-	gui->form->setFixedSize({ 80,30 });
+	Fractal::PopulateGUI();
 
-	gui->form->addGroup("General variables");
 
-	nanogui::detail::FormWidget<float, std::true_type>* zoomField = gui->form->addVariable("Zoom", zoom.value);
-	zoomField->setCallback([this](float value) {
-		this->zoom.value = value;
-		this->explorationShader->SetUniform(this->zoom);
-		});
-
-	zoom.guiElement = zoomField;
-	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElement)->setValue(this->zoom.value); };
-
+	// Power
  	nanogui::Slider* slider = gui->form->AddSlider("Power",power.value);
 
 	slider->setCallback([this](float value) {
@@ -47,24 +38,40 @@ void Fractal2D::PopulateGUI()
 	slider->setValue(power.value);
 	slider->setRange({ 1.f,10.f });
 	
-	power.guiElement = slider;
-	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElement)->setValue(this->power.value); };
+	power.guiElements = { slider };
+	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.value); };
 
-	gui->form->addGroup("Other widgets");
-	gui->form->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");;
+
+
+	// Position
+	gui->form->addGroup("Position");
+	
+	auto positionFieldX = gui->form->addVariable("X", position.value.x);
+	positionFieldX->setCallback([this](float value) {
+		this->position.value.x = value;
+		this->explorationShader->SetUniform(this->position);
+		});
+
+	positionFieldX->numberFormat("%.6g");
+
+	auto positionFieldY = gui->form->addVariable("Y", position.value.y);
+	positionFieldY->setCallback([this](float value) {
+		this->position.value.y = value;
+		this->explorationShader->SetUniform(this->position);
+		});
+
+	positionFieldY->numberFormat("%.6g");
+
+	position.guiElements = { positionFieldX, positionFieldY };
+	position.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.value.x);
+									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.value.y); };
 
 	gui->performLayout();
 }
 
 void Fractal2D::Update()
 {
-	frame.value++;
-	explorationShader->SetUniform(frame);
-
-	time.value.PollTime();
-	explorationShader->SetUniform(time);
-	deltaTime.value = (float)time.value.GetDeltaTime();
-	explorationShader->SetUniform(deltaTime);
+	Fractal::Update();
 
 	if (holdingMouse)
 	{
@@ -340,6 +347,8 @@ void Fractal2D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
 
 void Fractal2D::HandleKeyInput()
 {
+	Fractal::HandleKeyInput();
+
 	for (auto const& key : keys)
 	{
 		if (key.second)
@@ -349,29 +358,23 @@ void Fractal2D::HandleKeyInput()
 				// WASD movement
 			case GLFW_KEY_W:
 				position.value.y += static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_S:
 				position.value.y -= static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_A:
 				position.value.x -= static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_D:
 				position.value.x += static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetGuiValue();
 				explorationShader->SetUniform(position);
-				break;
-
-				// Variable change rate
-			case GLFW_KEY_G:
-				parameterChangeRate += 0.5f * static_cast<float>(time.value.GetDeltaTime());
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
-				break;
-			case GLFW_KEY_T:
-				parameterChangeRate -= 0.5f * static_cast<float>(time.value.GetDeltaTime());
-				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
 				break;
 
 				// Zooming using exponential decay
@@ -960,8 +963,6 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 	}
 
 	ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
-
-	std::cout << base;
 
 	return new Shader(vertexSource, base, false);
 }

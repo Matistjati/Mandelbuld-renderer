@@ -587,7 +587,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 
 	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
 
-	if (fractal->fractalType == fractal3D)
+	if (fractal->fractalType == FractalType::fractal3D)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
@@ -726,7 +726,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
 
-	if (fractal->fractalType == fractal3D)
+	if (fractal->fractalType == FractalType::fractal3D)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
@@ -930,14 +930,16 @@ void Fractal::UpdateFractalShader()
 	this->explorationShader = shaders.first;
 	this->renderShader = shaders.second;
 
+	// Resetting the content in the GUI
 	gui->removeChild(gui->childAt(0));
+	gui->ClearFocusPath();
 	gui->nanoGuiWindow = gui->form->addWindow(Eigen::Vector2i(10, 10), gui->guiWindowName);
 
-	if (fractalType == fractal3D)
+	if (fractalType == FractalType::fractal3D)
 	{
 		(reinterpret_cast<Fractal3D*> (this))->Init();
 	}
-	else if (fractalType == fractal2D)
+	else if (fractalType == FractalType::fractal2D)
 	{
 		(reinterpret_cast<Fractal2D*> (this))->Init();
 	}
@@ -1018,6 +1020,50 @@ glm::ivec2 Fractal::GetMonitorSize()
 	}
 
 	return result;
+}
+
+void Fractal::PopulateGUI()
+{
+	gui->form->setFixedSize({ 80,30 });
+
+	gui->form->addGroup("General variables");
+
+
+	// Zoom
+	auto zoomField = gui->form->addVariable("Zoom", zoom.value);
+	zoomField->setCallback([this](float value) {
+		this->zoom.value = value;
+		this->explorationShader->SetUniform(this->zoom);
+		});
+
+	zoom.guiElements = { zoomField };
+	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->zoom.value); };
+	
+
+
+	// Time
+	double* dummy = new double(-1);
+	auto timeField = gui->form->addVariable("Time", *dummy);
+	timeField->setCallback([this](double value) {
+		value = std::max(value, 0.);
+		this->time.value.SetTotalTime(value);
+		this->explorationShader->SetUniform(this->time);
+		});
+
+	time.guiElements = { timeField };
+	time.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<double, std::true_type>*)this->time.guiElements[0])->setValue(this->time.value.GetTotalTime()); };
+}
+
+void Fractal::Update()
+{
+	frame.value++;
+	explorationShader->SetUniform(frame);
+
+	time.value.PollTime();
+	explorationShader->SetUniform(time);
+	time.SetGuiValue();
+	deltaTime.value = (float)time.value.GetDeltaTime();
+	explorationShader->SetUniform(deltaTime);
 }
 
 
@@ -1198,4 +1244,26 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 	int* index = new int(-1);
 	BuildMainLoop(targetSection, source, defaultSource, target, specification, index, indices);
 	delete index;
+}
+
+void Fractal::HandleKeyInput()
+{
+	for (auto const& key : keys)
+	{
+		if (key.second)
+		{
+			switch (key.first)
+			{
+				// Variable change rate
+			case GLFW_KEY_G:
+				parameterChangeRate += 0.5f * static_cast<float>(time.value.GetDeltaTime());
+				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+				break;
+			case GLFW_KEY_T:
+				parameterChangeRate -= 0.5f * static_cast<float>(time.value.GetDeltaTime());
+				parameterChangeRate = std::max(parameterChangeRate, 0.01f);
+				break;
+			}
+		}
+	}
 }

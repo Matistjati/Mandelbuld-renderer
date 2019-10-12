@@ -33,7 +33,7 @@
 #include "headers/Debug.h"
 #include "headers/GUI.h"
 
-enum Purpose
+enum class Purpose
 {
 	explore,
 	singleImage,
@@ -76,6 +76,10 @@ void GLAPIENTRY
 MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
 	GLsizei length, const GLchar* message, const void* userParam)
 {
+	if (type == GL_DEBUG_TYPE_OTHER)
+	{
+		return;
+	}
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		type, severity, message);
@@ -145,15 +149,15 @@ int main()
 	glfwSetWindowUserPointer(mainWindow, fractal);
 
 	// Executing the main purpose of the current run
-	if (programPurpose == explore)
+	if (programPurpose == Purpose::explore)
 	{
 		Fractal::RenderLoop(mainWindow, fractal);
 	}
-	else if (programPurpose == singleImage)
+	else if (programPurpose == Purpose::singleImage)
 	{
 		Fractal::GenerateSingleImage(mainWindow, fractal);
 	}
-	else if (programPurpose == imageSequence)
+	else if (programPurpose == Purpose::imageSequence)
 	{
 		Fractal::ImageSequence(mainWindow, fractal);
 	}

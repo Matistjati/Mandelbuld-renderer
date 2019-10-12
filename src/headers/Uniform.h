@@ -3,12 +3,13 @@
 #define UNIFORM_H
 
 #include <string>
+#include <vector>
 #include "nanogui/formhelper.h"
 
 template<typename T>
 struct Uniform
 {
-	void* guiElement;
+	std::vector<void*> guiElements;
 	std::function<void()> SetGuiValue;
 	std::string name;
 	unsigned int id;

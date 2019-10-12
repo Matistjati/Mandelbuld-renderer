@@ -5,8 +5,8 @@
 <maxIterations>8</maxIterations>
 <maxSteps>60</maxSteps>
 <shadowSoftness>4</shadowSoftness> // Higher = harder shadow
-<maxIterationsRelease>16</maxIterationsRelease>
-<maxStepsRelease>1000</maxStepsRelease>
+<maxIterationsRelease>64</maxIterationsRelease>
+<maxStepsRelease>256</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 <zoomDetailRatio>.005</zoomDetailRatio>
 

@@ -17,6 +17,7 @@ public:
 	double GetTotalTime() const;
 	void ToogleTimePause();
 	void SetTotalTime(double time);
+	double* GetFirstTimePointer() { return &firstTime; };
 
 private:
 	double deltaTime;

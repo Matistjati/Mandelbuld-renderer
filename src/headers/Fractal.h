@@ -55,7 +55,7 @@ struct ShaderSection
 };
 
 
-enum FractalType
+enum class FractalType
 {
 	error = -1,
 	fractal3D = 0,
@@ -105,8 +105,8 @@ public:
 	void UpdateFractalShader();
 	static glm::ivec2 GetMonitorSize();
 
-	virtual void PopulateGUI() = 0;
-	virtual void Update() = 0;
+	virtual void PopulateGUI();
+	virtual void Update();
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
@@ -119,7 +119,7 @@ public:
 	virtual void FindPathAndSaveImage() = 0;
 	virtual void SetVariablesFromSpec(int* index, std::string SpecificationPath) = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;
-	virtual void HandleKeyInput() = 0;
+	virtual void HandleKeyInput();
 	virtual std::string GetSpecPath(std::string fileName) = 0;
 	virtual std::string GetFractalPath(std::string fileName) = 0;
 	virtual std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;

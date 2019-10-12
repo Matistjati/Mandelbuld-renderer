@@ -35,7 +35,7 @@ public:
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 	float GetZoom() { return 1 / zoom.value; };
 
-	void PopulateGUI();
+	void PopulateGUI() override;
 	void Update() override;
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;

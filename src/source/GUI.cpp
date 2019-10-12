@@ -9,7 +9,13 @@ GUI::GUI(GLFWwindow* mainWindow, Fractal* fractal) : nanogui::Screen(), fractal(
 	nanoGuiWindow = form->addWindow(Eigen::Vector2i(10, 10), guiWindowName);
 
 	this->setVisible(true);
-} 
+}
+
+void GUI::ClearFocusPath()
+{
+	mFocusPath.clear();
+}
+
 
 Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui)
 {
