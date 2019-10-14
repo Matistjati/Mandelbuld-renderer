@@ -4,6 +4,7 @@
 #include "headers/Debug.h"
 #include "headers/Image.h"
 #include "headers/GUI.h"
+#include "headers/shader.h"
 #include <headers/FileManager.h>
 #include <iostream>
 #include <fstream>
@@ -188,7 +189,7 @@ std::vector<std::string> Fractal::SplitNotInChar(std::string str, char splitBy, 
 {
 	std::vector<std::string> result;
 
-	CleanString(str, { '\n','\t', ' ' });
+	CleanString(str, { '\n','\t' });
 
 	int level = 0;
 	size_t lastIndex = 0;
@@ -570,7 +571,7 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
 	: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
-	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false)
+	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(), fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode)
 {
 	Fractal::screenSize = screenSize;
 	this->gui = new GUI(window, this);
@@ -607,14 +608,14 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 #endif
 
 		fractal->explorationShader->use();
-		if (fractal->explorationShader->type == fragment)
+		if (fractal->explorationShader->type == ShaderType::fragment)
 		{
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 			glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
 			// rendering, we use ray marching inside the fragment shader
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
-		else if (fractal->explorationShader->type == compute)
+		else if (fractal->explorationShader->type == ShaderType::compute)
 		{
 			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->explorationShader);
 			compute->Invoke(fractal->screenSize.value);
@@ -761,7 +762,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	for (size_t i = 0; i < imageCount; i++)
 	{
-		if (fractal->explorationShader->type == compute)
+		if (fractal->explorationShader->type == ShaderType::compute)
 		{
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
 			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
@@ -781,14 +782,14 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		imageRenderTime = glfwGetTime();
 		for (size_t j = 0; j < framesPerImage; j++)
 		{
-			if (fractal->explorationShader->type == fragment)
+			if (fractal->explorationShader->type == ShaderType::fragment)
 			{
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 				glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
 				// rendering, we use ray marching inside the fragment shader
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			}
-			else if (fractal->explorationShader->type == compute)
+			else if (fractal->explorationShader->type == ShaderType::compute)
 			{
 				reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
 			}
@@ -796,11 +797,11 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			fractal->explorationShader->SetUniform(fractal->frame);
 		}
 
-		if (fractal->explorationShader->type == fragment)
+		if (fractal->explorationShader->type == ShaderType::fragment)
 		{
 			fractal->FindPathAndSaveImage();
 		}
-		else if (fractal->explorationShader->type == compute)
+		else if (fractal->explorationShader->type == ShaderType::compute)
 		{
 			// Ping pong buffering
 			static int index = 0;
@@ -946,6 +947,63 @@ void Fractal::UpdateFractalShader()
 	else
 	{
 		DebugPrint("Case default reached in UpdateFractalShader");
+	}
+}
+
+void Fractal::PopulateGuiFromShader()
+{
+	std::string& source = fractalSourceCode;
+	
+	// Hintstart
+	const std::string hintS = "<GuiHint>";
+
+	// Hintend
+	const std::string hintE = "</GuiHint>";
+
+	int iterationCount = 0;
+	while (true)
+	{
+		size_t hintStart = source.find(hintS);
+		if (hintStart == std::string::npos)	break;
+
+		size_t hintEnd = source.find(hintE);
+		if (hintEnd == std::string::npos) break;
+
+		std::string hintContent = source.substr(hintStart, hintEnd - hintStart + hintE.length());
+
+		hintStart += hintS.length();
+
+		std::string paramsStr = source.substr(hintStart, hintEnd - hintStart);
+		std::vector<std::string> params = Split(paramsStr, ',');
+
+		size_t uniformEnd = source.find(";", hintEnd);
+		if (uniformEnd == std::string::npos) break;
+
+		hintEnd += hintE.length();
+
+		std::string uniform = source.substr(hintEnd, uniformEnd - hintEnd);
+
+		// Removing start of comment
+		if (uniform[0] == '*') uniform = uniform.substr(1);
+		if (uniform[0] == '/') uniform = uniform.substr(1);
+
+		CleanString(uniform, { '\n' });
+
+		std::vector<std::string> uniformParts = Split(uniform, ' ');
+
+		GuiElement element = GuiElement(GuiElement::GetElementFromString(params[0]), uniformParts[1], uniformParts[2], params[1], this, uniformParts[uniformParts.size() - 1], params);
+
+		fractalUniforms.push_back(element);
+
+		Replace(source, hintContent, "");
+
+		iterationCount++;
+		if (iterationCount > 500)
+		{
+			std::cout << "Oops, we encountered an infinite loop while constructing gui. Please report this message to the dev. Sorry :(" << std::endl;
+			BreakIfDebug();
+			break;
+		}
 	}
 }
 

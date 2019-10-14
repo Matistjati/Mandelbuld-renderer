@@ -33,7 +33,7 @@ Shader::~Shader()
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
 {
-	type = fragment;
+	type = ShaderType::fragment;
 	std::string vShaderCode = path ? FileManager::ReadFile(vertexPath).c_str() : vertexPath.c_str();
 	std::string fShaderCode = path ? FileManager::ReadFile(fragmentPath).c_str() : fragmentPath.c_str();
 
@@ -436,7 +436,7 @@ void ComputeShader::Invoke(glm::ivec2 screenSize)
 
 unsigned int ComputeShader::CreateProgram(std::string source)
 {
-	type = compute;
+	type = ShaderType::compute;
 
 	id = glCreateProgram();
 	unsigned int compute = CompileShader(GL_COMPUTE_SHADER, source);

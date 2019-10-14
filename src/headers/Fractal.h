@@ -19,6 +19,7 @@
 
 class Shader;
 class GUI;
+class GuiElement;
 
 struct Section
 {
@@ -88,6 +89,9 @@ public:
 
 	GUI* gui;
 
+	std::vector<GuiElement> fractalUniforms;
+	std::string fractalSourceCode;
+
 	~Fractal()
 	{
 		delete explorationShader;
@@ -103,7 +107,8 @@ public:
 	static void ImageSequence(GLFWwindow* window, Fractal* fractal);
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
 	void UpdateFractalShader();
-	static glm::ivec2 GetMonitorSize();
+	void PopulateGuiFromShader();
+ 	static glm::ivec2 GetMonitorSize();
 
 	virtual void PopulateGUI();
 	virtual void Update();

@@ -68,6 +68,8 @@ void Fractal2D::PopulateGUI()
 	position.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.value.x);
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.value.y); };
 
+	Fractal::PopulateGuiFromShader();
+
 	gui->performLayout();
 }
 
@@ -405,7 +407,7 @@ void Fractal2D::HandleKeyInput()
 
 
 			case GLFW_KEY_R:
-				if (explorationShader->type == compute)
+				if (explorationShader->type == ShaderType::compute)
 				{
 					// Draw to both front and back buffers to avoid stuttering
 					RenderComputeShader();
@@ -712,6 +714,26 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 		std::cout << tip.substr(start, end - start) << std::endl;
 	}
 
+
+	Section specUniforms = Section("uniforms");
+	std::string finalUniforms;
+	std::string uniformStr = GetSection(specUniforms, specSection);
+	std::vector<std::string> uniforms = SplitNotInChar(uniformStr, ',', { { '<','>' } });
+	for (size_t i = 0; i < uniforms.size(); i++)
+	{
+		if (uniforms[i].size()>5)
+		{
+			finalUniforms += uniforms[i].substr(1, uniforms[i].size() - 2) + "\n";
+		}
+	}
+
+	size_t uniformsStart = final.find(specUniforms.start) + specUniforms.start.length();
+	if (uniformsStart != std::string::npos)
+	{
+		final.insert(uniformsStart, finalUniforms);
+	}
+
+
 	Section help("helperFunctions");
 	std::string functions = GetSection(help, source);
 
@@ -819,7 +841,7 @@ void Fractal2D::Init()
 
 	PopulateGUI();
 
-	if (explorationShader->type == compute)
+	if (explorationShader->type == ShaderType::compute)
 	{
 		ComputeShader* compute = reinterpret_cast<ComputeShader*>(explorationShader);
 		compute->Invoke(screenSize.value);
@@ -969,6 +991,11 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 #if PrintSource
 	std::cout << base;
 #endif
+
+	if (!highQuality)
+	{
+		fractalSourceCode = base;
+	}
 
 	return new Shader(vertexSource, base, false);
 }

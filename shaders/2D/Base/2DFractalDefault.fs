@@ -1,5 +1,3 @@
-<escapeRadius>8.</escapeRadius>
-<maxIterations>256</maxIterations>
 <maxIterationsRelease>2048</maxIterationsRelease>
 <antiAliasing>9</antiAliasing>
 
@@ -54,7 +52,7 @@
 <loopReturn>
 	<escapeColor>iterationColorRed(float(i));</escapeColor>,
 	<escapeColorPeriodicCos>escapeColorPeriodic(i, parameter, parameter1, parameter2);</escapeColorPeriodicCos>,
-	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log2(log2(dot(w,w)/log2(<escapeRadius>)))/log2(power), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
+	<escapeColorPeriodicCosSmooth>escapeColorPeriodic(i+1-log2(log2(dot(w,w)/log2(escapeRadius)))/log2(power), parameter, parameter1, parameter2);</escapeColorPeriodicCosSmooth>,
 </loopReturn>
 
 <loopTrap>
@@ -63,7 +61,7 @@
 
 <loopBreakCondition>
 	<none></none>,
-	<defaultBreak>if (dot(w,w) > <escapeRadius>) break;</defaultBreak>,
+	<defaultBreak>if (dot(w,w) > escapeRadius) break;</defaultBreak>,
 </loopBreakCondition>
 
 <mainLoop>

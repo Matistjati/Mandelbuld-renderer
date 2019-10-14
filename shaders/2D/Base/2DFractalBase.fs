@@ -14,8 +14,18 @@ uniform uint frame = uint(0);
 
 <uniforms>
 
-const float maxIterations = <maxIterations>;
+
+/*<GuiHint>slider, Max Iterations, 1, 1024</GuiHint>*/
+uniform float maxIterations = 256;
+
+/*<GuiHint>slider, Escape Radius, 1, 128</GuiHint>*/
+uniform float escapeRadius = 8.;
+
+/*<GuiHint>slider, Color change rate, 0.01, 2</GuiHint>*/
+uniform float colorPeriodicity = 0.1;
+
 const float antiAliasing = <antiAliasing>;
+
 
 <buffers>
 

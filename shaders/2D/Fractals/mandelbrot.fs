@@ -10,7 +10,7 @@
 </include>
 
 <loopReturn>
-	<escapeColorLast>periodicLastPositionColor(w);</escapeColorLast>,
+	<escapeColorLast>periodicLastPositionColor(w, parameter);</escapeColorLast>,
 </loopReturn>
 
 <iterationColorRed>
@@ -24,9 +24,9 @@ vec3 iterationColorRed(float iterations)
 </iterationColorRed>
 
 <periodicLastPositionColor>
-vec3 periodicLastPositionColor(vec2 w)
+vec3 periodicLastPositionColor(vec2 w, float frequency)
 {
-	return vec3(sin(w.x/length(w)),cos(w.y*dot(w,w)), cos(20*length(w)));
+	return vec3(sin(w.x/length(w)*frequency),cos(w.y*dot(w,w)*frequency), cos(20*length(w)*frequency));
 }
 </periodicLastPositionColor>
 

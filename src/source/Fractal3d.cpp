@@ -258,6 +258,8 @@ void Fractal3D::PopulateGUI()
 {
 	Fractal::PopulateGUI();
 
+	Fractal::PopulateGuiFromShader();
+
 	gui->performLayout();
 }
 
@@ -478,6 +480,24 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 		size_t start = tip.find("\"") + 1;
 		size_t end = tip.find_last_of("\"");
 		std::cout << tip.substr(start, end - start) << std::endl;
+	}
+
+	Section specUniforms = Section("uniforms");
+	std::string finalUniforms;
+	std::string uniformStr = GetSection(specUniforms, specSection);
+	std::vector<std::string> uniforms = SplitNotInChar(uniformStr, ',', { { '<','>' } });
+	for (size_t i = 0; i < uniforms.size(); i++)
+	{
+		if (uniforms[i].size() > 5)
+		{
+			finalUniforms += uniforms[i].substr(1, uniforms[i].size() - 2) + "\n";
+		}
+	}
+
+	size_t uniformsStart = final.find(specUniforms.start) + specUniforms.start.length();
+	if (uniformsStart != std::string::npos)
+	{
+		final.insert(uniformsStart, finalUniforms);
 	}
 
 	BuildMainLoop(Section("distanceEstimator"),	source, default3DSource, final, specSection, fractalIndex, shaderIndices.size() == 0 ? GetDefaultShaderIndices() : shaderIndices);

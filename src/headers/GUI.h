@@ -3,11 +3,33 @@
 #ifdef GUI_H
 
 #include <glad/glad.h>
+#include "headers/Fractal.h"
 #include "nanogui/nanogui.h"
 #include "Fractal.h"
+#include "headers/Uniform.h"
+#include <string>
 
 class Fractal;
 class Form;
+
+class GuiElement
+{
+public:
+	enum class Element
+	{
+		Slider,
+		TextBox,
+		error
+	};
+	Fractal* fractal;
+	void* uniform;
+
+	GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::vector<std::string> guiParams);
+	static Element GetElementFromString(std::string element);
+
+private:
+	void* CreateUniform(std::string type, std::string name, std::string value);
+};
 
 class GUI : public nanogui::Screen
 {

@@ -7,11 +7,12 @@
 #include <glm.hpp>
 #include "headers/Uniform.h"
 #include "headers/Time.h"
+#include "headers/Debug.h"
 #include <map>
 #include <vector>
 
 
-enum ShaderType
+enum class ShaderType
 {
 	fragment, compute
 };
@@ -19,21 +20,21 @@ enum ShaderType
 struct Buffer
 {
 public:
-	enum BufferType
+	enum class BufferType
 	{
 		vertexArray,
 		buffer,
 		none
 	};
 	Buffer(unsigned int id, int binding, BufferType type, std::string name) : id(id), binding(binding), type(type), name(name) {}
-	Buffer(unsigned int id, int binding, std::string name) : id(id), binding(binding), type(buffer), name(name) {}
+	Buffer(unsigned int id, int binding, std::string name) : id(id), binding(binding), type(BufferType::buffer), name(name) {}
 	Buffer(unsigned int id, BufferType type, std::string name) : id(id), binding(-1), type(type), name(name) {}
 	Buffer(unsigned int id, int binding, BufferType type) : id(id), binding(binding), type(type) {}
-	Buffer(unsigned int id, std::string name) : id(id), binding(-1), type(buffer), name(name) {}
-	Buffer(unsigned int id, int binding) : id(id), binding(binding), type(buffer) {}
+	Buffer(unsigned int id, std::string name) : id(id), binding(-1), type(BufferType::buffer), name(name) {}
+	Buffer(unsigned int id, int binding) : id(id), binding(binding), type(BufferType::buffer) {}
 	Buffer(unsigned int id, BufferType type) : id(id), binding(-1), type(type) {}
-	Buffer(unsigned int id) : id(id), binding(-1), type(buffer) {}
-	Buffer() : id(-1), binding(-1), type(none) {}
+	Buffer(unsigned int id) : id(id), binding(-1), type(BufferType::buffer) {}
+	Buffer() : id(-1), binding(-1), type(BufferType::none) {}
 	BufferType type;
 	unsigned int id;
 	int binding;
@@ -43,8 +44,8 @@ public:
 	{
 		if (glIsBuffer(id))
 		{
-			if (type == vertexArray) glDeleteVertexArrays(1, &id);
-			else if (type == buffer) glDeleteBuffers(1, &id);
+			if (type == BufferType::vertexArray) glDeleteVertexArrays(1, &id);
+			else if (type == BufferType::buffer) glDeleteBuffers(1, &id);
 		}
 	}
 };
