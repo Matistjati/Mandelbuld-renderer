@@ -1117,7 +1117,7 @@ void Fractal::PopulateGUI()
 	nanogui::Slider* paramSlider = gui->form->AddSlider("ParameterChangeRate", parameterChangeRate);
 
 	paramSlider->setValue(parameterChangeRate);
-	paramSlider->setRange({ 0.f,10.f });
+	paramSlider->setRange({ 0.000001f,10.f });
 }
 
 void Fractal::Update()

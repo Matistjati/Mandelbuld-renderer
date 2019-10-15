@@ -12,6 +12,7 @@
 	<complexSin>parameter = complexSin(parameter);</complexSin>,
 	<complexCos>parameter = complexCos(parameter);</complexCos>,
 	<mandelbrotIter>w=mat2(w,-w.y,w.x)*w+c;</mandelbrotIter>,
+	<multibrotIter>w=complexPow(w,power)+c;</multibrotIter>,
 	<tricornIter>w=vec2(w.x*w.x-w.y*w.y,-2*w.x*w.y)+c;</tricornIter>,
 	<celticIter>w=vec2(abs(w.x*w.x-w.y*w.y),2*w.x*w.y)+c;</celticIter>,
 	<heartIter>w=vec2(w.x*w.x-w.y*w.y,2*w.x*w.y)+c;</heartIter>,

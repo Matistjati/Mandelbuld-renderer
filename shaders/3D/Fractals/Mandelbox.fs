@@ -1,26 +1,21 @@
-<extraSections>
-[innerRadius], [outerRadius], [foldingLimit], [scale]
-</extraSections>
-
-<maxIterations>140</maxIterations>
-<maxSteps>100</maxSteps>
 <maxIterationsRelease>8</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
-<zoomDetailRatio>.05</zoomDetailRatio>
-<escapeRadius>400</escapeRadius>
 
-<maxDist>power*10</maxDist>
 <maxDistRelease>power*15</maxDistRelease>
 
-<innerRadius>power-1</innerRadius> // power - distance(w, sun);
-<outerRadius>power+1</outerRadius> // power + distance(w, sun); // Try adding something other than 1
-<scale>genericParameter</scale>
-<foldingLimit>power</foldingLimit> // +cos(sin(sin(sin(w.y))))
-
 <uniforms>
-	uniform float power = 1;
-	uniform float genericParameter = 1;
+	/*<GuiHint>slider, Scale,-10, 10</GuiHint>*/
+	uniform float scale = 2;
+	
+	/*<GuiHint>slider, Inner Radius, -2, 4</GuiHint>*/
+	uniform float innerRadius = 0.5;
+	
+	/*<GuiHint>slider, Outer Radius, -2, 4</GuiHint>*/
+	uniform float outerRadius = 1;
+	
+	/*<GuiHint>slider, Folding limit, 0, 4</GuiHint>*/
+	uniform float foldingLimit = 1;
 </uniforms>
 
 <operations>
@@ -61,9 +56,9 @@
 
 
 	<vec3 p = (ray.origin + ray.dir * t);
-	col.x += 1-cos(trap.y*power);
-	col.y += 0.8*cos(trap.x*power);
-	col.z += sqrt(sin(trap.z*power));>,
+	col.x += 1-cos(trap.y);
+	col.y += 0.8*cos(trap.x);
+	col.z += sqrt(sin(trap.z));>,
 
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight

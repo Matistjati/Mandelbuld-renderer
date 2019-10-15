@@ -24,6 +24,7 @@ const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIt
 class Fractal3D : public Fractal
 {
 public:
+	bool cursorVisible;
 	Camera& camera;
 	Uniform<glm::vec3> sun;
 	Uniform<float> power;

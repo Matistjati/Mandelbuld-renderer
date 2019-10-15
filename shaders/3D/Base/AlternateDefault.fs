@@ -11,7 +11,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 			float h = sceneDistance(pos, trap);
 			float th = 0.25 * px * t;
 
-			if(h<th || th > power*8)
+			if(h<th || th > maxDist)
 			{
 				break;
 			}

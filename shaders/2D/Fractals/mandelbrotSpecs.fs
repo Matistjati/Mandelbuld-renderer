@@ -4,7 +4,6 @@
 		Mandelbrot
 	</include>
 	<uniforms>
-		,
 
 	</uniforms>
 	<cpuVariables>

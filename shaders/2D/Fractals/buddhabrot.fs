@@ -2,7 +2,6 @@
 [pointsPerFrame], [startPointAttempts], [minIterations], [leftEdge], [rightEdge], [topEdge], [bottomEdge]
 </extraSections>
 
-<escapeRadius>1e3</escapeRadius>
 <maxIterations>1000</maxIterations>
 <minIterations>50</minIterations>
 <pointsPerFrame>1</pointsPerFrame>
@@ -38,7 +37,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 </buffers>
 
 <include>
-	complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
+	complexPow, complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
 </include>
 
 <constants>
@@ -162,7 +161,7 @@ int EscapeCount(vec2 w)
 	{
 		<loopBody>
 
-		if (dot(w,w)>4) return i;
+		if (dot(w,w)>escapeRadius) return i;
 	}
 	return -1;
 }

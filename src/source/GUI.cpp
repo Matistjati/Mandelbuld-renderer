@@ -46,11 +46,21 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 		{
 			AddSlider<float>(elementLabel, (Uniform<float>*)uniform, fractal, { stof(guiParams[2]), stof(guiParams[3]) }, stof(value));
 		}
+		else if (type == "int")
+		{
+			AddSlider<int>(elementLabel, (Uniform<int>*)uniform, fractal, { stoi(guiParams[2]), stoi(guiParams[3]) }, stoi(value));
+		}
+		else
+		{
+			std::cout << "Support for type " << type << " has not been added yet" << std::endl;
+		}
 	}
+
 
 	else if (element == Element::error)
 	{
 		std::cout << "Could not determine GUI element type" << std::endl;
+		BreakIfDebug();
 	}
 }
 
@@ -86,9 +96,14 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 	{
 		return new Uniform<float>((value == "") ? 0.f : std::stof(value), name, glGetUniformLocation(fractal->explorationShader->id, name.c_str()));
 	}
+	else if (type == "int")
+	{
+		return new Uniform<int>((value == "") ? 0.f : std::stoi(value), name, glGetUniformLocation(fractal->explorationShader->id, name.c_str()));
+	}
 	else
 	{
 		std::cout << "Fatal error: unknown type for uniform " << name << std::endl;
+		BreakIfDebug();
 		return nullptr;
 	}
 }

@@ -973,6 +973,11 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 
 			ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
 
+			if (!highQuality)
+			{
+				fractalSourceCode = base;
+			}
+
 			return new ComputeShader(base, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
 		}
 	}

@@ -68,6 +68,10 @@
 	<include>
 		MandelBox
 	</include>
+	<uniforms>
+		</*<GuiHint>slider, Power, -2, 8</GuiHint>*/
+		uniform float power = 16.0;>,
+	</uniforms>
 	<distanceEstimator>
 		<distanceBody>[[boxFold, sphereFold, boxFold, sphereFold, sinY, scaleAndTranslate, mandelBoxDerivative], [boxFold, sphereFold, boxFold, sphereFold, sinY, triplexPow, scaleAndTranslate, mandelBoxDerivative]]</distanceBody>,
 		<distanceTrap>[bulbForest]</distanceTrap>,

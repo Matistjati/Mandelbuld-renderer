@@ -2,19 +2,17 @@
 [colorB, false, "", true], [colorC, false, "", true]
 </extraSections>
 
-<maxIterations>8</maxIterations>
-<maxSteps>60</maxSteps>
-<shadowSoftness>4</shadowSoftness> // Higher = harder shadow
+
 <maxIterationsRelease>64</maxIterationsRelease>
 <maxStepsRelease>256</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
-<zoomDetailRatio>.005</zoomDetailRatio>
 
-<maxDist>5</maxDist>
-<maxDistRelease>5</maxDistRelease>
 
 <uniforms>
+
+	/*<GuiHint>slider, Power, -2, 16</GuiHint>*/
 	uniform float power = 8;
+
 	uniform float genericParameter = 1;
 </uniforms>
 

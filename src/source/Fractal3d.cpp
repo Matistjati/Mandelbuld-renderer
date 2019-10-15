@@ -8,8 +8,10 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
+#define PrintSource 1
+
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
-	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1)
+	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1), cursorVisible(false)
 {
 	Init();
 }
@@ -19,7 +21,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	power(1), genericParameter(1)
+	power(1), genericParameter(1), cursorVisible(false)
 {
 	Init();
 }
@@ -29,7 +31,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	power(1), genericParameter(1)
+	power(1), genericParameter(1), cursorVisible(false)
 {
 	Init();
 }
@@ -110,6 +112,17 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			time.value.ToogleTimePause();
 			explorationShader->SetUniform(time);
 			break;
+		case GLFW_KEY_F:
+			cursorVisible = !cursorVisible;
+			if (cursorVisible)
+			{
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+			else
+			{
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			}
+			break;
 		}
 	}
 }
@@ -117,6 +130,12 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 
 void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 {
+	// If cursor is not set to first person, do not move
+	if (cursorVisible)
+	{
+		return;
+	}
+
 	glm::vec2 newPos = glm::vec2(x, y);
 	if (firstMouse)
 	{
@@ -761,6 +780,13 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
+
+
+	fractalSourceCode = baseCopy;
+
+#if PrintSource
+	std::cout << baseCopy;
+#endif
 
 	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
 									   (new Shader(vertexSource, base,     false)));

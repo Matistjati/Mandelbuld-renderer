@@ -11,14 +11,35 @@ uniform float zoom;
 uniform float time;
 uniform uint frame = uint(0);
 
+/*<GuiHint>slider, Max Iterations, 1, 100</GuiHint>*/
+uniform int maxIterations = 8;
+
+/*<GuiHint>slider, Max Steps, 1, 200</GuiHint>*/
+uniform int maxSteps = 100;
+
+/*<GuiHint>slider, ray acceptance, 0.0000001, 0.1</GuiHint>*/
+uniform float zoomDetailRatio = 0.1;
+
+/*<GuiHint>slider, Max Ray Distance, 1, 64</GuiHint>*/
+uniform float maxDist = 16;
+
+/*<GuiHint>slider, Shadow hardness, 1, 64</GuiHint>*/
+uniform float shadowSoftness = 4;
+
+/*<GuiHint>slider, Escacpe Radius, 1, 1024</GuiHint>*/
+uniform float escapeRadius = 256;
+
+/*<GuiHint>slider, Sun Size, -1, 10</GuiHint>*/
+uniform float sunSize = 1.0;
+
+/*<GuiHint>slider, Sun Spread, -1, 128</GuiHint>*/
+uniform float sunSpread = 16.0;
+
+
+
 <uniforms>
 
-const float zoomDetailRatio = <zoomDetailRatio>;
-const int maxIterations = <maxIterations>;
-const int maxSteps = <maxSteps>;
 const float antiAliasing = <antiAliasing>;
-const float sunSize = 1.0;
-const float sunTightness = 16.0; // Probably has some physical name, the amount the sun "spreads"
 const vec3 light = vec3(-0.707107, 0.000, 0.707107);
 
 <constants>

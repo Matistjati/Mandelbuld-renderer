@@ -1,16 +1,13 @@
-<maxIterations>4</maxIterations>
 <maxSteps>60</maxSteps>
-<shadowSoftness>4</shadowSoftness> // Higher = harder shadow
 <maxIterationsRelease>16</maxIterationsRelease>
 <maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2<antiAliasing>
 <zoomDetailRatio>.001</zoomDetailRatio>
-<escapeRadius>4</escapeRadius>
 
 <sceneDistance>
 	float sceneDistance(vec3 position, out vec4 resColor)
 	{
-		return DistanceEstimator(position, resColor, power);
+		return DistanceEstimator(position, resColor);
 	}
 </sceneDistance>
 
@@ -19,7 +16,7 @@
 </sky>
 
 <sun>
-	col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunTightness);
+	col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunSpread);
 </sun>
 
 <distanceSetup>
@@ -34,18 +31,17 @@
 	<addYsinX>w.y+=sin(w.x);</addYsinX>,
 	<subWLength>w-=length(w);</subWLength>,
 	<addPositionToW>w+=position;</addPositionToW>,
-	<scaleInit>float Scale = <scale>;</scaleInit>,
 	<defaultSetup>vec3 c = w; float m; vec4 trap = vec4(abs(w),m); float dw = 1.0;</defaultSetup>,
 	<mandelBulbInit>vec3 c = w; float m = dot(w,w); vec4 trap = vec4(abs(w),m); float dw = 1.0;</mandelBulbInit>,
 </distanceSetup>
 
 <operations>
-	<boxFold>boxFold(w, <foldingLimit>);</boxFold>,
-	<sphereFold>m = dot(w, w);	sphereFold(w, dw, m, <innerRadius>, <outerRadius>);</sphereFold>,
+	<boxFold>boxFold(w, foldingLimit);</boxFold>,
+	<sphereFold>m = dot(w, w);	sphereFold(w, dw, m, innerRadius, outerRadius);</sphereFold>,
 	<triplexPow>w = triplexPow(w, power, dw, m);</triplexPow>,
-	<scaleAndTranslate>w=Scale*w + c;</scaleAndTranslate>,
+	<scaleAndTranslate>w=scale*w + c;</scaleAndTranslate>,
 	<translate>w+=c;</translate>,
-	<mandelBoxDerivative>dw = dw*abs(Scale)+1.0;</mandelBoxDerivative>,
+	<mandelBoxDerivative>dw = dw*abs(scale)+1.0;</mandelBoxDerivative>,
 	<sinY>w.y = sin(w.y);</sinY>,
 	<addLength>w+=length(w);</addLength>,
 	<mulW>w*=parameter;</mulW>,
@@ -73,15 +69,15 @@
 
 <distanceBreakCondition>
 	<none></none>,
-	<defaultBreak>if (m > <escapeRadius>) break;</defaultBreak>,
+	<defaultBreak>if (m > escapeRadius) break;</defaultBreak>,
 </distanceBreakCondition>
 
 <distanceEstimator>
-	float DistanceEstimator(vec3 w, out vec4 resColor, float Power)
+	float DistanceEstimator(vec3 w, out vec4 resColor)
 	{
 		<distanceSetup>
 
-		for(int i = 0; i < <maxIterations>; i++)
+		for(int i = 0; i < maxIterations; i++)
 		{
 			<distanceBody>
 
@@ -100,6 +96,7 @@
 
 
 <trace>
+#define LinneaRetarded 0
 	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 	{
 		float res = -1.0;
@@ -107,14 +104,15 @@
 		vec4 trap;
 
 		float t = 0;
+		float h = 0;
 		int i = 0;
 		for(; i<maxSteps; i++)
 		{ 
 			vec3 pos = ray.origin + ray.dir * t;
-			float h = sceneDistance(pos, trap);
+			h = sceneDistance(pos, trap);
 			float th = 0.25 * px * t;
 
-			if(h<th || h > <maxDist>)
+			if (h < th || h > maxDist)
 			{
 				break;
 			}
@@ -123,7 +121,11 @@
 
 		percentSteps = float(i)/float(maxSteps);
 
-		if (t < <maxDist>)
+#if LinneaRetarded
+		if (t < maxDist)
+#else
+		if (h < maxDist)
+#endif
 		{
 			trapOut = trap;
 			res = t;
@@ -206,7 +208,7 @@
 			float fakeSSS = clamp(1.0+dot(ray.dir,normal),0.0,1.0);
 
 			// Sun
-			float shadow = SoftShadow(fractalToSun, <shadowSoftness>);
+			float shadow = SoftShadow(fractalToSun, shadowSoftness);
 			float diffuse = clamp(dot(sun, normal), 0.0, 1.0 ) * shadow;
 			float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1.0), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
 

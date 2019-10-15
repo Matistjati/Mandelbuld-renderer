@@ -13,7 +13,12 @@ uniform uint frame = uint(0);
 
 <uniforms>
 
-const float maxIterations = <maxIterations>;
+/*<GuiHint>slider, Max Iterations, 1, 1024</GuiHint>*/
+uniform float maxIterations = 256;
+
+/*<GuiHint>slider, Escape Radius, 1, 128</GuiHint>*/
+uniform float escapeRadius = 8.;
+
 const float antiAliasing = <antiAliasing>;
 
 <buffers>
