@@ -20,6 +20,8 @@
 Uniform<glm::ivec2> Fractal::screenSize;
 GLFWwindow* Fractal::window;
 
+bool Fractal::renderMode = false;
+
 bool Fractal::Replace(std::string& str, const std::string& from, const std::string& to)
 {
 	size_t start_pos = str.find(from);
@@ -1097,7 +1099,7 @@ void Fractal::PopulateGUI()
 	zoom.guiElements = { zoomField };
 	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->zoom.value); };
 	
-
+	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
 
 	// Time
 	double dummy;

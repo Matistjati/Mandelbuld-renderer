@@ -1,8 +1,4 @@
-<maxIterationsRelease>8</maxIterationsRelease>
-<maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
-
-<maxDistRelease>power*15</maxDistRelease>
 
 <uniforms>
 	/*<GuiHint>slider, Scale,-10, 10</GuiHint>*/

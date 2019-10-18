@@ -18,8 +18,7 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
 											 ShaderSection("color", false, "", true), ShaderSection("maxDist", false, "maxDistRelease"), ShaderSection("distanceBody"), ShaderSection("trap") };
 
-const ShaderSection constants[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("maxSteps", false, "maxStepsRelease"),
-									ShaderSection("shadowSoftness"), ShaderSection("antiAliasing"), ShaderSection("zoomDetailRatio"), ShaderSection("escapeRadius"), };
+const ShaderSection constants[] = { ShaderSection("antiAliasing")};
 
 class Fractal3D : public Fractal
 {

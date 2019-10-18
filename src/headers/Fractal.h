@@ -67,6 +67,8 @@ enum class FractalType
 class Fractal
 {
 public:
+	static bool renderMode;
+
 	static Uniform<glm::ivec2> screenSize;
 	static GLFWwindow* window;
 	float parameterChangeRate = 1;

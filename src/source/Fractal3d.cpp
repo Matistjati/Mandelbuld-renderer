@@ -172,8 +172,9 @@ void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 
 void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	zoom.value += static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed * zoom.value);
+	zoom.value *= static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1);
 	zoom.value = glm::max(1.0f, zoom.value);
+	zoom.SetGuiValue();
 	explorationShader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 }
 
@@ -225,6 +226,8 @@ void Fractal3D::SetUniformNames()
 
 void Fractal3D::SaveImage(const std::string path)
 {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
 	renderShader->use();
 	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
@@ -260,17 +263,12 @@ void Fractal3D::SaveImage(const std::string path)
 
 void Fractal3D::FindPathAndSaveImage()
 {
-	const std::string baseName = "TestImage/image";
+	const static std::string baseName = "TestImage/image";
 	int count = 0;
-	while (1)
-	{
-		if (!FileManager::FileExists((baseName + std::to_string(count) + ".png")))
-		{
-			SaveImage(baseName + std::to_string(count) + ".png");
-			return;
-		}
-		count++;
-	}
+	// Finding the first unused file with name-pattern imageN.png where n is the number ascending
+	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
+
+	SaveImage(baseName + std::to_string(count) + ".png");
 }
 
 void Fractal3D::PopulateGUI()

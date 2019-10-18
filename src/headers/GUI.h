@@ -52,13 +52,12 @@ public:
 	Form(GUI* gui);
 
 	// C++ doesnt let me define templated methods in another file
-	template <typename Type> nanogui::Slider*
-		AddSlider(const std::string& label, const std::function<void(const Type&)>& setter,
-			const std::function<Type()>& getter) {
+	template <typename Type> nanogui::Slider* AddSlider(const std::string& label, const std::function<void(const Type&)>& setter, const std::function<Type()>& getter)
+	{
 		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
 		nanogui::Slider* widget = new nanogui::Slider(gui->nanoGuiWindow);
 		auto refresh = [widget, getter] {
-			Type value = getter(), current = widget->value();
+			Type value = (Type)getter(), current = widget->value();
 			if (value != current)
 				widget->setValue(value);
 		};
@@ -77,11 +76,43 @@ public:
 		return widget;
 	}
 
-	template <typename Type> nanogui::Slider*
-		AddSlider(const std::string& label, Type& value, bool editable = true) {
+	template <typename Type> nanogui::Slider* AddSlider(const std::string& label, Type& value, bool editable = true)
+	{
 		return AddSlider<Type>(label,
 			[&](const Type& v) { value = v; },
 			[&]() -> Type { return value; }
+			);
+	}
+
+	nanogui::CheckBox* AddCheckbox(const std::string& label, const std::function<void(const bool&)>& setter, const std::function<bool()>& getter)
+	{
+		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
+		nanogui::CheckBox* widget = new nanogui::CheckBox(gui->nanoGuiWindow, "");
+		auto refresh = [widget, getter] {
+			bool value = getter(), current = widget->pushed();
+			if (value != current)
+				widget->setPushed(value);
+		};
+		refresh();
+		widget->setCallback(setter);
+		widget->setFontSize(mWidgetFontSize);
+		nanogui::Vector2i fs = widget->fixedSize();
+		widget->setFixedSize(nanogui::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
+			fs.y() != 0 ? fs.y() : mFixedSize.y()));
+		mRefreshCallbacks.push_back(refresh);
+		if (mLayout->rowCount() > 0)
+			mLayout->appendRow(mVariableSpacing);
+		mLayout->appendRow(0);
+		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+		return widget;
+	}
+
+	nanogui::CheckBox* AddCheckbox(const std::string& label, bool& value, bool editable = true)
+	{
+		return AddCheckbox(label,
+			[&](const bool& v) { value = v; },
+			[&]() -> bool { return value; }
 			);
 	}
 };

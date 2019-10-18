@@ -11,9 +11,12 @@ struct Uniform
 {
 	std::vector<void*> guiElements;
 	std::function<void()> SetGuiValue;
+	//std::function<void()> SetUniform;
 	std::string name;
 	unsigned int id;
 	T value;
+	//T renderValue;
+	//T defaultValue;
 	void operator=(const T &other);
 #pragma warning(push)
 #pragma warning(disable : 26495)

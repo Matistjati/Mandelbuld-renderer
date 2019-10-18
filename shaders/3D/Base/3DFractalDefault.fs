@@ -1,8 +1,4 @@
-<maxSteps>60</maxSteps>
-<maxIterationsRelease>16</maxIterationsRelease>
-<maxStepsRelease>1000</maxStepsRelease>
 <antiAliasing>2<antiAliasing>
-<zoomDetailRatio>.001</zoomDetailRatio>
 
 <sceneDistance>
 	float sceneDistance(vec3 position, out vec4 resColor)
@@ -258,11 +254,11 @@
 
 <mainAA>
 	vec3 col = vec3(0.0);
+	vec2 frag = gl_FragCoord.xy;
 	for (int i = 0; i < antiAliasing; i++)
 	{
 		for (int j = 0; j < antiAliasing; j++)
 		{
-			vec2 frag = gl_FragCoord.xy;
 			frag.x += float(i)/antiAliasing;
 			frag.y += float(j)/antiAliasing;
 			vec2 uv = frag / screenSize * 2.0 - 1.0;
