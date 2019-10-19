@@ -1,12 +1,12 @@
 <extraSections>
-[pointsPerFrame], [startPointAttempts], [minIterations], [leftEdge], [rightEdge], [topEdge], [bottomEdge]
+[maxIterations], [pointsPerFrame], [startPointAttempts], [minIterations], [leftEdge], [rightEdge], [topEdge], [bottomEdge]
 </extraSections>
 
 <maxIterations>1000</maxIterations>
 <minIterations>50</minIterations>
 <pointsPerFrame>1</pointsPerFrame>
 <startPointAttempts>20</startPointAttempts>
-<renderFrequency>50</renderFrequency>
+<renderFrequency>1</renderFrequency>
 
 // The area in the complex plane we render
 <leftEdge>-2.5</leftEdge>

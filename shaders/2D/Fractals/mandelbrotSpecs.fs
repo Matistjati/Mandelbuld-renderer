@@ -21,13 +21,14 @@
 
 // Exp-fractal 1
 {
+	<tip>"Use escapeColorLast and a negative power to find a mandelbrot set"</tip>
 	<include>
 		Mandelbrot
 	</include>
 	<mainLoop>
-		<loopBody>[[setW(exp(w.x*power)*vec2(cos(w.y*power)*power,sin(w.y*power)*power)), translate]]</loopBody>,
+		<loopBody>[[setW(mat2(w,-w.y,w.x)*power*exp(w.x*power)*vec2(cos(w.y*power),sin(w.y*power))), translate]]</loopBody>,
 		<loopTrap>none</loopTrap>,
-		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)]]</loopReturn>,
+		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)], [escapeColorLast(colorPeriodicity)]]</loopReturn>,
 	</mainLoop>
 	<cpuVariables>
 		<power>1.21</power>

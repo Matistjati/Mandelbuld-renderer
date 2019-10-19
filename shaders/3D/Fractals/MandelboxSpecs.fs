@@ -3,6 +3,7 @@
 	<include>
 		MandelBox
 	</include>
+
 	<distanceEstimator>
 		<distanceBody>[[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], 
 		[boxFold, sphereFold, sinSinhX, scaleAndTranslate, mandelBoxDerivative], 
@@ -12,6 +13,7 @@
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
+
 	<variables>
 		<colorA>vec3(0, 0.707, 0.707)</colorA>
 	</variables>
@@ -26,6 +28,7 @@
 	<include>
 		MandelBox
 	</include>
+
 	<distanceEstimator>
 		<distanceBody>[
 		[planeFold(sun), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
@@ -36,6 +39,7 @@
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
+
 	<variables>
 		<colorA>vec3(0, 0.707, 0.707)</colorA>
 	</variables>
@@ -70,24 +74,27 @@
 	<include>
 		MandelBox
 	</include>
+
 	<uniforms>
 		</*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 8)</GuiHint>*/
 		uniform float power = 16.0;>,
 	</uniforms>
+
 	<distanceEstimator>
 		<distanceBody>[[boxFold, sphereFold, boxFold, sphereFold, sinY, scaleAndTranslate, mandelBoxDerivative], [boxFold, sphereFold, boxFold, sphereFold, sinY, triplexPow, scaleAndTranslate, mandelBoxDerivative]]</distanceBody>,
 		<distanceTrap>[bulbForest]</distanceTrap>,
 	</distanceEstimator>
 
-	<indices>
-		<color>2</color>
-	</indices>
 	<variables>
+		<innerRadius>0</innerRadius>, 
+		<outerRadius>2</outerRadius>, 
+		<scale>2</scale>,
+		<foldingLimit>1</foldingLimit>,
 		<zoomDetailRatio>.001</zoomDetailRatio>,
-		<maxIterationsRelease>8</maxIterationsRelease>,
 		<maxIterations>8</maxIterations>,
-		<maxStepsRelease>1000</maxStepsRelease>,
+		<colorA>vec3(0, 0.707, 0.707)</colorA>,
 	</variables>
+
 	<cpuVariables>
 		<position>[(0)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
 	</cpuVariables>
@@ -103,22 +110,20 @@
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 
-	<variables>
-		<colorA>vec3(0, 1, 0)</colorA>
-	</variables>
-
 	<flags>
 		<edgeGlowOff>
 	</flags>
 
 	<variables>
+		<colorA>vec3(0, 1, 0)</colorA>,
+		<maxIterations>4</maxIterations>,
 		<innerRadius>0</innerRadius>, 
 		<outerRadius>4</outerRadius>, 
-		<scale>0.363999933</scale>,
+		<scale>2</scale>,
 		<foldingLimit>1</foldingLimit>,
 		<zoomDetailRatio>.001</zoomDetailRatio>,
-		<maxIterations>4</maxIterations>,
 	</variables>
+
 	<cpuVariables>
 		<position>[(0)[1.97544038, 1.99667835, 1.43940282], [-0.974210978, -0.814095318, -3.66229343]]</position>,
 		<genericParameter>2</genericParameter>,
@@ -133,18 +138,18 @@
 		<distanceBody>[boxFold, sphereFold, cosZsinY, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
-	<indices>
-		<color>1</color>
-	</indices>
+
 	<variables>
-		<innerRadius>1-1</innerRadius>,
-		<outerRadius>1+1</outerRadius>,
+		<colorA>vec3(0.707, 0, 0.707)</colorA>,
+		<innerRadius>0</innerRadius>,
+		<outerRadius>2</outerRadius>,
 		<scale>0.363999933</scale>,
 		<foldingLimit>1</foldingLimit>,
 		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterations>4</maxIterations>,
 		<maxIterationsRelease>4</maxIterationsRelease>
 	</variables>
+
 	<cpuVariables>
 		<position>[(1)[1.97544038, 1.99667835, 1.43940282], [-0.974210978, -0.814095318, -3.66229343]]</position>,
 	</cpuVariables>
@@ -162,17 +167,14 @@
 	</distanceEstimator>
 
 	<variables>
+		<colorA>vec3(0.707, 0, 0.707)</colorA>,
 		<innerRadius>0.1</innerRadius>,
-		<outerRadius>1.</outerRadius>,
-		<scale>1.</scale>,
+		<outerRadius>1</outerRadius>,
+		<scale>1</scale>,
 		<foldingLimit>1.</foldingLimit>,
 	</variables>
 
 	<cpuVariables>
 		<position>[0.1, 0., 0.]</position>,
 	</cpuVariables>
-
-	<variables>
-		<colorA>vec3(0.707, 0, 0.707)</colorA>
-	</variables>
 }

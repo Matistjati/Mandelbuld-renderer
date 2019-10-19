@@ -31,23 +31,6 @@
 	<mandelBoxTrap>trap = min(trap, vec4(abs(w),m));</mandelBoxTrap>
 </distanceTrap>
 
-<color>
-	<vec3(0.7, 0.1, 0.3)>,
-	<vec3(0.707, 0, 0.707)>,
-	<vec3(0, 0.707, 0.707)>,
-	<vec3(0, 1, 0)>,
-	<vec3(0.577, 0.577, 0.577)>,
-	<vec3(1, 0, 0)>,
-	<vec3(0.20739, 0.518, 0.8295)>,
-	<vec3(0.78, 0.5, 0.13)>,
-	<vec3(0.9, 0.15, 0.5)>,
-	<vec3(0.5, 0, 0.5)>,
-	<vec3(0.5, 0.5, 0.5)>,
-	<vec3(0.3, 0.3, 0.3)>,
-	<vec3(0.5, 0.65, 0.15)>,
-	<vec3(0, 1, 0)>,
-</color>
-
 <coloring>
 	<col = vec3(0.1);
 	col = mix(col, colorA, clamp(pow(trap.w,6.0), 0, 1));

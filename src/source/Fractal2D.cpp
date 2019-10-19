@@ -236,14 +236,13 @@ void Fractal2D::SetUniformNames()
 
 void Fractal2D::SaveImage(const std::string path)
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
 	renderShader->use();
 	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 
 
 	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
@@ -259,22 +258,6 @@ void Fractal2D::SaveImage(const std::string path)
 	Image image(screenSize.value.x, screenSize.value.y, &data);
 
 	image.FlipVertically();
-
-	// Finding brightest pixels
-	/*std::vector<std::pair<glm::ivec2, float>> asd;
-
-	for (size_t i = 0; i < screenSize.value.x; i++)
-	{
-		for (size_t j = 0; j < screenSize.value.y; j++)
-		{
-			Pixel c = (data[i * screenSize.value.y + j]);
-			asd.push_back({ { i,j }, (float)sqrt(c.r * c.r + c.g * c.g + c.b * c.b) });
-
-		}
-	}
-	std::sort(asd.begin(), asd.end(), [](const std::pair<glm::ivec2, float>& left, const std::pair<glm::ivec2, float>& right) {
-		return left.second > right.second;
-		});*/
 
 	try
 	{
@@ -698,6 +681,29 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			while (Replace(final, s.start, sectionString)) {}
 		}
 	}
+
+	if (specification.find(Section("variables").start) != std::string::npos)
+	{
+		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', { {'<', '>'}, {'(', ')' } });
+		for (size_t i = 0; i < variables.size(); i++)
+		{
+			std::string sectionName = GetSectionName(variables[i]);
+			std::string value = GetSectionValue(variables[i]);
+
+			size_t start;
+			if ((start = final.find(sectionName)) != std::string::npos)
+			{
+				size_t end;
+				end = final.find(';', start);
+
+				std::string uniform = final.substr(start, end - start);
+
+				std::vector<std::string> uniformParts = SplitNotInChar(uniform, ' ', '(', ')');
+
+				Replace(final, uniformParts[2], value, start);
+			}
+		}
+	}
 }
 
 void Fractal2D::ParseShader(std::string& source, std::string & final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections)
@@ -876,6 +882,9 @@ void Fractal2D::RenderComputeShader()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].id);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	gui->drawContents();
+	gui->drawWidgets();
+
 
 	explorationShader->use();
 	SetUniformLocations(explorationShader);

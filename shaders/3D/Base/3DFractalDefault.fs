@@ -92,7 +92,7 @@
 
 
 <trace>
-#define LinneaRetarded 1
+#define LinneaRetarded 0
 	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 	{
 		float res = -1.0;

@@ -50,21 +50,6 @@
 	col.z += sqrt(sin(trap.z*power));>,
 </coloring>
 
-<color>
-	<vec3(0.54,0.3,0.07)>,
-	<vec3(0.7,0.7,0.9)>,
-</color>
-
-<colorB>
-	<vec3(0.02,0.4,0.30)>,
-	<vec3(0.6,0.6,0.9)>,
-</colorB>
-
-<colorC>
-	<vec3(0.15, 0.4, 0.04)>,
-	<vec3(0.7,0.7,1)>,
-</colorC>
-
 <distanceTrapReturn>
 	<mandelBulbTrapReturn>vec4(m,trap.yzw);</mandelBulbTrapReturn>
 </distanceTrapReturn>
