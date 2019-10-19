@@ -69,7 +69,7 @@
 		MandelBox
 	</include>
 	<uniforms>
-		</*<GuiHint>slider, Power, -2, 8</GuiHint>*/
+		</*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 8)</GuiHint>*/
 		uniform float power = 16.0;>,
 	</uniforms>
 	<distanceEstimator>

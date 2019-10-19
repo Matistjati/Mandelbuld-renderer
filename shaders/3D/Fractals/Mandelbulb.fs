@@ -1,17 +1,25 @@
-<extraSections>
-[colorB, false, "", true], [colorC, false, "", true]
-</extraSections>
-
-
-<maxIterationsRelease>64</maxIterationsRelease>
-<maxStepsRelease>256</maxStepsRelease>
 <antiAliasing>2</antiAliasing>
 
 
 <uniforms>
 
-	/*<GuiHint>slider, Power, -2, 16</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 16)</GuiHint>*/
 	uniform float power = 8;
+
+	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
+	uniform vec3 colorA = vec3(0.54,0.3,0.07);
+	
+	/*<GuiHint>GuiType: colorPicker, Name: Color B</GuiHint>*/
+	uniform vec3 colorB = vec3(0.02,0.4,0.30);
+	
+	/*<GuiHint>GuiType: colorPicker, Name: Color C</GuiHint>*/
+	uniform vec3 colorC = vec3(0.15, 0.4, 0.04);
+	
+	/*<GuiHint>GuiType: colorPicker, Name: Color D</GuiHint>*/
+	uniform vec3 colorD = vec3(0.556, 0.843, 0.415);
+
+	/*<GuiHint>GuiType: slider, Name: Edge Glow Strength, Range: (0, 10)</GuiHint>*/
+	uniform float edgeGlowStrength = 1;
 
 	uniform float genericParameter = 1;
 </uniforms>
@@ -30,6 +38,18 @@
 	<mulYYXYYX>w.y*=w.y;w.x*=w.y;w.y*=w.x;</mulYYXYYX>,
 </operations>
 
+<coloring>
+	<col = vec3(0.01);
+	col = mix(col, colorA, clamp(trap.y,0.0,1.0)); /*Inner*/
+	col = mix(col, colorB, clamp(trap.z*trap.z,0.0,1.0));
+	col = mix(col, colorC, clamp(pow(trap.w,6.0),0.0,1.0)); /*Stripes*/
+	col *= 0.5;>,
+
+	<col.x += 1-cos(trap.y*power);
+	col.y += 0.8*cos(trap.x*power);
+	col.z += sqrt(sin(trap.z*power));>,
+</coloring>
+
 <color>
 	<vec3(0.54,0.3,0.07)>,
 	<vec3(0.7,0.7,0.9)>,
@@ -44,18 +64,6 @@
 	<vec3(0.15, 0.4, 0.04)>,
 	<vec3(0.7,0.7,1)>,
 </colorC>
-
-<coloring>
-	<col = vec3(0.01);
-	col = mix(col, <color>, clamp(trap.y,0.0,1.0)); /*Inner*/
-	col = mix(col, <colorB>, clamp(trap.z*trap.z,0.0,1.0));
-	col = mix(col, <colorC>, clamp(pow(trap.w,6.0),0.0,1.0)); /*Stripes*/
-	col *= 0.5;>,
-
-	<col.x += 1-cos(trap.y*power);
-	col.y += 0.8*cos(trap.x*power);
-	col.z += sqrt(sin(trap.z*power));>,
-</coloring>
 
 <distanceTrapReturn>
 	<mandelBulbTrapReturn>vec4(m,trap.yzw);</mandelBulbTrapReturn>
@@ -105,5 +113,5 @@
 </trace>
 
 <edgeGlow>
-	col += vec3(0.556, 0.843, 0.415) * steps * steps;
+	col += colorD * steps * steps * edgeGlowStrength;
 </edgeGlow>

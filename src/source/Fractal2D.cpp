@@ -7,7 +7,7 @@
 
 const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
 
-#define PrintSource 1
+#define PrintSource 0
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
@@ -33,15 +33,16 @@ void Fractal2D::PopulateGUI()
 	// Power
  	nanogui::Slider* slider = gui->form->AddSlider("Power",power.value);
 
-	slider->setCallback([this](float value) {
-		this->power.value = value;
-		this->explorationShader->SetUniform(this->power);
+	slider->setCallback([this](float value)
+		{
+			power.GetValue() = value;
+			this->explorationShader->SetUniform(this->power);
 		});
 	slider->setValue(power.value);
 	slider->setRange({ 1.f,10.f });
 	
 	power.guiElements = { slider };
-	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.value); };
+	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.GetValue()); };
 
 
 
@@ -49,24 +50,28 @@ void Fractal2D::PopulateGUI()
 	gui->form->addGroup("Position");
 	
 	auto positionFieldX = gui->form->addVariable("X", position.value.x);
-	positionFieldX->setCallback([this](float value) {
-		this->position.value.x = value;
-		this->explorationShader->SetUniform(this->position);
+	positionFieldX->setCallback([this](float value)
+		{
+			this->position.GetValue().x = value;
+			this->explorationShader->SetUniform(this->position);
 		});
 
 	positionFieldX->numberFormat("%.6g");
 
 	auto positionFieldY = gui->form->addVariable("Y", position.value.y);
-	positionFieldY->setCallback([this](float value) {
-		this->position.value.y = value;
-		this->explorationShader->SetUniform(this->position);
+	positionFieldY->setCallback([this](float value)
+		{
+			this->position.GetValue().y = value;
+			this->explorationShader->SetUniform(this->position);
 		});
 
 	positionFieldY->numberFormat("%.6g");
 
 	position.guiElements = { positionFieldX, positionFieldY };
-	position.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.value.x);
-									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.value.y); };
+	position.SetGuiValue = [this]() { 
+									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.GetValue().x);
+									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().x);
+									};
 
 	Fractal::PopulateGuiFromShader();
 

@@ -8,9 +8,9 @@
 #include "headers/Uniform.h"
 #include "headers/Time.h"
 #include "headers/Debug.h"
+#include <nanogui/nanogui.h>
 #include <map>
 #include <vector>
-
 
 enum class ShaderType
 {
@@ -75,6 +75,7 @@ public:
 	void SetUniform(Uniform<glm::vec4> vector) const;
 	void SetUniform(Uniform<glm::mat2> &mat) const;
 	void SetUniform(Uniform<glm::mat3> &mat) const;
+	void SetUniform(Uniform<nanogui::Color> &color) const;
 	void SetUniform(Uniform<Time> time) const;
 	void SetUniform(unsigned int id, float x, float y, float z) const;
 	void SetUniform(unsigned int id, float value) const;

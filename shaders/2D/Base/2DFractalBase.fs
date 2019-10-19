@@ -15,14 +15,20 @@ uniform uint frame = uint(0);
 <uniforms>
 
 
-/*<GuiHint>slider, Max Iterations, 1, 1024</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Iterations, Range: (1, 1024)</GuiHint>*/
 uniform float maxIterations = 256;
 
-/*<GuiHint>slider, Escape Radius, 1, 128</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Escape Radius, Range: (1, 128)</GuiHint>*/
 uniform float escapeRadius = 8.;
 
-/*<GuiHint>slider, Color change rate, 0.01, 2</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Color change rate, Range: (0.01, 2)</GuiHint>*/
 uniform float colorPeriodicity = 0.1;
+
+/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
+uniform vec3 colorA = vec3(0.7, 0.5, 0.1);
+
+/*<GuiHint>GuiType: colorPicker, Name: Color B</GuiHint>*/
+uniform vec3 colorB = vec3(0.2, 0.9, 0.9);
 
 const float antiAliasing = <antiAliasing>;
 

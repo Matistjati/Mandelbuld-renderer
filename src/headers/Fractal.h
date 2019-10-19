@@ -110,6 +110,8 @@ public:
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
 	void UpdateFractalShader();
 	void PopulateGuiFromShader();
+	virtual void SetShaderUniforms(bool render);
+	virtual void SetShaderGui(bool render);
  	static glm::ivec2 GetMonitorSize();
 
 	virtual void PopulateGUI();
@@ -142,7 +144,6 @@ public:
 
 	static const constexpr char* shaderSuffixes[] = { "Render", "MapImage", "Specs" };
 
-protected:
 	static bool Replace(std::string& str, const std::string& from, const std::string& to);
 	static bool ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);
 	static bool ReplaceSection(Section section, std::string& origin, std::string& dest);

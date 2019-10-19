@@ -7,11 +7,10 @@
 const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers", true),
 										   ShaderSection("main", false, "mainAA"),};
 
-const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, "", true), ShaderSection("color", false, "", true),};
+const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, "", true) };
 
 
-const ShaderSection constants2D[] = { ShaderSection("maxIterations", false, "maxIterationsRelease"), ShaderSection("antiAliasing"),
-									  ShaderSection("escapeRadius"), };
+const ShaderSection constants2D[] = { ShaderSection("antiAliasing"), };
 
 class Fractal2D : public Fractal
 {

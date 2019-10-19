@@ -934,7 +934,10 @@ void Fractal::UpdateFractalShader()
 	this->renderShader = shaders.second;
 
 	// Resetting the content in the GUI
-	gui->removeChild(gui->childAt(0));
+	while (gui->childCount())
+	{
+		gui->removeChild(gui->childAt(0));
+	}
 	gui->ClearFocusPath();
 	gui->nanoGuiWindow = gui->form->addWindow(Eigen::Vector2i(10, 10), gui->guiWindowName);
 
@@ -952,14 +955,15 @@ void Fractal::UpdateFractalShader()
 	}
 }
 
+
 void Fractal::PopulateGuiFromShader()
 {
 	std::string& source = fractalSourceCode;
 	
-	// Hintstart
+	// Hint start
 	const std::string hintS = "<GuiHint>";
 
-	// Hintend
+	// Hint end
 	const std::string hintE = "</GuiHint>";
 
 	int iterationCount = 0;
@@ -976,7 +980,7 @@ void Fractal::PopulateGuiFromShader()
 		hintStart += hintS.length();
 
 		std::string paramsStr = source.substr(hintStart, hintEnd - hintStart);
-		std::vector<std::string> params = Split(paramsStr, ',');
+		std::vector<std::string> params = SplitNotInChar(paramsStr, ',', { {'(',')'} });
 
 		size_t uniformEnd = source.find(";", hintEnd);
 		if (uniformEnd == std::string::npos) break;
@@ -991,9 +995,15 @@ void Fractal::PopulateGuiFromShader()
 
 		CleanString(uniform, { '\n' });
 
-		std::vector<std::string> uniformParts = Split(uniform, ' ');
+		std::vector<std::string> uniformParts = SplitNotInChar(uniform, ' ', { {'(',')'} });
 
-		GuiElement element = GuiElement(GuiElement::GetElementFromString(params[0]), uniformParts[1], uniformParts[2], params[1], this, uniformParts[uniformParts.size() - 1], params);
+		std::string type = GuiElement::GetElement(params, "Type");
+		CleanString(type, { ' ' });
+
+		std::string name = GuiElement::GetElement(params, "Name");
+		if (name[0] == ' ') name = name.substr(1);
+
+		GuiElement element = GuiElement(GuiElement::GetElementFromString(type), uniformParts[1], uniformParts[2], name, this, uniformParts[uniformParts.size() - 1], params);
 
 		fractalUniforms.push_back(element);
 
@@ -1007,6 +1017,25 @@ void Fractal::PopulateGuiFromShader()
 			break;
 		}
 	}
+}
+
+void Fractal::SetShaderUniforms(bool render)
+{
+
+}
+
+void Fractal::SetShaderGui(bool render)
+{
+	bool preserveOld = Fractal::renderMode;
+
+	Fractal::renderMode = render;
+
+	for (auto& uni : fractalUniforms)
+	{
+		uni.SetGuiValue();
+	}
+
+	Fractal::renderMode = preserveOld;
 }
 
 int GetCompositeness(int n)
@@ -1091,23 +1120,30 @@ void Fractal::PopulateGUI()
 
 	// Zoom
 	auto zoomField = gui->form->addVariable("Zoom", zoom.value);
-	zoomField->setCallback([this](float value) {
-		this->zoom.value = value;
-		this->explorationShader->SetUniform(this->zoom);
+	zoomField->setCallback([this](float value)
+		{
+			this->zoom.GetValue() = value;
+			this->explorationShader->SetUniform(this->zoom);
 		});
 
 	zoom.guiElements = { zoomField };
-	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->zoom.value); };
+	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->zoom.GetValue()); };
 	
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
+	renderCheckbox->setCallback([this](bool value)
+		{
+			this->renderMode = value;
+			this->SetShaderGui(value);
+		});
 
 	// Time
 	double dummy;
 	auto timeField = gui->form->addVariable("Time", dummy);
-	timeField->setCallback([this](double value) {
-		value = std::max(value, 0.);
-		this->time.value.SetTotalTime(value);
-		this->explorationShader->SetUniform(this->time);
+	timeField->setCallback([this](double value)
+		{
+			value = std::max(value, 0.);
+			this->time.value.SetTotalTime(value);
+			this->explorationShader->SetUniform(this->time);
 		});
 
 	time.guiElements = { timeField };

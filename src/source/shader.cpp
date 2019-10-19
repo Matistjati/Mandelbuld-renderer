@@ -307,6 +307,11 @@ void Shader::SetUniform(Uniform<glm::mat3>& mat) const
 	glUniformMatrix3fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
 }
 
+void Shader::SetUniform(Uniform<nanogui::Color>& color) const
+{
+	glUniform3f(color.id, color.value.x(), color.value.y(), color.value.z());
+}
+
 void Shader::SetUniform(unsigned int id, float x, float y, float z) const
 {
 	glUniform3f(id, x, y, z);

@@ -1,17 +1,20 @@
 <antiAliasing>2</antiAliasing>
 
 <uniforms>
-	/*<GuiHint>slider, Scale,-10, 10</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-10, 10)</GuiHint>*/
 	uniform float scale = 2;
 	
-	/*<GuiHint>slider, Inner Radius, -2, 4</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Inner Radius, Range: (-2, 4)</GuiHint>*/
 	uniform float innerRadius = 0.5;
 	
-	/*<GuiHint>slider, Outer Radius, -2, 4</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Outer Radius, Range: (-2, 4)</GuiHint>*/
 	uniform float outerRadius = 1;
 	
-	/*<GuiHint>slider, Folding limit, 0, 4</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Folding limit, Range: (0, 4)</GuiHint>*/
 	uniform float foldingLimit = 1;
+
+	/*<GuiHint>GuiType: colorPicker, Name: Color</GuiHint>*/
+	uniform vec3 colorA = vec3(0.7, 0.1, 0.3);
 </uniforms>
 
 <operations>
@@ -47,8 +50,8 @@
 
 <coloring>
 	<col = vec3(0.1);
-	col = mix(col, <color>, clamp(pow(trap.w,6.0), 0, 1));
-	col += <color> * 0.1;>,
+	col = mix(col, colorA, clamp(pow(trap.w,6.0), 0, 1));
+	col += colorA * 0.1;>,
 
 
 	<vec3 p = (ray.origin + ray.dir * t);
@@ -62,6 +65,6 @@
 </coloring>
 
 <edgeGlow>
-	col += <color> * sqrt(steps * steps * 0.45); // Fog
+	col += colorA * sqrt(steps * steps * 0.45); // Fog
 	//col = mix(<color>, vec3(0.), steps);
 </edgeGlow>

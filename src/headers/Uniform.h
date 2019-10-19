@@ -6,18 +6,19 @@
 #include <vector>
 #include "nanogui/formhelper.h"
 
+
 template<typename T>
 struct Uniform
 {
 	std::vector<void*> guiElements;
 	std::function<void()> SetGuiValue;
-	//std::function<void()> SetUniform;
 	std::string name;
 	unsigned int id;
 	T value;
-	//T renderValue;
-	//T defaultValue;
+	T renderValue;
+	T defaultValue;
 	void operator=(const T &other);
+	T& GetValue();
 #pragma warning(push)
 #pragma warning(disable : 26495)
 	Uniform(T val, std::string name, unsigned int id) : name(name), id(id), value(val) {}
@@ -28,5 +29,14 @@ struct Uniform
 
 	operator T() const;
 };
+
+// Don't even try to to include it up there; stuff will break left and right and you end up with 300+ errors
+#include "headers/Fractal.h"
+
+template<typename T>
+inline T& Uniform<T>::GetValue()
+{
+	return (Fractal::renderMode) ? renderValue : value;
+}
 
 #endif

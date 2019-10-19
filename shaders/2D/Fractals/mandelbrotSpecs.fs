@@ -14,8 +14,8 @@
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
 				   [tricornIter], [celticIter], [complexPow(power), setW(w.xy+w.x), translate],]</loopBody>,
 		<loopTrap>none</loopTrap>,
-		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))], [escapeColor], [escapeColorLast(colorPeriodicity)], 
-					 [escapeColorPeriodicCos(colorPeriodicity, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))]]</loopReturn>,
+		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)], [escapeColor], [escapeColorLast(colorPeriodicity)], 
+					 [escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)]]</loopReturn>,
 	</mainLoop>
 }
 
@@ -27,7 +27,7 @@
 	<mainLoop>
 		<loopBody>[[setW(exp(w.x*power)*vec2(cos(w.y*power)*power,sin(w.y*power)*power)), translate]]</loopBody>,
 		<loopTrap>none</loopTrap>,
-		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, vec3(0.7, 0.5, 0.1), vec3(0.2, 0.9, 0.9))]]</loopReturn>,
+		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)]]</loopReturn>,
 	</mainLoop>
 	<cpuVariables>
 		<power>1.21</power>

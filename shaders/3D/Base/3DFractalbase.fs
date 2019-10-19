@@ -11,28 +11,28 @@ uniform float zoom;
 uniform float time;
 uniform uint frame = uint(0);
 
-/*<GuiHint>slider, Max Iterations, 1, 100</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Iterations, Range: (1, 100)</GuiHint>*/
 uniform int maxIterations = 8;
 
-/*<GuiHint>slider, Max Steps, 1, 200</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Steps, Range: (1, 200)</GuiHint>*/
 uniform int maxSteps = 100;
 
-/*<GuiHint>slider, ray acceptance, 0.0000001, 0.1</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.0000001, 0.1)</GuiHint>*/
 uniform float zoomDetailRatio = 0.1;
 
-/*<GuiHint>slider, Max Ray Distance, 1, 64</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Ray Distance, Range: (1, 64)</GuiHint>*/
 uniform float maxDist = 16;
 
-/*<GuiHint>slider, Shadow hardness, 1, 64</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Shadow hardness, Range: (1, 64)</GuiHint>*/
 uniform float shadowSoftness = 4;
 
-/*<GuiHint>slider, Escacpe Radius, 1, 1024</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Escacpe Radius, Range: (1, 1024)</GuiHint>*/
 uniform float escapeRadius = 256;
 
-/*<GuiHint>slider, Sun Size, -1, 10</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Sun Size, Range: (-1, 10)</GuiHint>*/
 uniform float sunSize = 1.0;
 
-/*<GuiHint>slider, Sun Spread, -1, 128</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Sun Spread, Range: (-1, 128)</GuiHint>*/
 uniform float sunSpread = 16.0;
 
 

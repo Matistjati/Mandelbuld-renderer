@@ -16,7 +16,7 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("lightingFunctions") };
 
 const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
-											 ShaderSection("color", false, "", true), ShaderSection("maxDist", false, "maxDistRelease"), ShaderSection("distanceBody"), ShaderSection("trap") };
+											 ShaderSection("distanceBody"), ShaderSection("trap") };
 
 const ShaderSection constants[] = { ShaderSection("antiAliasing")};
 

@@ -8,7 +8,7 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
-#define PrintSource 1
+#define PrintSource 0
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1), cursorVisible(false)
