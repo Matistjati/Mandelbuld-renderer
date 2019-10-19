@@ -8,7 +8,7 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
-#define PrintSource 0
+#define PrintSource 1
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1), cursorVisible(false)
@@ -476,6 +476,29 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 		else
 		{
 			while(Replace(final, s.start, sectionString)) {}
+		}
+	}
+
+	if (specification.find(Section("variables").start) != std::string::npos)
+	{
+		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', { {'<', '>'}, {'(', ')' } });
+		for (size_t i = 0; i < variables.size(); i++)
+		{
+			std::string sectionName = GetSectionName(variables[i]);
+			std::string value = GetSectionValue(variables[i]);
+
+			size_t start;
+			if ((start = final.find(sectionName)) != std::string::npos)
+			{
+				size_t end;
+				end = final.find(';', start);
+
+				std::string uniform = final.substr(start, end - start);
+
+				std::vector<std::string> uniformParts = SplitNotInChar(uniform, ' ', '(', ')');
+
+				Replace(final, uniformParts[2], value, start);
+			}
 		}
 	}
 }

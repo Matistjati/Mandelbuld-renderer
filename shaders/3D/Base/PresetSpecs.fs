@@ -4,12 +4,7 @@
 		<skyOff>
 		<sunOff>
 	</flags>
-	<variables>
-		<maxDist>0</maxDist>,
-		<maxDistRelease>0</maxDistRelease>,
-		<maxSteps>100</maxSteps>,
-		<maxStepsRelease>100</maxStepsRelease>,
-	</variables>
+
 	<alternateFunctions>
 		<trace>traceIterationPercent</trace>
 	</alternateFunctions>

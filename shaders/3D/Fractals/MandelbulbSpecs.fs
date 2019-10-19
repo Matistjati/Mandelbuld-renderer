@@ -48,10 +48,8 @@
 	</distanceEstimator>
 
 	<variables>
-		<maxIterations>8</maxIterations>, // High maxiteration for interior rendering
+		<maxIterations>200</maxIterations>, // High maxiteration for interior rendering
 		<maxSteps>60</maxSteps>,
-		<maxIterationsRelease>8</maxIterationsRelease>,
-		<maxStepsRelease>60</maxStepsRelease>,
 		<antiAliasing>1</antiAliasing>,
 	</variables>
 
@@ -84,9 +82,9 @@
 		<position>[(0)[-0.301680839, 0, 0.435530365]]</position>,
 	</cpuVariables>
 
-	<indices>
-		<color>1</color>,
-		<colorB>1</colorB>,
-		<colorC>1</colorC>,
-	</indices>
+	<variables>
+		<colorA>vec3(0.7,0.7,0.9)</colorA>,
+		<colorB>vec3(0.6,0.6,0.9)</colorB>,
+		<colorC>vec3(0.7,0.7,1)</colorC>,
+	</variables>
 }

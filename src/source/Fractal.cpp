@@ -31,6 +31,15 @@ bool Fractal::Replace(std::string& str, const std::string& from, const std::stri
 	return true;
 }
 
+bool Fractal::Replace(std::string& str, const std::string& from, const std::string& to, size_t start)
+{
+	size_t start_pos = str.find(from, start);
+	if (start_pos == std::string::npos)
+		return false;
+	str.replace(start_pos, from.length(), to);
+	return true;
+}
+
 bool Fractal::ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest)
 {
 	int index = origin.find(originSection.start);
