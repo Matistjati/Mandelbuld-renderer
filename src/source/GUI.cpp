@@ -32,6 +32,10 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 			uniform->SetValue(value, Fractal::renderMode);
 			fractal->explorationShader->SetUniform(*uniform);
 		});
+	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
+		{
+			fractal->explorationShader->SetUniform(*uniform, renderMode);
+		});
 	slider->setRange({ range.first,range.second });
 	slider->setValue(value);
 	uniform->SetGuiValue = [slider, uniform]() {slider->setValue(uniform->GetValue()); };
@@ -90,11 +94,13 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 		{
 			AddSlider<float>(elementLabel, (Uniform<float>*)uniform, fractal, rangePair, stof(value));
 			SetGuiValue = [uniformCopy]() {((Uniform<float>*)uniformCopy)->SetGuiValue(); };
+			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<float>*)uniformCopy)->SetShaderValue(renderMode); };
 		}
 		else if (type == "int")
 		{
 			AddSlider<int>(elementLabel, (Uniform<int>*)uniform, fractal, rangePair, stoi(value));
 			SetGuiValue = [uniformCopy]() {((Uniform<int>*)uniformCopy)->SetGuiValue(); };
+			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<int>*)uniformCopy)->SetShaderValue(renderMode); };
 		}
 		else
 		{

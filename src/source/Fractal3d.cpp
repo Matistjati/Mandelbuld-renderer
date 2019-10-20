@@ -228,9 +228,8 @@ void Fractal3D::SaveImage(const std::string path)
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 	glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
-	renderShader->use();
-	SetUniformLocations(renderShader);
-	SetUniforms(renderShader);
+	explorationShader->use();
+	SetShaderUniforms(true);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -240,9 +239,6 @@ void Fractal3D::SaveImage(const std::string path)
 	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 
-	explorationShader->use();
-	SetUniformLocations(explorationShader);
-	SetUniforms(explorationShader);
 	GlErrorCheck();
 
 	Image image(screenSize.value.x, screenSize.value.y, &data);

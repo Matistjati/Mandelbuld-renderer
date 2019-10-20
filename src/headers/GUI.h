@@ -28,6 +28,7 @@ public:
 	static std::string GetElement(std::vector<std::string>& content, std::string name);
 	GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::vector<std::string> guiParams);
 	std::function<void()> SetGuiValue;
+	std::function<void(bool)> SetShaderValue;
 
 	static Element GetElementFromString(std::string element);
 

@@ -1030,7 +1030,24 @@ void Fractal::PopulateGuiFromShader()
 
 void Fractal::SetShaderUniforms(bool render)
 {
+	bool preserveOld = Fractal::renderMode;
 
+	Fractal::renderMode = render;
+
+
+	for (auto& uni : fractalUniforms)
+	{
+		if (uni.SetShaderValue)
+		{
+			uni.SetShaderValue(Fractal::renderMode);
+		}
+		else
+		{
+			BreakIfDebug();
+		}
+	}
+
+	Fractal::renderMode = preserveOld;
 }
 
 void Fractal::SetShaderGui(bool render)

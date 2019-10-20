@@ -257,9 +257,19 @@ void Shader::SetUniform(const Uniform<float> value) const
 	glUniform1f(value.id, value.value);
 }
 
+void Shader::SetUniform(Uniform<float> value, bool renderMode) const
+{
+	glUniform1f(value.id, (renderMode) ? value.renderValue : value.value);
+}
+
 void Shader::SetUniform(Uniform<int> value) const
 {
 	glUniform1i(value.id, value.value);
+}
+
+void Shader::SetUniform(Uniform<int> value, bool renderMode) const
+{
+	glUniform1i(value.id, (renderMode) ? value.renderValue : value.value);
 }
 
 void Shader::SetUniform(Uniform<unsigned int> value) const

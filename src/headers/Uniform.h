@@ -12,6 +12,7 @@ struct Uniform
 {
 	std::vector<void*> guiElements;
 	std::function<void()> SetGuiValue;
+	std::function<void(bool)> SetShaderValue;
 	std::string name;
 	unsigned int id;
 	T value;
