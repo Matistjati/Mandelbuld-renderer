@@ -19,6 +19,7 @@ struct Uniform
 	T defaultValue;
 	void operator=(const T &other);
 	T& GetValue();
+	void SetValue(T value, bool renderMode);
 #pragma warning(push)
 #pragma warning(disable : 26495)
 	Uniform(T val, T renderVal, std::string name, unsigned int id) : name(name), id(id), value(val), renderValue(renderVal), defaultValue(val) {}
@@ -38,6 +39,16 @@ template<typename T>
 inline T& Uniform<T>::GetValue()
 {
 	return (Fractal::renderMode) ? renderValue : value;
+}
+
+template<typename T>
+inline void Uniform<T>::SetValue(T value, bool renderMode)
+{
+	if (!renderMode)
+	{
+		this->value = value;
+	}
+	this->renderValue = value;
 }
 
 #endif

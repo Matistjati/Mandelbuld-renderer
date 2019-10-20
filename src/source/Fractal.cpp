@@ -1134,7 +1134,7 @@ void Fractal::PopulateGUI()
 	auto zoomField = gui->form->addVariable("Zoom", zoom.value);
 	zoomField->setCallback([this](float value)
 		{
-			this->zoom.GetValue() = value;
+			zoom.SetValue(value, Fractal::renderMode);
 			this->explorationShader->SetUniform(this->zoom);
 		});
 

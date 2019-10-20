@@ -29,7 +29,7 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	nanogui::Slider* slider = fractal->gui->form->AddSlider(label, uniform->value);
 	slider->setCallback([fractal,uniform](T value)
 		{
-			uniform->GetValue() = value;
+			uniform->SetValue(value, Fractal::renderMode);
 			fractal->explorationShader->SetUniform(*uniform);
 		});
 	slider->setRange({ range.first,range.second });
@@ -43,7 +43,7 @@ void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal
 	uniform->SetGuiValue = [picker, uniform]() {picker->setColor(uniform->GetValue()); 	picker->setBackgroundColor(uniform->GetValue()); };
 	picker->setCallback([fractal, uniform](const nanogui::Color& c)
 		{
-			uniform->GetValue() = c;
+			uniform->SetValue(c, Fractal::renderMode);
 			fractal->explorationShader->SetUniform(*uniform);
 			uniform->SetGuiValue();
 		});

@@ -35,7 +35,7 @@ void Fractal2D::PopulateGUI()
 
 	slider->setCallback([this](float value)
 		{
-			power.GetValue() = value;
+			power.SetValue(value, Fractal::renderMode);
 			this->explorationShader->SetUniform(this->power);
 		});
 	slider->setValue(power.value);
@@ -52,7 +52,7 @@ void Fractal2D::PopulateGUI()
 	auto positionFieldX = gui->form->addVariable("X", position.value.x);
 	positionFieldX->setCallback([this](float value)
 		{
-			this->position.GetValue().x = value;
+			position.SetValue({ position.value.x, value }, Fractal::renderMode);
 			this->explorationShader->SetUniform(this->position);
 		});
 
@@ -61,7 +61,7 @@ void Fractal2D::PopulateGUI()
 	auto positionFieldY = gui->form->addVariable("Y", position.value.y);
 	positionFieldY->setCallback([this](float value)
 		{
-			this->position.GetValue().y = value;
+			position.SetValue({ value, position.value.y }, Fractal::renderMode);
 			this->explorationShader->SetUniform(this->position);
 		});
 
@@ -70,7 +70,7 @@ void Fractal2D::PopulateGUI()
 	position.guiElements = { positionFieldX, positionFieldY };
 	position.SetGuiValue = [this]() { 
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.GetValue().x);
-									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().x);
+									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().y);
 									};
 
 	Fractal::PopulateGuiFromShader();
@@ -349,46 +349,46 @@ void Fractal2D::HandleKeyInput()
 			{
 				// WASD movement
 			case GLFW_KEY_W:
-				position.value.y += static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetValue({ position.value.x, position.value.y + static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value) }, Fractal::renderMode);
 				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_S:
-				position.value.y -= static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetValue({ position.value.x, position.value.y - static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value) }, Fractal::renderMode);
 				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_A:
-				position.value.x -= static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetValue({ position.value.x - static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value), position.value.y }, Fractal::renderMode);
 				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 			case GLFW_KEY_D:
-				position.value.x += static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value);
+				position.SetValue({ position.value.x + static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value), position.value.y }, Fractal::renderMode);
 				position.SetGuiValue();
 				explorationShader->SetUniform(position);
 				break;
 
 				// Zooming using exponential decay
 			case GLFW_KEY_Q:
-				zoom.value *= static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate));
+				zoom.SetValue(zoom.value * static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
 				zoom.SetGuiValue();
 				explorationShader->SetUniform(zoom);
 				break;
 			case GLFW_KEY_E:
-				zoom.value /= static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate));
+				zoom.SetValue(zoom.value / static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
 				zoom.SetGuiValue();
 				explorationShader->SetUniform(zoom);
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
-				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime());
+				power.SetValue(power.value + 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()), Fractal::renderMode);
 				power.SetGuiValue();
 				explorationShader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
-				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime());
+				power.SetValue(power.value - 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()), Fractal::renderMode);
 				power.SetGuiValue();
 				explorationShader->SetUniform(power);
 				break;
@@ -897,6 +897,7 @@ void Fractal2D::SetShaderGui(bool render)
 {
 	power.SetGuiValue();
 	position.SetGuiValue();
+	Fractal::SetShaderGui(render);
 }
 
 std::vector<int> GetPrimeFactors(int n)
