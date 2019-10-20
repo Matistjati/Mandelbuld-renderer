@@ -1039,6 +1039,9 @@ void Fractal::SetShaderGui(bool render)
 
 	Fractal::renderMode = render;
 
+	zoom.SetGuiValue();
+
+
 	for (auto& uni : fractalUniforms)
 	{
 		uni.SetGuiValue();

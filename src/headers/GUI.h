@@ -32,7 +32,7 @@ public:
 	static Element GetElementFromString(std::string element);
 
 private:
-	void* CreateUniform(std::string type, std::string name, std::string value, Element elementType);
+	void* CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType);
 };
 
 class GUI : public nanogui::Screen

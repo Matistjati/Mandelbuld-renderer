@@ -893,6 +893,12 @@ void Fractal2D::RenderComputeShader()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
 }
 
+void Fractal2D::SetShaderGui(bool render)
+{
+	power.SetGuiValue();
+	position.SetGuiValue();
+}
+
 std::vector<int> GetPrimeFactors(int n)
 {
 	std::vector<int> factors = std::vector<int>();

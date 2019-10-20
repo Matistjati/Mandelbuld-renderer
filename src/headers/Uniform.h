@@ -21,10 +21,11 @@ struct Uniform
 	T& GetValue();
 #pragma warning(push)
 #pragma warning(disable : 26495)
-	Uniform(T val, std::string name, unsigned int id) : name(name), id(id), value(val) {}
+	Uniform(T val, T renderVal, std::string name, unsigned int id) : name(name), id(id), value(val), renderValue(renderVal), defaultValue(val) {}
+	Uniform(T val, std::string name, unsigned int id) : name(name), id(id), value(val), defaultValue(val) {}
 	Uniform(T val, unsigned int id) : value(val), id(id) {}
-	Uniform(T val) : value(val) {}
-	Uniform() : value(T()) {}
+	Uniform(T val) : value(val), defaultValue(val) {}
+	Uniform() : value(T()), defaultValue(T()) {}
 #pragma warning(pop)
 
 	operator T() const;

@@ -29,7 +29,7 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	nanogui::Slider* slider = fractal->gui->form->AddSlider(label, uniform->value);
 	slider->setCallback([fractal,uniform](T value)
 		{
-			uniform->value = value;
+			uniform->GetValue() = value;
 			fractal->explorationShader->SetUniform(*uniform);
 		});
 	slider->setRange({ range.first,range.second });
@@ -69,7 +69,11 @@ std::string GuiElement::GetElement(std::vector<std::string>& content, std::strin
 
 GuiElement::GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::vector<std::string> guiParams) : fractal(fractal)
 {
-	uniform = CreateUniform(type, uniformName, value, element);
+	std::string renderValue;
+	renderValue = GuiElement::GetElement(guiParams, "RenderValue");
+
+
+	uniform = CreateUniform(type, uniformName, value, renderValue, element);
 	
 	void* uniformCopy = uniform;
 
@@ -138,17 +142,21 @@ GuiElement::Element GuiElement::GetElementFromString(std::string element)
 	}
 }
 
-void* GuiElement::CreateUniform(std::string type, std::string name, std::string value, Element elementType)
+void* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
 {
 	fractal->explorationShader->use();
 	unsigned int id = glGetUniformLocation(fractal->explorationShader->id, name.c_str());
 	if (type == "float")
 	{
-		return new Uniform<float>((value == "") ? 0.f : std::stof(value), name, id);
+		float val = (value == "") ? 0.f : std::stof(value);
+		float renderVal = (renderValue == "") ? val : std::stof(renderValue);
+		return new Uniform<float>(val, renderVal, name, id);
 	}
 	else if (type == "int")
 	{
-		return new Uniform<int>((value == "") ? 0.f : std::stoi(value), name, id);
+		int val = (value == "") ? 0.f : std::stoi(value);
+		int renderVal = (renderValue == "") ? val : std::stoi(renderValue);
+		return new Uniform<int>(val, renderVal, name, id);
 	}
 	else if (type == "vec3")
 	{
@@ -160,13 +168,16 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 		Fractal::CleanString(value, { '(',')' });
 
 		std::vector<std::string> values = Fractal::Split(value, ',');
+		std::vector<std::string> renderValues = (renderValue == "") ? values : Fractal::Split(renderValue, ',');
 		if (elementType == Element::ColorPicker)
 		{
-			return new Uniform<nanogui::Color>(nanogui::Color(stof(values[0]),stof(values[1]),stof(values[2]), 1.f), name, id);
+			return new Uniform<nanogui::Color>(nanogui::Color(stof(values[0]),stof(values[1]),stof(values[2]), 1.f),
+											   nanogui::Color(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), 1.f), name, id);
 		}
 		else
 		{
-			return new Uniform<glm::vec3>(glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])), name, id);
+			return new Uniform<glm::vec3>(glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])),
+										  glm::vec3(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2])), name, id);
 		}
 	}
 	else
