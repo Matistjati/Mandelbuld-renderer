@@ -26,12 +26,10 @@ public:
 	bool cursorVisible;
 	Camera& camera;
 	Uniform<glm::vec3> sun;
-	Uniform<float> power;
-	Uniform<float> genericParameter;
 
 
-	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification);
-	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
+	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification);
+	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 	float GetZoom() { return 1 / zoom.value; };
 
@@ -61,6 +59,8 @@ public:
 	void ParseShader(std::string& source, std::string& final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 	void Init();
 	static std::map<std::string, int*> GetDefaultShaderIndices();
+	void SetShaderGui(bool render) override;
+	virtual void SetShaderUniforms(bool render);
 
 	static const constexpr char* path3DBase = "shaders/3D/Base/3DFractalbase.fs";
 	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";

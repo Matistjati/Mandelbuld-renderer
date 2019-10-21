@@ -49,25 +49,25 @@ constexpr Purpose programPurpose = Purpose::explore;
 
 	// Common screen resolutions
 	#if ScreenSize == 0
-		const glm::ivec2 screenSize = { 800, 450 };
+		const glm::vec2 screenSize = { 800, 450 };
 	#elif ScreenSize == 1
-		const glm::ivec2 screenSize = { 1280, 720 };
+		const glm::vec2 screenSize = { 1280, 720 };
 	#elif ScreenSize == 2
-		const glm::ivec2 screenSize = { 1920, 1080 };
+		const glm::vec2 screenSize = { 1920, 1080 };
 	#elif ScreenSize == 3
-		const glm::ivec2 screenSize = { 2560, 1440 };
+		const glm::vec2 screenSize = { 2560, 1440 };
 	#elif ScreenSize == 4
-		const glm::ivec2 screenSize = { 4096, 2160 };
+		const glm::vec2 screenSize = { 4096, 2160 };
 	#elif ScreenSize == 5
-		const glm::ivec2 screenSize = { 6400, 4096 };
+		const glm::vec2 screenSize = { 6400, 4096 };
 	#elif ScreenSize == 6
-		const glm::ivec2 screenSize = { 7680, 4320 };
+		const glm::vec2 screenSize = { 7680, 4320 };
 	#endif
 #endif
 
 // Starting fractal
 constexpr auto DefaultFractalIndex = 0;
-constexpr auto DefaultSpecIndex = 0;
+constexpr auto DefaultSpecIndex = 2;
 constexpr auto DefaultFractalNameIndex = 0;
 #define DefaultFractal Fractal3D
 constexpr auto ProgramName = "Mandelbulb";
@@ -98,14 +98,14 @@ int main()
 	}
 
 #if ConstWindowSize
-	GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
-	glfwSetWindowSizeLimits(mainWindow, 0, 0, screenSize.x, screenSize.y);
-	glfwSetWindowSize(mainWindow, screenSize.x, screenSize.y);
-	Fractal::screenSize = Uniform<glm::ivec2>(screenSize, "screenSize", -1);
+	GLFWwindow* mainWindow = glfwCreateWindow(int(screenSize.x), int(screenSize.y), ProgramName, nullptr, nullptr);
+	glfwSetWindowSizeLimits(mainWindow, 0, 0, int(screenSize.x), int(screenSize.y));
+	glfwSetWindowSize(mainWindow, int(screenSize.x), int(screenSize.y));
+	Fractal::screenSize = Uniform<glm::vec2>(screenSize, "screenSize", -1);
 #else
 	// glfw window creation
-	glm::ivec2 screenSize = Fractal::GetMonitorSize();
-	Fractal::screenSize = Uniform<glm::ivec2>(screenSize, "screenSize", -1);
+	glm::vec2 screenSize = Fractal::GetMonitorSize();
+	Fractal::screenSize = Uniform<glm::vec2>(screenSize, "screenSize", -1);
 	#if _DEBUG
 		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 	#else
@@ -140,11 +140,7 @@ int main()
 
 	// Create a nanogui screen and pass the glfw pointer to initialize
 
-#if ConstWindowSize
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
-#else
-	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex);
-#endif
 
 	glfwSetWindowUserPointer(mainWindow, fractal);
 

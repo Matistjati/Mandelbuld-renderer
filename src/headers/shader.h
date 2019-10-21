@@ -73,12 +73,15 @@ public:
 	void SetUniform(Uniform<bool> value) const;
 	void SetUniform(Uniform<glm::ivec2> vector) const;
 	void SetUniform(Uniform<glm::vec2> vector) const;
+	void SetUniform(Uniform<glm::vec2> vector, bool renderMode) const;
 	void SetUniform(Uniform<glm::vec3> vector) const;
 	void SetUniform(Uniform<glm::vec4> vector) const;
 	void SetUniform(Uniform<glm::mat2> &mat) const;
 	void SetUniform(Uniform<glm::mat3> &mat) const;
 	void SetUniform(Uniform<nanogui::Color> &color) const;
+	void SetUniform(Uniform<nanogui::Color> &color, bool renderMode) const;
 	void SetUniform(Uniform<Time> time) const;
+	void SetUniform(Uniform<Time> time, bool renderMode) const;
 	void SetUniform(unsigned int id, float x, float y, float z) const;
 	void SetUniform(unsigned int id, float value) const;
 	void SetUniform(unsigned int id, int value) const;

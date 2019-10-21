@@ -24,10 +24,10 @@ struct Uniform
 #pragma warning(push)
 #pragma warning(disable : 26495)
 	Uniform(T val, T renderVal, std::string name, unsigned int id) : name(name), id(id), value(val), renderValue(renderVal), defaultValue(val) {}
-	Uniform(T val, std::string name, unsigned int id) : name(name), id(id), value(val), defaultValue(val) {}
-	Uniform(T val, unsigned int id) : value(val), id(id) {}
-	Uniform(T val) : value(val), defaultValue(val) {}
-	Uniform() : value(T()), defaultValue(T()) {}
+	Uniform(T val, std::string name, unsigned int id) : name(name), id(id), value(val), renderValue(val), defaultValue(val) {}
+	Uniform(T val, unsigned int id) : value(val), renderValue(val), defaultValue(value), id(id) {}
+	Uniform(T val) : value(val), renderValue(val), defaultValue(val) {}
+	Uniform() : value(T()), renderValue(T()), defaultValue(T()) {}
 #pragma warning(pop)
 
 	operator T() const;

@@ -37,8 +37,8 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 			fractal->explorationShader->SetUniform(*uniform, renderMode);
 		});
 	slider->setRange({ range.first,range.second });
-	slider->setValue(value);
-	uniform->SetGuiValue = [slider, uniform]() {slider->setValue(uniform->GetValue()); };
+	slider->setValue((float)value);
+	uniform->SetGuiValue = [slider, uniform]() {slider->setValue((float)uniform->GetValue()); };
 }
 
 void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
@@ -50,6 +50,10 @@ void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal
 			uniform->SetValue(c, Fractal::renderMode);
 			fractal->explorationShader->SetUniform(*uniform);
 			uniform->SetGuiValue();
+		});
+	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
+		{
+			fractal->explorationShader->SetUniform(*uniform, renderMode);
 		});
 }
 
@@ -111,6 +115,8 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	else if (element == Element::ColorPicker)
 	{
 		AddColorPicker(elementLabel, (Uniform<nanogui::Color>*)uniform, fractal);
+		SetGuiValue = [uniformCopy]() {((Uniform<nanogui::Color>*)uniformCopy)->SetGuiValue(); };
+		SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<nanogui::Color>*)uniformCopy)->SetShaderValue(renderMode); };
 	}
 	else if (element == Element::error)
 	{
@@ -160,7 +166,7 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 	}
 	else if (type == "int")
 	{
-		int val = (value == "") ? 0.f : std::stoi(value);
+		int val = (value == "") ? 0 : std::stoi(value);
 		int renderVal = (renderValue == "") ? val : std::stoi(renderValue);
 		return new Uniform<int>(val, renderVal, name, id);
 	}

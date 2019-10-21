@@ -17,7 +17,7 @@
 #define DoNothing [](){}
 #define EmptyThread std::thread(DoNothing)
 
-Uniform<glm::ivec2> Fractal::screenSize;
+Uniform<glm::vec2> Fractal::screenSize;
 GLFWwindow* Fractal::window;
 
 bool Fractal::renderMode = false;
@@ -579,7 +579,7 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
+Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
 	: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
 	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(), fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode)
@@ -597,7 +597,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
 	glfwSetScrollCallback(window, ScrollCallBackDelegate);
 
-	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
+	glViewport(0, 0, int(fractal->screenSize.value.x), int(fractal->screenSize.value.y));
 
 	if (fractal->fractalType == FractalType::fractal3D)
 	{
@@ -632,11 +632,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 			compute->Invoke(fractal->screenSize.value);
 			if (fractal->frame.value % compute->renderingFrequency == 0)
 			{
-				// Draw to both front and back buffers to avoid stuttering
 				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
-				glfwSwapBuffers(window);
-				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
-				glfwSwapBuffers(window);
 			}
 		}
 		fractal->gui->drawContents();
@@ -656,7 +652,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	const double dt = 0.3;
 	const double pi2 = 6.28318530717958647692528676655;
 	const int imageCount = int(pi2 / dt) + 1;
-	const size_t pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
+	const size_t pixelCount = int(fractal->screenSize.value.x * fractal->screenSize.value.y);
 
 
 	//fractal->zoom.value = 0.0150609445;
@@ -687,7 +683,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glReadPixels(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &currentImage[0]);
+		glReadPixels(0, 0, int(fractal->screenSize.value.x), int(fractal->screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &currentImage[0]);
 
 
 		for (size_t i = 0; i < pixelCount; i++)
@@ -702,7 +698,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 		images[i] /= imageCount;
 	}
 
-	Image image(fractal->screenSize.value.x, fractal->screenSize.value.y, images);
+	Image image((int)fractal->screenSize.value.x, (int)fractal->screenSize.value.y, images);
 	image.FlipVertically();
 
 	try
@@ -729,14 +725,14 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	const static int standardFPI = 5; // FPI: frames per image
 	const size_t framesPerImage = std::max(standardFPI, int(float(standardFPI) / (float((fractal->screenSize.value.x * fractal->screenSize.value.y)) / standardWork)));
 
-	const size_t pixelCount = fractal->screenSize.value.x * fractal->screenSize.value.y;
+	const size_t pixelCount = int(fractal->screenSize.value.x * fractal->screenSize.value.y);
 
 	glfwSetCursorPosCallback(window, MouseCallbackDelegate);
 	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallbackDelegate);
 	glfwSetKeyCallback(window, KeyCallbackDelegate);
 	glfwSetScrollCallback(window, ScrollCallBackDelegate);
 
-	glViewport(0, 0, fractal->screenSize.value.x, fractal->screenSize.value.y);
+	glViewport(0, 0, int(fractal->screenSize.value.x), int(fractal->screenSize.value.y));
 
 	if (fractal->fractalType == FractalType::fractal3D)
 	{
@@ -756,9 +752,9 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	unsigned int pboIds[2];
 	glGenBuffers(2, pboIds);
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
-	glBufferData(GL_PIXEL_PACK_BUFFER, screenSize.value.x*screenSize.value.y*4, 0, GL_STREAM_READ);
+	glBufferData(GL_PIXEL_PACK_BUFFER, int(screenSize.value.x * screenSize.value.y * 4), 0, GL_STREAM_READ);
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
-	glBufferData(GL_PIXEL_PACK_BUFFER, screenSize.value.x * screenSize.value.y * 4, 0, GL_STREAM_READ);
+	glBufferData(GL_PIXEL_PACK_BUFFER, int(screenSize.value.x * screenSize.value.y * 4), 0, GL_STREAM_READ);
 
 	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
@@ -769,7 +765,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	// render loop
 	double imageRenderTime = glfwGetTime();
 	std::thread imageSaveThread(DoNothing);
-	Image image(screenSize.value.x, screenSize.value.y, &data);
+	Image image(int(screenSize.value.x), int(screenSize.value.y), &data);
 
 	for (size_t i = 0; i < imageCount; i++)
 	{
@@ -837,7 +833,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			while (FileManager::FileExists(path = (baseName + std::to_string(count) + ".png"))) count++;
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
-			glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
 
 			// We use ping pong buffers, but still want the first and last
@@ -852,7 +848,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 			if (src)
 			{
-				data.assign(src, src + screenSize.value.x * screenSize.value.y);
+				data.assign(src, src + int(screenSize.value.x) * int(screenSize.value.y));
 				glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
 
 				const static auto Save = [](Image image, std::string path)
@@ -887,7 +883,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 				if (src)
 				{
-					data.assign(src, src + screenSize.value.x * screenSize.value.y);
+					data.assign(src, src + int(screenSize.value.x * screenSize.value.y));
 					glUnmapBuffer(GL_PIXEL_PACK_BUFFER);        // release pointer to the mapped buffer
 
 					const static auto Save = [](Image image, std::string path)
@@ -949,6 +945,13 @@ void Fractal::UpdateFractalShader()
 	}
 	gui->ClearFocusPath();
 	gui->nanoGuiWindow = gui->form->addWindow(Eigen::Vector2i(10, 10), gui->guiWindowName);
+
+	for (auto& guiElement : fractalUniforms)
+	{
+		guiElement.DeleteUniform();
+	}
+
+	fractalUniforms.clear();
 
 	if (fractalType == FractalType::fractal3D)
 	{
@@ -1034,12 +1037,14 @@ void Fractal::SetShaderUniforms(bool render)
 
 	Fractal::renderMode = render;
 
+	zoom.SetShaderValue(Fractal::renderMode);
 
 	for (auto& uni : fractalUniforms)
 	{
 		if (uni.SetShaderValue)
 		{
 			uni.SetShaderValue(Fractal::renderMode);
+			GlErrorCheck();
 		}
 		else
 		{
@@ -1124,7 +1129,7 @@ int GetMostCompositeInRange(int n, float deviation)
 	return maxNumber;
 }
 
-glm::ivec2 Fractal::GetMonitorSize()
+glm::vec2 Fractal::GetMonitorSize()
 {
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	glm::ivec2 result = { mode->width, mode->height };
@@ -1137,7 +1142,7 @@ glm::ivec2 Fractal::GetMonitorSize()
 		}
 	}
 
-	return result;
+	return (glm::vec2)result;
 }
 
 void Fractal::PopulateGUI()
@@ -1157,7 +1162,8 @@ void Fractal::PopulateGUI()
 
 	zoom.guiElements = { zoomField };
 	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->zoom.GetValue()); };
-	
+	zoom.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(this->zoom, renderMode); };
+
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
 	renderCheckbox->setCallback([this](bool value)
 		{
@@ -1172,13 +1178,12 @@ void Fractal::PopulateGUI()
 		{
 			value = std::max(value, 0.);
 			this->time.value.SetTotalTime(value);
+			this->time.renderValue.SetTotalTime(value);
 			this->explorationShader->SetUniform(this->time);
 		});
 
 	time.guiElements = { timeField };
 	time.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<double, std::true_type>*)this->time.guiElements[0])->setValue(this->time.value.GetTotalTime()); };
-
-
 
 	// ParameterChangeRate
 	nanogui::Slider* paramSlider = gui->form->AddSlider("ParameterChangeRate", parameterChangeRate);

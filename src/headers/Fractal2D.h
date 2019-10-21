@@ -22,7 +22,7 @@ public:
 
 	Uniform<glm::vec2> mousePosition;
 
-	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize);
+	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex);
 
 	void PopulateGUI() override;
@@ -53,6 +53,7 @@ public:
 	static std::map<std::string, int*> GetDefaultShaderIndices();
 	void RenderComputeShader();
 	void SetShaderGui(bool render) override;
+	virtual void SetShaderUniforms(bool render);
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";

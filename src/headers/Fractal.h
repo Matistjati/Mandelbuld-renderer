@@ -69,7 +69,7 @@ class Fractal
 public:
 	static bool renderMode;
 
-	static Uniform<glm::ivec2> screenSize;
+	static Uniform<glm::vec2> screenSize;
 	static GLFWwindow* window;
 	float parameterChangeRate = 1;
 	Shader* explorationShader;
@@ -101,7 +101,7 @@ public:
 	};
 
 	// Nothing fancy
-	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::ivec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "");
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
@@ -112,7 +112,7 @@ public:
 	void PopulateGuiFromShader();
 	virtual void SetShaderUniforms(bool render);
 	virtual void SetShaderGui(bool render);
- 	static glm::ivec2 GetMonitorSize();
+ 	static glm::vec2 GetMonitorSize();
 
 	virtual void PopulateGUI();
 	virtual void Update();

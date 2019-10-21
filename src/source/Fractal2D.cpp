@@ -9,7 +9,7 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 
 #define PrintSource 0
 
-Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
+Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	power(2), position({ 0,0 })
@@ -43,7 +43,7 @@ void Fractal2D::PopulateGUI()
 	
 	power.guiElements = { slider };
 	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.GetValue()); };
-
+	power.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(this->power, renderMode); };
 
 
 	// Position
@@ -72,6 +72,8 @@ void Fractal2D::PopulateGUI()
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.GetValue().x);
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().y);
 									};
+	position.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(this->position, renderMode); };
+
 
 	Fractal::PopulateGuiFromShader();
 
@@ -236,26 +238,29 @@ void Fractal2D::SetUniformNames()
 
 void Fractal2D::SaveImage(const std::string path)
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
-	renderShader->use();
-	SetUniformLocations(renderShader);
-	SetUniforms(renderShader);
+	if (explorationShader->type == ShaderType::compute)
+	{
+		RenderComputeShader();
+	}
+	else
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+		glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+		explorationShader->use();
+		SetShaderUniforms(true);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	std::vector<Pixel> data = std::vector<Pixel>(int(screenSize.value.x * screenSize.value.y));
+	glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 
-	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
-	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+	SetShaderUniforms(false);
 
-
-	explorationShader->use();
-	SetUniformLocations(explorationShader);
-	SetUniforms(explorationShader);
 	GlErrorCheck();
 
 
-	Image image(screenSize.value.x, screenSize.value.y, &data);
+	Image image(int(screenSize.value.x), int(screenSize.value.y), &data);
 
 	image.FlipVertically();
 
@@ -399,8 +404,15 @@ void Fractal2D::HandleKeyInput()
 				{
 					// Draw to both front and back buffers to avoid stuttering
 					RenderComputeShader();
+					gui->drawContents();
+					gui->drawWidgets();
+					explorationShader->use();
 					glfwSwapBuffers(window);
+
 					RenderComputeShader();
+					gui->drawContents();
+					gui->drawWidgets();
+					explorationShader->use();
 					glfwSwapBuffers(window);
 				}
 				break;
@@ -872,6 +884,8 @@ std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 
 void Fractal2D::RenderComputeShader()
 {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
 	renderShader->use();
 	SetUniformLocations(renderShader);
 	SetUniforms(renderShader);
@@ -882,8 +896,6 @@ void Fractal2D::RenderComputeShader()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].id);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	gui->drawContents();
-	gui->drawWidgets();
 
 
 	explorationShader->use();
@@ -898,6 +910,13 @@ void Fractal2D::SetShaderGui(bool render)
 	power.SetGuiValue();
 	position.SetGuiValue();
 	Fractal::SetShaderGui(render);
+}
+
+void Fractal2D::SetShaderUniforms(bool render)
+{
+	power.SetShaderValue(render);
+	position.SetShaderValue(render);
+	Fractal::SetShaderUniforms(render);
 }
 
 std::vector<int> GetPrimeFactors(int n)
@@ -960,7 +979,7 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 
 			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
 
-			std::vector<int> factors[3] = { GetPrimeFactors(screenSize.value.x), GetPrimeFactors(screenSize.value.y), {1} };
+			std::vector<int> factors[3] = { GetPrimeFactors(int(screenSize.value.x)), GetPrimeFactors(int(screenSize.value.y)), {1} };
 
 			int workGroups[maxDimensions] = { 1, 1, 1 };
 			for (int i = 0; i < dimensions; i++)

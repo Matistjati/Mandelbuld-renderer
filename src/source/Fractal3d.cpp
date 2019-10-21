@@ -10,18 +10,18 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 
 #define PrintSource 1
 
-Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::ivec2 screenSize, Time time, int* specIndex, std::string specification)
-	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), power(power), genericParameter(1), cursorVisible(false)
+Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
+	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
 {
 	Init();
 }
 
-Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::ivec2 screenSize)
+Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	power(1), genericParameter(1), cursorVisible(false)
+	cursorVisible(false)
 {
 	Init();
 }
@@ -31,7 +31,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	power(1), genericParameter(1), cursorVisible(false)
+	cursorVisible(false)
 {
 	Init();
 }
@@ -184,13 +184,11 @@ void Fractal3D::SetUniforms(Shader* shader)
 	shader->SetUniform(camera.position);
 	shader->SetUniform(camera.GetRotationMatrix());
 	shader->SetUniform(camera.worldFlip);
-	shader->SetUniform(screenSize);
 	shader->SetUniform(sun);
-	shader->SetUniform(power);
-	shader->SetUniform(genericParameter);
-	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 	shader->SetUniform(frame);
+	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 	shader->SetUniform(time);
+	shader->SetUniform(screenSize);
 	GlErrorCheck();
 }
 
@@ -202,8 +200,6 @@ void Fractal3D::SetUniformLocations(Shader* shader)
 	camera.worldFlip.id = glGetUniformLocation(shader->id, camera.worldFlip.name.c_str());
 	screenSize.id = glGetUniformLocation(shader->id, screenSize.name.c_str());
 	sun.id = glGetUniformLocation(shader->id, sun.name.c_str());
-	power.id = glGetUniformLocation(shader->id, power.name.c_str());
-	genericParameter.id = glGetUniformLocation(shader->id, genericParameter.name.c_str());
 	frame.id = glGetUniformLocation(shader->id, frame.name.c_str());
 	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
 	time.id = glGetUniformLocation(shader->id, time.name.c_str());
@@ -217,11 +213,10 @@ void Fractal3D::SetUniformNames()
 	camera.worldFlip.name = "worldFlip";
 	screenSize.name = "screenSize";
 	sun.name = "sun";
-	power.name = "power";
-	genericParameter.name = "genericParameter";
-	zoom.name = "zoom";
 	frame.name = "frame";
+	zoom.name = "zoom";
 	time.name = "time";
+	GlErrorCheck();
 }
 
 void Fractal3D::SaveImage(const std::string path)
@@ -235,13 +230,13 @@ void Fractal3D::SaveImage(const std::string path)
 
 
 	
-	std::vector<Pixel> data = std::vector<Pixel>(screenSize.value.x * screenSize.value.y);
-	glReadPixels(0, 0, screenSize.value.x, screenSize.value.y, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+	std::vector<Pixel> data = std::vector<Pixel>(int(screenSize.value.x * screenSize.value.y));
+	glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 
-	GlErrorCheck();
+	SetShaderUniforms(false);
 
-	Image image(screenSize.value.x, screenSize.value.y, &data);
+	Image image(int(screenSize.value.x), int(screenSize.value.y), &data);
 
 	image.FlipVertically();
 
@@ -609,18 +604,20 @@ std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()
 	return { {"coloring", new int(0)}, {"distanceSetup", new int(0)}, {"distanceExtraOperations", new int(0)}, };
 }
 
+void Fractal3D::SetShaderGui(bool render)
+{
+	Fractal::SetShaderGui(render);
+}
+
+void Fractal3D::SetShaderUniforms(bool render)
+{
+	Fractal::SetShaderUniforms(render);
+}
+
 // This is really nasty, be careful
 inline void Fractal3D::SetVariable(std::string name, std::string value)
 {
-	if (name == "power")
-	{
-		power.value = std::stof(value);
-	}
-	else if (name == "genericParameter")
-	{
-		genericParameter.value = std::stof(value);
-	}
-	else if (name == "position")
+	if (name == "position")
 	{
 		std::vector<std::string> components = Split(value, ',');
 		camera.position.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
@@ -733,26 +730,6 @@ void Fractal3D::HandleKeyInput()
 				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
 				explorationShader->SetUniform(camera.GetRotationMatrix());
 				break;
-
-				// Changing the power of the fractal
-			case GLFW_KEY_C:
-				power.value += 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
-				explorationShader->SetUniform(power);
-				break;
-			case GLFW_KEY_V:
-				power.value -= 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
-				explorationShader->SetUniform(power);
-				break;
-
-			case GLFW_KEY_R:
-				genericParameter.value += 0.1f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
-				explorationShader->SetUniform(genericParameter);
-				break;
-			case GLFW_KEY_F:
-				genericParameter.value -= 0.1f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()) * GetZoom();
-				explorationShader->SetUniform(genericParameter);
-				break;
-
 
 			default:
 				break;

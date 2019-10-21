@@ -226,16 +226,16 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 							params.push_back(std::stof(values[i]));
 						}
 					}
-					std::vector<glm::vec4> data(Fractal::screenSize.value.x * Fractal::screenSize.value.y);
+					std::vector<glm::vec4> data(int(Fractal::screenSize.value.x * Fractal::screenSize.value.y));
 					BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
-					glBufferData(GL_SHADER_STORAGE_BUFFER, Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4), &data[0], GL_DYNAMIC_DRAW);
+					glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
 					initialized = true;
 					std::vector<glm::vec4>().swap(data);
 				}
 			}
 			if (!initialized)
 			{
-				glBufferData(GL_SHADER_STORAGE_BUFFER, Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+				glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), nullptr, GL_DYNAMIC_DRAW);
 			}
 
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, buffer);
@@ -284,7 +284,13 @@ void Shader::SetUniform(Uniform<bool> value) const
 
 void Shader::SetUniform(Uniform<glm::ivec2> vector) const
 {
-	glUniform2f(vector.id, (float)vector.value.x, (float)vector.value.y);
+	glUniform2i(vector.id, vector.value.x, vector.value.y);
+}
+
+void Shader::SetUniform(Uniform<glm::vec2> vector, bool renderMode) const
+{
+	glm::vec2 v = (renderMode) ? vector.renderValue : vector.value;
+	glUniform2f(vector.id, v.x, v.y);
 }
 
 void Shader::SetUniform(Uniform<glm::vec2> vector) const
@@ -320,6 +326,12 @@ void Shader::SetUniform(Uniform<glm::mat3>& mat) const
 void Shader::SetUniform(Uniform<nanogui::Color>& color) const
 {
 	glUniform3f(color.id, color.value.x(), color.value.y(), color.value.z());
+}
+
+void Shader::SetUniform(Uniform<nanogui::Color>& color, bool renderMode) const
+{
+	nanogui::Color c = (renderMode) ? color.renderValue : color.value;
+	glUniform3f(color.id, c.x(), c.y(), c.z());
 }
 
 void Shader::SetUniform(unsigned int id, float x, float y, float z) const

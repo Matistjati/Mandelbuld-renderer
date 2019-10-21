@@ -27,6 +27,9 @@ public:
 
 	static std::string GetElement(std::vector<std::string>& content, std::string name);
 	GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::vector<std::string> guiParams);
+
+	void DeleteUniform() { delete uniform; }
+
 	std::function<void()> SetGuiValue;
 	std::function<void(bool)> SetShaderValue;
 
@@ -62,9 +65,9 @@ public:
 		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
 		nanogui::Slider* widget = new nanogui::Slider(gui->nanoGuiWindow);
 		auto refresh = [widget, getter] {
-			Type value = (Type)getter(), current = widget->value();
+			Type value = (Type)getter(), current = (Type)widget->value();
 			if (value != current)
-				widget->setValue(value);
+				widget->setValue((float)value);
 		};
 		refresh();
 		widget->setCallback(setter);
