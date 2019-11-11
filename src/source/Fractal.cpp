@@ -579,9 +579,9 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
-Fractal::Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
+Fractal::Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
-	: explorationShader(shaders.first), renderShader(shaders.second), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shaders.first->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shaders.first->id, "deltaTime")),
+	: explorationShader(shader), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shader->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shader->id, "deltaTime")),
 	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(), fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode)
 {
 	Fractal::screenSize = screenSize;
@@ -604,7 +604,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	fractal->explorationShader->use();
+	fractal->explorationShader->Use();
 	GlErrorCheck();
 
 	// render loop
@@ -618,7 +618,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		glfwSetWindowTitle(window, title.c_str());
 #endif
 
-		fractal->explorationShader->use();
+		fractal->explorationShader->Use();
 		if (fractal->explorationShader->type == ShaderType::fragment)
 		{
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
@@ -637,7 +637,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		}
 		fractal->gui->drawContents();
 		fractal->gui->drawWidgets();
-		fractal->explorationShader->use();
+		fractal->explorationShader->Use();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -665,9 +665,9 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	*fractal->shaderIndices["loopReturn"] = 1;
 	fractal->UpdateFractalShader();
 
-	fractal->renderShader->use();
-	fractal->SetUniformLocations(fractal->renderShader);
-	fractal->SetUniforms(fractal->renderShader);
+	fractal->explorationShader->Use();
+	fractal->SetUniformLocations(fractal->explorationShader);
+	fractal->SetUniforms(fractal->explorationShader);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 	glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
 
@@ -739,7 +739,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	fractal->explorationShader->use();
+	fractal->explorationShader->Use();
 	GlErrorCheck();
 
 	int count = 0;
@@ -775,7 +775,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
 		}
 
-		fractal->explorationShader->use();
+		fractal->explorationShader->Use();
 		fractal->frame.value = 0;
 		fractal->explorationShader->SetUniform(fractal->frame);
 		fractal->explorationShader->SetUniform(fractal->time.id, float(i*dt));
@@ -820,12 +820,12 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			index = (index + 1) % 2;
 			nextIndex = (index + 1) % 2;
 
-			fractal->renderShader->use();
-			fractal->renderShader->SetUniform(fractal->frame);
+			fractal->explorationShader->Use();
+			fractal->explorationShader->SetUniform(fractal->frame);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-			fractal->explorationShader->use();
+			fractal->explorationShader->Use();
 
 			imageSaveThread.join();
 
@@ -931,12 +931,9 @@ void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 
 void Fractal::UpdateFractalShader()
 {
-	delete this->renderShader;
 	delete this->explorationShader;
 
-	std::pair<Shader*, Shader*> shaders = this->GenerateShader();
-	this->explorationShader = shaders.first;
-	this->renderShader = shaders.second;
+	this->explorationShader = GenerateShader();
 
 	// Resetting the content in the GUI
 	while (gui->childCount())

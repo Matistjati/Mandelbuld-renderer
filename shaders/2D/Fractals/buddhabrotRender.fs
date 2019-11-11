@@ -11,7 +11,7 @@ layout(std430, binding=0) buffer renderInput
 #define IndexPoints(X,Y) uint(X+(Y-step(3,Y)*3)*screenSize.x+screenSize.x)
 </buffers>
 
-<mainAA>
+<main>
 	vec4 col = points[IndexPoints(gl_FragCoord.x, gl_FragCoord.y)];
 
 
@@ -24,4 +24,4 @@ layout(std430, binding=0) buffer renderInput
 	// An approximation used for buddhagrams. May need manual tweaking for optimal results (it depends on alot of paramters, such as screenSize, miniterations and maxiterations)
 	color = vec4(col.xyz/float(frame), 1);
 #endif
-</mainAA>
+</main>

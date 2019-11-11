@@ -17,7 +17,10 @@ uniform int maxIterations = 8;
 /*<GuiHint>GuiType: slider, Name: Max Steps, Range: (1, 200)</GuiHint>*/
 uniform int maxSteps = 100;
 
-/*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.0000001, 0.1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Anti Aliasing, Range: (1, 5)</GuiHint>*/
+uniform float antiAliasing = 1;
+
+/*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.00001, 0.1)</GuiHint>*/
 uniform float zoomDetailRatio = 0.1;
 
 /*<GuiHint>GuiType: slider, Name: Max Ray Distance, Range: (1, 64)</GuiHint>*/
@@ -39,7 +42,6 @@ uniform float sunSpread = 16.0;
 
 <uniforms>
 
-const float antiAliasing = <antiAliasing>;
 const vec3 light = vec3(-0.707107, 0.000, 0.707107);
 
 <constants>

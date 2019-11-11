@@ -41,6 +41,22 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	uniform->SetGuiValue = [slider, uniform]() {slider->setValue((float)uniform->GetValue()); };
 }
 
+void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
+{
+	nanogui::CheckBox* slider = fractal->gui->form->AddCheckbox(label, uniform->value);
+	slider->setCallback([fractal,uniform](bool value)
+		{
+			uniform->SetValue(value, Fractal::renderMode);
+			fractal->explorationShader->SetUniform(*uniform);
+		});
+	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
+		{
+			fractal->explorationShader->SetUniform(*uniform, renderMode);
+		});
+	slider->setChecked(value);
+	uniform->SetGuiValue = [slider, uniform]() {slider->setChecked(uniform->GetValue()); };
+}
+
 void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
 {
 	nanogui::ColorPicker* picker = fractal->gui->form->AddColorPicker(label, ((Uniform<nanogui::Color>*)uniform)->value);
@@ -118,6 +134,12 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 		SetGuiValue = [uniformCopy]() {((Uniform<nanogui::Color>*)uniformCopy)->SetGuiValue(); };
 		SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<nanogui::Color>*)uniformCopy)->SetShaderValue(renderMode); };
 	}
+	else if (element == Element::CheckBox)
+	{
+		AddCheckBox(elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
+		SetGuiValue = [uniformCopy]() {((Uniform<bool>*)uniformCopy)->SetGuiValue(); };
+		SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<bool>*)uniformCopy)->SetShaderValue(renderMode); };
+	}
 	else if (element == Element::error)
 	{
 		std::cout << "Could not determine GUI element type" << std::endl;
@@ -148,6 +170,10 @@ GuiElement::Element GuiElement::GetElementFromString(std::string element)
 	{
 		return Element::ColorPicker;
 	}
+	else if (iequals("checkBox", element))
+	{
+		return Element::CheckBox;
+	}
 	else
 	{
 		return Element::error;
@@ -156,7 +182,7 @@ GuiElement::Element GuiElement::GetElementFromString(std::string element)
 
 void* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
 {
-	fractal->explorationShader->use();
+	fractal->explorationShader->Use();
 	unsigned int id = glGetUniformLocation(fractal->explorationShader->id, name.c_str());
 	if (type == "float")
 	{
@@ -169,6 +195,12 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 		int val = (value == "") ? 0 : std::stoi(value);
 		int renderVal = (renderValue == "") ? val : std::stoi(renderValue);
 		return new Uniform<int>(val, renderVal, name, id);
+	}
+	else if (type == "bool")
+	{
+		int val = (value != "false") ? true : false;
+		int renderVal = (renderValue == "") ? false : ((renderValue != "false") ? true : false);
+		return new Uniform<bool>(val, renderVal, name, id);
 	}
 	else if (type == "vec3")
 	{

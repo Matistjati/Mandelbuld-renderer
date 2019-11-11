@@ -196,9 +196,11 @@ void Fractal2D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 	glViewport(0, 0, width, height);
 }
 
-void Fractal2D::SetUniforms(Shader* shader)
+void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
 {
-	shader->use();
+	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
+	else { shader->Use(); }
+
 	shader->SetUniform(position);
 	shader->SetUniform(screenSize);
 	shader->SetUniform(power);
@@ -210,17 +212,19 @@ void Fractal2D::SetUniforms(Shader* shader)
 	GlErrorCheck();
 }
 
-void Fractal2D::SetUniformLocations(Shader* shader)
+void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
 {
-	shader->use();
-	position.id = glGetUniformLocation(shader->id, position.name.c_str());
-	screenSize.id = glGetUniformLocation(shader->id, screenSize.name.c_str());
-	power.id = glGetUniformLocation(shader->id, power.name.c_str());
-	frame.id = glGetUniformLocation(shader->id, frame.name.c_str());
-	zoom.id = glGetUniformLocation(shader->id, zoom.name.c_str());
-	mousePosition.id = glGetUniformLocation(shader->id, mousePosition.name.c_str());
-	time.id = glGetUniformLocation(shader->id, time.name.c_str());
-	clickPositions.id = glGetUniformLocation(shader->id, clickPositions.name.c_str());
+	unsigned int id = (computeRender) ? ((ComputeShader*)shader)->renderId : shader->id;
+	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
+	else { shader->Use(); }	position.id = glGetUniformLocation(shader->id, position.name.c_str());
+
+	screenSize.id = glGetUniformLocation(id, screenSize.name.c_str());
+	power.id = glGetUniformLocation(id, power.name.c_str());
+	frame.id = glGetUniformLocation(id, frame.name.c_str());
+	zoom.id = glGetUniformLocation(id, zoom.name.c_str());
+	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
+	time.id = glGetUniformLocation(id, time.name.c_str());
+	clickPositions.id = glGetUniformLocation(id, clickPositions.name.c_str());
 	GlErrorCheck();
 }
 
@@ -246,7 +250,7 @@ void Fractal2D::SaveImage(const std::string path)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 		glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
-		explorationShader->use();
+		explorationShader->Use();
 		SetShaderUniforms(true);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
@@ -406,13 +410,13 @@ void Fractal2D::HandleKeyInput()
 					RenderComputeShader();
 					gui->drawContents();
 					gui->drawWidgets();
-					explorationShader->use();
+					explorationShader->Use();
 					glfwSwapBuffers(window);
 
 					RenderComputeShader();
 					gui->drawContents();
 					gui->drawWidgets();
-					explorationShader->use();
+					explorationShader->Use();
 					glfwSwapBuffers(window);
 				}
 				break;
@@ -424,7 +428,7 @@ void Fractal2D::HandleKeyInput()
 	}
 }
 
-std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
+Shader* Fractal2D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
 	GlErrorCheck();
 
@@ -449,32 +453,18 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int* specIndex, int* fract
 		}
 	}
 
-	std::string highQualitySource;
-
-	std::string renderSource = GetSection(Section("render"), source);
-	if (renderSource != "")
-	{
-		highQualitySource = FileManager::ReadFile("shaders/2d/fractals/" + renderSource);
-	}
-	else
-	{
-		highQualitySource = std::string(source);
-	}
-
 	const std::string specification = FileManager::ReadFile(Fractal2D::GetSpecPath(name));
 
 
-	return std::pair<Shader*, Shader*>(CreateShader(source, &specification, false, fractalIndex, specIndex, sections),
-									   CreateShader(highQualitySource, &specification, true, fractalIndex, specIndex, sections));
-	
+	return CreateShader(source, &specification, false, fractalIndex, specIndex, sections);
 }
 
-std::pair<Shader*, Shader*> Fractal2D::GenerateShader()
+Shader* Fractal2D::GenerateShader()
 {
 	return GenerateShader(&specIndex, &fractalIndex, fractalName);
 }
 
-std::pair<Shader*, Shader*> Fractal2D::GenerateShader(std::string fractalName)
+Shader* Fractal2D::GenerateShader(std::string fractalName)
 {
 	int* specIndex = new int(0);
 	int* fractalIndex = new int(0);
@@ -483,7 +473,7 @@ std::pair<Shader*, Shader*> Fractal2D::GenerateShader(std::string fractalName)
 	delete fractalIndex;
 }
 
-std::pair<Shader*, Shader*> Fractal2D::GenerateShader(int spec, int fractal, std::string fractalName)
+Shader* Fractal2D::GenerateShader(int spec, int fractal, std::string fractalName)
 {
 	int* specIndex = new int(spec);
 	int* fractalIndex = new int(fractal);
@@ -569,42 +559,6 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			}
 
 			ReplaceSection(s, Section(x.first.name), function, final);
-		}
-	}
-
-	// Constants
-	const static size_t constSize = std::extent<decltype(constants2D)>::value;
-	for (size_t i = 0; i < constSize; i++)
-	{
-		Section s("");
-		ShaderSection c = constants2D[i];
-
-		std::string name = (highQuality && c.releaseName != "") ? (c.releaseName) : (c.name);
-
-		s = Section(name);
-
-		std::string section = GetSection(s, source);
-		if (section == "")
-		{
-			if ((section = GetSection(s, defaultSource)) == "")
-			{
-				// Default to normal name if a different one for release doesn't exist
-				s = Section(c.name);
-
-				if ((section = GetSection(s, source)) == "")
-				{
-					section = GetSection(s, defaultSource);
-				}
-			}
-		}
-
-		if (c.releaseName != "")
-		{
-			while (Replace(final, Section(c.name).start, section)) {}
-		}
-		else
-		{
-			while (Replace(final, s.start, section)) {}
 		}
 	}
 
@@ -854,12 +808,9 @@ void Fractal2D::Init()
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
 	SetUniformNames();
 
-	SetUniformLocations(renderShader);
-	SetUniforms(renderShader);
-
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
-	explorationShader->use();
+	explorationShader->Use();
 	GlErrorCheck();
 
 	PopulateGUI();
@@ -884,21 +835,19 @@ std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 
 void Fractal2D::RenderComputeShader()
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
-	renderShader->use();
-	SetUniformLocations(renderShader);
-	SetUniforms(renderShader);
+	((ComputeShader*) explorationShader)->UseRender();
+	SetUniformLocations(explorationShader, true);
+	SetUniforms(explorationShader, true);
 
 	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(explorationShader);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(renderShader->buffers[Fractal::rectangleVertexBufferName].id);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].id);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, renderShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(explShader->buffers[Fractal::rectangleVertexBufferName].id);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].id);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-	explorationShader->use();
+	explorationShader->Use();
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
@@ -953,19 +902,18 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 {
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
-	std::string base;
+	std::string renderBase;
 	std::string type = GetSection(Section("type"), source);
 	if (type != "")
 	{
 		if (type == "fragment")
 		{
-			base = FileManager::ReadFile(Fractal2D::path2DBase);
+			renderBase = FileManager::ReadFile(Fractal2D::path2DBase);
 		}
 		else if (type == "compute")
 		{
 			const static int maxDimensions = 3;
 
-			base = FileManager::ReadFile(Fractal2D::path2DBaseCompute);
 
 			std::string dimensionNumber = GetSection(Section("localSizeDimensions"), source);
 			if (dimensionNumber == "") dimensionNumber = "1";
@@ -997,13 +945,15 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 				}
 			}
 
-			if (!Replace(base, "<sizeX>", std::to_string(workGroups[0]))) DebugPrint("Could not replace compute shader <sizeX> with " + std::to_string(workGroups[0]));
-			if (!Replace(base, "<sizeY>", std::to_string(workGroups[1]))) DebugPrint("Could not replace compute shader <sizeY> with " + std::to_string(workGroups[1]));
-			if (!Replace(base, "<sizeZ>", std::to_string(workGroups[2]))) DebugPrint("Could not replace compute shader <sizeZ> with " + std::to_string(workGroups[2]));
+			std::string computeBase = FileManager::ReadFile(Fractal2D::path2DBaseCompute);
+
+			if (!Replace(computeBase, "<sizeX>", std::to_string(workGroups[0]))) DebugPrint("Could not replace compute shader <sizeX> with " + std::to_string(workGroups[0]));
+			if (!Replace(computeBase, "<sizeY>", std::to_string(workGroups[1]))) DebugPrint("Could not replace compute shader <sizeY> with " + std::to_string(workGroups[1]));
+			if (!Replace(computeBase, "<sizeZ>", std::to_string(workGroups[2]))) DebugPrint("Could not replace compute shader <sizeZ> with " + std::to_string(workGroups[2]));
 
 			if (source.find("std430" != 0))
 			{
-				Replace(base, "#version 330", "#version 430");
+				Replace(computeBase, "#version 330", "#version 430");
 			}
 
 			int renderingFrequency;
@@ -1011,36 +961,56 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 
 			renderingFrequency = (renderingFrequencyStr == "") ? ComputeShader::DefaultRenderingFrequency : std::stoi(renderingFrequencyStr);
 
-			ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
+			ParseShader(source, computeBase, specification, false, specIndex, fractalIndex, shaderSections);
 
 			if (!highQuality)
 			{
-				fractalSourceCode = base;
+				fractalSourceCode = computeBase;
 			}
 
-			return new ComputeShader(base, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
+
+			std::string renderSourceName = GetSection(Section("render"), source);
+			std::string renderSource;
+
+			if (renderSourceName == "")
+			{
+				std::cout << "Could not find render source";
+				BreakIfDebug();
+			}
+			renderSource = FileManager::ReadFile(Fractal2D::fractal2dPath + renderSourceName);
+
+			std::string renderBase = FileManager::ReadFile(Fractal2D::path2DBase);
+
+			ParseShader(renderSource, renderBase, specification, false, specIndex, fractalIndex, shaderSections);
+
+			if (renderBase.find("std430" != 0))
+			{
+				Replace(renderBase, "#version 330", "#version 430");
+			}
+
+			return new ComputeShader(computeBase, vertexSource, renderBase, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
 		}
 	}
 	else // Assume fragment shader
 	{
-		base = FileManager::ReadFile(Fractal2D::path2DBase);
+		renderBase = FileManager::ReadFile(Fractal2D::path2DBase);
 	}
 
 	if (source.find("std430" != 0))
 	{
-		Replace(base, "#version 330", "#version 430");
+		Replace(renderBase, "#version 330", "#version 430");
 	}
 
-	ParseShader(source, base, specification, highQuality, specIndex, fractalIndex, shaderSections);
+	ParseShader(source, renderBase, specification, highQuality, specIndex, fractalIndex, shaderSections);
 
 #if PrintSource
-	std::cout << base;
+	std::cout << renderBase;
 #endif
 
 	if (!highQuality)
 	{
-		fractalSourceCode = base;
+		fractalSourceCode = renderBase;
 	}
 
-	return new Shader(vertexSource, base, false);
+	return new Shader(vertexSource, renderBase, false);
 }

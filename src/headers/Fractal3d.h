@@ -8,17 +8,13 @@
 #include <map>
 #include <thread>
 
-const double scrollSpeed = 10;
-
 const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
 										ShaderSection("sceneDistance"), ShaderSection("trace"),
-										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false, "mainAA"),
+										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false),
 										ShaderSection("lightingFunctions") };
 
 const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
 											 ShaderSection("distanceBody"), ShaderSection("trap") };
-
-const ShaderSection constants[] = { ShaderSection("antiAliasing")};
 
 class Fractal3D : public Fractal
 {
@@ -40,18 +36,18 @@ public:
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
 	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
-	void SetUniforms(Shader* shader) override;
-	void SetUniformLocations(Shader* shader) override;
+	void SetUniforms(Shader* shader, bool computeRender = false) override;
+	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void FindPathAndSaveImage() override;
 	void SetVariable(std::string name, std::string value) override;
 	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;
-	std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
-	std::pair<Shader*, Shader*> GenerateShader() override;
-	std::pair<Shader*, Shader*> GenerateShader(std::string fractalName) override;
-	std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) override;
+	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
+	Shader* GenerateShader() override;
+	Shader* GenerateShader(std::string fractalName) override;
+	Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName) override;
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	std::string GetFractalFolderPath() override;

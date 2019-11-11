@@ -73,7 +73,6 @@ public:
 	static GLFWwindow* window;
 	float parameterChangeRate = 1;
 	Shader* explorationShader;
-	Shader* renderShader;
 	Uniform<float> zoom;
 	Uniform<Time> time;
 	Uniform<float> deltaTime;
@@ -97,11 +96,10 @@ public:
 	~Fractal()
 	{
 		delete explorationShader;
-		delete renderShader;
 	};
 
 	// Nothing fancy
-	Fractal(std::pair<Shader*, Shader*> shaders, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+	Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "");
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
@@ -121,8 +119,8 @@ public:
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
 	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
-	virtual void SetUniformLocations(Shader* shader) = 0;
-	virtual void SetUniforms(Shader* shader) = 0;
+	virtual void SetUniformLocations(Shader* shader, bool computeRender = false) = 0;
+	virtual void SetUniforms(Shader* shader, bool computeRender = false) = 0;
 	virtual void SetUniformNames() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
 	virtual void FindPathAndSaveImage() = 0;
@@ -131,10 +129,10 @@ public:
 	virtual void HandleKeyInput();
 	virtual std::string GetSpecPath(std::string fileName) = 0;
 	virtual std::string GetFractalPath(std::string fileName) = 0;
-	virtual std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;
-	virtual std::pair<Shader*, Shader*> GenerateShader(std::string name) = 0;
-	virtual std::pair<Shader*, Shader*> GenerateShader() = 0;
-	virtual std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
+	virtual Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;
+	virtual Shader* GenerateShader(std::string name) = 0;
+	virtual Shader* GenerateShader() = 0;
+	virtual Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
 	virtual std::string GetFractalFolderPath() = 0;
 
 

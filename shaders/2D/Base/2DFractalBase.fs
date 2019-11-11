@@ -14,6 +14,11 @@ uniform uint frame = uint(0);
 
 <uniforms>
 
+/*<GuiHint>GuiType: slider, Name: Anti Aliasing, Range: (1, 5)</GuiHint>*/
+uniform float antiAliasing = 1;
+
+/*<GuiHint>GuiType: checkBox, Name: Min anti aliasing</GuiHint>*/
+uniform bool antiAliasingMin = false;
 
 /*<GuiHint>GuiType: slider, Name: Max Iterations, Range: (1, 1024)</GuiHint>*/
 uniform float maxIterations = 256;
@@ -30,7 +35,6 @@ uniform vec3 colorA = vec3(0.7, 0.5, 0.1);
 /*<GuiHint>GuiType: colorPicker, Name: Color B</GuiHint>*/
 uniform vec3 colorB = vec3(0.2, 0.9, 0.9);
 
-const float antiAliasing = <antiAliasing>;
 
 
 <buffers>

@@ -5,12 +5,9 @@
 #include "Fractal.h"
 
 const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers", true),
-										   ShaderSection("main", false, "mainAA"),};
+										   ShaderSection("main", false),};
 
 const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, "", true) };
-
-
-const ShaderSection constants2D[] = { ShaderSection("antiAliasing"), };
 
 class Fractal2D : public Fractal
 {
@@ -32,18 +29,18 @@ public:
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void FramebufferSizeCallback(GLFWwindow* window, int width, int height) override;
 	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override {}
-	void SetUniforms(Shader* shader) override;
-	void SetUniformLocations(Shader* shader) override;
+	void SetUniforms(Shader* shader, bool computeRender = false) override;
+	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
 	void SetUniformNames() override;
 	void SaveImage(const std::string path) override;
 	void FindPathAndSaveImage() override;
 	void SetVariable(std::string name, std::string value) override;
 	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;
-	std::pair<Shader*, Shader*> GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
-	std::pair<Shader*, Shader*> GenerateShader() override;
-	std::pair<Shader*, Shader*> GenerateShader(std::string fractalName) override;
-	std::pair<Shader*, Shader*> GenerateShader(int specIndex, int fractalIndex, std::string fractalName) override;
+	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
+	Shader* GenerateShader() override;
+	Shader* GenerateShader(std::string fractalName) override;
+	Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName) override;
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	std::string GetFractalFolderPath() override;

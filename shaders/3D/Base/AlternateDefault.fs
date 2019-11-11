@@ -18,6 +18,7 @@ float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 			t += h;
 		}
 
+		trapOut = trap;
 		percentSteps = float(i)/float(maxSteps);
 
 		return -1;

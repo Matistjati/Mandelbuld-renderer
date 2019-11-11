@@ -63,7 +63,7 @@ public:
 	Shader(unsigned int id, ShaderType type);
 	~Shader();
 	// use/activate the shader
-	void use();
+	void Use();
 	// utility uniform functions
 	void SetUniform(Uniform<float> value) const;
 	void SetUniform(Uniform<float> value, bool renderMode) const;
@@ -71,6 +71,7 @@ public:
 	void SetUniform(Uniform<int> value, bool renderMode) const;
 	void SetUniform(Uniform<unsigned int> value) const;
 	void SetUniform(Uniform<bool> value) const;
+	void SetUniform(Uniform<bool> value, bool renderMode) const;
 	void SetUniform(Uniform<glm::ivec2> vector) const;
 	void SetUniform(Uniform<glm::vec2> vector) const;
 	void SetUniform(Uniform<glm::vec2> vector, bool renderMode) const;
@@ -104,17 +105,21 @@ public:
 
 protected:
 	unsigned int CompileShader(unsigned int type, const std::string& source);
+	unsigned int CreateFragmentProgram(const std::string& vertex, const std::string& fragment);
 	std::vector<Buffer> GenerateBuffersForProgram(std::string source);
+
 };
 
 class ComputeShader : public Shader
 {
 public:
-	const static int DefaultRenderingFrequency = 144;
+	void UseRender();
+	unsigned int renderId;
+	const static int DefaultRenderingFrequency = 1;
 	Buffer mainBuffer;
 	glm::ivec3 groupSize;
 	int renderingFrequency;
-	ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize, int renderingFrequency);
+	ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency);
 	void Invoke(glm::ivec2 screenSize);
 protected:
 	unsigned int CreateProgram(std::string source);

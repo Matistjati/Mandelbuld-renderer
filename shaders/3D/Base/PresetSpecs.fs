@@ -34,22 +34,22 @@
 
 <MandelBulb>
 {
-<distanceEstimator>
-	<distanceReturn>[mandelBulbDist]</distanceReturn>,
-	<distanceTrap>[defaultTrap]</distanceTrap>,
-	<distanceSetup>[[mandelBulbInit], [sinTanW, mandelBulbInit], [sinW, mandelBulbInit], [sinWxz, mandelBulbInit], [mandelBulbInit, subY9]]</distanceSetup>,
-	<distanceTrapReturn>[mandelBulbTrapReturn]</distanceTrapReturn>,
-	<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
-	<distanceExtraOperations>[[], [mulW(rotation)], [addW(cross(w, position))], [addW(sin(dot(w,w)))], [addW(c*rotation)], [addWY(fract(c).y*sign(w.y))], [addWY(c.y*c.y)],
-							  [addWY(dot(c*rotation,sun))], [addWY(length(c))], [addW(c*dot(sun,c))], ]</distanceExtraOperations>,
-</distanceEstimator>
-<indices>
-	<color>0</color>,
-	<colorB>0</colorB>,
-	<colorC>0</colorC>,
-</indices>
-<cpuVariables>
-	<power>8</power>,
-</cpuVariables>
+	<distanceEstimator>
+		<distanceReturn>[mandelBulbDist]</distanceReturn>,
+		<distanceTrap>[defaultTrap]</distanceTrap>,
+		<distanceSetup>[[mandelBulbInit], [sinTanW, mandelBulbInit], [sinW, mandelBulbInit], [sinWxz, mandelBulbInit], [mandelBulbInit, subY9]]</distanceSetup>,
+		<distanceTrapReturn>[mandelBulbTrapReturn]</distanceTrapReturn>,
+		<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
+		<distanceExtraOperations>[[], [mulW(rotation)], [addW(cross(w, position))], [addW(sin(dot(w,w)))], [addW(c*rotation)], [addWY(fract(c).y*sign(w.y))], [addWY(c.y*c.y)],
+								  [addWY(dot(c*rotation,sun))], [addWY(length(c))], [addW(c*dot(sun,c))], ]</distanceExtraOperations>,
+	</distanceEstimator>
+	<indices>
+		<color>0</color>,
+		<colorB>0</colorB>,
+		<colorC>0</colorC>,
+	</indices>
+	<cpuVariables>
+		<power>8</power>,
+	</cpuVariables>
 }
 </MandelBulb>

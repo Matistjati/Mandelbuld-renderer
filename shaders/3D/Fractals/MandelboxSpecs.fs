@@ -15,7 +15,8 @@
 	</distanceEstimator>
 
 	<variables>
-		<colorA>vec3(0, 0.707, 0.707)</colorA>
+		<colorA>vec3(0, 0.707, 0.707)</colorA>,
+		<colorB>vec3(0, 0.707, 0.707)</colorB>,
 	</variables>
 
 	<cpuVariables>
@@ -41,7 +42,8 @@
 	</distanceEstimator>
 
 	<variables>
-		<colorA>vec3(0, 0.707, 0.707)</colorA>
+		<colorA>vec3(0, 0.707, 0.707)</colorA>,
+		<colorB>vec3(0, 0.707, 0.707)</colorB>,
 	</variables>
 
 	<cpuVariables>
@@ -61,7 +63,9 @@
 	</distanceEstimator>
 
 	<variables>
-		<colorA>vec3(0.7, 0.1, 0.3)</colorA>
+		<colorA>vec3(0.7, 0.1, 0.3)</colorA>,
+		<colorB>vec3(0.7, 0.1, 0.3)</colorB>,
+		<fogDarkness>0.5</fogDarkness>,
 	</variables>
 
 	<cpuVariables>
@@ -93,6 +97,7 @@
 		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterations>8</maxIterations>,
 		<colorA>vec3(0, 0.707, 0.707)</colorA>,
+		<colorB>vec3(0, 0.707, 0.707)</colorB>,
 	</variables>
 
 	<cpuVariables>
@@ -116,6 +121,7 @@
 
 	<variables>
 		<colorA>vec3(0, 1, 0)</colorA>,
+		<colorB>vec3(0, 1, 0)</colorB>,
 		<maxIterations>4</maxIterations>,
 		<innerRadius>0</innerRadius>, 
 		<outerRadius>4</outerRadius>, 
@@ -141,6 +147,7 @@
 
 	<variables>
 		<colorA>vec3(0.707, 0, 0.707)</colorA>,
+		<colorB>vec3(0.707, 0, 0.707)</colorB>,
 		<innerRadius>0</innerRadius>,
 		<outerRadius>2</outerRadius>,
 		<scale>0.363999933</scale>,
@@ -168,6 +175,7 @@
 
 	<variables>
 		<colorA>vec3(0.707, 0, 0.707)</colorA>,
+		<colorB>vec3(0.707, 0, 0.707)</colorB>,
 		<innerRadius>0.1</innerRadius>,
 		<outerRadius>1</outerRadius>,
 		<scale>1</scale>,

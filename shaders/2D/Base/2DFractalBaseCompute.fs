@@ -19,8 +19,6 @@ uniform float maxIterations = 256;
 /*<GuiHint>GuiType: slider, Name: Escape Radius, Range: (1, 128)</GuiHint>*/
 uniform float escapeRadius = 8.;
 
-const float antiAliasing = <antiAliasing>;
-
 <buffers>
 
 <constants>

@@ -20,6 +20,7 @@ public:
 		Slider,
 		TextBox,
 		ColorPicker,
+		CheckBox,
 		error
 	};
 	Fractal* fractal;

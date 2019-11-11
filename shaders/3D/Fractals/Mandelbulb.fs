@@ -15,7 +15,7 @@
 	/*<GuiHint>GuiType: colorPicker, Name: Color C</GuiHint>*/
 	uniform vec3 colorC = vec3(0.15, 0.4, 0.04);
 	
-	/*<GuiHint>GuiType: colorPicker, Name: Color D</GuiHint>*/
+	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
 	uniform vec3 colorD = vec3(0.556, 0.843, 0.415);
 
 	/*<GuiHint>GuiType: slider, Name: Edge Glow Strength, Range: (0, 10)</GuiHint>*/

@@ -1,4 +1,3 @@
-<antiAliasing>2<antiAliasing>
 
 <sceneDistance>
 	float sceneDistance(vec3 position, out vec4 resColor)
@@ -57,6 +56,7 @@
 
 <distanceTrap>
 	<defaultTrap>m = dot(w,w);trap = min(trap, vec4(abs(w),m));</defaultTrap>,
+	<coolTrap>m = dot(w,w);trap = min(trap, vec4(abs(w.xy), length( fract(w)-.5),m));</coolTrap>,
 </distanceTrap>
 
 <distanceTrapReturn>
@@ -76,7 +76,7 @@
 		for(int i = 0; i < maxIterations; i++)
 		{
 			<distanceBody>
-
+			//w.xyz=w.zyx;
 			<distanceExtraOperations>
 
 			<distanceTrap>
@@ -117,13 +117,14 @@
 
 		percentSteps = float(i)/float(maxSteps);
 
+		trapOut = trap;
+
 #if LinneaRetarded
 		if (t < maxDist)
 #else
 		if (h < maxDist)
 #endif
 		{
-			trapOut = trap;
 			res = t;
 		}
 
@@ -236,31 +237,15 @@
 </render>
 
 <main>
-	vec2 uv = gl_FragCoord.xy / screenSize * 2.0 - 1.0;
-
-	uv.x *= float(screenSize.x) / float(screenSize.y);
-	uv *= zoom;
-
-	vec3 direction = normalize(vec3(uv.xy, 1));
-
-	direction *= rotation;
-	direction.y *= worldFlip;
-	
-	
-	vec3 col = render(Ray(vec3(position.z, position.y * worldFlip, position.x), direction), uv);
-
-    color = vec4(col.xyz, 1.0);
-</main>
-
-<mainAA>
+	int AA = int(antiAliasing);
 	vec3 col = vec3(0.0);
-	vec2 frag = gl_FragCoord.xy;
-	for (int i = 0; i < antiAliasing; i++)
+
+	for (int i = 0; i < AA; i++)
 	{
-		for (int j = 0; j < antiAliasing; j++)
+		for (int j = 0; j < AA; j++)
 		{
-			frag.x += float(i)/antiAliasing;
-			frag.y += float(j)/antiAliasing;
+			vec2 frag = gl_FragCoord.xy;
+			frag += vec2(float(i),float(j))/float(AA);
 			vec2 uv = frag / screenSize * 2.0 - 1.0;
 			uv.x *= float(screenSize.x) / float(screenSize.y);
 			uv *= zoom;
@@ -275,7 +260,7 @@
 			col += render(ray, uv);
 		}
 	}
-	col /= float(antiAliasing*antiAliasing);
+	col /= AA*AA;
 
     color = vec4(col.xyz, 1.0);
-</mainAA>
+</main>

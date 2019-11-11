@@ -11,7 +11,7 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 #define PrintSource 1
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
-	: Fractal({ explorationShader, renderShader }, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
+	: Fractal(explorationShader, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
 {
 	Init();
 }
@@ -178,10 +178,10 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 	explorationShader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 }
 
-void Fractal3D::SetUniforms(Shader* shader)
+void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
 {
-	shader->use();
-	shader->SetUniform(camera.position);
+	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
+	else { shader->Use(); }	shader->SetUniform(camera.position);
 	shader->SetUniform(camera.GetRotationMatrix());
 	shader->SetUniform(camera.worldFlip);
 	shader->SetUniform(sun);
@@ -192,10 +192,10 @@ void Fractal3D::SetUniforms(Shader* shader)
 	GlErrorCheck();
 }
 
-void Fractal3D::SetUniformLocations(Shader* shader)
+void Fractal3D::SetUniformLocations(Shader* shader, bool computeRender)
 {
-	shader->use();
-	camera.GetRotationMatrix().id = glGetUniformLocation(shader->id, camera.GetRotationMatrix().name.c_str());
+	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
+	else { shader->Use(); }	camera.GetRotationMatrix().id = glGetUniformLocation(shader->id, camera.GetRotationMatrix().name.c_str());
 	camera.position.id = glGetUniformLocation(shader->id, camera.position.name.c_str());
 	camera.worldFlip.id = glGetUniformLocation(shader->id, camera.worldFlip.name.c_str());
 	screenSize.id = glGetUniformLocation(shader->id, screenSize.name.c_str());
@@ -223,7 +223,7 @@ void Fractal3D::SaveImage(const std::string path)
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 	glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
-	explorationShader->use();
+	explorationShader->Use();
 	SetShaderUniforms(true);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -343,43 +343,6 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			ReplaceSection(s, Section(x.first.name), function, final);
 		}
 	}
-
-	// Constants
-	const static size_t constSize = std::extent<decltype(constants)>::value;
-	for (size_t i = 0; i < constSize; i++)
-	{
-		Section s("");
-		ShaderSection c = constants[i];
-
-		std::string name = (highQuality && c.releaseName != "") ? (c.releaseName) : (c.name);
-
-		s = Section(name);
-
-		std::string section = GetSection(s, source);
-		if (section == "")
-		{
-			if ((section = GetSection(s, defaultSource)) == "")
-			{
-				// Default to normal name if a different one for release doesn't exist
-				s = Section(c.name);
-
-				if ((section = GetSection(s, source)) == "")
-				{
-					section = GetSection(s, defaultSource);
-				}
-			}
-		}
-
-		if (c.releaseName != "")
-		{
-			while (Replace(final, Section(c.name).start, section)) {}
-		}
-		else
-		{
-			while (Replace(final, s.start, section)) {}
-		}
-	}
-
 
 	Section help("helperFunctions");
 	std::string functions = GetSection(help, source);
@@ -593,7 +556,7 @@ void Fractal3D::Init()
 
 	SetUniformLocations(explorationShader);
 	SetUniforms(explorationShader);
-	explorationShader->use();
+	explorationShader->Use();
 	GlErrorCheck();
 
 	PopulateGUI();
@@ -738,7 +701,7 @@ void Fractal3D::HandleKeyInput()
 	}
 }
 
-std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
+Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
 	GlErrorCheck();
 
@@ -782,31 +745,32 @@ std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int* specIndex, int* fract
 	std::cout << baseCopy;
 #endif
 
-	return std::pair<Shader*, Shader*>((new Shader(vertexSource, baseCopy, false)),
-									   (new Shader(vertexSource, base,     false)));
+	return new Shader(vertexSource, baseCopy, false);
 }
 
-std::pair<Shader*, Shader*> Fractal3D::GenerateShader()
+Shader* Fractal3D::GenerateShader()
 {
 	return GenerateShader(&specIndex, &fractalIndex, fractalName);
 }
 
-std::pair<Shader*, Shader*> Fractal3D::GenerateShader(std::string fractalName)
+Shader* Fractal3D::GenerateShader(std::string fractalName)
 {
 	int* specIndex = new int(0);
 	int* fractalIndex = new int(0);
-	return Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
+	Shader* shader = Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
 	delete specIndex;
 	delete fractalIndex;
+	return shader;
 }
 
-std::pair<Shader*, Shader*> Fractal3D::GenerateShader(int spec, int fractal, std::string fractalName)
+Shader* Fractal3D::GenerateShader(int spec, int fractal, std::string fractalName)
 {
 	int* specIndex = new int(spec);
 	int* fractalIndex = new int(fractal);
-	return Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
+	Shader* shader = Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
 	delete specIndex;
 	delete fractalIndex;
+	return shader;
 }
 
 std::string Fractal3D::GetSpecPath(std::string fileName)

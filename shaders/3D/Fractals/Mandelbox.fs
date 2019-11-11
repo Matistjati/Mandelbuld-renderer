@@ -1,6 +1,10 @@
 <antiAliasing>2</antiAliasing>
 
 <uniforms>
+
+	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (-2, 50)</GuiHint>*/
+	uniform float fogDarkness = 50;
+
 	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-10, 10)</GuiHint>*/
 	uniform float scale = 2;
 	
@@ -13,8 +17,11 @@
 	/*<GuiHint>GuiType: slider, Name: Folding limit, Range: (0, 4)</GuiHint>*/
 	uniform float foldingLimit = 1;
 
-	/*<GuiHint>GuiType: colorPicker, Name: Color</GuiHint>*/
-	uniform vec3 colorA = vec3(0.7, 0.1, 0.3);
+	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
+	uniform vec3 colorA = vec3(0, 0.707, 0.707);
+	
+	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
+	uniform vec3 edgeColor = vec3(0, 0.707, 0.707);
 </uniforms>
 
 <operations>
@@ -48,6 +55,6 @@
 </coloring>
 
 <edgeGlow>
-	col += colorA * sqrt(steps * steps * 0.45); // Fog
+	col += edgeColor * pow(1-steps,fogDarkness); // Fog
 	//col = mix(<color>, vec3(0.), steps);
 </edgeGlow>

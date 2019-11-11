@@ -14,7 +14,7 @@
 #include "headers/BufferInitialization.h"
 #include <sstream> 
 
-void Shader::use()
+void Shader::Use()
 {
 	glUseProgram(id);
 }
@@ -37,12 +37,23 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	std::string vShaderCode = path ? FileManager::ReadFile(vertexPath).c_str() : vertexPath.c_str();
 	std::string fShaderCode = path ? FileManager::ReadFile(fragmentPath).c_str() : fragmentPath.c_str();
 
-	id = glCreateProgram();
-	unsigned int vertex = CompileShader(GL_VERTEX_SHADER, vShaderCode);
-	unsigned int fragment = CompileShader(GL_FRAGMENT_SHADER, fShaderCode);
+	id = CreateFragmentProgram(vShaderCode, fShaderCode);
 
-	glAttachShader(id, vertex);
-	glAttachShader(id, fragment);
+	GlErrorCheck();
+}
+
+Shader::Shader(unsigned int id, ShaderType type) : id(id), type(type) {}
+
+unsigned int Shader::CreateFragmentProgram(const std::string& vertex, const std::string& fragment)
+{
+	unsigned int id;
+	id = glCreateProgram();
+
+	unsigned int vertexId = CompileShader(GL_VERTEX_SHADER, vertex);
+	unsigned int fragmentId = CompileShader(GL_FRAGMENT_SHADER, fragment);
+
+	glAttachShader(id, vertexId);
+	glAttachShader(id, fragmentId);
 	glLinkProgram(id);
 
 
@@ -103,9 +114,9 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	buffers[Fractal::rectangleVertexBufferName] = Buffer(vertexArray, Buffer::BufferType::vertexArray);
 	buffers[Fractal::rectangleVertexBufferIndexName] = Buffer(vertexIndices);
 
-	if (fShaderCode.find("<bufferType>") != std::string::npos)
+	if (fragment.find("<bufferType>") != std::string::npos)
 	{
-		std::vector<Buffer> buffer = GenerateBuffersForProgram(fShaderCode);
+		std::vector<Buffer> buffer = GenerateBuffersForProgram(fragment);
 
 		for (size_t i = 0; i < buffer.size(); i++)
 		{
@@ -120,14 +131,11 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 		}
 	}
 
+	glDeleteShader(vertexId);
+	glDeleteShader(fragmentId);
 
-	glDeleteShader(vertex);
-	glDeleteShader(fragment);
-	GlErrorCheck();
+	return id;
 }
-
-Shader::Shader(unsigned int id, ShaderType type) : id(id), type(type) {}
-
 
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 {
@@ -282,6 +290,11 @@ void Shader::SetUniform(Uniform<bool> value) const
 	glUniform1i(value.id, value.value);
 }
 
+void Shader::SetUniform(Uniform<bool> value, bool renderMode) const
+{
+	glUniform1i(value.id, (renderMode) ? value.renderValue : value.value);
+}
+
 void Shader::SetUniform(Uniform<glm::ivec2> vector) const
 {
 	glUniform2i(vector.id, vector.value.x, vector.value.y);
@@ -429,8 +442,13 @@ void Shader::SetUniformStr(const std::string& name, glm::vec3 vector) const
 	glUniform3f(glGetUniformLocation(id, name.c_str()), vector.x, vector.y, vector.z);
 }
 
-ComputeShader::ComputeShader(const std::string& computePath, bool path, glm::ivec3 groupSize, int renderingFrequency)
-	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute), groupSize(groupSize), renderingFrequency(renderingFrequency)
+void ComputeShader::UseRender()
+{
+	glUseProgram(renderId);
+}
+
+ComputeShader::ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency)
+	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute), renderId(CreateFragmentProgram(path ? FileManager::ReadFile(vertexPath) : vertexPath, path ? FileManager::ReadFile(renderPath) : renderPath)), groupSize(groupSize), renderingFrequency(renderingFrequency)
 {
 	glUseProgram(id);
 	std::string source = path ? FileManager::ReadFile(computePath) : computePath;
@@ -455,7 +473,7 @@ ComputeShader::ComputeShader(const std::string& computePath, bool path, glm::ive
 
 void ComputeShader::Invoke(glm::ivec2 screenSize)
 {
-	this->use();
+	this->Use();
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, mainBuffer.id);
 	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, mainBuffer.binding, mainBuffer.id);
 	glDispatchCompute(screenSize.x / groupSize.x, screenSize.y / groupSize.y + (screenSize.y % groupSize.y != 0), groupSize.z);

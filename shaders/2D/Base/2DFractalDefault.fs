@@ -1,6 +1,3 @@
-<maxIterationsRelease>2048</maxIterationsRelease>
-<antiAliasing>9</antiAliasing>
-
 <operations>
 	<complexSquare>w = complexSquare(w);</complexSquare>,
 	<complexPow>w = complexPow(w, parameter);</complexPow>,
@@ -95,60 +92,40 @@
 </mainLoop>
 
 <main>
-    vec2 c = (2*gl_FragCoord.xy-screenSize)/screenSize.y * zoom + position;
+	vec3 col = vec3(0.0);
+	int AA = int(antiAliasing);
 
-	/*if (distance(c, (2*vec2(mousePosition.x,screenSize.y-mousePosition.y)-screenSize)/screenSize.y * zoom + position) < 0.1)
+	if (antiAliasingMin)
 	{
-		color = vec4(0);
-		return;
-	}*/
+		float minIterations = 1e9;
+		vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
+		vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
+		for (float i = 0; i < AA; i++)
+		{
+			vec2 c = mix(p, p2, i/AA) * zoom + position;
 
+			float iterations = 0;
+			vec3 tempCol = mainLoop(c, iterations);
+			col = (iterations < minIterations) ? tempCol : col;
+			minIterations = min(minIterations, iterations);
+		}
+	}
+	else
+	{
+		vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
+		vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
+		for (float i = 0; i < AA; i++)
+		{
+			vec2 c = mix(p, p2, i/AA) * zoom + position;
 
-	float iterations;
-	vec3 col = mainLoop(c, iterations);
+			float iterations = 0;
+			col += mainLoop(c, iterations);
+		}
+		col /= AA;
+	}
 
-    color = vec4(col.xyz, 1.0);
+	color = vec4(col.xyz, 1.0);
 </main>
-
-<mainAA>
-// Average
-#if 0
-	vec3 col = vec3(0.0);
-
-	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
-	vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
-	for (float i = 0; i < antiAliasing; i++)
-	{
-		vec2 c = mix(p, p2, i/antiAliasing) * zoom + position;
-
-		float iterations = 0;
-		col += mainLoop(c, iterations);
-
-	}
-	col /= antiAliasing;
-    color = vec4(col.xyz, 1.0);
-
-#else
-// Minimum iteration count
-
-	vec3 col = vec3(0.0);
-
-	float minIterations = 1e9;
-	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
-	vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
-	for (float i = 0; i < antiAliasing; i++)
-	{
-		vec2 c = mix(p, p2, i/antiAliasing) * zoom + position;
-
-		float iterations = 0;
-		vec3 tempCol = mainLoop(c, iterations);
-		col = (iterations < minIterations) ? tempCol : col;
-		minIterations = min(minIterations, iterations);
-	}
-
-    color = vec4(col.xyz, 1.0);
-#endif
-</mainAA>
 
 /*
 	vec3 col = vec3(0.0);
