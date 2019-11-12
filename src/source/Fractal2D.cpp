@@ -868,6 +868,11 @@ void Fractal2D::SetShaderUniforms(bool render)
 	Fractal::SetShaderUniforms(render);
 }
 
+float Fractal2D::GetZoom()
+{
+	return zoom.GetValue();
+}
+
 std::vector<int> GetPrimeFactors(int n)
 {
 	std::vector<int> factors = std::vector<int>();

@@ -948,6 +948,8 @@ void Fractal::UpdateFractalShader()
 		guiElement.DeleteUniform();
 	}
 
+	renderMode = false;
+
 	fractalUniforms.clear();
 
 	if (fractalType == FractalType::fractal3D)
@@ -1154,12 +1156,12 @@ void Fractal::PopulateGUI()
 	zoomField->setCallback([this](float value)
 		{
 			zoom.SetValue(value, Fractal::renderMode);
-			this->explorationShader->SetUniform(this->zoom);
+			this->explorationShader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id));
 		});
 
 	zoom.guiElements = { zoomField };
-	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->zoom.GetValue()); };
-	zoom.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(this->zoom, renderMode); };
+	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->GetZoom()); };
+	zoom.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id)); };
 
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
 	renderCheckbox->setCallback([this](bool value)

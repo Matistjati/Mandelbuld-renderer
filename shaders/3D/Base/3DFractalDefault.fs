@@ -50,7 +50,7 @@
 </operations>
 
 <distanceReturn>
-	<mandelBoxDist>length(w)/abs(dw);</mandelBoxDist>,
+	<mandelBoxDist>abs(length(w)/abs(dw));</mandelBoxDist>,
 	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dw);</mandelBulbDist>,
 </distanceReturn>
 

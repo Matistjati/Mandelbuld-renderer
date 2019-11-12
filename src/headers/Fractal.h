@@ -112,6 +112,7 @@ public:
 	virtual void SetShaderGui(bool render);
  	static glm::vec2 GetMonitorSize();
 
+	virtual float GetZoom() = 0;
 	virtual void PopulateGUI();
 	virtual void Update();
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;

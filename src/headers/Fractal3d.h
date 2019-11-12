@@ -27,7 +27,7 @@ public:
 	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
-	float GetZoom() { return 1 / zoom.value; };
+	float GetZoom() override { return 1 / zoom.GetValue(); };
 
 	void PopulateGUI() override;
 	void Update() override;

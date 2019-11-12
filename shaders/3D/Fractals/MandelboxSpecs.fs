@@ -81,7 +81,7 @@
 
 	<uniforms>
 		</*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 8)</GuiHint>*/
-		uniform float power = 16.0;>,
+		uniform float power = 2;>,
 	</uniforms>
 
 	<distanceEstimator>

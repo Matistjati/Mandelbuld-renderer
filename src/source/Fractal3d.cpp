@@ -172,8 +172,8 @@ void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 
 void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	zoom.value *= static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1);
-	zoom.value = glm::max(1.0f, zoom.value);
+	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1), Fractal::renderMode);
+	zoom.SetValue(glm::max(1.0f, zoom.GetValue()), Fractal::renderMode);
 	zoom.SetGuiValue();
 	explorationShader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 }
