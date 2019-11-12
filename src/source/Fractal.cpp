@@ -317,7 +317,7 @@ void Fractal::LinkSpecification(std::string& source, std::string& target)
 		else
 		{
 			RemoveOuterSection(sections[i]);
-			std::vector<std::string> innerSections = SplitNotInChar(sections[i], ',', '[', ']');
+			std::vector<std::string> innerSections = SplitNotInChar(sections[i], ',', { {'[', ']'}, {'(', ')'} });
 			int sectionStart = target.find(sectionName) + sectionName.length();
 			for (size_t i = 0; i < innerSections.size(); i++)
 			{

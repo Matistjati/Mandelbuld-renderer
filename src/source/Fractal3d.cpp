@@ -658,29 +658,29 @@ void Fractal3D::HandleKeyInput()
 			{
 				// WASD movement
 			case GLFW_KEY_W:
-				camera.ProcessMovement(Camera_Movement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_S:
-				camera.ProcessMovement(Camera_Movement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_A:
-				camera.ProcessMovement(Camera_Movement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_D:
-				camera.ProcessMovement(Camera_Movement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 
 				// Up and down
 			case GLFW_KEY_SPACE:
-				camera.ProcessMovement(Camera_Movement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
-				camera.ProcessMovement(Camera_Movement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
 				explorationShader->SetUniform(camera.position);
 				break;
 
@@ -730,22 +730,18 @@ Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string
 
 	const std::string specification = FileManager::ReadFile(Fractal3D::GetSpecPath(name));
 
-	std::string sourceCopy = std::string(source);
-	std::string baseCopy = std::string(base);
-	ParseShader(sourceCopy, baseCopy, &specification, false, specIndex, fractalIndex, sections);
-
-	ParseShader(source, base, &specification, true, specIndex, fractalIndex, sections);
+	ParseShader(source, base, &specification, false, specIndex, fractalIndex, sections);
 
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
 
-	fractalSourceCode = baseCopy;
+	fractalSourceCode = base;
 
 #if PrintSource
-	std::cout << baseCopy;
+	std::cout << base;
 #endif
 
-	return new Shader(vertexSource, baseCopy, false);
+	return new Shader(vertexSource, base, false);
 }
 
 Shader* Fractal3D::GenerateShader()

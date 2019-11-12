@@ -145,24 +145,33 @@ glm::vec3 Camera::GetRightVector()
 	return glm::normalize(glm::cross(GetForwardVector(), worldUp));
 }
 
-void Camera::ProcessMovement(Camera_Movement direction, float magnitude)
+void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 {
 	float velocity = movementSpeed * magnitude;
 
-	if (direction == forward)
+	switch (direction)
+	{
+	case CameraMovement::forward:
 		position.value += GetForwardVector() * velocity;
-	if (direction == back)
+		break;
+	case CameraMovement::back:
 		position.value -= GetForwardVector() * velocity;
-
-	if (direction == right)
+		break;
+	case CameraMovement::right:
 		position.value += GetRightVector() * velocity;
-	if (direction == left)
+		break;
+	case CameraMovement::left:
 		position.value -= GetRightVector() * velocity;
-
-	if (direction == up)
+		break;
+	case CameraMovement::up:
 		position.value += GetWorldUp() * velocity;
-	if (direction == down)
+		break;
+	case CameraMovement::down:
 		position.value -= GetWorldUp() * velocity;
+		break;
+	default:
+		break;
+	}
 }
 
 // Give a positive or negative float representing the change you want to see

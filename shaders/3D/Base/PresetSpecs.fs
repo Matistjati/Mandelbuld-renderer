@@ -1,13 +1,10 @@
 <FogIteration>
 {
-	<flags>
-		<skyOff>
-		<sunOff>
-	</flags>
-
-	<alternateFunctions>
-		<trace>traceIterationPercent</trace>
-	</alternateFunctions>
+	<variables>
+		<sunColor>vec3(0,0,0)</sunColor>,
+		<skyColor>vec3(0,0,0)</skyColor>,
+		<fogColoring>true</fogColoring>,
+	</variables>
 }
 </FogIteration>
 

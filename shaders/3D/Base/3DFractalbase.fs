@@ -20,6 +20,9 @@ uniform int maxSteps = 100;
 /*<GuiHint>GuiType: slider, Name: Anti Aliasing, Range: (1, 5)</GuiHint>*/
 uniform float antiAliasing = 1;
 
+/*<GuiHint>GuiType: checkBox, Name: Fog Coloring</GuiHint>*/
+uniform bool fogColoring = false;
+
 /*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.00001, 0.1)</GuiHint>*/
 uniform float zoomDetailRatio = 0.1;
 
@@ -38,6 +41,11 @@ uniform float sunSize = 1.0;
 /*<GuiHint>GuiType: slider, Name: Sun Spread, Range: (-1, 128)</GuiHint>*/
 uniform float sunSpread = 16.0;
 
+/*<GuiHint>GuiType: colorPicker, Name: Sun Color</GuiHint>*/
+uniform vec3 sunColor = vec3(0.8,0.7,0.5);
+
+/*<GuiHint>GuiType: colorPicker, Name: Sky Color</GuiHint>*/
+uniform vec3 skyColor = vec3(0.8, 0.95, 1.0);
 
 
 <uniforms>

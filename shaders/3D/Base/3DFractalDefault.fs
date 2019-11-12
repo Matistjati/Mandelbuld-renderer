@@ -7,11 +7,11 @@
 </sceneDistance>
 
 <sky>
-	col += vec3(0.8, 0.95, 1.0) * (0.6 + 0.4 * ray.dir.y);
+	col += skyColor * (0.6 + 0.4 * ray.dir.y);
 </sky>
 
 <sun>
-	col += sunSize * vec3(0.8,0.7,0.5) * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunSpread);
+	col += sunSize * sunColor * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunSpread);
 </sun>
 
 <distanceSetup>
@@ -95,8 +95,7 @@
 #define LinneaRetarded 0
 	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
 	{
-		float res = -1.0;
-
+		float res = -1;
 		vec4 trap;
 
 		float t = 0;
@@ -120,9 +119,9 @@
 		trapOut = trap;
 
 #if LinneaRetarded
-		if (t < maxDist)
+		if (t < maxDist && !fogColoring)
 #else
-		if (h < maxDist)
+		if (h < maxDist && !fogColoring)
 #endif
 		{
 			res = t;
