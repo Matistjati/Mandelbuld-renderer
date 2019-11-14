@@ -23,13 +23,13 @@ uniform float antiAliasing = 1;
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring</GuiHint>*/
 uniform bool fogColoring = false;
 
-/*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.00001, 0.1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.0001, 0.1)</GuiHint>*/
 uniform float zoomDetailRatio = 0.1;
 
 /*<GuiHint>GuiType: slider, Name: Max Ray Distance, Range: (1, 64)</GuiHint>*/
 uniform float maxDist = 16;
 
-/*<GuiHint>GuiType: slider, Name: Shadow hardness, Range: (1, 64)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Shadow hardness, Range: (-4, 64)</GuiHint>*/
 uniform float shadowSoftness = 4;
 
 /*<GuiHint>GuiType: slider, Name: Escacpe Radius, Range: (1, 1024)</GuiHint>*/

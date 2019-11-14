@@ -198,8 +198,8 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 	}
 	else if (type == "bool")
 	{
-		int val = (value != "false") ? true : false;
-		int renderVal = (value == "") ? false : ((renderValue != "false") ? true : false);
+		bool val = (value != "false") ? true : false;
+		bool renderVal = (renderValue == "") ? val : ((renderValue != "false") ? true : false);
 		return new Uniform<bool>(val, renderVal, name, id);
 	}
 	else if (type == "vec3")

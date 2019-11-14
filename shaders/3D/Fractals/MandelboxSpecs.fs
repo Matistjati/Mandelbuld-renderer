@@ -65,8 +65,14 @@
 	<variables>
 		<colorA>vec3(0.7, 0.1, 0.3)</colorA>,
 		<colorB>vec3(0.7, 0.1, 0.3)</colorB>,
-		<fogDarkness>0.5</fogDarkness>,
+		<fogDarkness>1.098</fogDarkness>,
+		<maxIterations>100</maxIterations>,
+		<zoomDetailRatio>0.003</zoomDetailRatio>,
 	</variables>
+
+	<indices>
+		<edgeGlow>1</edgeGlow>,
+	</indices>
 
 	<cpuVariables>
 		<position>[-1.01426327, -0.817652643, -3.69670177]</position>,
@@ -97,7 +103,6 @@
 		<zoomDetailRatio>.001</zoomDetailRatio>,
 		<maxIterations>8</maxIterations>,
 		<colorA>vec3(0, 0.707, 0.707)</colorA>,
-		<colorB>vec3(0, 0.707, 0.707)</colorB>,
 	</variables>
 
 	<cpuVariables>

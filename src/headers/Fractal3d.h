@@ -13,7 +13,7 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false),
 										ShaderSection("lightingFunctions") };
 
-const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", true), ShaderSection("sky", true), ShaderSection("sun", true),
+const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", false, "", true), ShaderSection("sky", true), ShaderSection("sun", true),
 											 ShaderSection("distanceBody"), ShaderSection("trap") };
 
 class Fractal3D : public Fractal

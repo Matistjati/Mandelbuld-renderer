@@ -93,7 +93,7 @@
 
 <trace>
 #define LinneaRetarded 0
-	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps)
+	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps, out bool hitSurface)
 	{
 		float res = -1;
 		vec4 trap;
@@ -101,11 +101,12 @@
 		float t = 0;
 		float h = 0;
 		int i = 0;
+		float th = 0;
 		for(; i<maxSteps; i++)
 		{ 
 			vec3 pos = ray.origin + ray.dir * t;
 			h = sceneDistance(pos, trap);
-			float th = 0.25 * px * t;
+			th = 0.25 * px * t;
 
 			if (h < th || h > maxDist)
 			{
@@ -117,6 +118,8 @@
 		percentSteps = float(i)/float(maxSteps);
 
 		trapOut = trap;
+
+		hitSurface = h < th;
 
 #if LinneaRetarded
 		if (t < maxDist && !fogColoring)
@@ -172,8 +175,9 @@
 		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
 		vec4 trap;
 		float steps;
+		bool hitSurface = false;
 
-		float t = trace(ray, trap, px, steps);
+		float t = trace(ray, trap, px, steps, hitSurface);
 
 		vec3 col = vec3(0);
 
@@ -197,6 +201,7 @@
 
 			// The end position of the ray
 			vec3 pos = (ray.origin + ray.dir * t);
+
 			vec3 normal = calculateNormal(pos);
 			Ray fractalToSun = Ray(pos + 0.001 * normal, sun);
 			vec3 fractalToSunDir = normalize(sun - ray.dir);

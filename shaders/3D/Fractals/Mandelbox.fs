@@ -2,7 +2,7 @@
 
 <uniforms>
 
-	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (-2, 50)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (1.098, 50)</GuiHint>*/
 	uniform float fogDarkness = 50;
 
 	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-10, 10)</GuiHint>*/
@@ -39,15 +39,18 @@
 </distanceTrap>
 
 <coloring>
-	<col = vec3(0.1);
+	<
+	col = vec3(0.1);
 	col = mix(col, colorA, clamp(pow(trap.w,6.0), 0, 1));
-	col += colorA * 0.1;>,
+	col += colorA * 0.1;
+	>,
 
 
-	<vec3 p = (ray.origin + ray.dir * t);
+	<
 	col.x += 1-cos(trap.y);
 	col.y += 0.8*cos(trap.x);
-	col.z += sqrt(sin(trap.z));>,
+	col.z += sqrt(sin(trap.z));
+	>,
 
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
@@ -55,6 +58,13 @@
 </coloring>
 
 <edgeGlow>
-	col += edgeColor * pow(1-steps,fogDarkness); // Fog
-	//col = mix(<color>, vec3(0.), steps);
+	<
+	col = mix(col, edgeColor, steps);
+	>,
+
+	<
+	col = edgeColor * pow(1-steps,fogDarkness); /*Fog*/
+	col = mix(col, vec3(sqrt(col)), clamp(pow(clamp(trap.w-steps*steps,0,0.95),pow(fogDarkness,1.5)),0,1));
+	col *= float(hitSurface);
+	>,
 </edgeGlow>
