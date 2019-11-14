@@ -46,6 +46,7 @@
 	<setXY>w.xy=parameter;</setXY>,
 	<planeFold>w-=2 * min(0, dot(w, parameter)) * parameter;</planeFold>,
 	<setW>w=parameter;</setW>,
+	<SwapXZ>w.xz=w.zx;</SwapXZ>,
 	<mandelbulbModded>float r = length(w); float theta = 2 * atan(w.x, w.z); float phi = 1 * acos(w.y / r); parameter; w = r * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));</mandelbulbModded>,
 </operations>
 
@@ -76,7 +77,7 @@
 		for(int i = 0; i < maxIterations; i++)
 		{
 			<distanceBody>
-			//w.xyz=w.zyx;
+			
 			<distanceExtraOperations>
 
 			<distanceTrap>
