@@ -13,7 +13,7 @@ const ShaderSection shaderSections[] = {ShaderSection("constants", true), Shader
 										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false),
 										ShaderSection("lightingFunctions") };
 
-const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, "", true), ShaderSection("edgeGlow", false, "", true), ShaderSection("sky", true), ShaderSection("sun", true),
+const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, true), ShaderSection("edgeGlow", false, true), ShaderSection("sky", true), ShaderSection("sun", true),
 											 ShaderSection("distanceBody"), ShaderSection("trap") };
 
 class Fractal3D : public Fractal
@@ -51,8 +51,8 @@ public:
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	std::string GetFractalFolderPath() override;
-	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification, bool highQuality);
-	void ParseShader(std::string& source, std::string& final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
+	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification);
+	void ParseShader(std::string& source, std::string& final, const std::string* spec, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 	void Init();
 	static std::map<std::string, int*> GetDefaultShaderIndices();
 	void SetShaderGui(bool render) override;

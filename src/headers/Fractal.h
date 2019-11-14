@@ -37,15 +37,12 @@ struct ShaderSection
 {
 	std::string name;
 	bool optional;
-	std::string releaseName;
 	bool multiple;
-	ShaderSection(std::string name) : name(name), optional(false), releaseName(""), multiple(false)
+	ShaderSection(std::string name) : name(name), optional(false), multiple(false)
 	{}
-	ShaderSection(std::string name, bool optional) : name(name), optional(optional), releaseName(""), multiple(false)
+	ShaderSection(std::string name, bool optional) : name(name), optional(optional), multiple(false)
 	{}
-	ShaderSection(std::string name, bool optional, std::string releaseName) : name(name), optional(optional), releaseName(releaseName), multiple(false)
-	{}
-	ShaderSection(std::string name, bool optional, std::string releaseName, bool multiple) : name(name), optional(optional), releaseName(releaseName), multiple(multiple)
+	ShaderSection(std::string name, bool optional, bool multiple) : name(name), optional(optional), multiple(multiple)
 	{}
 
 	// Required for some templates

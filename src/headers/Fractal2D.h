@@ -7,7 +7,7 @@
 const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers", true),
 										   ShaderSection("main", false),};
 
-const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, "", true) };
+const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, true) };
 
 class Fractal2D : public Fractal
 {
@@ -44,8 +44,8 @@ public:
 	std::string GetSpecPath(std::string fileName) override;
 	std::string GetFractalPath(std::string fileName) override;
 	std::string GetFractalFolderPath() override;
-	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string & final, std::string specification, bool highQuality);
-	void ParseShader(std::string& source, std::string & final, const std::string* spec, bool highQuality, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
+	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string & final, std::string specification);
+	void ParseShader(std::string& source, std::string & final, const std::string* spec, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 	void Init();
 	static std::map<std::string, int*> GetDefaultShaderIndices();
 	void RenderComputeShader();
@@ -65,7 +65,7 @@ public:
 
 private:
 	const static std::string& default2DSource;
-	Shader* CreateShader(std::string source, const std::string* specification, bool highQuality, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections);
+	Shader* CreateShader(std::string source, const std::string* specification, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections);
 };
 
 #endif
