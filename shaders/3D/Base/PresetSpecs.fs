@@ -40,11 +40,12 @@
 		<distanceExtraOperations>[[], [mulW(rotation)], [addW(cross(w, position))], [addW(sin(dot(w,w)))], [addW(c*rotation)], [addWY(fract(c).y*sign(w.y))], [addWY(c.y*c.y)],
 								  [addWY(dot(c*rotation,sun))], [addWY(length(c))], [addW(c*dot(sun,c))], ]</distanceExtraOperations>,
 	</distanceEstimator>
-	<indices>
-		<color>0</color>,
-		<colorB>0</colorB>,
-		<colorC>0</colorC>,
-	</indices>
+
+	<variables>
+		<shadowSoftness>16</shadowSoftness>,
+		<antiAliasing>2</antiAliasing>,
+	</variables>
+
 	<cpuVariables>
 		<power>8</power>,
 	</cpuVariables>

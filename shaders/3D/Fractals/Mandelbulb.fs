@@ -1,6 +1,3 @@
-<antiAliasing>2</antiAliasing>
-
-
 <uniforms>
 
 	/*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 16)</GuiHint>*/
@@ -43,7 +40,7 @@
 	col = mix(col, colorA, clamp(trap.y,0.0,1.0)); /*Inner*/
 	col = mix(col, colorB, clamp(trap.z*trap.z,0.0,1.0));
 	col = mix(col, colorC, clamp(pow(trap.w,6.0),0.0,1.0)); /*Stripes*/
-	col *= 0.5;>,
+	col *= 0.25;>,
 
 	<col.x += 1-cos(trap.y*power);
 	col.y += 0.8*cos(trap.x*power);

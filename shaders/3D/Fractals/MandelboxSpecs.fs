@@ -105,6 +105,10 @@
 		<colorA>vec3(0, 0.707, 0.707)</colorA>,
 	</variables>
 
+	<indices>
+		<edgeGlow>1</edgeGlow>,
+	</indices>
+
 	<cpuVariables>
 		<position>[(0)[-1.40337825, 4.03520060, -0.485743016], [0.987792492, 1.87121308, 0.991404295]]</position>,
 	</cpuVariables>

@@ -1,8 +1,8 @@
 
 <sceneDistance>
-	float sceneDistance(vec3 position, out vec4 resColor)
+	float sceneDistance(vec3 w, out vec4 resColor)
 	{
-		return DistanceEstimator(position, resColor);
+		return DistanceEstimator(w, resColor);
 	}
 </sceneDistance>
 
@@ -57,7 +57,6 @@
 
 <distanceTrap>
 	<defaultTrap>m = dot(w,w);trap = min(trap, vec4(abs(w),m));</defaultTrap>,
-	<coolTrap>m = dot(w,w);trap = min(trap, vec4(abs(w.xy), length( fract(w)-.5),m));</coolTrap>,
 </distanceTrap>
 
 <distanceTrapReturn>
@@ -106,7 +105,7 @@
 		for(; i<maxSteps; i++)
 		{ 
 			vec3 pos = ray.origin + ray.dir * t;
-			h = sceneDistance(pos, trap);
+			h = fudgeFactor * sceneDistance(pos, trap);
 			th = 0.25 * px * t;
 
 			if (h < th || h > maxDist)
@@ -225,19 +224,20 @@
 			light += 4.0*vec3(0.25,0.20,0.15)*diffuse2;
 			light += 1.5*vec3(0.10,0.20,0.30)*diffuse3;
 			light += 2.5*vec3(0.35,0.30,0.25)*(0.05+0.95*occlusion); // ambient
-			light += 4*fakeSSS*occlusion;                          // fake SSS
+			light += 4*fakeSSS*occlusion;                            // fake SSS
+			light = pow(light, vec3((light.x<1) ? 1 : 1.5));
 
 
 			col *= light;
 			col = pow( col, vec3(0.7,0.9,1.0) );                  // fake SSS
-			col += specular * 15.;
+			col += specular * 5.;
 
 			// Reflection (?)
 			//vec3 reflection = reflect( ray.dir, normal );
 			//col += 8.0*vec3(0.8,0.9,1.0)*(0.2+0.8*occlusion)*(0.03+0.97*pow(fakeSSS,5.0))*smoothstep(0.0,0.1,reflection.y )*SoftShadow( Ray(pos+0.01*normal, reflection), 2.0 );
 		}
 
-		return col;
+		return sqrt(col);
 	}
 </render>
 

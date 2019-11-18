@@ -103,6 +103,7 @@ public:
 	static void GenerateSingleImage(GLFWwindow* window, Fractal* fractal);
 	static void ImageSequence(GLFWwindow* window, Fractal* fractal);
 	void SetFractalNameFromIndex(int* index, std::string fractalPath);
+	void SetVariablesFromSpec(int* index, std::string SpecificationPath, std::string presetPath);
 	void UpdateFractalShader();
 	void PopulateGuiFromShader();
 	virtual void SetShaderUniforms(bool render);
@@ -122,7 +123,6 @@ public:
 	virtual void SetUniformNames() = 0;
 	virtual void SaveImage(std::string filePath) = 0;
 	virtual void FindPathAndSaveImage() = 0;
-	virtual void SetVariablesFromSpec(int* index, std::string SpecificationPath) = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;
 	virtual void HandleKeyInput();
 	virtual std::string GetSpecPath(std::string fileName) = 0;

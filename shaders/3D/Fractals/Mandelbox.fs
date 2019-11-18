@@ -21,7 +21,7 @@
 	uniform vec3 colorA = vec3(0, 0.707, 0.707);
 	
 	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
-	uniform vec3 edgeColor = vec3(0, 0.707, 0.707);
+	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
 </uniforms>
 
 <operations>
@@ -59,12 +59,16 @@
 
 <edgeGlow>
 	<
-	col = mix(col, edgeColor, steps);
+	col = mix(col, edgeColor, pow(steps,fogDarkness));
 	>,
 
 	<
-	col = edgeColor * pow(1-steps,fogDarkness); /*Fog*/
+	col = edgeColor * pow(1-steps,pow(fogDarkness,1.1))*exp(-1/fogDarkness*t); /*Fog*/
 	col = mix(col, vec3(sqrt(col)), clamp(pow(clamp(trap.w-steps*steps,0,0.95),pow(fogDarkness,1.5)),0,1));
+	col *= float(hitSurface);
+	>,
+	
+	<
 	col *= float(hitSurface);
 	>,
 </edgeGlow>

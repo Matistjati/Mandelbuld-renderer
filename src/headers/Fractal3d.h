@@ -42,7 +42,6 @@ public:
 	void SaveImage(const std::string path) override;
 	void FindPathAndSaveImage() override;
 	void SetVariable(std::string name, std::string value) override;
-	void SetVariablesFromSpec(int* index, std::string specification) override;
 	void HandleKeyInput() override;
 	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	Shader* GenerateShader() override;

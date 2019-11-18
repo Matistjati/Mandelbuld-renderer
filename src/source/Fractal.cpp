@@ -929,6 +929,44 @@ void Fractal::SetFractalNameFromIndex(int* index, std::string fractalPath)
 	fractalName = fractalNames[*index];
 }
 
+void Fractal::SetVariablesFromSpec(int* index, std::string SpecificationPath, std::string presetPath)
+{
+	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetPath));
+	std::string variables = GetSection(Section("cpuVariables"), specSection);
+	if (variables != "")
+	{
+		std::vector<std::string> variablesList = SplitNotInChar(variables, ',', '[', ']');
+		for (size_t i = 0; i < variablesList.size(); i++)
+		{
+			std::string value = GetSectionValue(variablesList[i]);
+
+			size_t indexStart = value.find('(');
+			if (indexStart != std::string::npos)
+			{
+				size_t indexEnd = value.find(')', indexStart);
+				if (indexEnd != std::string::npos)
+				{
+					size_t index = std::stoi(value.substr(indexStart + 1, indexEnd - 2));
+					if (value[value.length() - 1] == ']' && value[value.length() - 2] == ']')
+					{
+						value.erase(value.length() - 1);
+					}
+					std::vector<std::string> values = SplitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
+					if (index > values.size() - 1)
+					{
+						DebugPrint("Index was too large: " + std::to_string(index) + " at " + GetSectionName(variables));
+						BreakIfDebug();
+					}
+					value = values[index];
+				}
+			}
+
+			CleanString(value, { '[', ']' });
+			SetVariable(GetSectionName(variablesList[i]), value);
+		}
+	}
+}
+
 void Fractal::UpdateFractalShader()
 {
 	delete this->explorationShader;
@@ -1188,7 +1226,7 @@ void Fractal::PopulateGUI()
 	nanogui::Slider* paramSlider = gui->form->AddSlider("ParameterChangeRate", parameterChangeRate);
 
 	paramSlider->setValue(parameterChangeRate);
-	paramSlider->setRange({ 0.000001f,10.f });
+	paramSlider->setRange({ 0.000001f,5.f });
 }
 
 void Fractal::Update()

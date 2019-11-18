@@ -308,44 +308,6 @@ void Fractal2D::SetVariable(std::string name, std::string value)
 	}
 }
 
-void Fractal2D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
-{
-	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetSpec2D));
-	std::string variables = GetSection(Section("cpuVariables"), specSection);
-	if (variables != "")
-	{
-		std::vector<std::string> variablesList = SplitNotInChar(variables, ',', '[', ']');
-		for (size_t i = 0; i < variablesList.size(); i++)
-		{
-			std::string value = GetSectionValue(variablesList[i]);
-
-			size_t indexStart = value.find('(');
-			if (indexStart != std::string::npos)
-			{
-				size_t indexEnd = value.find(')', indexStart);
-				if (indexEnd != std::string::npos)
-				{
-					size_t index = std::stoi(value.substr(indexStart + 1, indexEnd - 2));
-					if (value[value.length() - 1] == ']' && value[value.length() - 2] == ']')
-					{
-						value.erase(value.length() - 1);
-					}
-					std::vector<std::string> values = SplitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
-					if (index > values.size() - 1)
-					{
-						DebugPrint("Index was too large: " + std::to_string(index) + " at " + GetSectionName(variables));
-						BreakIfDebug();
-					}
-					value = values[index];
-				}
-			}
-
-			CleanString(value, { '[', ']' });
-			SetVariable(GetSectionName(variablesList[i]), value);
-		}
-	}
-}
-
 void Fractal2D::HandleKeyInput()
 {
 	Fractal::HandleKeyInput();
@@ -788,7 +750,7 @@ void Fractal2D::Init()
 
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal2D;
-	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
+	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName), Fractal2D::presetSpec2D);
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);

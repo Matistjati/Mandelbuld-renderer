@@ -285,24 +285,6 @@ void Fractal3D::Update()
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification)
 {
-	// Bool in sections is for done or not 
-	if (specification.find(Section("variables").start) != std::string::npos)
-	{
-		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', '<', '>');
-		for (size_t i = 0; i < variables.size(); i++)
-		{
-			
-			std::string sectionName = GetSectionName(variables[i]);
-			Section c = Section(sectionName);
-			std::string from = c.start + GetSection(c, source) + c.end;
-
-			if (!Replace(source, from, variables[i]))
-			{
-				DebugPrint("Could not replace variable from specification");
-			}
-		}
-	}
-
 	std::string defaultSource = default3DSource;
 
 	const static std::string alternateDefaultFunctions = FileManager::ReadFile(alternateDefaultFunctionsPath);
@@ -535,7 +517,7 @@ void Fractal3D::Init()
 
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal3D;
-	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName));
+	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName), Fractal3D::presetSpec3D);
 	SetUniformNames();
 
 	SetUniformLocations(explorationShader);
@@ -589,44 +571,6 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	else if (name == "worldFlip")
 	{
 		camera.worldFlip.value = std::stoi(value);
-	}
-}
-
-void Fractal3D::SetVariablesFromSpec(int* index, std::string SpecificationPath)
-{
-	std::string specSection = GetSpecificationByIndex(&FileManager::ReadFile(SpecificationPath), index, FileManager::ReadFile(presetSpec3D));
-	std::string variables = GetSection(Section("cpuVariables"), specSection);
-	if (variables != "")
-	{
-		std::vector<std::string> variablesList = SplitNotInChar(variables, ',', '[', ']');
-		for (size_t i = 0; i < variablesList.size(); i++)
-		{
-			std::string value = GetSectionValue(variablesList[i]);
-
-			size_t indexStart = value.find('(');
-			if (indexStart != std::string::npos)
-			{
-				size_t indexEnd = value.find(')', indexStart);
-				if (indexEnd != std::string::npos)
-				{
-					size_t index = std::stoi(value.substr(indexStart + 1, indexEnd - 2));
-					if (value[value.length() - 1] == ']' && value[value.length() - 2] == ']')
-					{
-						value.erase(value.length() - 1);
-					}
-					std::vector<std::string> values = SplitNotInChar(value.substr(indexEnd + 1), ',', '[', ']');
-					if (index > values.size() - 1)
-					{
-						DebugPrint("Index was too large: " + std::to_string(index) + " at " + GetSectionName(variables));
-						BreakIfDebug();
-					}
-					value = values[index];
-				}
-			}
-
-			CleanString(value, { '[', ']' });
-			SetVariable(GetSectionName(variablesList[i]), value);
-		}
 	}
 }
 
