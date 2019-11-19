@@ -14,7 +14,7 @@ uniform uint frame = uint(0);
 /*<GuiHint>GuiType: slider, Name: Max Iterations, Range: (1, 100)</GuiHint>*/
 uniform int maxIterations = 40;
 
-/*<GuiHint>GuiType: slider, Name: Max Steps, Range: (1, 100)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Steps, Range: (1, 1000)</GuiHint>*/
 uniform int maxSteps = 100;
 
 /*<GuiHint>GuiType: slider, Name: Anti Aliasing, Range: (1, 5)</GuiHint>*/
@@ -22,6 +22,9 @@ uniform float antiAliasing = 1;
 
 /*<GuiHint>GuiType: slider, Name: Fudge Factor, Range: (0.1, 1)</GuiHint>*/
 uniform float fudgeFactor = 1;
+
+/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0.01, 1)</GuiHint>*/
+uniform float gamma = 0.454;
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring</GuiHint>*/
 uniform bool fogColoring = false;

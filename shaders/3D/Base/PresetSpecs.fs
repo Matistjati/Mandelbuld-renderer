@@ -43,7 +43,10 @@
 
 	<variables>
 		<shadowSoftness>16</shadowSoftness>,
-		<antiAliasing>2</antiAliasing>,
+		<antiAliasing>1</antiAliasing>,
+		<maxIterations>12</maxIterations>,
+		<zoomDetailRatio>0.01</zoomDetailRatio>,
+		<gamma>0.9</gamma>,
 	</variables>
 
 	<cpuVariables>

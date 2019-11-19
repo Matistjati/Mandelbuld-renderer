@@ -4,7 +4,7 @@
 	uniform float power = 8;
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
-	uniform vec3 colorA = vec3(0.54,0.3,0.07);
+	uniform vec3 colorA = vec3(0.3,0.2,0.07);
 	
 	/*<GuiHint>GuiType: colorPicker, Name: Color B</GuiHint>*/
 	uniform vec3 colorB = vec3(0.02,0.4,0.30);

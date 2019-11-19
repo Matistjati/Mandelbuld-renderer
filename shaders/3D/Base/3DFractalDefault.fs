@@ -237,7 +237,7 @@
 			//col += 8.0*vec3(0.8,0.9,1.0)*(0.2+0.8*occlusion)*(0.03+0.97*pow(fakeSSS,5.0))*smoothstep(0.0,0.1,reflection.y )*SoftShadow( Ray(pos+0.01*normal, reflection), 2.0 );
 		}
 
-		return sqrt(col);
+		return pow(col, vec3(gamma));
 	}
 </render>
 
