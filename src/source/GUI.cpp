@@ -30,11 +30,11 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	slider->setCallback([fractal,uniform](T value)
 		{
 			uniform->SetValue(value, Fractal::renderMode);
-			fractal->explorationShader->SetUniform(*uniform);
+			fractal->shader->SetUniform(*uniform);
 		});
 	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
 		{
-			fractal->explorationShader->SetUniform(*uniform, renderMode);
+			fractal->shader->SetUniform(*uniform, renderMode);
 		});
 	slider->setRange({ range.first,range.second });
 	slider->setValue((float)value);
@@ -47,11 +47,11 @@ void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bo
 	slider->setCallback([fractal,uniform](bool value)
 		{
 			uniform->SetValue(value, Fractal::renderMode);
-			fractal->explorationShader->SetUniform(*uniform);
+			fractal->shader->SetUniform(*uniform);
 		});
 	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
 		{
-			fractal->explorationShader->SetUniform(*uniform, renderMode);
+			fractal->shader->SetUniform(*uniform, renderMode);
 		});
 	slider->setChecked(value);
 	uniform->SetGuiValue = [slider, uniform]() {slider->setChecked(uniform->GetValue()); };
@@ -64,12 +64,12 @@ void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal
 	picker->setCallback([fractal, uniform](const nanogui::Color& c)
 		{
 			uniform->SetValue(c, Fractal::renderMode);
-			fractal->explorationShader->SetUniform(*uniform);
+			fractal->shader->SetUniform(*uniform);
 			uniform->SetGuiValue();
 		});
 	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
 		{
-			fractal->explorationShader->SetUniform(*uniform, renderMode);
+			fractal->shader->SetUniform(*uniform, renderMode);
 		});
 }
 
@@ -182,8 +182,8 @@ GuiElement::Element GuiElement::GetElementFromString(std::string element)
 
 void* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
 {
-	fractal->explorationShader->Use();
-	unsigned int id = glGetUniformLocation(fractal->explorationShader->id, name.c_str());
+	fractal->shader->Use();
+	unsigned int id = glGetUniformLocation(fractal->shader->id, name.c_str());
 	if (type == "float")
 	{
 		float val = (value == "") ? 0.f : std::stof(value);

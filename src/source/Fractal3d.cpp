@@ -8,7 +8,7 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
-#define PrintSource 1
+#define PrintSource 0
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal(explorationShader, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
@@ -106,11 +106,11 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		case GLFW_KEY_Z:
 			// Flipping the world
 			camera.worldFlip.value *= -1;
-			explorationShader->SetUniform(camera.worldFlip);
+			shader->SetUniform(camera.worldFlip);
 			break;
 		case GLFW_KEY_X:
 			time.value.ToogleTimePause();
-			explorationShader->SetUniform(time);
+			shader->SetUniform(time);
 			break;
 		case GLFW_KEY_F:
 			cursorVisible = !cursorVisible;
@@ -147,7 +147,7 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 
 	mouseOffset = newPos;
 
-	explorationShader->SetUniform(camera.GetRotationMatrix());
+	shader->SetUniform(camera.GetRotationMatrix());
 }
 
 void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
@@ -165,7 +165,7 @@ void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, i
 void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	screenSize.value = glm::ivec2(width, height);
-	explorationShader->SetUniform(screenSize);
+	shader->SetUniform(screenSize);
 
 	glViewport(0, 0, width, height);
 }
@@ -175,7 +175,7 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1), Fractal::renderMode);
 	zoom.SetValue(glm::max(1.0f, zoom.GetValue()), Fractal::renderMode);
 	zoom.SetGuiValue();
-	explorationShader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
+	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
 }
 
 void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
@@ -221,9 +221,9 @@ void Fractal3D::SetUniformNames()
 
 void Fractal3D::SaveImage(const std::string path)
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
-	explorationShader->Use();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(shader->buffers[Fractal::rectangleVertexBufferName].id);
+	shader->Use();
 	SetShaderUniforms(true);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -280,7 +280,7 @@ void Fractal3D::Update()
 	sun.value = glm::normalize(glm::vec3(sin(t * 0.25),
 		std::abs(sin(t * 0.1)) * -1,
 		cos(t * 0.25)));
-	explorationShader->SetUniform(sun);
+	shader->SetUniform(sun);
 }
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification)
@@ -520,9 +520,9 @@ void Fractal3D::Init()
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName), Fractal3D::presetSpec3D);
 	SetUniformNames();
 
-	SetUniformLocations(explorationShader);
-	SetUniforms(explorationShader);
-	explorationShader->Use();
+	SetUniformLocations(shader);
+	SetUniforms(shader);
+	shader->Use();
 	GlErrorCheck();
 
 	PopulateGUI();
@@ -587,39 +587,39 @@ void Fractal3D::HandleKeyInput()
 				// WASD movement
 			case GLFW_KEY_W:
 				camera.ProcessMovement(CameraMovement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
-				explorationShader->SetUniform(camera.position);
+				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_S:
 				camera.ProcessMovement(CameraMovement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
-				explorationShader->SetUniform(camera.position);
+				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_A:
 				camera.ProcessMovement(CameraMovement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
-				explorationShader->SetUniform(camera.position);
+				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_D:
 				camera.ProcessMovement(CameraMovement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
-				explorationShader->SetUniform(camera.position);
+				shader->SetUniform(camera.position);
 				break;
 
 				// Up and down
 			case GLFW_KEY_SPACE:
 				camera.ProcessMovement(CameraMovement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
-				explorationShader->SetUniform(camera.position);
+				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
 				camera.ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
-				explorationShader->SetUniform(camera.position);
+				shader->SetUniform(camera.position);
 				break;
 
 				// Camera roll
 			case GLFW_KEY_Q:
 				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
-				explorationShader->SetUniform(camera.GetRotationMatrix());
+				shader->SetUniform(camera.GetRotationMatrix());
 				break;
 			case GLFW_KEY_E:
 				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
-				explorationShader->SetUniform(camera.GetRotationMatrix());
+				shader->SetUniform(camera.GetRotationMatrix());
 				break;
 
 			default:

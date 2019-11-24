@@ -23,8 +23,8 @@ uniform float antiAliasing = 1;
 /*<GuiHint>GuiType: slider, Name: Fudge Factor, Range: (0.1, 1)</GuiHint>*/
 uniform float fudgeFactor = 1;
 
-/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0.01, 1)</GuiHint>*/
-uniform float gamma = 0.454;
+/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0, 2)</GuiHint>*/
+uniform float gamma = 1;
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring</GuiHint>*/
 uniform bool fogColoring = false;

@@ -69,7 +69,7 @@ public:
 	static Uniform<glm::vec2> screenSize;
 	static GLFWwindow* window;
 	float parameterChangeRate = 1;
-	Shader* explorationShader;
+	Shader* shader;
 	Uniform<float> zoom;
 	Uniform<Time> time;
 	Uniform<float> deltaTime;
@@ -90,10 +90,7 @@ public:
 	std::vector<GuiElement> fractalUniforms;
 	std::string fractalSourceCode;
 
-	~Fractal()
-	{
-		delete explorationShader;
-	};
+	~Fractal();
 
 	// Nothing fancy
 	Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,

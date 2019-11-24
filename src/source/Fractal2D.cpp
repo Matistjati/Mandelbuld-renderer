@@ -36,14 +36,14 @@ void Fractal2D::PopulateGUI()
 	slider->setCallback([this](float value)
 		{
 			power.SetValue(value, Fractal::renderMode);
-			this->explorationShader->SetUniform(this->power);
+			this->shader->SetUniform(this->power);
 		});
 	slider->setValue(power.value);
 	slider->setRange({ 1.f,10.f });
 	
 	power.guiElements = { slider };
 	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.GetValue()); };
-	power.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(this->power, renderMode); };
+	power.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->power, renderMode); };
 
 
 	// Position
@@ -53,7 +53,7 @@ void Fractal2D::PopulateGUI()
 	positionFieldX->setCallback([this](float value)
 		{
 			position.SetValue({ position.value.x, value }, Fractal::renderMode);
-			this->explorationShader->SetUniform(this->position);
+			this->shader->SetUniform(this->position);
 		});
 
 	positionFieldX->numberFormat("%.6g");
@@ -62,7 +62,7 @@ void Fractal2D::PopulateGUI()
 	positionFieldY->setCallback([this](float value)
 		{
 			position.SetValue({ value, position.value.y }, Fractal::renderMode);
-			this->explorationShader->SetUniform(this->position);
+			this->shader->SetUniform(this->position);
 		});
 
 	positionFieldY->numberFormat("%.6g");
@@ -72,7 +72,7 @@ void Fractal2D::PopulateGUI()
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.GetValue().x);
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().y);
 									};
-	position.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(this->position, renderMode); };
+	position.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->position, renderMode); };
 
 
 	Fractal::PopulateGuiFromShader();
@@ -88,14 +88,14 @@ void Fractal2D::Update()
 	{
 		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
 		clickPositions.value = glm::vec4(mouse, position.value);
-		explorationShader->SetUniform(clickPositions);
+		shader->SetUniform(clickPositions);
 	}
 }
 
 void Fractal2D::MouseCallback(GLFWwindow* window, double x, double y)
 {
 	mousePosition.value = { x, y };
-	explorationShader->SetUniform(mousePosition);
+	shader->SetUniform(mousePosition);
 }
 
 void Fractal2D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
@@ -106,7 +106,7 @@ void Fractal2D::MousePressCallback(GLFWwindow* window, int button, int action, i
 		// Map from screen space to fractal space
 		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
 		clickPositions.value = glm::vec4(mouse, position.value);
-		explorationShader->SetUniform(clickPositions);
+		shader->SetUniform(clickPositions);
 	}
 	else if (action == GLFW_RELEASE)
 	{
@@ -181,7 +181,7 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		{
 			case GLFW_KEY_X:
 				time.value.ToogleTimePause();
-				explorationShader->SetUniform(time);
+				shader->SetUniform(time);
 				break;
 
 		}
@@ -191,7 +191,7 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 void Fractal2D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	screenSize.value = glm::ivec2(width, height);
-	explorationShader->SetUniform(screenSize);
+	shader->SetUniform(screenSize);
 
 	glViewport(0, 0, width, height);
 }
@@ -242,15 +242,15 @@ void Fractal2D::SetUniformNames()
 
 void Fractal2D::SaveImage(const std::string path)
 {
-	if (explorationShader->type == ShaderType::compute)
+	if (shader->type == ShaderType::compute)
 	{
 		RenderComputeShader();
 	}
 	else
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-		glBindVertexArray(explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
-		explorationShader->Use();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+		glBindVertexArray(shader->buffers[Fractal::rectangleVertexBufferName].id);
+		shader->Use();
 		SetShaderUniforms(true);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
@@ -322,63 +322,63 @@ void Fractal2D::HandleKeyInput()
 			case GLFW_KEY_W:
 				position.SetValue({ position.value.x, position.value.y + static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value) }, Fractal::renderMode);
 				position.SetGuiValue();
-				explorationShader->SetUniform(position);
+				shader->SetUniform(position);
 				break;
 			case GLFW_KEY_S:
 				position.SetValue({ position.value.x, position.value.y - static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value) }, Fractal::renderMode);
 				position.SetGuiValue();
-				explorationShader->SetUniform(position);
+				shader->SetUniform(position);
 				break;
 			case GLFW_KEY_A:
 				position.SetValue({ position.value.x - static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value), position.value.y }, Fractal::renderMode);
 				position.SetGuiValue();
-				explorationShader->SetUniform(position);
+				shader->SetUniform(position);
 				break;
 			case GLFW_KEY_D:
 				position.SetValue({ position.value.x + static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value), position.value.y }, Fractal::renderMode);
 				position.SetGuiValue();
-				explorationShader->SetUniform(position);
+				shader->SetUniform(position);
 				break;
 
 				// Zooming using exponential decay
 			case GLFW_KEY_Q:
 				zoom.SetValue(zoom.value * static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
 				zoom.SetGuiValue();
-				explorationShader->SetUniform(zoom);
+				shader->SetUniform(zoom);
 				break;
 			case GLFW_KEY_E:
 				zoom.SetValue(zoom.value / static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
 				zoom.SetGuiValue();
-				explorationShader->SetUniform(zoom);
+				shader->SetUniform(zoom);
 				break;
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
 				power.SetValue(power.value + 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()), Fractal::renderMode);
 				power.SetGuiValue();
-				explorationShader->SetUniform(power);
+				shader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
 				power.SetValue(power.value - 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()), Fractal::renderMode);
 				power.SetGuiValue();
-				explorationShader->SetUniform(power);
+				shader->SetUniform(power);
 				break;
 
 
 			case GLFW_KEY_R:
-				if (explorationShader->type == ShaderType::compute)
+				if (shader->type == ShaderType::compute)
 				{
 					// Draw to both front and back buffers to avoid stuttering
 					RenderComputeShader();
 					gui->drawContents();
 					gui->drawWidgets();
-					explorationShader->Use();
+					shader->Use();
 					glfwSwapBuffers(window);
 
 					RenderComputeShader();
 					gui->drawContents();
 					gui->drawWidgets();
-					explorationShader->Use();
+					shader->Use();
 					glfwSwapBuffers(window);
 				}
 				break;
@@ -565,9 +565,11 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 			if (shaderIndices.size() != 0 && shaderIndices.count(c.name))
 			{
+				if (versions[versions.size() - 1][0] != '<') versions.pop_back();
+
 				int* indexPtr = shaderIndices[c.name];
-				if (*indexPtr < 0)* indexPtr = 0;
-				else if ((size_t)* indexPtr > versions.size() - 1)* indexPtr = versions.size() - 1;
+				if (*indexPtr < 0)* indexPtr = versions.size() - 1;
+				else if ((size_t)* indexPtr > versions.size() - 1) *indexPtr = 0;
 				index = std::to_string(*indexPtr);
 			}
 			else if (index == "") index = "0";
@@ -753,16 +755,16 @@ void Fractal2D::Init()
 	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName), Fractal2D::presetSpec2D);
 	SetUniformNames();
 
-	SetUniformLocations(explorationShader);
-	SetUniforms(explorationShader);
-	explorationShader->Use();
+	SetUniformLocations(shader);
+	SetUniforms(shader);
+	shader->Use();
 	GlErrorCheck();
 
 	PopulateGUI();
 
-	if (explorationShader->type == ShaderType::compute)
+	if (shader->type == ShaderType::compute)
 	{
-		ComputeShader* compute = reinterpret_cast<ComputeShader*>(explorationShader);
+		ComputeShader* compute = reinterpret_cast<ComputeShader*>(shader);
 		compute->Invoke(screenSize.value);
 		
 		// Draw to both front and back buffers to avoid stuttering
@@ -780,11 +782,11 @@ std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 
 void Fractal2D::RenderComputeShader()
 {
-	((ComputeShader*) explorationShader)->UseRender();
-	SetUniformLocations(explorationShader, true);
-	SetUniforms(explorationShader, true);
+	((ComputeShader*) shader)->UseRender();
+	SetUniformLocations(shader, true);
+	SetUniforms(shader, true);
 
-	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(explorationShader);
+	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(shader);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 	glBindVertexArray(explShader->buffers[Fractal::rectangleVertexBufferName].id);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].id);
@@ -792,9 +794,9 @@ void Fractal2D::RenderComputeShader()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-	explorationShader->Use();
-	SetUniformLocations(explorationShader);
-	SetUniforms(explorationShader);
+	shader->Use();
+	SetUniformLocations(shader);
+	SetUniforms(shader);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
 }

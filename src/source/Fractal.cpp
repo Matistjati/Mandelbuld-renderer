@@ -579,9 +579,14 @@ void KeyCallbackDelegate(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
+Fractal::~Fractal()
+{
+	delete shader;
+}
+
 Fractal::Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
-	: explorationShader(shader), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shader->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shader->id, "deltaTime")),
+	: shader(shader), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shader->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shader->id, "deltaTime")),
 	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(), fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode)
 {
 	Fractal::screenSize = screenSize;
@@ -604,7 +609,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	fractal->explorationShader->Use();
+	fractal->shader->Use();
 	GlErrorCheck();
 
 	// render loop
@@ -618,17 +623,17 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		glfwSetWindowTitle(window, title.c_str());
 #endif
 
-		fractal->explorationShader->Use();
-		if (fractal->explorationShader->type == ShaderType::fragment)
+		fractal->shader->Use();
+		if (fractal->shader->type == ShaderType::fragment)
 		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-			glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+			glBindVertexArray(fractal->shader->buffers[Fractal::rectangleVertexBufferName].id);
 			// rendering, we use ray marching inside the fragment shader
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
-		else if (fractal->explorationShader->type == ShaderType::compute)
+		else if (fractal->shader->type == ShaderType::compute)
 		{
-			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->explorationShader);
+			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->shader);
 			compute->Invoke(fractal->screenSize.value);
 			if (fractal->frame.value % compute->renderingFrequency == 0)
 			{
@@ -637,7 +642,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		}
 		fractal->gui->drawContents();
 		fractal->gui->drawWidgets();
-		fractal->explorationShader->Use();
+		fractal->shader->Use();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -665,11 +670,11 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	*fractal->shaderIndices["loopReturn"] = 1;
 	fractal->UpdateFractalShader();
 
-	fractal->explorationShader->Use();
-	fractal->SetUniformLocations(fractal->explorationShader);
-	fractal->SetUniforms(fractal->explorationShader);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+	fractal->shader->Use();
+	fractal->SetUniformLocations(fractal->shader);
+	fractal->SetUniforms(fractal->shader);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(fractal->shader->buffers[Fractal::rectangleVertexBufferName].id);
 
 
 	std::vector<glm::ivec4> images = std::vector<glm::ivec4>(pixelCount);
@@ -679,7 +684,7 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	for (double time = 0; time < pi2; time += dt)
 	{
 		fractal->time.value.SetTotalTime(time);
-		fractal->explorationShader->SetUniform(fractal->time);
+		fractal->shader->SetUniform(fractal->time);
 
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -739,7 +744,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	fractal->explorationShader->Use();
+	fractal->shader->Use();
 	GlErrorCheck();
 
 	int count = 0;
@@ -760,7 +765,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	// Set dt
 	fractal->deltaTime.value = (float)dt;
-	fractal->explorationShader->SetUniform(fractal->deltaTime);
+	fractal->shader->SetUniform(fractal->deltaTime);
 
 	// render loop
 	double imageRenderTime = glfwGetTime();
@@ -769,16 +774,16 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 	for (size_t i = 0; i < imageCount; i++)
 	{
-		if (fractal->explorationShader->type == ShaderType::compute)
+		if (fractal->shader->type == ShaderType::compute)
 		{
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
 			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
 		}
 
-		fractal->explorationShader->Use();
+		fractal->shader->Use();
 		fractal->frame.value = 0;
-		fractal->explorationShader->SetUniform(fractal->frame);
-		fractal->explorationShader->SetUniform(fractal->time.id, float(i*dt));
+		fractal->shader->SetUniform(fractal->frame);
+		fractal->shader->SetUniform(fractal->time.id, float(i*dt));
 
 
 #if _DEBUG
@@ -789,26 +794,26 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		imageRenderTime = glfwGetTime();
 		for (size_t j = 0; j < framesPerImage; j++)
 		{
-			if (fractal->explorationShader->type == ShaderType::fragment)
+			if (fractal->shader->type == ShaderType::fragment)
 			{
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->explorationShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-				glBindVertexArray(fractal->explorationShader->buffers[Fractal::rectangleVertexBufferName].id);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fractal->shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+				glBindVertexArray(fractal->shader->buffers[Fractal::rectangleVertexBufferName].id);
 				// rendering, we use ray marching inside the fragment shader
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			}
-			else if (fractal->explorationShader->type == ShaderType::compute)
+			else if (fractal->shader->type == ShaderType::compute)
 			{
-				reinterpret_cast<ComputeShader*>(fractal->explorationShader)->Invoke(fractal->screenSize.value);
+				reinterpret_cast<ComputeShader*>(fractal->shader)->Invoke(fractal->screenSize.value);
 			}
 			fractal->frame.value++;
-			fractal->explorationShader->SetUniform(fractal->frame);
+			fractal->shader->SetUniform(fractal->frame);
 		}
 
-		if (fractal->explorationShader->type == ShaderType::fragment)
+		if (fractal->shader->type == ShaderType::fragment)
 		{
 			fractal->FindPathAndSaveImage();
 		}
-		else if (fractal->explorationShader->type == ShaderType::compute)
+		else if (fractal->shader->type == ShaderType::compute)
 		{
 			// Ping pong buffering
 			static int index = 0;
@@ -820,12 +825,12 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			index = (index + 1) % 2;
 			nextIndex = (index + 1) % 2;
 
-			fractal->explorationShader->Use();
-			fractal->explorationShader->SetUniform(fractal->frame);
+			fractal->shader->Use();
+			fractal->shader->SetUniform(fractal->frame);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-			fractal->explorationShader->Use();
+			fractal->shader->Use();
 
 			imageSaveThread.join();
 
@@ -834,7 +839,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
 			glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->explorationShader)->mainBuffer.id);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
 
 			// We use ping pong buffers, but still want the first and last
 			if (i == 0)
@@ -969,9 +974,9 @@ void Fractal::SetVariablesFromSpec(int* index, std::string SpecificationPath, st
 
 void Fractal::UpdateFractalShader()
 {
-	delete this->explorationShader;
+	delete this->shader;
 
-	this->explorationShader = GenerateShader();
+	this->shader = GenerateShader();
 
 	// Resetting the content in the GUI
 	while (gui->childCount())
@@ -1194,12 +1199,12 @@ void Fractal::PopulateGUI()
 	zoomField->setCallback([this](float value)
 		{
 			zoom.SetValue(value, Fractal::renderMode);
-			this->explorationShader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id));
+			this->shader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id));
 		});
 
 	zoom.guiElements = { zoomField };
 	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->GetZoom()); };
-	zoom.SetShaderValue = [this](bool renderMode) {this->explorationShader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id)); };
+	zoom.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id)); };
 
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
 	renderCheckbox->setCallback([this](bool value)
@@ -1216,7 +1221,7 @@ void Fractal::PopulateGUI()
 			value = std::max(value, 0.);
 			this->time.value.SetTotalTime(value);
 			this->time.renderValue.SetTotalTime(value);
-			this->explorationShader->SetUniform(this->time);
+			this->shader->SetUniform(this->time);
 		});
 
 	time.guiElements = { timeField };
@@ -1232,13 +1237,13 @@ void Fractal::PopulateGUI()
 void Fractal::Update()
 {
 	frame.value++;
-	explorationShader->SetUniform(frame);
+	shader->SetUniform(frame);
 
 	time.value.PollTime();
-	explorationShader->SetUniform(time);
+	shader->SetUniform(time);
 	time.SetGuiValue();
 	deltaTime.value = (float)time.value.GetDeltaTime();
-	explorationShader->SetUniform(deltaTime);
+	shader->SetUniform(deltaTime);
 }
 
 
