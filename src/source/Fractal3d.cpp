@@ -8,7 +8,7 @@
 
 const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DFractal);
 
-#define PrintSource 0
+#define PrintSource 1
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal(explorationShader, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
@@ -116,11 +116,16 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			cursorVisible = !cursorVisible;
 			if (cursorVisible)
 			{
+				double x;
+				double y;
+				glfwGetCursorPos(window, &x, &y);
+				lastNonGuiPos = { x,y };
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 			else
 			{
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				glfwSetCursorPos(window, lastNonGuiPos.x, lastNonGuiPos.y);
 			}
 			break;
 		}

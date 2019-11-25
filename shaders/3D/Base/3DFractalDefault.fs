@@ -53,6 +53,7 @@
 <distanceReturn>
 	<mandelBoxDist>abs(length(w)/abs(dw));</mandelBoxDist>,
 	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dw);</mandelBulbDist>,
+	<mandelFoldDist>(length(w)-distDiff)*pow(scale,-i);</mandelFoldDist>,
 </distanceReturn>
 
 <distanceTrap>
@@ -69,25 +70,26 @@
 </distanceBreakCondition>
 
 <distanceEstimator>
-	float DistanceEstimator(vec3 w, out vec4 resColor)
+float DistanceEstimator(vec3 w, out vec4 resColor)
+{
+	<distanceSetup>
+
+	float i;
+	for(i = 0; i < maxIterations; i++)
 	{
-		<distanceSetup>
+		<distanceBody>   
 
-		for(int i = 0; i < maxIterations; i++)
-		{
-			<distanceBody>
-			
-			<distanceExtraOperations>
+		<distanceExtraOperations>
 
-			<distanceTrap>
+		<distanceTrap>
 
-			<distanceBreakCondition>
-		}
-	
-		resColor = <distanceTrapReturn>
-
-		return <distanceReturn>
+		<distanceBreakCondition>
 	}
+
+	resColor = <distanceTrapReturn>
+
+	return <distanceReturn>;
+}
 </distanceEstimator>
 
 

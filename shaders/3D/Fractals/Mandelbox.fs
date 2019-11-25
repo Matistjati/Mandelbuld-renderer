@@ -1,5 +1,3 @@
-<antiAliasing>2</antiAliasing>
-
 <uniforms>
 
 	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (1.098, 50)</GuiHint>*/

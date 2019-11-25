@@ -22,12 +22,21 @@
 								  [addWY(fract(c).y*sign(w.y))], [addWY(c.y*c.y)], [addWY(dot(c*rotation,sun))], [addWY(length(c))], [addW(c*dot(sun,c))], [mandelbulbModded()],
 								  [mandelbulbModded(theta *= 2)], [mandelbulbModded(theta *= r; phi *= r)], [SwapXZ], ]</distanceExtraOperations>,
 	</distanceEstimator>
-	<cpuVariables>
-		<power>1</power>,
-		<genericParameter>2</genericParameter>
-	</cpuVariables>
 }
 </MandelBox>
+
+<MandelFold>
+{
+	<distanceEstimator>
+		<distanceReturn>[mandelFoldDist]</distanceReturn>,
+		<distanceTrap>[defaultTrap]</distanceTrap>,
+		<distanceSetup>[[mandelFoldSetup], ]</distanceSetup>,
+		<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
+		<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
+		<distanceExtraOperations>[[], ]</distanceExtraOperations>,
+	</distanceEstimator>
+}
+</MandelFold>
 
 <MandelBulb>
 {
@@ -48,9 +57,5 @@
 		<zoomDetailRatio>0.01</zoomDetailRatio>,
 		<gamma>0.9</gamma>,
 	</variables>
-
-	<cpuVariables>
-		<power>8</power>,
-	</cpuVariables>
 }
 </MandelBulb>

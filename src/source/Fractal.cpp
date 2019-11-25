@@ -1372,7 +1372,7 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 
 							if (parameterValue == "")
 							{
-								Replace(newSection, "parameter", parameterValue);
+								while(Replace(newSection, "parameter", parameterValue)) {}
 							}
 							else
 							{

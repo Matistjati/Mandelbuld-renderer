@@ -194,6 +194,8 @@
     <None Include="shaders\3D\Fractals\MandelboxSpecs.fs" />
     <None Include="shaders\3D\Fractals\Mandelbulb.fs" />
     <None Include="shaders\3D\Fractals\MandelbulbSpecs.fs" />
+    <None Include="shaders\3D\Fractals\MandelFold.fs" />
+    <None Include="shaders\3D\Fractals\MandelFoldSpecs.fs" />
     <None Include="shaders\Rectangle.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
