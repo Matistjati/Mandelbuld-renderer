@@ -213,6 +213,18 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 
 		std::vector<std::string> values = Fractal::Split(value, ',');
 		std::vector<std::string> renderValues = (renderValue == "") ? values : Fractal::Split(renderValue, ',');
+
+		if (values.size() == 1)
+		{
+			values.push_back(values[0]);
+			values.push_back(values[0]);
+		}
+		if (renderValues.size() == 1)
+		{
+			renderValues.push_back(renderValues[0]);
+			renderValues.push_back(renderValues[0]);
+		}
+
 		if (elementType == Element::ColorPicker)
 		{
 			return new Uniform<nanogui::Color>(nanogui::Color(stof(values[0]),stof(values[1]),stof(values[2]), 1.f),

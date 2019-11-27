@@ -2,10 +2,10 @@
 
 <uniforms>
 	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (0, 10)</GuiHint>*/
-	uniform float fogDarkness = 50;
+	uniform float fogDarkness = 5;
 	
 	/*<GuiHint>GuiType: slider, Name: Distance Diff, Range: (0, 4)</GuiHint>*/
-	uniform float distDiff = 0;
+	uniform float distDiff = 2;
 	
 	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-2, 4)</GuiHint>*/
 	uniform float scale = 1.3;
@@ -41,11 +41,16 @@
 		w.xz*=mat2(sinparameter.y,cosparameter.y,-cosparameter.y,sinparameter.y);
 		w.zy*=mat2(sinparameter.z,cosparameter.z,-cosparameter.z,sinparameter.z);
 	</rotate>,
-	<sierpinskiFold>
+	<mushroomFold>
 		w=abs(w);
 		if(w.x-w.y<0) { w.xy = w.yx; }
 		if(w.x-w.z<0) { w.xz = w.zx; }
 		if(w.y-w.z<0) { w.yz = w.zy; }
+	</mushroomFold>,
+	<sierpinskiFold>
+		if(w.x+w.y<0) w.xy = -w.yx;
+		if(w.x+w.z<0) w.xz = -w.zx;
+		if(w.y+w.z<0) w.zy = -w.yz;	
 	</sierpinskiFold>,
 </operations>
 

@@ -5,7 +5,7 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[[rotate(rot1), sierpinskiFold, rotate(rot2), scaleTranslate], 
+		<distanceBody>[[rotate(rot1), mushroomFold, rotate(rot2), scaleTranslate], [sierpinskiFold, scaleTranslate],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>

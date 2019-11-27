@@ -35,6 +35,10 @@
 		<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
 		<distanceExtraOperations>[[], ]</distanceExtraOperations>,
 	</distanceEstimator>
+
+	<variables>
+		<fudgeFactor>0.95</fudgeFactor>,
+	</variables>
 }
 </MandelFold>
 
