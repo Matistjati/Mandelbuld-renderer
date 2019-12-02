@@ -8,16 +8,16 @@
 	uniform float distDiff = 2;
 	
 	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-2, 4)</GuiHint>*/
-	uniform float scale = 1.3;
+	uniform float scale = 2;
 
 	/*<GuiHint>GuiType: colorPicker, Name: First rotation</GuiHint>*/
-	uniform vec3 rot1 = vec3(0.5,0,0.6);
+	uniform vec3 rot1 = vec3(0);
 	
 	/*<GuiHint>GuiType: colorPicker, Name: Second rotation</GuiHint>*/
-	uniform vec3 rot2 = vec3(0,0.5,0.6);
+	uniform vec3 rot2 = vec3(0);
 	
-	/*<GuiHint>GuiType: colorPicker, Name: Offset</GuiHint>*/
-	uniform vec3 offset = vec3(0,0,0);
+	/*<GuiHint>GuiType: colorPicker, Name: Center</GuiHint>*/
+	uniform vec3 offset = vec3(1);
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
 	uniform vec3 colorA = vec3(0, 0.707, 0.707);
@@ -29,28 +29,32 @@
 </uniforms>
 
 <distanceSetup>
-	<mandelFoldSetup>float m = dot(w,w); vec4 trap = vec4(abs(w),m); vec3 c = vec3(2,4.8,0);</mandelFoldSetup>,
+	<mandelFoldSetup>float m = dot(w,w); vec4 trap = vec4(abs(w),m);</mandelFoldSetup>,
 </distanceSetup>
 
+<distanceBreakCondition>
+	<foldBreak>if (length(w)>escapeRadius) {i++; break;}</foldBreak>,
+</distanceBreakCondition>,
+
 <operations>
-	<scaleTranslate>w = w*scale-c*(scale-1);</scaleTranslate>,
+	<scaleTranslate>w = w*scale-offset*(scale-1);</scaleTranslate>,
 	<rotate>
 		vec3 sinparameter = vec3(sin(parameter*6.28318530718));
 		vec3 cosparameter = vec3(cos(parameter*6.28318530718));
-		w.xy*=mat2(sinparameter.x,cosparameter.x,-cosparameter.x,sinparameter.x);
-		w.xz*=mat2(sinparameter.y,cosparameter.y,-cosparameter.y,sinparameter.y);
-		w.zy*=mat2(sinparameter.z,cosparameter.z,-cosparameter.z,sinparameter.z);
+		w.xy*=mat2(cosparameter.x,-sinparameter.x,sinparameter.x,cosparameter.x);
+		w.xz*=mat2(cosparameter.x,-sinparameter.x,sinparameter.x,cosparameter.x);
+		w.zy*=mat2(cosparameter.x,-sinparameter.x,sinparameter.x,cosparameter.x);
 	</rotate>,
 	<mushroomFold>
 		w=abs(w);
-		if(w.x-w.y<0) { w.xy = w.yx; }
-		if(w.x-w.z<0) { w.xz = w.zx; }
-		if(w.y-w.z<0) { w.yz = w.zy; }
+		if(w.x-w.y<0) w.xy = w.yx;
+		if(w.x-w.z<0) w.xz = w.zx;
+		if(w.y-w.z<0) w.yz = w.zy;
 	</mushroomFold>,
 	<sierpinskiFold>
-		if(w.x+w.y<0) w.xy = -w.yx;
-		if(w.x+w.z<0) w.xz = -w.zx;
-		if(w.y+w.z<0) w.zy = -w.yz;	
+		if(w.x + w.y < 0) w.xy = -w.yx;
+		if(w.x + w.z < 0) w.xz = -w.zx;
+		if(w.y + w.z < 0) w.yz = -w.zy;
 	</sierpinskiFold>,
 </operations>
 

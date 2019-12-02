@@ -38,6 +38,7 @@
 
 	<variables>
 		<fudgeFactor>0.95</fudgeFactor>,
+		<maxIterations>40</maxIterations>,
 	</variables>
 }
 </MandelFold>

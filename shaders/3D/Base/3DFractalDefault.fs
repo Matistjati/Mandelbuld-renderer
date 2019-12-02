@@ -77,7 +77,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	float i;
 	for(i = 0; i < maxIterations; i++)
 	{
-		<distanceBody>   
+		<distanceBody>
 
 		<distanceExtraOperations>
 
