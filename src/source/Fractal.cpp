@@ -429,6 +429,44 @@ std::vector<std::string> Fractal::GetFractalNames(std::vector<std::string> names
 	return finalNames;
 }
 
+std::string Fractal::GetFractalNames(std::vector<std::string> names, size_t index)
+{
+	std::vector<std::string> finalNames(0);
+	if (names.size() == 1)
+	{
+		return { names[0].substr(0, names[0].find_last_of('.')) };
+	}
+	const static size_t shaderSuffixesLength = std::extent<decltype(shaderSuffixes)>::value;
+	for (size_t i = 0; i < names.size(); i++)
+	{
+		bool isWithoutSuffix = true;
+		for (size_t j = 0; j < shaderSuffixesLength; j++)
+		{
+			if (names[i].find(shaderSuffixes[j]) != std::string::npos)
+			{
+				isWithoutSuffix = false;
+				break;
+			}
+		}
+		if (isWithoutSuffix)
+		{
+			size_t fileTypeDelimeter = names[i].find('.');
+			if (fileTypeDelimeter != std::string::npos)
+			{
+				names[i] = names[i].substr(0, fileTypeDelimeter);
+			}
+			finalNames.push_back(names[i]);
+		}
+	}
+
+	if (index>=finalNames.size())
+	{
+		index = 0;
+	}
+
+	return finalNames[index];
+}
+
 
 void ScrollCallBackDelegate(GLFWwindow* window, double xoffset, double yoffset)
 {

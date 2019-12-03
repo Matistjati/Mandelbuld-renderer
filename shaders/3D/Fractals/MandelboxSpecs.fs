@@ -57,6 +57,11 @@
 		MandelBox, FogIteration
 	</include>
 
+	<uniforms>
+		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
+		uniform float frequency = 1;>,
+	</uniforms>
+
 	<distanceEstimator>
 		<distanceBody>[[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative], [boxFold, sphereFold, boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
@@ -71,7 +76,7 @@
 	</variables>
 
 	<indices>
-		<edgeGlow>1</edgeGlow>,
+		<edgeGlow>3</edgeGlow>,
 	</indices>
 
 	<cpuVariables>

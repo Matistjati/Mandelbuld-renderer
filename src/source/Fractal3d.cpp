@@ -17,8 +17,8 @@ Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShade
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
-		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()),fractalNameIndex)), screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
+		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
@@ -27,8 +27,8 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
-	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
-		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()))[fractalNameIndex]),
+	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
+		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
@@ -89,10 +89,6 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			break;
 
 		case GLFW_KEY_X:
-			std::cout << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.x;
-			std::cout << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.y;
-			std::cout << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.z;
-			std::cout << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->name;
 			BreakIfDebug();
 			break;
 		}

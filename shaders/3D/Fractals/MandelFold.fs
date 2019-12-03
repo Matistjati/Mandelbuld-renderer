@@ -38,6 +38,10 @@
 
 <operations>
 	<scaleTranslate>w = w*scale-offset*(scale-1);</scaleTranslate>,
+	<mengerScale>
+		w = w*scale-vec3(offset.xy,0)*(scale-1);
+		if(w.z>0.5*offset.z*(scale-1)) w.z-=offset.z*(scale-1);
+	</mengerScale>,
 	<rotate>
 		vec3 sinparameter = vec3(sin(parameter*6.28318530718));
 		vec3 cosparameter = vec3(cos(parameter*6.28318530718));
@@ -58,13 +62,20 @@
 	</sierpinskiFold>,
 	
 	<octahedronFold>
-		if(w.x-w.y<0){w.xy = w.yx;}
-		if(w.x+w.y<0){w.xy = -w.yx;}
-		if(w.x-w.z<0){w.xz = w.zx;}
-		if(w.x+w.z<0){w.xz = -w.zx;}
-		if(w.y-w.z<0){w.yz = w.zy;}
-		if(w.y+w.z<0){w.yz = -w.zy;}
+		if(w.x-w.y<0) w.xy = w.yx;
+		if(w.x+w.y<0) w.xy = -w.yx;
+		if(w.x-w.z<0) w.xz = w.zx;
+		if(w.x+w.z<0) w.xz = -w.zx;
+		if(w.y-w.z<0) w.yz = w.zy;
+		if(w.y+w.z<0) w.yz = -w.zy;
 	</octahedronFold>,
+	
+	<mengerFold>
+		w=abs(w);
+		if(w.x-w.y<0) w.xy = w.yx;
+		if(w.x-w.z<0) w.xz = w.zx;
+		if(w.y-w.z<0) w.yz = w.zy;
+	</mengerFold>,
 </operations>
 
 <include>

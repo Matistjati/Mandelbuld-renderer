@@ -69,4 +69,8 @@
 	<
 	col *= float(hitSurface);
 	>,
+
+	<
+	col = (cos(edgeColor + colorA * steps * 10 * frequency) * -0.5 + 0.5);
+	>,
 </edgeGlow>

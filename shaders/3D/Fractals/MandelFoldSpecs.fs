@@ -66,3 +66,25 @@
 		<position>[4, 0, 0]</position>,
 	</cpuVariables>
 }
+
+// Menger sponge 3
+{
+	<include>
+		MandelFold
+	</include>
+
+	<distanceEstimator>
+		<distanceBody>[[rotate(rot1), mengerFold, rotate(rot2), mengerScale],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+
+	<variables>
+		<scale>2.7</scale>,
+		<offset>vec3(1)</offset>,
+	</variables>
+
+	<cpuVariables>
+		<position>[4, 0, 0]</position>,
+	</cpuVariables>
+}

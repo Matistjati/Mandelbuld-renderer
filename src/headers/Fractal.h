@@ -159,6 +159,7 @@ public:
 	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);
 	static std::vector<std::string> GetFractalNames(std::vector<std::string> names);
+	static std::string GetFractalNames(std::vector<std::string> names, size_t index);
 };
 
 #endif
