@@ -56,6 +56,15 @@
 		if(w.x + w.z < 0) w.xz = -w.zx;
 		if(w.y + w.z < 0) w.yz = -w.zy;
 	</sierpinskiFold>,
+	
+	<octahedronFold>
+		if(w.x-w.y<0){w.xy = w.yx;}
+		if(w.x+w.y<0){w.xy = -w.yx;}
+		if(w.x-w.z<0){w.xz = w.zx;}
+		if(w.x+w.z<0){w.xz = -w.zx;}
+		if(w.y-w.z<0){w.yz = w.zy;}
+		if(w.y+w.z<0){w.yz = -w.zy;}
+	</octahedronFold>,
 </operations>
 
 <include>

@@ -212,8 +212,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 			// Sun
 			float shadow = SoftShadow(fractalToSun, shadowSoftness);
-			float diffuse = clamp(dot(sun, normal), 0.0, 1.0 ) * shadow;
-			float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1.0), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
+			float diffuse = clamp(dot(sun, normal), 0.0, 1.0 ) * shadow * min(3,0.5/steps);
+			float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,.9999), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
 
 			// Bounce
 			float diffuse2 = clamp( 0.5 + 0.5*dot(light, normal), 0.0, 1.0 )*occlusion;

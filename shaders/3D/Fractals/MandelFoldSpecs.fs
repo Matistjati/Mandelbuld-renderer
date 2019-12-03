@@ -44,3 +44,25 @@
 		<position>[4, 0, 0]</position>,
 	</cpuVariables>
 }
+
+// Octahedron 2
+{
+	<include>
+		MandelFold
+	</include>
+
+	<distanceEstimator>
+		<distanceBody>[[rotate(rot1), octahedronFold, rotate(rot2), scaleTranslate],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+
+	<variables>
+		<scale>2</scale>,
+		<offset>vec3(1,0,0)</offset>,
+	</variables>
+
+	<cpuVariables>
+		<position>[4, 0, 0]</position>,
+	</cpuVariables>
+}
