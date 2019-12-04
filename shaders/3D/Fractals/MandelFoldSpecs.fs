@@ -88,3 +88,35 @@
 		<position>[4, 0, 0]</position>,
 	</cpuVariables>
 }
+
+// Icsohedron 4
+{
+	<include>
+		MandelFold
+	</include>
+
+	<uniforms>
+		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
+		uniform float frequency = 1;>,
+	</uniforms>
+
+	<distanceEstimator>
+		<distanceBody>[[rotate(rot1), icosaFold, rotate(rot2), scaleTranslate],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+
+	<variables>
+		<scale>2.3</scale>,
+		<offset>vec3(1,1.61803399,0)</offset>,
+		<fogColoring>true</fogColoring>,
+	</variables>
+
+	<indices>
+		<edgeGlow>1</edgeGlow>,
+	</indices>
+
+	<cpuVariables>
+		<position>[4, 0, 0]</position>,
+	</cpuVariables>
+}

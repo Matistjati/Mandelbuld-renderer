@@ -76,6 +76,19 @@
 		if(w.x-w.z<0) w.xz = w.zx;
 		if(w.y-w.z<0) w.yz = w.zy;
 	</mengerFold>,
+	
+	<icosaFold>
+		const float phi = 1.61803399; // golden ratio.
+
+		const vec3 n1 = normalize(vec3(-phi,phi-1.0,1.0));
+		const vec3 n2 = normalize(vec3(1.0,-phi,phi+1.0));
+
+		w.yz=abs(w.yz);
+		w-=2.0 * max(0,dot(w, n2)) * n2;
+
+		w.xz = abs(w.xz);
+		w-=2.0 * max(0,dot(w, n1)) * n1;
+	</icosaFold>,
 </operations>
 
 <include>
@@ -108,5 +121,9 @@
 <edgeGlow>
 	<
 	col = mix(col, edgeColor, pow(steps,fogDarkness));
+	>,
+
+	<
+	col = (cos(edgeColor + skyColor * steps * 10 * frequency) * -0.5 + 0.5);
 	>,
 </edgeGlow>
