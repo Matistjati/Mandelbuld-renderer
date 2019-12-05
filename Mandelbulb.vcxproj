@@ -70,14 +70,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Matis\source\repos\Mandelbulb\opengl\include;C:\Users\Matis\source\repos\Mandelbulb\opengl\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Matis\source\repos\Mandelbulb\opengl\include\GLEW\lib\Release\Win32;C:\Users\Matis\source\repos\Mandelbulb\opengl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)Dependencies\opengl\lib;$(LibraryPath)</LibraryPath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)opengl\include;$(SolutionDir)opengl\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)opengl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\opengl\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)Dependencies\opengl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,12 +85,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include;$(SolutionDir)opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)Dependencies\glm;$(SolutionDir)Dependencies\Image\include;$(SolutionDir)Dependencies\opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Debug\nanogui.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;libpng16.lib;libpng16d.lib;zlibstatdebug.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Image\lib;$(SolutionDir)Dependencies\nanogui\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\Image\lib;$(SolutionDir)Dependencies\nanogui\lib;$(SolutionDir)Dependencies\opengl\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LinkTimeCodeGeneration>
@@ -113,7 +113,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)opengl\include;$(SolutionDir)opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)opengl\glm;$(SolutionDir)Image\include;$(SolutionDir)opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)Dependencies\opengl\glm;$(SolutionDir)Image\include;C:\Users\Matis\source\repos\Mandelbulb\Dependencies\opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <UndefinePreprocessorDefinitions>
@@ -144,7 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="opengl\include\glad\src\glad.c" />
+    <ClCompile Include="Dependencies\opengl\include\glad\src\glad.c" />
     <ClCompile Include="src/source/Fractal.cpp" />
     <ClCompile Include="src/source/Fractal3D.cpp" />
     <ClCompile Include="src/source/Uniform.cpp" />

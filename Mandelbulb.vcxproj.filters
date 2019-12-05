@@ -66,10 +66,10 @@
     <ClCompile Include="src\source\BufferInitialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opengl\include\glad\src\glad.c">
+    <ClCompile Include="src\source\GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\source\GUI.cpp">
+    <ClCompile Include="Dependencies\opengl\include\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
