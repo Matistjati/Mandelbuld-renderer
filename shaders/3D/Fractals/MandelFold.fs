@@ -1,5 +1,3 @@
-<antiAliasing>2</antiAliasing>
-
 <uniforms>
 	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (0, 10)</GuiHint>*/
 	uniform float fogDarkness = 5;
@@ -28,8 +26,22 @@
 	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
 </uniforms>
 
+<include>
+	sierpinskiFold, mengerFold, icosaFold
+</include>
+
 <distanceSetup>
-	<mandelFoldSetup>float m = dot(w,w); vec4 trap = vec4(abs(w),m);</mandelFoldSetup>,
+	<mandelFoldSetup>
+		float m = dot(w,w);
+		vec4 trap = vec4(abs(w),m);
+		vec3 sinrot1 = vec3(sin(rot1*6.28318530718));
+		vec3 cosrot1 = vec3(cos(rot1*6.28318530718));
+		mat2 rotMat1 = mat2(cosrot1.x,-sinrot1.x,sinrot1.x,cosrot1.x);
+		
+		vec3 sinrot2 = vec3(sin(rot2*6.28318530718));
+		vec3 cosrot2 = vec3(cos(rot2*6.28318530718));
+		mat2 rotMat2 = mat2(cosrot2.x,-sinrot2.x,sinrot2.x,cosrot2.x);
+	</mandelFoldSetup>,
 </distanceSetup>
 
 <distanceBreakCondition>
@@ -43,11 +55,9 @@
 		if(w.z>0.5*offset.z*(scale-1)) w.z-=offset.z*(scale-1);
 	</mengerScale>,
 	<rotate>
-		vec3 sinparameter = vec3(sin(parameter*6.28318530718));
-		vec3 cosparameter = vec3(cos(parameter*6.28318530718));
-		w.xy*=mat2(cosparameter.x,-sinparameter.x,sinparameter.x,cosparameter.x);
-		w.xz*=mat2(cosparameter.x,-sinparameter.x,sinparameter.x,cosparameter.x);
-		w.zy*=mat2(cosparameter.x,-sinparameter.x,sinparameter.x,cosparameter.x);
+		w.xy*=parameter;
+		w.xz*=parameter;
+		w.zy*=parameter;
 	</rotate>,
 	<mushroomFold>
 		w=abs(w);
@@ -55,10 +65,9 @@
 		if(w.x-w.z<0) w.xz = w.zx;
 		if(w.y-w.z<0) w.yz = w.zy;
 	</mushroomFold>,
+
 	<sierpinskiFold>
-		if(w.x + w.y < 0) w.xy = -w.yx;
-		if(w.x + w.z < 0) w.xz = -w.zx;
-		if(w.y + w.z < 0) w.yz = -w.zy;
+		sierpinskiFold(w);
 	</sierpinskiFold>,
 	
 	<octahedronFold>
@@ -71,23 +80,11 @@
 	</octahedronFold>,
 	
 	<mengerFold>
-		w=abs(w);
-		if(w.x-w.y<0) w.xy = w.yx;
-		if(w.x-w.z<0) w.xz = w.zx;
-		if(w.y-w.z<0) w.yz = w.zy;
+		mengerFold(w);
 	</mengerFold>,
 	
 	<icosaFold>
-		const float phi = 1.61803399; // golden ratio.
-
-		const vec3 n1 = normalize(vec3(-phi,phi-1.0,1.0));
-		const vec3 n2 = normalize(vec3(1.0,-phi,phi+1.0));
-
-		w.yz=abs(w.yz);
-		w-=2.0 * max(0,dot(w, n2)) * n2;
-
-		w.xz = abs(w.xz);
-		w-=2.0 * max(0,dot(w, n1)) * n1;
+		icosaFold(w);
 	</icosaFold>,
 </operations>
 
@@ -113,6 +110,10 @@
 	col.z += sqrt(sin(trap.z));
 	>,
 
+	<
+	col = (cos(edgeColor + colorA * steps * 10) * -0.5 + 0.5);
+	>,
+
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);
@@ -121,9 +122,5 @@
 <edgeGlow>
 	<
 	col = mix(col, edgeColor, pow(steps,fogDarkness));
-	>,
-
-	<
-	col = (cos(edgeColor + skyColor * steps * 10 * frequency) * -0.5 + 0.5);
 	>,
 </edgeGlow>

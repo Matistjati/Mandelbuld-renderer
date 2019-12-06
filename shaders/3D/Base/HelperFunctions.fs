@@ -42,6 +42,41 @@
 	}
 </boxFold>
 
+<sierpinskiFold>
+	void sierpinskiFold(inout vec3 w)
+	{
+		if(w.x + w.y < 0) w.xy = -w.yx;
+		if(w.x + w.z < 0) w.xz = -w.zx;
+		if(w.y + w.z < 0) w.yz = -w.zy;
+	}
+</sierpinskiFold>
+
+<mengerFold>
+	void mengerFold(inout vec3 w)
+	{
+		w=abs(w);
+		if(w.x-w.y<0) w.xy = w.yx;
+		if(w.x-w.z<0) w.xz = w.zx;
+		if(w.y-w.z<0) w.yz = w.zy;
+	}
+</mengerFold>
+
+<icosaFold>
+	void icosaFold(inout vec3 w)
+	{
+		const float phi = 1.61803399; // golden ratio.
+
+		const vec3 n1 = normalize(vec3(-phi,phi-1.0,1.0));
+		const vec3 n2 = normalize(vec3(1.0,-phi,phi+1.0));
+
+		w.yz=abs(w.yz);
+		w-=2.0 * max(0,dot(w, n2)) * n2;
+
+		w.xz = abs(w.xz);
+		w-=2.0 * max(0,dot(w, n1)) * n1;
+	}
+</icosaFold>
+
 <triplexPow>
 vec3 triplexPow(vec3 w, float power, inout float dw, float m)
 {
