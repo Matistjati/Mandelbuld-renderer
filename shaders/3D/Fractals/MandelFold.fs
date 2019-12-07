@@ -34,12 +34,16 @@
 	<mandelFoldSetup>
 		float m = dot(w,w);
 		vec4 trap = vec4(abs(w),m);
-		vec3 sinrot1 = vec3(sin(rot1*6.28318530718));
-		vec3 cosrot1 = vec3(cos(rot1*6.28318530718));
+
+		vec3 phase1 = vec3(0,0,0);
+		vec3 phase2 = vec3(0,0,0);
+
+		vec3 sinrot1 = vec3(sin((rot1+phase1)*6.28318530718));
+		vec3 cosrot1 = vec3(cos((rot1+phase1)*6.28318530718));
 		mat2 rotMat1 = mat2(cosrot1.x,-sinrot1.x,sinrot1.x,cosrot1.x);
 		
-		vec3 sinrot2 = vec3(sin(rot2*6.28318530718));
-		vec3 cosrot2 = vec3(cos(rot2*6.28318530718));
+		vec3 sinrot2 = vec3(sin((rot2+phase2)*6.28318530718));
+		vec3 cosrot2 = vec3(cos((rot2+phase2)*6.28318530718));
 		mat2 rotMat2 = mat2(cosrot2.x,-sinrot2.x,sinrot2.x,cosrot2.x);
 	</mandelFoldSetup>,
 </distanceSetup>
@@ -65,6 +69,10 @@
 		if(w.x-w.z<0) w.xz = w.zx;
 		if(w.y-w.z<0) w.yz = w.zy;
 	</mushroomFold>,
+
+	<cubeFold>
+		w = abs(w);
+	</cubeFold>
 
 	<sierpinskiFold>
 		sierpinskiFold(w);

@@ -89,6 +89,11 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			break;
 
 		case GLFW_KEY_X:
+
+			std::cout << "X: " << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.x 
+					  << ", Y: " << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.y
+					  << ", Z: " << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.z;
+
 			BreakIfDebug();
 			break;
 		}

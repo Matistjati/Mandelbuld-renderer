@@ -116,7 +116,7 @@
 	</cpuVariables>
 }
 
-// Icosahedron 4
+// Cube 5
 {
 	<include>
 		MandelFold
@@ -128,14 +128,41 @@
 	</uniforms>
 
 	<distanceEstimator>
-		<distanceBody>[[rotate(rotMat1), icosaFold, mengerFold, rotate(rotMat2), scaleTranslate],
+		<distanceBody>[[rotate(rotMat1), cubeFold, rotate(rotMat2), scaleTranslate],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 
 	<variables>
 		<scale>2</scale>,
-		<offset>vec3(0.850650808,0.525731112,0)</offset>,
+		<offset>vec3(1)</offset>,
+	</variables>
+
+	<cpuVariables>
+		<position>[4, 0, 0]</position>,
+	</cpuVariables>
+}
+
+// Hybrid 6
+{
+	<include>
+		MandelFold
+	</include>
+
+	<uniforms>
+		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
+		uniform float frequency = 1;>,
+	</uniforms>
+
+	<distanceEstimator>
+		<distanceBody>[[rotate(rotMat1), sierpinskiFold, mengerFold, icosaFold, rotate(rotMat2), scaleTranslate],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+
+	<variables>
+		<scale>1.7</scale>,
+		<offset>vec3(0.850650808,0,0.3)</offset>,
 	</variables>
 
 	<cpuVariables>
