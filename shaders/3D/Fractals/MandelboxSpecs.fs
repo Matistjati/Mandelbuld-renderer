@@ -11,6 +11,8 @@
 		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, addLength],
 		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, setW(abs(w))],
 		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, icosaFold(w)],
+		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, sierpinskiFold(w)],
+		[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, mengerFold(w)],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>

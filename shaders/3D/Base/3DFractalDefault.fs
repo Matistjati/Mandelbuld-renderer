@@ -48,6 +48,8 @@
 	<setW>w=parameter;</setW>,
 	<SwapXZ>w.xz=w.zx;</SwapXZ>,
 	<icosaFold>icosaFold(parameter);</icosaFold>,
+	<mengerFold>mengerFold(parameter);</mengerFold>,
+	<sierpinskiFold>sierpinskiFold(parameter);</sierpinskiFold>,
 	<mandelbulbModded>float r = length(w); float theta = 2 * atan(w.x, w.z); float phi = 1 * acos(w.y / r); parameter; w = r * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));</mandelbulbModded>,
 </operations>
 

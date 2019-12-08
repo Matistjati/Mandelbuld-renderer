@@ -140,29 +140,29 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			break;
 
 		case GLFW_KEY_Q:
-			(*shaderIndices["loopReturn"])++;
+			shaderIndices["loopReturn"]++;
 			update = true;
 			break;
 		case GLFW_KEY_A:
-			(*shaderIndices["loopReturn"])--;
+			shaderIndices["loopReturn"]--;
 			update = true;
 			break;
 
 		case GLFW_KEY_W:
-			(*shaderIndices["loopExtraOperations"])++;
+			shaderIndices["loopExtraOperations"]++;
 			update = true;
 			break;
 		case GLFW_KEY_S:
-			(*shaderIndices["loopExtraOperations"])--;
+			shaderIndices["loopExtraOperations"]--;
 			update = true;
 			break;
 
 		case GLFW_KEY_E:
-			(*shaderIndices["loopSetup"])++;
+			shaderIndices["loopSetup"]++;
 			update = true;
 			break;
 		case GLFW_KEY_D:
-			(*shaderIndices["loopSetup"])--;
+			shaderIndices["loopSetup"]--;
 			update = true;
 			break;
 
@@ -568,8 +568,9 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 				if (versions[versions.size() - 1][0] != '<') versions.pop_back();
 
 				int* indexPtr = shaderIndices[c.name];
-				if (*indexPtr < 0)* indexPtr = versions.size() - 1;
-				else if ((size_t)* indexPtr > versions.size() - 1) *indexPtr = 0;
+				if (*indexPtr < 0) *indexPtr = versions.size() - 1;
+				else if ((size_t) *indexPtr > versions.size() - 1) *indexPtr = 0;
+
 				index = std::to_string(*indexPtr);
 			}
 			else if (index == "") index = "0";
@@ -777,7 +778,7 @@ void Fractal2D::Init()
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
-	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)}, {"loopSetup", new int(0)} };
+	return { {"loopReturn", 0}, {"loopExtraOperations", 0}, {"loopSetup", 0} };
 }
 
 void Fractal2D::RenderComputeShader()

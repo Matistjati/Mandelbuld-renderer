@@ -28,7 +28,7 @@
 </operations>
 
 <include>
-	boxFold, sphereFold, triplexPow, icosaFold
+	boxFold, sphereFold, triplexPow, icosaFold, sierpinskiFold, mengerFold
 </include>
 
 <distanceTrap>
