@@ -88,12 +88,16 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			update = true;
 			break;
 
+		case GLFW_KEY_R:
+			(*shaderIndices["rot1"])++;
+			update = true;
+			break;
+		case GLFW_KEY_F:
+			(*shaderIndices["rot1"])--;
+			update = true;
+			break;
+
 		case GLFW_KEY_X:
-
-			std::cout << "X: " << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.x 
-					  << ", Y: " << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.y
-					  << ", Z: " << ((Uniform<glm::vec3>*)fractalUniforms[19].uniform)->value.z;
-
 			BreakIfDebug();
 			break;
 		}
@@ -411,7 +415,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 
 	if (specification.find(Section("variables").start) != std::string::npos)
 	{
-		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', { {'<', '>'}, {'(', ')' } });
+		std::vector<std::string> variables = SplitNotInChar(GetSection(Section("variables"), specification), ',', { {'<', '>'}, {'(', ')' }, { '[' , ']' } });
 		for (size_t i = 0; i < variables.size(); i++)
 		{
 			std::string sectionName = GetSectionName(variables[i]);
@@ -424,6 +428,45 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 				end = final.find(';', start);
 
 				std::string uniform = final.substr(start, end - start);
+
+
+				if (value.find('[') != std::string::npos)
+				{
+					if (value[0] == '[') value = value.substr(1);
+					if (value[value.size() - 1 ] == ']') value = value.substr(0, value.size()-1);
+
+					std::vector<std::string> versions = SplitNotInChar(value, ',', { { '[' , ']' } });
+					if (versions.size() == 0)
+					{
+						DebugPrint("Splitting variables version on " + sectionName + " failed");
+						BreakIfDebug();
+					}
+
+					for (size_t i = 0; i < versions.size(); i++)
+					{
+						CleanString(versions[i], { ' ' });
+						if (versions[i][0] == '[') versions[i] = versions[i].substr(1);
+						if (versions[i][versions[i].size() - 1] == ']') versions[i] = versions[i].substr(0, versions[i].size() - 1);
+					}
+
+					int index = 0;
+					if (shaderIndices.count(sectionName))
+					{
+						index = *shaderIndices[sectionName];
+						if (index < 0)
+						{
+							index = versions.size() - 1;
+						}
+						if (index >= versions.size())
+						{
+							index = 0;
+						}
+
+						*shaderIndices[sectionName] = index;
+					}
+
+					value = versions[index];
+				}
 
 				std::vector<std::string> uniformParts = SplitNotInChar(uniform, ' ', '(', ')');
 
@@ -540,7 +583,7 @@ void Fractal3D::Init()
 
 std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()
 {
-	return { {"coloring", new int(0)}, {"distanceSetup", new int(0)}, {"distanceExtraOperations", new int(0)}, };
+	return { {"coloring", new int(0)}, {"distanceSetup", new int(0)}, {"distanceExtraOperations", new int(0)}, {"rot1", new int(0)} };
 }
 
 void Fractal3D::SetShaderGui(bool render)

@@ -13,8 +13,8 @@
 
 	<variables>
 		<scale>1.3</scale>,
-		<rot1>vec3(0.53,0.83,0.79)</rot1>,
-		<rot2>vec3(0,0.5,0.6)</rot2>,
+		<rot1>[[vec3(0.448,0.68,0.425)], [vec3(0.605,0.842,0.581)]]</rot1>,
+		<rot2>vec3(0.319,0.646,0.733)</rot2>,
 		<offset>vec3(2,4.8,0)</offset>,
 	</variables>
 
@@ -134,7 +134,7 @@
 	</distanceEstimator>
 
 	<variables>
-		<scale>2</scale>,
+		<scale>2.2</scale>,
 		<offset>vec3(1)</offset>,
 	</variables>
 
