@@ -8,20 +8,18 @@
 	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-2, 4)</GuiHint>*/
 	uniform float scale = 2;
 
-	/*<GuiHint>GuiType: colorPicker, Name: First rotation</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: First rotation, Range: (0, 1)</GuiHint>*/
 	uniform vec3 rot1 = vec3(0);
 	
-	/*<GuiHint>GuiType: colorPicker, Name: Second rotation</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Second rotation, Range: (0, 1)</GuiHint>*/
 	uniform vec3 rot2 = vec3(0);
 	
-	/*<GuiHint>GuiType: colorPicker, Name: Center</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Center, Range: (0, 5)</GuiHint>*/
 	uniform vec3 offset = vec3(1);
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
 	uniform vec3 colorA = vec3(0, 0.707, 0.707);
 	
-
-
 	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
 	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
 </uniforms>

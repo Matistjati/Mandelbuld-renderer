@@ -41,6 +41,47 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	uniform->SetGuiValue = [slider, uniform]() {slider->setValue((float)uniform->GetValue()); };
 }
 
+void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec3 value)
+{
+	nanogui::Button* button = fractal->gui->form->AddButton(label);
+
+	Form* form = new Form(fractal->gui);
+	nanogui::Window* window = form->addWindow(Eigen::Vector2i(300, 600), label);
+
+	window->setVisible(false);
+
+	std::vector<nanogui::Slider*> sliders = form->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN()); },
+		3, range, glm::vec4(value.x, value.y, value.z, -1));
+	
+	sliders[0]->setCallback([fractal, uniform](float value)
+		{
+			uniform->SetValue(glm::vec3(value, uniform->value.y, uniform->value.z), Fractal::renderMode);
+			fractal->shader->SetUniform(*uniform);
+		});
+
+	sliders[1]->setCallback([fractal, uniform](float value)
+		{
+			uniform->SetValue(glm::vec3(uniform->value.x, value, uniform->value.z), Fractal::renderMode);
+			fractal->shader->SetUniform(*uniform);
+		});
+
+	sliders[2]->setCallback([fractal, uniform](float value)
+		{
+			uniform->SetValue(glm::vec3(uniform->value.x, uniform->value.y, value), Fractal::renderMode);
+			fractal->shader->SetUniform(*uniform);
+		});
+
+
+	button->setCallback([fractal,uniform,window]()
+		{
+			window->setVisible(!window->visible());
+		});
+	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
+		{
+			fractal->shader->SetUniform(*uniform, renderMode);
+		});
+}
+
 void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
 {
 	nanogui::CheckBox* slider = fractal->gui->form->AddCheckbox(label, uniform->value);
@@ -107,6 +148,11 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 		Fractal::CleanString(range, { '(',')',' ' });
 
 		std::vector<std::string> rangeV = Fractal::Split(range, ',');
+		if (!rangeV.size())
+		{
+			DebugPrint("Range not declared for " + elementLabel);
+			BreakIfDebug();
+		}
 		std::pair<float, float> rangePair = { stof(rangeV[0]),stof(rangeV[1]) };
 
 
@@ -121,6 +167,27 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 			AddSlider<int>(elementLabel, (Uniform<int>*)uniform, fractal, rangePair, stoi(value));
 			SetGuiValue = [uniformCopy]() {((Uniform<int>*)uniformCopy)->SetGuiValue(); };
 			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<int>*)uniformCopy)->SetShaderValue(renderMode); };
+		}
+		else if (type == "vec3")
+		{
+			if (value.substr(0, 4) == "vec3")
+			{
+				value = value.substr(4);
+			}
+
+			Fractal::CleanString(value, { '(',')' });
+
+			std::vector<std::string> values = Fractal::Split(value, ',');
+
+			if (values.size() == 1)
+			{
+				values.push_back(values[0]);
+				values.push_back(values[0]);
+			}
+
+			AddSlider3(elementLabel, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
+			SetGuiValue = [uniformCopy]() {((Uniform<glm::vec3>*)uniformCopy)->SetGuiValue(); };
+			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<glm::vec3>*)uniformCopy)->SetShaderValue(renderMode); };
 		}
 		else
 		{

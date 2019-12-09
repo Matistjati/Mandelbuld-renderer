@@ -76,6 +76,7 @@ public:
 	void SetUniform(Uniform<glm::vec2> vector) const;
 	void SetUniform(Uniform<glm::vec2> vector, bool renderMode) const;
 	void SetUniform(Uniform<glm::vec3> vector) const;
+	void SetUniform(Uniform<glm::vec3> vector, bool renderMode) const;
 	void SetUniform(Uniform<glm::vec4> vector) const;
 	void SetUniform(Uniform<glm::mat2> &mat) const;
 	void SetUniform(Uniform<glm::mat3> &mat) const;

@@ -7,6 +7,7 @@
 #include "nanogui/nanogui.h"
 #include "Fractal.h"
 #include "headers/Uniform.h"
+#include "glm.hpp"
 #include <string>
 
 class Fractal;
@@ -91,6 +92,62 @@ public:
 			[&](const Type& v) { value = v; },
 			[&]() -> Type { return value; }
 			);
+	}
+
+	std::vector<nanogui::Slider*> AddSlidersN(nanogui::Window* window, const std::function<glm::vec4()>& getter, int n, std::pair<float, float> range, glm::vec4 value)
+	{
+		std::vector<nanogui::Slider*> sliders(n);
+		const char dimensionNames[] = { 'X', 'Y', 'Z', 'W' };
+		for (int i = 0; i < n; i++)
+		{
+			nanogui::Label* labelW = new nanogui::Label(mWindow, std::string(1,dimensionNames[i]), mLabelFontName, mLabelFontSize);
+			nanogui::Slider* widget = new nanogui::Slider(window);
+
+			auto refresh = [widget, getter, i] {
+				float value = getter()[i], current = widget->value();
+				if (value != current)
+					widget->setValue(value);
+			};
+			refresh();
+
+			widget->setRange(range);
+			widget->setValue(value[i]);
+
+			widget->setFontSize(mWidgetFontSize);
+			Eigen::Vector2i fs = widget->fixedSize();
+			widget->setFixedSize(Eigen::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
+				fs.y() != 0 ? fs.y() : mFixedSize.y()));
+			mRefreshCallbacks.push_back(refresh);
+			if (mLayout->rowCount() > 0)
+				mLayout->appendRow(mVariableSpacing);
+			mLayout->appendRow(0);
+			mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
+			mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+			sliders[i] = widget;
+		}
+		
+		return sliders;
+	}
+
+	nanogui::Button* AddButton(const std::string& label)
+	{
+		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
+		nanogui::Button* widget = new nanogui::Button(gui->nanoGuiWindow);
+
+		widget->setCaption("open");
+
+		widget->setFontSize(mWidgetFontSize);
+		nanogui::Vector2i fs = widget->fixedSize();
+		widget->setFixedSize(Eigen::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
+			fs.y() != 0 ? fs.y() : mFixedSize.y()));
+
+		if (mLayout->rowCount() > 0)
+			mLayout->appendRow(mVariableSpacing);
+
+		mLayout->appendRow(0);
+		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+		return widget;
 	}
 
 	nanogui::CheckBox* AddCheckbox(const std::string& label, const std::function<void(const bool&)>& setter, const std::function<bool()>& getter)

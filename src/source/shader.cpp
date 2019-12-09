@@ -316,6 +316,12 @@ void Shader::SetUniform(Uniform<glm::vec3> vector) const
 	glUniform3f(vector.id, vector.value.x, vector.value.y, vector.value.z);
 }
 
+void Shader::SetUniform(Uniform<glm::vec3> vector, bool renderMode) const
+{
+	glm::vec3 v = (renderMode) ? vector.renderValue : vector.value;
+	glUniform3f(vector.id, v.x, v.y, v.z);
+}
+
 void Shader::SetUniform(Uniform<Time> value) const
 {
 	glUniform1f(value.id, static_cast<float>(value.value.GetTotalTime()));
