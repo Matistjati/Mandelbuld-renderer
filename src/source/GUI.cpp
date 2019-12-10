@@ -45,8 +45,11 @@ void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal
 {
 	nanogui::Button* button = fractal->gui->form->AddButton(label);
 
+	fractal->gui->performLayout();
+
+
 	Form* form = new Form(fractal->gui);
-	nanogui::Window* window = form->addWindow(Eigen::Vector2i(300, 600), label);
+	nanogui::Window* window = form->addWindow(fractal->gui->form->GetBottomElementPos() + Eigen::Vector2i{110,0}, label);
 
 	window->setVisible(false);
 

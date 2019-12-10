@@ -53,13 +53,45 @@ public:
 	void ClearFocusPath();
 };
 
-
+class GridWrapper : public nanogui::AdvancedGridLayout
+{
+public:
+	std::unordered_map<const nanogui::Widget*, Anchor> GetAnchors()
+	{
+		return mAnchor;
+	}
+};
 
 class Form : public nanogui::FormHelper
 {
 public:
 	GUI* gui;
 	Form(GUI* gui);
+
+	Eigen::Vector2i GetBottomElementPos()
+	{
+		gui->performLayout();
+
+		GridWrapper* grid = (GridWrapper*)this->mLayout.get();
+
+		int maxY = 0;
+		int maxX = 0;
+
+		for (auto& anchor : grid->GetAnchors())
+		{
+			if (anchor.first->position().x() > maxX)
+			{
+				maxX = anchor.first->position().x();
+			}
+
+			if (anchor.first->position().y() > maxY)
+			{
+				maxY = anchor.first->position().y();
+			}
+		}
+
+		return Eigen::Vector2i(maxX, maxY);
+	}
 
 	// C++ doesnt let me define templated methods in another file
 	template <typename Type> nanogui::Slider* AddSlider(const std::string& label, const std::function<void(const Type&)>& setter, const std::function<Type()>& getter)
@@ -115,8 +147,10 @@ public:
 
 			widget->setFontSize(mWidgetFontSize);
 			Eigen::Vector2i fs = widget->fixedSize();
+
 			widget->setFixedSize(Eigen::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
 				fs.y() != 0 ? fs.y() : mFixedSize.y()));
+
 			mRefreshCallbacks.push_back(refresh);
 			if (mLayout->rowCount() > 0)
 				mLayout->appendRow(mVariableSpacing);
