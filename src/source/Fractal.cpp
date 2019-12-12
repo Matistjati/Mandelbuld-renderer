@@ -1242,17 +1242,14 @@ void Fractal::PopulateGUI()
 	gui->form->addGroup("General variables");
 
 	// Slider size
-	Uniform<float>* size = new Uniform<float>();
-	size->SetGuiValue = [size]() { ((nanogui::Slider*)size->guiElements[0])->setValue(size->GetValue()); };
-	size->SetShaderValue = [&](float v) {};
-	nanogui::Slider* sliderSize = gui->form->AddSlider("SliderSize", size->value);
-	size->guiElements = { sliderSize };
+	float dummySize;
+	nanogui::Slider* sliderSize = gui->form->AddSlider("Slider Size", dummySize);
 
 
-	sliderSize->setRange({ 0,1000 });
-	sliderSize->setValue(sliderSize->fixedWidth());
+	sliderSize->setRange({ 80,1000 });
+	sliderSize->setValue((float)sliderSize->fixedWidth());
 
-	sliderSize->setCallback([this](float value)
+	sliderSize->setCallback([this](int value)
 		{
 			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
 			{
@@ -1262,16 +1259,17 @@ void Fractal::PopulateGUI()
 					{
 						nanogui::Slider* slider = (nanogui::Slider*)((Uniform<float>*)this->fractalUniforms[i].uniform)->guiElements[j];
 						slider->setFixedWidth(value);
+						slider->setWidth(value);
+						slider->parent()->setWidth(value + 50);
 					}
 				}
 			}
+			
 			this->gui->performLayout();
 		});
 
-	fractalUniforms.push_back(GuiElement(GuiElement::Element::Slider, size, size->SetGuiValue, size->SetShaderValue));
-
 	// Zoom
-	auto zoomField = gui->form->addVariable("Zoom", zoom.value);
+	auto zoomField = gui->form->AddTextBox("Zoom", zoom.value);
 	zoomField->setCallback([this](float value)
 		{
 			zoom.SetValue(value, Fractal::renderMode);
@@ -1291,7 +1289,7 @@ void Fractal::PopulateGUI()
 
 	// Time
 	double dummy;
-	auto timeField = gui->form->addVariable("Time", dummy);
+	auto timeField = gui->form->AddTextBox("Time", dummy);
 	timeField->setCallback([this](double value)
 		{
 			value = std::max(value, 0.);

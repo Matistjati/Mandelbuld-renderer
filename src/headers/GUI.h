@@ -116,7 +116,7 @@ public:
 			mLayout->appendRow(mVariableSpacing);
 		mLayout->appendRow(0);
 		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
-		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
 		return widget;
 	}
 
@@ -158,7 +158,7 @@ public:
 				mLayout->appendRow(mVariableSpacing);
 			mLayout->appendRow(0);
 			mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
-			mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+			mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
 			sliders[i] = widget;
 		}
 		
@@ -182,7 +182,7 @@ public:
 
 		mLayout->appendRow(0);
 		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
-		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
 		return widget;
 	}
 
@@ -206,7 +206,7 @@ public:
 			mLayout->appendRow(mVariableSpacing);
 		mLayout->appendRow(0);
 		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
-		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
 		return widget;
 	}
 
@@ -238,7 +238,7 @@ public:
 			mLayout->appendRow(mVariableSpacing);
 		mLayout->appendRow(0);
 		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
-		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(3, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
 		return widget;
 	}
 
@@ -247,6 +247,42 @@ public:
 		return AddColorPicker(label,
 			[&](const nanogui::Color& v) { value = v; },
 			[&]() -> nanogui::Color { return value; }
+			);
+	}
+
+	template <typename Type> nanogui::detail::FormWidget<Type>*
+		AddTextBox(const std::string& label, const std::function<void(const Type&)>& setter,
+			const std::function<Type()>& getter, bool editable = true) {
+		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
+		auto widget = new nanogui::detail::FormWidget<Type>(mWindow);
+		auto refresh = [widget, getter] {
+			Type value = getter(), current = widget->value();
+			if (value != current)
+				widget->setValue(value);
+		};
+		refresh();
+		widget->setCallback(setter);
+		widget->setEditable(editable);
+		widget->setFontSize(mWidgetFontSize);
+		nanogui::Vector2i fs = widget->fixedSize();
+		widget->setFixedSize(nanogui::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
+			fs.y() != 0 ? fs.y() : mFixedSize.y()));
+		mRefreshCallbacks.push_back(refresh);
+		if (mLayout->rowCount() > 0)
+			mLayout->appendRow(mVariableSpacing);
+		mLayout->appendRow(0);
+		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
+		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
+		return widget;
+	}
+
+	/// Add a new data widget that exposes a raw variable in memory
+	template <typename Type> nanogui::detail::FormWidget<Type>*
+		AddTextBox(const std::string& label, Type& value, bool editable = true) {
+		return AddTextBox<Type>(label,
+			[&](const Type& v) { value = v; },
+			[&]() -> Type { return value; },
+			editable
 			);
 	}
 };
