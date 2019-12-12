@@ -467,6 +467,15 @@ std::string Fractal::GetFractalNames(std::vector<std::string> names, size_t inde
 	return finalNames[index];
 }
 
+bool Fractal::StringEqualNoCase(const std::string& a, const std::string& b)
+{
+	return std::equal(a.begin(), a.end(),
+		b.begin(), b.end(),
+		[](char a, char b) {
+			return tolower(a) == tolower(b);
+		});
+}
+
 
 void ScrollCallBackDelegate(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -1092,6 +1101,7 @@ void Fractal::PopulateGuiFromShader()
 		std::string type = GuiElement::GetElement(params, "Type");
 		CleanString(type, { ' ' });
 
+
 		std::string name = GuiElement::GetElement(params, "Name");
 		if (name[0] == ' ') name = name.substr(1);
 
@@ -1231,6 +1241,34 @@ void Fractal::PopulateGUI()
 
 	gui->form->addGroup("General variables");
 
+	// Slider size
+	Uniform<float>* size = new Uniform<float>();
+	size->SetGuiValue = [size]() { ((nanogui::Slider*)size->guiElements[0])->setValue(size->GetValue()); };
+	size->SetShaderValue = [&](float v) {};
+	nanogui::Slider* sliderSize = gui->form->AddSlider("SliderSize", size->value);
+	size->guiElements = { sliderSize };
+
+
+	sliderSize->setRange({ 0,1000 });
+	sliderSize->setValue(sliderSize->fixedWidth());
+
+	sliderSize->setCallback([this](float value)
+		{
+			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
+			{
+				if (this->fractalUniforms[i].element == GuiElement::Element::Slider)
+				{
+					for (size_t j = 0; j < ((Uniform<float>*)this->fractalUniforms[i].uniform)->guiElements.size(); j++)
+					{
+						nanogui::Slider* slider = (nanogui::Slider*)((Uniform<float>*)this->fractalUniforms[i].uniform)->guiElements[j];
+						slider->setFixedWidth(value);
+					}
+				}
+			}
+			this->gui->performLayout();
+		});
+
+	fractalUniforms.push_back(GuiElement(GuiElement::Element::Slider, size, size->SetGuiValue, size->SetShaderValue));
 
 	// Zoom
 	auto zoomField = gui->form->addVariable("Zoom", zoom.value);
@@ -1265,11 +1303,19 @@ void Fractal::PopulateGUI()
 	time.guiElements = { timeField };
 	time.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<double, std::true_type>*)this->time.guiElements[0])->setValue(this->time.value.GetTotalTime()); };
 
+
 	// ParameterChangeRate
-	nanogui::Slider* paramSlider = gui->form->AddSlider("ParameterChangeRate", parameterChangeRate);
+	Uniform<float>* changeRate = new Uniform<float>();
+	changeRate->SetGuiValue = [changeRate]() { ((nanogui::Slider*)changeRate->guiElements[0])->setValue(changeRate->GetValue()); };
+	changeRate->SetShaderValue = [this, changeRate](float v) { this->shader->SetUniform(changeRate, Fractal::renderMode); };
+	nanogui::Slider* paramSlider = gui->form->AddSlider("parameterChangeRate", parameterChangeRate);
 
 	paramSlider->setValue(parameterChangeRate);
 	paramSlider->setRange({ 0.000001f,5.f });
+	changeRate->guiElements = { paramSlider };
+
+
+	fractalUniforms.push_back(GuiElement(GuiElement::Element::Slider, changeRate, changeRate->SetGuiValue, changeRate->SetShaderValue));
 }
 
 void Fractal::Update()
@@ -1346,8 +1392,8 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 					int* relevantIndex = (indices.count(sectionName)) ? indices[sectionName] : index;
 
 
-					if (*relevantIndex < 0)* relevantIndex = sequences.size() - 1;
-					else if (*relevantIndex > (int)sequences.size() - 1)* relevantIndex = 0;
+					if (*relevantIndex < 0)*relevantIndex = sequences.size() - 1;
+					else if (*relevantIndex > (int)sequences.size() - 1)*relevantIndex = 0;
 
 					sectionValue = sequences[*relevantIndex];
 				}

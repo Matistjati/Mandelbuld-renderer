@@ -39,6 +39,7 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	slider->setRange({ range.first,range.second });
 	slider->setValue((float)value);
 	uniform->SetGuiValue = [slider, uniform]() {slider->setValue((float)uniform->GetValue()); };
+	uniform->guiElements = { slider };
 }
 
 void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec3 value)
@@ -83,12 +84,14 @@ void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal
 		{
 			fractal->shader->SetUniform(*uniform, renderMode);
 		});
+
+	uniform->guiElements = { sliders[0], sliders[1], sliders[2] };
 }
 
 void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
 {
-	nanogui::CheckBox* slider = fractal->gui->form->AddCheckbox(label, uniform->value);
-	slider->setCallback([fractal,uniform](bool value)
+	nanogui::CheckBox* checkBox = fractal->gui->form->AddCheckbox(label, uniform->value);
+	checkBox->setCallback([fractal,uniform](bool value)
 		{
 			uniform->SetValue(value, Fractal::renderMode);
 			fractal->shader->SetUniform(*uniform);
@@ -97,8 +100,10 @@ void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bo
 		{
 			fractal->shader->SetUniform(*uniform, renderMode);
 		});
-	slider->setChecked(value);
-	uniform->SetGuiValue = [slider, uniform]() {slider->setChecked(uniform->GetValue()); };
+	checkBox->setChecked(value);
+	uniform->SetGuiValue = [checkBox, uniform]() {checkBox->setChecked(uniform->GetValue()); };
+
+	uniform->guiElements = { checkBox };
 }
 
 void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
@@ -115,6 +120,8 @@ void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal
 		{
 			fractal->shader->SetUniform(*uniform, renderMode);
 		});
+
+	uniform->guiElements = { picker };
 }
 
 std::string GuiElement::GetElement(std::vector<std::string>& content, std::string name)
@@ -137,6 +144,7 @@ std::string GuiElement::GetElement(std::vector<std::string>& content, std::strin
 
 GuiElement::GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::vector<std::string> guiParams) : fractal(fractal)
 {
+	this->element = element;
 	std::string renderValue;
 	renderValue = GuiElement::GetElement(guiParams, "RenderValue");
 
@@ -217,30 +225,26 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	}
 }
 
-bool iequals(const std::string& a, const std::string& b)
+GuiElement::GuiElement(Element element, void* uniform, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue) : element(element), uniform(uniform), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue)
 {
-	return std::equal(a.begin(), a.end(),
-		b.begin(), b.end(),
-		[](char a, char b) {
-			return tolower(a) == tolower(b);
-		});
 }
+
 
 GuiElement::Element GuiElement::GetElementFromString(std::string element)
 {
-	if (iequals("Slider", element))
+	if (Fractal::StringEqualNoCase("Slider", element))
 	{
 		return Element::Slider;
 	}
-	else if (iequals("TextBox", element))
+	else if (Fractal::StringEqualNoCase("TextBox", element))
 	{
 		return Element::TextBox;
 	}
-	else if (iequals("colorPicker", element))
+	else if (Fractal::StringEqualNoCase("colorPicker", element))
 	{
 		return Element::ColorPicker;
 	}
-	else if (iequals("checkBox", element))
+	else if (Fractal::StringEqualNoCase("checkBox", element))
 	{
 		return Element::CheckBox;
 	}

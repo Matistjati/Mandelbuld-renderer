@@ -778,7 +778,7 @@ void Fractal2D::Init()
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 {
-	return { {"loopReturn", 0}, {"loopExtraOperations", 0}, {"loopSetup", 0} };
+	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)}, {"loopSetup", new int(0)} };
 }
 
 void Fractal2D::RenderComputeShader()

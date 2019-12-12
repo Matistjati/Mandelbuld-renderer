@@ -10,7 +10,7 @@
 template<typename T>
 struct Uniform
 {
-	std::vector<void*> guiElements;
+	std::vector<nanogui::Widget*> guiElements;
 	std::function<void()> SetGuiValue;
 	std::function<void(bool)> SetShaderValue;
 	std::string name;

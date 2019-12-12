@@ -160,6 +160,7 @@ public:
 	static bool StringToBool(std::string str);
 	static std::vector<std::string> GetFractalNames(std::vector<std::string> names);
 	static std::string GetFractalNames(std::vector<std::string> names, size_t index);
+	static bool StringEqualNoCase(const std::string& a, const std::string& b);
 };
 
 #endif
