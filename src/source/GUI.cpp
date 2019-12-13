@@ -85,6 +85,8 @@ void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal
 			fractal->shader->SetUniform(*uniform, renderMode);
 		});
 
+	uniform->SetGuiValue = [sliders, uniform]() { sliders[0]->setValue(uniform->GetValue().x); sliders[1]->setValue(uniform->GetValue().y); sliders[2]->setValue(uniform->GetValue().z); };
+
 	uniform->guiElements = { sliders[0], sliders[1], sliders[2] };
 }
 
@@ -170,14 +172,10 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 		if (type == "float")
 		{
 			AddSlider<float>(elementLabel, (Uniform<float>*)uniform, fractal, rangePair, stof(value));
-			SetGuiValue = [uniformCopy]() {((Uniform<float>*)uniformCopy)->SetGuiValue(); };
-			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<float>*)uniformCopy)->SetShaderValue(renderMode); };
 		}
 		else if (type == "int")
 		{
 			AddSlider<int>(elementLabel, (Uniform<int>*)uniform, fractal, rangePair, stoi(value));
-			SetGuiValue = [uniformCopy]() {((Uniform<int>*)uniformCopy)->SetGuiValue(); };
-			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<int>*)uniformCopy)->SetShaderValue(renderMode); };
 		}
 		else if (type == "vec3")
 		{
@@ -197,8 +195,6 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 			}
 
 			AddSlider3(elementLabel, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
-			SetGuiValue = [uniformCopy]() {((Uniform<glm::vec3>*)uniformCopy)->SetGuiValue(); };
-			SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<glm::vec3>*)uniformCopy)->SetShaderValue(renderMode); };
 		}
 		else
 		{
@@ -209,14 +205,10 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	else if (element == Element::ColorPicker)
 	{
 		AddColorPicker(elementLabel, (Uniform<nanogui::Color>*)uniform, fractal);
-		SetGuiValue = [uniformCopy]() {((Uniform<nanogui::Color>*)uniformCopy)->SetGuiValue(); };
-		SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<nanogui::Color>*)uniformCopy)->SetShaderValue(renderMode); };
 	}
 	else if (element == Element::CheckBox)
 	{
 		AddCheckBox(elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
-		SetGuiValue = [uniformCopy]() {((Uniform<bool>*)uniformCopy)->SetGuiValue(); };
-		SetShaderValue = [uniformCopy](bool renderMode) {((Uniform<bool>*)uniformCopy)->SetShaderValue(renderMode); };
 	}
 	else if (element == Element::error)
 	{
@@ -225,9 +217,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	}
 }
 
-GuiElement::GuiElement(Element element, void* uniform, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue) : element(element), uniform(uniform), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue)
-{
-}
+GuiElement::GuiElement(Element element, void* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
 
 
 GuiElement::Element GuiElement::GetElementFromString(std::string element)

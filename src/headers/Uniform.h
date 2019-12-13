@@ -6,29 +6,34 @@
 #include <vector>
 #include "nanogui/formhelper.h"
 
-
-template<typename T>
-struct Uniform
+struct UniformSuper
 {
+public:
 	std::vector<nanogui::Widget*> guiElements;
 	std::function<void()> SetGuiValue;
 	std::function<void(bool)> SetShaderValue;
 	std::string name;
 	unsigned int id;
+	UniformSuper(std::vector<nanogui::Widget*> guiElements, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue, std::string name, unsigned int id)
+		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue)
+	{	}
+};
+
+template<typename T>
+struct Uniform : public UniformSuper
+{
 	T value;
 	T renderValue;
 	T defaultValue;
 	void operator=(const T &other);
 	T& GetValue();
 	void SetValue(T value, bool renderMode);
-#pragma warning(push)
-#pragma warning(disable : 26495)
-	Uniform(T val, T renderVal, std::string name, unsigned int id) : name(name), id(id), value(val), renderValue(renderVal), defaultValue(val) {}
-	Uniform(T val, std::string name, unsigned int id) : name(name), id(id), value(val), renderValue(val), defaultValue(val) {}
-	Uniform(T val, unsigned int id) : value(val), renderValue(val), defaultValue(value), id(id) {}
-	Uniform(T val) : value(val), renderValue(val), defaultValue(val) {}
-	Uniform() : value(T()), renderValue(T()), defaultValue(T()) {}
-#pragma warning(pop)
+
+	Uniform(T val, T renderVal, std::string name, unsigned int id) : UniformSuper({}, {}, {}, name, id), value(val), renderValue(renderVal), defaultValue(val) {}
+	Uniform(T val, std::string name, unsigned int id) :				 UniformSuper({}, {}, {}, name, id), value(val), renderValue(val), defaultValue(val) {}
+	Uniform(T val, unsigned int id) :							     UniformSuper({}, {}, {}, "", id),   value(val), renderValue(val), defaultValue(val) {}
+	Uniform(T val) :												 UniformSuper({}, {}, {}, "", -1),   value(val), renderValue(val), defaultValue(val) {}
+	Uniform() :														 UniformSuper({}, {}, {}, "", -1),   value(T()), renderValue(T()), defaultValue(T()) {}
 
 	operator T() const;
 };

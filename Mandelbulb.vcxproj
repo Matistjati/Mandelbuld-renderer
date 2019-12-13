@@ -76,7 +76,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\opengl\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\glm;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\opengl\include\GLEW\lib\Release\Win32;$(SolutionDir)Dependencies\opengl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -113,7 +113,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)Dependencies\opengl\glm;$(SolutionDir)Image\include;C:\Users\Matis\source\repos\Mandelbulb\Dependencies\opengl\include\glad\include;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\opengl\include;$(SolutionDir)Dependencies\opengl\include\GLEW\include\GL;$(SolutionDir)src;$(SolutionDir)Dependencies\opengl\glm;$(SolutionDir)Image\include;C:\Users\Matis\source\repos\Mandelbulb\Dependencies\opengl\include\glad\include\glad;$(SolutionDir)Dependencies\nanogui\include;$(SolutionDir)Dependencies\nanogui\ext\eigen;$(SolutionDir)Dependencies\nanogui\ext\nanovg\src;$(SolutionDir)Dependencies\Image\include;C:\Users\Matis\source\repos\Mandelbulb\Dependencies\opengl\include\glad\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <UndefinePreprocessorDefinitions>
@@ -124,7 +124,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;libpng16.lib;zlib.lib;zlibstatrelease.lib;Debug\nanogui.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Image\lib;$(SolutionDir)Dependencies\nanogui\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\Image\lib;$(SolutionDir)Dependencies\nanogui\lib;$(SolutionDir)Dependencies\opengl\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/NODEFAULTLIB:LIBCMT /ignore:4099 /ignore:4098 /LTCG /ignore:4075</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>

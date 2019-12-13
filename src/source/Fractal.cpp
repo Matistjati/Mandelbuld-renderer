@@ -1131,9 +1131,9 @@ void Fractal::SetShaderUniforms(bool render)
 
 	for (auto& uni : fractalUniforms)
 	{
-		if (uni.SetShaderValue)
+		if (((UniformSuper*)uni.uniform)->SetShaderValue)
 		{
-			uni.SetShaderValue(Fractal::renderMode);
+			((UniformSuper*)uni.uniform)->SetShaderValue(Fractal::renderMode);
 			GlErrorCheck();
 		}
 		else
@@ -1156,7 +1156,7 @@ void Fractal::SetShaderGui(bool render)
 
 	for (auto& uni : fractalUniforms)
 	{
-		uni.SetGuiValue();
+		((UniformSuper*)uni.uniform)->SetGuiValue();
 	}
 
 	Fractal::renderMode = preserveOld;
@@ -1313,7 +1313,7 @@ void Fractal::PopulateGUI()
 	changeRate->guiElements = { paramSlider };
 
 
-	fractalUniforms.push_back(GuiElement(GuiElement::Element::Slider, changeRate, changeRate->SetGuiValue, changeRate->SetShaderValue));
+	fractalUniforms.push_back(GuiElement(GuiElement::Element::Slider, changeRate, this));
 }
 
 void Fractal::Update()

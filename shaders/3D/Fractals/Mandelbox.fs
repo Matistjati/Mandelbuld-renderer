@@ -20,6 +20,7 @@
 	
 	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
 	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
+
 </uniforms>
 
 <operations>
