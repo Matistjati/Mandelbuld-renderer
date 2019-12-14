@@ -2,19 +2,19 @@
 	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (0, 10)</GuiHint>*/
 	uniform float fogDarkness = 5;
 	
-	/*<GuiHint>GuiType: slider, Name: Distance Diff, Range: (0, 4)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Distance Diff, Parent: render, Range: (0, 4)</GuiHint>*/
 	uniform float distDiff = 2;
 	
-	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-2, 4)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Scale, Parent: fractalParams, Range: (-2, 4)</GuiHint>*/
 	uniform float scale = 2;
 
-	/*<GuiHint>GuiType: slider, Name: First rotation, Range: (0, 1)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: First rotation, Parent: fractalParams, Range: (0, 1)</GuiHint>*/
 	uniform vec3 rot1 = vec3(0);
 	
-	/*<GuiHint>GuiType: slider, Name: Second rotation, Range: (0, 1)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Second rotation, Parent: fractalParams, Range: (0, 1)</GuiHint>*/
 	uniform vec3 rot2 = vec3(0);
 	
-	/*<GuiHint>GuiType: slider, Name: Center, Range: (0, 5)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Center, Parent: fractalParams, Range: (0, 5)</GuiHint>*/
 	uniform vec3 offset = vec3(1);
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/

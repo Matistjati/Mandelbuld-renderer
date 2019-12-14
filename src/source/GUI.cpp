@@ -18,9 +18,13 @@ void GUI::ClearFocusPath()
 }
 
 
-Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui)
+Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui), parentButton()
 {
 
+}
+
+Form::Form(GUI* gui, nanogui::Button* button) : nanogui::FormHelper(gui), gui(gui), parentButton(button)
+{
 }
 
 template<typename T>
@@ -49,8 +53,10 @@ void AddSlider3(Form* form, nanogui::Window* parent, std::string label, Uniform<
 	fractal->gui->performLayout();
 
 
-	Form* subForm = new Form(fractal->gui);
-	nanogui::Window* window = subForm->addWindow(form->GetBottomElementPos() + Eigen::Vector2i{110,0}, label);
+	Form* subForm = new Form(fractal->gui, button);
+
+	nanogui::Window* window = subForm->addWindow(form->parentButton->position() + Eigen::Vector2i(form->parentButton->size().x(), (int)(form->parentButton->size().y() / 2.5))
+		+ button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y() / 2)) + Eigen::Vector2i{ 50,0 }, label);
 
 	window->setVisible(false);
 
@@ -255,8 +261,8 @@ SubMenu::SubMenu(Element element, std::string name, std::string identifier, Frac
 		fractal->gui->performLayout();
 
 
-		form = new Form(fractal->gui);
-		window = form->addWindow(fractal->gui->form->GetBottomElementPos() + Eigen::Vector2i{ 110,0 }, name);
+		form = new Form(fractal->gui, button);
+		window = form->addWindow(button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + Eigen::Vector2i{ 30,0 }, name);
 
 		button->setCallback([window=window]()
 			{

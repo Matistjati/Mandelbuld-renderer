@@ -15,6 +15,8 @@ uniform uint frame = uint(0);
 
 /*<GuiHint>GuiType: submenu, Name: Sky, Identifier: sky</GuiHint>*/
 
+/*<GuiHint>GuiType: submenu, Name: Fractal Parameters, Identifier: fractalParams</GuiHint>*/
+
 /*<GuiHint>GuiType: slider, Name: Max Iterations, Parent: render, Range: (1, 100)</GuiHint>*/
 uniform int maxIterations = 40;
 
