@@ -261,6 +261,10 @@ SubMenu::SubMenu(Element element, std::string name, std::string identifier, Frac
 		button->setCallback([window=window]()
 			{
 				window->setVisible(!window->visible());
+				for (int i = 0; i < window->childCount(); i++)
+				{
+					window->childAt(i)->setVisible(window->visible());
+				}
 			});
 
 		window->setVisible(false);
