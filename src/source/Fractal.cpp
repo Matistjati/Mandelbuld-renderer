@@ -634,7 +634,8 @@ Fractal::~Fractal()
 Fractal::Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
 	: shader(shader), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shader->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shader->id, "deltaTime")),
-	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(), fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode)
+	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(),
+	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus()
 {
 	Fractal::screenSize = screenSize;
 	this->gui = new GUI(window, this);
@@ -1041,6 +1042,7 @@ void Fractal::UpdateFractalShader()
 	renderMode = false;
 
 	fractalUniforms.clear();
+	subMenus.clear();
 
 	if (fractalType == FractalType::fractal3D)
 	{
@@ -1056,6 +1058,15 @@ void Fractal::UpdateFractalShader()
 	}
 }
 
+bool FindSubStrNoCase(const std::string& strHaystack, const std::string& strNeedle)
+{
+	auto it = std::search(
+		strHaystack.begin(), strHaystack.end(),
+		strNeedle.begin(), strNeedle.end(),
+		[](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }
+	);
+	return (it != strHaystack.end());
+}
 
 void Fractal::PopulateGuiFromShader()
 {
@@ -1078,36 +1089,48 @@ void Fractal::PopulateGuiFromShader()
 
 		std::string hintContent = source.substr(hintStart, hintEnd - hintStart + hintE.length());
 
-		hintStart += hintS.length();
-
 		std::string paramsStr = source.substr(hintStart, hintEnd - hintStart);
 		std::vector<std::string> params = SplitNotInChar(paramsStr, ',', { {'(',')'} });
-
-		size_t uniformEnd = source.find(";", hintEnd);
-		if (uniformEnd == std::string::npos) break;
-
-		hintEnd += hintE.length();
-
-		std::string uniform = source.substr(hintEnd, uniformEnd - hintEnd);
-
-		// Removing start of comment
-		if (uniform[0] == '*') uniform = uniform.substr(1);
-		if (uniform[0] == '/') uniform = uniform.substr(1);
-
-		CleanString(uniform, { '\n' });
-
-		std::vector<std::string> uniformParts = SplitNotInChar(uniform, ' ', { {'(',')'} });
 
 		std::string type = GuiElement::GetElement(params, "Type");
 		CleanString(type, { ' ' });
 
-
 		std::string name = GuiElement::GetElement(params, "Name");
 		if (name[0] == ' ') name = name.substr(1);
 
-		GuiElement element = GuiElement(GuiElement::GetElementFromString(type), uniformParts[1], uniformParts[2], name, this, uniformParts[uniformParts.size() - 1], params);
+		if (FindSubStrNoCase(hintContent, "submenu"))
+		{
+			std::string identifier = GuiElement::GetElement(params, "Identifier");
+			if (identifier[0] == ' ') identifier = identifier.substr(1);
 
-		fractalUniforms.push_back(element);
+			subMenus.push_back(SubMenu(GuiElement::GetElementFromString(type), name, identifier, this));
+		}
+		else
+		{
+			hintStart += hintS.length();
+
+			size_t uniformEnd = source.find(";", hintEnd);
+			if (uniformEnd == std::string::npos) break;
+
+			hintEnd += hintE.length();
+
+			std::string uniform = source.substr(hintEnd, uniformEnd - hintEnd);
+
+			// Removing start of comment
+			if (uniform[0] == '*') uniform = uniform.substr(1);
+			if (uniform[0] == '/') uniform = uniform.substr(1);
+
+			CleanString(uniform, { '\n' });
+
+			std::vector<std::string> uniformParts = SplitNotInChar(uniform, ' ', { {'(',')'} });
+
+			std::string parent = GuiElement::GetElement(params, "Parent");
+			CleanString(parent, { ' ' });
+
+
+			fractalUniforms.push_back(GuiElement(GuiElement::GetElementFromString(type), uniformParts[1], uniformParts[2], name, this, uniformParts[uniformParts.size() - 1], parent, params));
+		}
+
 
 		Replace(source, hintContent, "");
 
@@ -1253,7 +1276,7 @@ void Fractal::PopulateGUI()
 		{
 			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
 			{
-				if (this->fractalUniforms[i].element == GuiElement::Element::Slider)
+				if (this->fractalUniforms[i].element == Element::Slider)
 				{
 					for (size_t j = 0; j < ((Uniform<float>*)this->fractalUniforms[i].uniform)->guiElements.size(); j++)
 					{
@@ -1313,7 +1336,7 @@ void Fractal::PopulateGUI()
 	changeRate->guiElements = { paramSlider };
 
 
-	fractalUniforms.push_back(GuiElement(GuiElement::Element::Slider, changeRate, this));
+	fractalUniforms.push_back(GuiElement(Element::Slider, changeRate, this));
 }
 
 void Fractal::Update()

@@ -24,9 +24,9 @@ Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui)
 }
 
 template<typename T>
-void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pair<float, float> range, T value)
+void AddSlider(Form* form, nanogui::Window* window, std::string label, Uniform<T>* uniform, Fractal* fractal, std::pair<float, float> range, T value)
 {
-	nanogui::Slider* slider = fractal->gui->form->AddSlider(label, uniform->value);
+	nanogui::Slider* slider = form->AddSlider(window, label, uniform->value);
 	slider->setCallback([fractal,uniform](T value)
 		{
 			uniform->SetValue(value, Fractal::renderMode);
@@ -42,19 +42,19 @@ void AddSlider(std::string label, Uniform<T>* uniform, Fractal* fractal, std::pa
 	uniform->guiElements = { slider };
 }
 
-void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec3 value)
+void AddSlider3(Form* form, nanogui::Window* parent, std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec3 value)
 {
-	nanogui::Button* button = fractal->gui->form->AddButton(label);
-
+	nanogui::Button* button = form->AddButton(parent, label);
+	
 	fractal->gui->performLayout();
 
 
-	Form* form = new Form(fractal->gui);
-	nanogui::Window* window = form->addWindow(fractal->gui->form->GetBottomElementPos() + Eigen::Vector2i{110,0}, label);
+	Form* subForm = new Form(fractal->gui);
+	nanogui::Window* window = subForm->addWindow(form->GetBottomElementPos() + Eigen::Vector2i{110,0}, label);
 
 	window->setVisible(false);
 
-	std::vector<nanogui::Slider*> sliders = form->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN()); },
+	std::vector<nanogui::Slider*> sliders = subForm->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN()); },
 		3, range, glm::vec4(value.x, value.y, value.z, -1));
 	
 	sliders[0]->setCallback([fractal, uniform](float value)
@@ -90,9 +90,9 @@ void AddSlider3(std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal
 	uniform->guiElements = { sliders[0], sliders[1], sliders[2] };
 }
 
-void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
+void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
 {
-	nanogui::CheckBox* checkBox = fractal->gui->form->AddCheckbox(label, uniform->value);
+	nanogui::CheckBox* checkBox = form->AddCheckbox(parent, label, uniform->value);
 	checkBox->setCallback([fractal,uniform](bool value)
 		{
 			uniform->SetValue(value, Fractal::renderMode);
@@ -108,9 +108,9 @@ void AddCheckBox(std::string label, Uniform<bool>* uniform, Fractal* fractal, bo
 	uniform->guiElements = { checkBox };
 }
 
-void AddColorPicker(std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
+void AddColorPicker(Form* form, nanogui::Window* parent, std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
 {
-	nanogui::ColorPicker* picker = fractal->gui->form->AddColorPicker(label, ((Uniform<nanogui::Color>*)uniform)->value);
+	nanogui::ColorPicker* picker = form->AddColorPicker(parent, label, ((Uniform<nanogui::Color>*)uniform)->value);
 	uniform->SetGuiValue = [picker, uniform]() {picker->setColor(uniform->GetValue()); 	picker->setBackgroundColor(uniform->GetValue()); };
 	picker->setCallback([fractal, uniform](const nanogui::Color& c)
 		{
@@ -144,7 +144,7 @@ std::string GuiElement::GetElement(std::vector<std::string>& content, std::strin
 	return "";
 }
 
-GuiElement::GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::vector<std::string> guiParams) : fractal(fractal)
+GuiElement::GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::string parent, std::vector<std::string> guiParams) : fractal(fractal)
 {
 	this->element = element;
 	std::string renderValue;
@@ -153,6 +153,33 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 	uniform = CreateUniform(type, uniformName, value, renderValue, element);
 	
+	nanogui::Window* window = nullptr;
+	Form* form = nullptr;
+	if (parent != "")
+	{
+		for (size_t i = 0; i < fractal->subMenus.size(); i++)
+		{
+			if (Fractal::StringEqualNoCase(parent, fractal->subMenus[i].identifier))
+			{
+				window = fractal->subMenus[i].window;
+				form = fractal->subMenus[i].form;
+				break;
+			}
+		}
+
+		if (!window || !form)
+		{
+			window = fractal->gui->nanoGuiWindow;
+			form = fractal->gui->form;
+			DebugPrint("Could not find correct parent");
+			BreakIfDebug();
+		}
+	}
+	else
+	{
+		form = fractal->gui->form;
+		window = fractal->gui->nanoGuiWindow;
+	}
 	void* uniformCopy = uniform;
 
 	if (element == Element::Slider)
@@ -171,11 +198,11 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 		if (type == "float")
 		{
-			AddSlider<float>(elementLabel, (Uniform<float>*)uniform, fractal, rangePair, stof(value));
+			AddSlider<float>(form, window, elementLabel, (Uniform<float>*)uniform, fractal, rangePair, stof(value));
 		}
 		else if (type == "int")
 		{
-			AddSlider<int>(elementLabel, (Uniform<int>*)uniform, fractal, rangePair, stoi(value));
+			AddSlider<int>(form, window, elementLabel, (Uniform<int>*)uniform, fractal, rangePair, stoi(value));
 		}
 		else if (type == "vec3")
 		{
@@ -194,7 +221,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 				values.push_back(values[0]);
 			}
 
-			AddSlider3(elementLabel, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
+			AddSlider3(form, window, elementLabel, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
 		}
 		else
 		{
@@ -204,11 +231,11 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	}
 	else if (element == Element::ColorPicker)
 	{
-		AddColorPicker(elementLabel, (Uniform<nanogui::Color>*)uniform, fractal);
+		AddColorPicker(form, window, elementLabel, (Uniform<nanogui::Color>*)uniform, fractal);
 	}
 	else if (element == Element::CheckBox)
 	{
-		AddCheckBox(elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
+		AddCheckBox(form, window, elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
 	}
 	else if (element == Element::error)
 	{
@@ -219,8 +246,38 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 GuiElement::GuiElement(Element element, void* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
 
+SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal) : element(element), name(name), fractal(fractal), identifier(identifier), children({}), window()
+{
+	if (element == Element::SubMenu)
+	{
+		nanogui::Button* button = fractal->gui->form->AddButton(name);
 
-GuiElement::Element GuiElement::GetElementFromString(std::string element)
+		fractal->gui->performLayout();
+
+
+		form = new Form(fractal->gui);
+		window = form->addWindow(fractal->gui->form->GetBottomElementPos() + Eigen::Vector2i{ 110,0 }, name);
+
+		button->setCallback([window=window]()
+			{
+				window->setVisible(!window->visible());
+			});
+
+		window->setVisible(false);
+	}
+	else
+	{
+		std::cout << "Could not determine GUI element type" << std::endl;
+		BreakIfDebug();
+	}
+}
+
+GuiElement::GuiElement() : element(Element::error), fractal(), uniform()
+{
+}
+
+
+Element GuiElement::GetElementFromString(std::string element)
 {
 	if (Fractal::StringEqualNoCase("Slider", element))
 	{
@@ -237,6 +294,10 @@ GuiElement::Element GuiElement::GetElementFromString(std::string element)
 	else if (Fractal::StringEqualNoCase("checkBox", element))
 	{
 		return Element::CheckBox;
+	}
+	else if (Fractal::StringEqualNoCase("submenu", element))
+	{
+		return Element::SubMenu;
 	}
 	else
 	{
@@ -291,8 +352,11 @@ void* GuiElement::CreateUniform(std::string type, std::string name, std::string 
 
 		if (elementType == Element::ColorPicker)
 		{
+#pragma warning(push)
+#pragma warning(disable: 4316)
 			return new Uniform<nanogui::Color>(nanogui::Color(stof(values[0]),stof(values[1]),stof(values[2]), 1.f),
 											   nanogui::Color(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), 1.f), name, id);
+#pragma warning(pop)
 		}
 		else
 		{

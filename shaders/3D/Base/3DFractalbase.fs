@@ -11,46 +11,51 @@ uniform float zoom;
 uniform float time;
 uniform uint frame = uint(0);
 
-/*<GuiHint>GuiType: slider, Name: Max Iterations, Range: (1, 100)</GuiHint>*/
+/*<GuiHint>GuiType: submenu, Name: Rendering options, Identifier: render</GuiHint>*/
+
+/*<GuiHint>GuiType: submenu, Name: Sky, Identifier: sky</GuiHint>*/
+
+/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent: render, Range: (1, 100)</GuiHint>*/
 uniform int maxIterations = 40;
 
-/*<GuiHint>GuiType: slider, Name: Max Steps, Range: (1, 1000)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Steps, Parent: render, Range: (1, 1000)</GuiHint>*/
 uniform int maxSteps = 100;
 
-/*<GuiHint>GuiType: slider, Name: Anti Aliasing, Range: (1, 5)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Anti Aliasing, Parent: render, Range: (1, 5)</GuiHint>*/
 uniform float antiAliasing = 1;
 
-/*<GuiHint>GuiType: slider, Name: Fudge Factor, Range: (0.1, 1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Fudge Factor, Parent: render, Range: (0.1, 1)</GuiHint>*/
 uniform float fudgeFactor = 1;
 
-/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0, 2)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Gamma Correction, Parent: render, Range: (0, 2)</GuiHint>*/
 uniform float gamma = 1;
+
+/*<GuiHint>GuiType: slider, Name: ray acceptance, Parent: render, Range: (0.0001, 0.1)</GuiHint>*/
+uniform float zoomDetailRatio = 0.001;
+
+/*<GuiHint>GuiType: slider, Name: Max Ray Distance, Parent: render, Range: (1, 64)</GuiHint>*/
+uniform float maxDist = 16;
+
+/*<GuiHint>GuiType: slider, Name: Escacpe Radius, Parent: render, Range: (1, 1024)</GuiHint>*/
+uniform float escapeRadius = 256;
+
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring</GuiHint>*/
 uniform bool fogColoring = false;
 
-/*<GuiHint>GuiType: slider, Name: ray acceptance, Range: (0.0001, 0.1)</GuiHint>*/
-uniform float zoomDetailRatio = 0.001;
-
-/*<GuiHint>GuiType: slider, Name: Max Ray Distance, Range: (1, 64)</GuiHint>*/
-uniform float maxDist = 16;
-
 /*<GuiHint>GuiType: slider, Name: Shadow hardness, Range: (-4, 64)</GuiHint>*/
 uniform float shadowSoftness = 4;
 
-/*<GuiHint>GuiType: slider, Name: Escacpe Radius, Range: (1, 1024)</GuiHint>*/
-uniform float escapeRadius = 256;
-
-/*<GuiHint>GuiType: slider, Name: Sun Size, Range: (-1, 10)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Sun Size, Parent: sky, Range: (-1, 10)</GuiHint>*/
 uniform float sunSize = 1.0;
 
-/*<GuiHint>GuiType: slider, Name: Sun Spread, Range: (-1, 128)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Sun Spread, Parent: sky, Range: (-1, 128)</GuiHint>*/
 uniform float sunSpread = 16.0;
 
-/*<GuiHint>GuiType: colorPicker, Name: Sun Color</GuiHint>*/
+/*<GuiHint>GuiType: colorPicker, Name: Sun Color, Parent: sky</GuiHint>*/
 uniform vec3 sunColor = vec3(0.8,0.7,0.5);
 
-/*<GuiHint>GuiType: colorPicker, Name: Sky Color</GuiHint>*/
+/*<GuiHint>GuiType: colorPicker, Name: Sky Color, Parent: sky</GuiHint>*/
 uniform vec3 skyColor = vec3(0.8, 0.95, 1.0);
 
 

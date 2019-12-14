@@ -20,6 +20,7 @@
 class Shader;
 class GUI;
 class GuiElement;
+class SubMenu;
 
 struct Section
 {
@@ -88,6 +89,7 @@ public:
 	GUI* gui;
 
 	std::vector<GuiElement> fractalUniforms;
+	std::vector<SubMenu> subMenus;
 	std::string fractalSourceCode;
 
 	~Fractal();
