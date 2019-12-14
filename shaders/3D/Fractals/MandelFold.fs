@@ -1,5 +1,5 @@
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (0, 10)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Parent: color, Range: (0, 10)</GuiHint>*/
 	uniform float fogDarkness = 5;
 	
 	/*<GuiHint>GuiType: slider, Name: Distance Diff, Parent: render, Range: (0, 4)</GuiHint>*/
@@ -17,11 +17,14 @@
 	/*<GuiHint>GuiType: slider, Name: Center, Parent: fractalParams, Range: (0, 5)</GuiHint>*/
 	uniform vec3 offset = vec3(1);
 
-	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
+	/*<GuiHint>GuiType: colorPicker, Name: Color A, Parent: color</GuiHint>*/
 	uniform vec3 colorA = vec3(0, 0.707, 0.707);
 	
-	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
+	/*<GuiHint>GuiType: colorPicker, Name: Edge Color, Parent: color</GuiHint>*/
 	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
+
+	/*<GuiHint>GuiType: slider, Name: Color period, Parent: color, Range: (0, 200)</GuiHint>*/
+	uniform float frequency = 10;
 </uniforms>
 
 <include>
@@ -115,7 +118,7 @@
 	>,
 
 	<
-	col = (cos(edgeColor + colorA * steps * 10) * -0.5 + 0.5);
+	col = (cos(edgeColor + colorA * steps * frequency) * -0.5 + 0.5);
 	>,
 
 	//col *= steps;

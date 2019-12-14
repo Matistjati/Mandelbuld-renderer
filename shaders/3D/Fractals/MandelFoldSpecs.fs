@@ -95,11 +95,6 @@
 		MandelFold
 	</include>
 
-	<uniforms>
-		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
-		uniform float frequency = 1;>,
-	</uniforms>
-
 	<distanceEstimator>
 		<distanceBody>[[rotate(rotMat1), icosaFold, rotate(rotMat2), scaleTranslate],
 		]</distanceBody>,
@@ -122,11 +117,6 @@
 		MandelFold
 	</include>
 
-	<uniforms>
-		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
-		uniform float frequency = 1;>,
-	</uniforms>
-
 	<distanceEstimator>
 		<distanceBody>[[rotate(rotMat1), cubeFold, rotate(rotMat2), scaleTranslate],
 		]</distanceBody>,
@@ -148,11 +138,6 @@
 	<include>
 		MandelFold
 	</include>
-
-	<uniforms>
-		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
-		uniform float frequency = 1;>,
-	</uniforms>
 
 	<distanceEstimator>
 		<distanceBody>[[rotate(rotMat1), sierpinskiFold, mengerFold, icosaFold, rotate(rotMat2), scaleTranslate],

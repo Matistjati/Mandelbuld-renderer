@@ -1,24 +1,24 @@
 <uniforms>
 
-	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (1.098, 50)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Fog Darkness, Range: (1.098, 50), Parent: Color</GuiHint>*/
 	uniform float fogDarkness = 50;
 
-	/*<GuiHint>GuiType: slider, Name: Scale, Range: (-10, 10)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Scale, Parent: fractalParams, Range: (-10, 10)</GuiHint>*/
 	uniform float scale = 2;
 	
-	/*<GuiHint>GuiType: slider, Name: Inner Radius, Range: (-2, 4)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Inner Radius, Parent: fractalParams, Range: (-2, 4)</GuiHint>*/
 	uniform float innerRadius = 0.5;
 	
-	/*<GuiHint>GuiType: slider, Name: Outer Radius, Range: (-2, 4)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Outer Radius, Parent: fractalParams, Range: (-2, 4)</GuiHint>*/
 	uniform float outerRadius = 1;
 	
-	/*<GuiHint>GuiType: slider, Name: Folding limit, Range: (0, 4)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Folding limit, Parent: fractalParams, Range: (0, 4)</GuiHint>*/
 	uniform float foldingLimit = 1;
 
-	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/
+	/*<GuiHint>GuiType: colorPicker, Name: Color A, Parent: Color</GuiHint>*/
 	uniform vec3 colorA = vec3(0, 0.707, 0.707);
 	
-	/*<GuiHint>GuiType: colorPicker, Name: Edge Color</GuiHint>*/
+	/*<GuiHint>GuiType: colorPicker, Name: Edge Color, Parent: Color</GuiHint>*/
 	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
 
 </uniforms>

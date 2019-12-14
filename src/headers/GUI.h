@@ -196,7 +196,7 @@ public:
 	nanogui::CheckBox* AddCheckbox(nanogui::Window* window, const std::string& label, const std::function<void(const bool&)>& setter, const std::function<bool()>& getter)
 	{
 		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
-		nanogui::CheckBox* widget = new nanogui::CheckBox(gui->nanoGuiWindow, "");
+		nanogui::CheckBox* widget = new nanogui::CheckBox(window, "");
 		auto refresh = [widget, getter] {
 			bool value = getter(), current = widget->pushed();
 			if (value != current)

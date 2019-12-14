@@ -61,7 +61,7 @@
 	</include>
 
 	<uniforms>
-		</*<GuiHint>GuiType: slider, Name: Color period, Range: (0, 8)</GuiHint>*/
+		</*<GuiHint>GuiType: slider, Name: Color period, Parent: color, Range: (0, 8)</GuiHint>*/
 		uniform float frequency = 1;>,
 	</uniforms>
 
@@ -94,8 +94,8 @@
 	</include>
 
 	<uniforms>
-		</*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 8)</GuiHint>*/
-		uniform float power = 2;>,
+		</*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 8)</GuiHint>*/
+		uniform float power = 1;>,
 	</uniforms>
 
 	<distanceEstimator>

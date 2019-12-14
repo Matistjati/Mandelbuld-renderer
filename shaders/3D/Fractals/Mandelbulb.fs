@@ -1,6 +1,6 @@
 <uniforms>
 
-	/*<GuiHint>GuiType: slider, Name: Power, Range: (-2, 16)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 16)</GuiHint>*/
 	uniform float power = 8;
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color A</GuiHint>*/

@@ -1327,9 +1327,11 @@ void Fractal::PopulateGUI()
 
 	// ParameterChangeRate
 	Uniform<float>* changeRate = new Uniform<float>();
-	changeRate->SetGuiValue = [changeRate]() { ((nanogui::Slider*)changeRate->guiElements[0])->setValue(changeRate->GetValue()); };
-	changeRate->SetShaderValue = [this, changeRate](float v) { this->shader->SetUniform(changeRate, Fractal::renderMode); };
+
 	nanogui::Slider* paramSlider = gui->form->AddSlider("parameterChangeRate", parameterChangeRate);
+	changeRate->SetGuiValue = [paramSlider, this]() { ((nanogui::Slider*)paramSlider)->setValue(this->parameterChangeRate); };
+
+	paramSlider->setCallback([this](float value) {this->parameterChangeRate = value; });
 
 	paramSlider->setValue(parameterChangeRate);
 	paramSlider->setRange({ 0.000001f,5.f });
