@@ -1152,16 +1152,19 @@ void Fractal::SetShaderUniforms(bool render)
 
 	zoom.SetShaderValue(Fractal::renderMode);
 
-	for (auto& uni : fractalUniforms)
+	for (size_t i = 0; i < this->fractalUniforms.size(); i++)
 	{
-		if (((UniformSuper*)uni.uniform)->SetShaderValue)
+		if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue)
 		{
-			((UniformSuper*)uni.uniform)->SetShaderValue(Fractal::renderMode);
+			((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
 			GlErrorCheck();
 		}
 		else
 		{
-			BreakIfDebug();
+#if _DEBUG
+
+			std::cout << ((UniformSuper*)fractalUniforms[i].uniform)->name;
+#endif
 		}
 	}
 

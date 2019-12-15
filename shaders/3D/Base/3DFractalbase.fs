@@ -49,7 +49,7 @@ uniform float escapeRadius = 256;
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring, Parent: color</GuiHint>*/
 uniform bool fogColoring = false;
 
-/*<GuiHint>GuiType: slider, Name: Shadow hardness, Range: (-4, 64), Parent: color</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Shadow Softness, Range: (-4, 64), Parent: color</GuiHint>*/
 uniform float shadowSoftness = 4;
 
 /*<GuiHint>GuiType: slider, Name: Sun Size, Parent: sky, Range: (-1, 10)</GuiHint>*/
