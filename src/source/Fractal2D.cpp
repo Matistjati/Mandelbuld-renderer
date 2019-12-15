@@ -49,7 +49,7 @@ void Fractal2D::PopulateGUI()
 	// Position
 	gui->form->addGroup("Position");
 	
-	auto positionFieldX = gui->form->addVariable("X", position.value.x);
+	auto positionFieldX = gui->form->AddTextBox("X", position.value.x);
 	positionFieldX->setCallback([this](float value)
 		{
 			position.SetValue({ position.value.x, value }, Fractal::renderMode);
@@ -58,7 +58,7 @@ void Fractal2D::PopulateGUI()
 
 	positionFieldX->numberFormat("%.6g");
 
-	auto positionFieldY = gui->form->addVariable("Y", position.value.y);
+	auto positionFieldY = gui->form->AddTextBox("Y", position.value.y);
 	positionFieldY->setCallback([this](float value)
 		{
 			position.SetValue({ value, position.value.y }, Fractal::renderMode);
