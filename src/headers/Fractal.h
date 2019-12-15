@@ -89,7 +89,7 @@ public:
 	GUI* gui;
 
 	std::vector<GuiElement> fractalUniforms;
-	std::vector<SubMenu> subMenus;
+	std::vector<SubMenu*> subMenus;
 	std::string fractalSourceCode;
 
 	~Fractal();

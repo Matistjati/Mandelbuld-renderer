@@ -29,12 +29,12 @@ class GuiElement
 {
 public:
 	Fractal* fractal;
-	void* uniform;
+	UniformSuper* uniform;
 	Element element;
 
 	static std::string GetElement(std::vector<std::string>& content, std::string name);
 	GuiElement(Element element, std::string type, std::string uniformName, std::string elementLabel, Fractal* fractal, std::string value, std::string parent, std::vector<std::string> guiParams);
-	GuiElement(Element element, void* uniform, Fractal* fractal);
+	GuiElement(Element element, UniformSuper* uniform, Fractal* fractal);
 	GuiElement();
 
 	void DeleteUniform() { delete uniform; }
@@ -42,7 +42,7 @@ public:
 	static Element GetElementFromString(std::string element);
 
 private:
-	void* CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType);
+	UniformSuper* CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType);
 };
 
 class SubMenu
@@ -56,6 +56,8 @@ public:
 
 	nanogui::Window* window;
 	Form* form;
+
+	void Init();
 
 	SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal);
 

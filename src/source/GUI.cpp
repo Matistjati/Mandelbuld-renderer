@@ -119,7 +119,7 @@ void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform
 void AddColorPicker(Form* form, nanogui::Window* parent, std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
 {
 	nanogui::ColorPicker* picker = form->AddColorPicker(parent, label, ((Uniform<nanogui::Color>*)uniform)->value);
-	uniform->SetGuiValue = [picker, uniform]() {picker->setColor(uniform->GetValue()); 	picker->setBackgroundColor(uniform->GetValue()); };
+	uniform->SetGuiValue = [picker, uniform]() { picker->mouseButtonEvent(picker->position(), GLFW_MOUSE_BUTTON_1, true, 0); picker->setColor(uniform->GetValue()); picker->setBackgroundColor(uniform->GetValue()); picker->mouseButtonEvent(picker->position(), GLFW_MOUSE_BUTTON_1, true, 0); };
 	picker->setCallback([fractal, uniform](const nanogui::Color& c)
 		{
 			uniform->SetValue(c, Fractal::renderMode);
@@ -167,10 +167,10 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	{
 		for (size_t i = 0; i < fractal->subMenus.size(); i++)
 		{
-			if (Fractal::StringEqualNoCase(parent, fractal->subMenus[i].identifier))
+			if (Fractal::StringEqualNoCase(parent, fractal->subMenus[i]->identifier))
 			{
-				window = fractal->subMenus[i].window;
-				form = fractal->subMenus[i].form;
+				window = fractal->subMenus[i]->window;
+				form = fractal->subMenus[i]->form;
 				break;
 			}
 		}
@@ -252,9 +252,9 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	}
 }
 
-GuiElement::GuiElement(Element element, void* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
+GuiElement::GuiElement(Element element, UniformSuper* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
 
-SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window()
+SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window(), form()
 {
 	if (element == Element::SubMenu)
 	{
@@ -266,12 +266,12 @@ SubMenu::SubMenu(Element element, std::string name, std::string identifier, Frac
 		form = new Form(fractal->gui, button, this);
 		window = form->addWindow(button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + Eigen::Vector2i{ 30,0 }, name);
 
-		button->setCallback([window = window, form=form]()
+		form->parentButton->setCallback([this]()
 			{
 				window->setVisible(!window->visible());
 				if (!window->visible())
 				{
-					for (int i = 0; i < form->parentMenu->children.size(); i++)
+					for (size_t i = 0; i < form->parentMenu->children.size(); i++)
 					{
 						form->parentMenu->children[i]->setVisible(false);
 					}
@@ -320,7 +320,7 @@ Element GuiElement::GetElementFromString(std::string element)
 	}
 }
 
-void* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
+UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
 {
 	fractal->shader->Use();
 	unsigned int id = glGetUniformLocation(fractal->shader->id, name.c_str());

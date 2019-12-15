@@ -1103,8 +1103,7 @@ void Fractal::PopulateGuiFromShader()
 			std::string identifier = GuiElement::GetElement(params, "Identifier");
 			if (identifier[0] == ' ') identifier = identifier.substr(1);
 
-			subMenus.push_back(SubMenu(GuiElement::GetElementFromString(type), name, identifier, this));
-			subMenus[subMenus.size() - 1].form->parentMenu = &subMenus[subMenus.size() - 1];
+			subMenus.push_back(new SubMenu(GuiElement::GetElementFromString(type), name, identifier, this));
 		}
 		else
 		{
@@ -1344,13 +1343,73 @@ void Fractal::PopulateGUI()
 
 	fractalUniforms.push_back(GuiElement(Element::Slider, changeRate, this));
 
+
+	// Reset button
+	nanogui::Button* resetButton = gui->form->AddButton("Reset variables", "reset");
+	resetButton->setCallback([this]()
+		{
+			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
+			{
+				UniformSuper* uni = (UniformSuper*)fractalUniforms[i].uniform;
+				if (fractalUniforms[i].element == Element::Slider || fractalUniforms[i].element == Element::TextBox)
+				{
+					if (uni->guiElements.size() == 3)
+					{
+						((Uniform<glm::vec3>*)fractalUniforms[i].uniform)->Reset();
+
+						if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
+						if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
+					}
+					else
+					{
+						((Uniform<float>*)fractalUniforms[i].uniform)->Reset();
+						if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
+						if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
+					}
+				}
+				else if (fractalUniforms[i].element == Element::ColorPicker)
+				{
+					((Uniform<nanogui::Color>*)fractalUniforms[i].uniform)->Reset();
+					if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
+					if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
+				}
+				else if (fractalUniforms[i].element == Element::CheckBox)
+				{
+					((Uniform<bool>*)fractalUniforms[i].uniform)->Reset();
+					if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
+					if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
+				}
+			}
+		});
+
+	sliderSize->setCallback([this](int value)
+		{
+			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
+			{
+				if (this->fractalUniforms[i].element == Element::Slider)
+				{
+					for (size_t j = 0; j < ((Uniform<float>*)this->fractalUniforms[i].uniform)->guiElements.size(); j++)
+					{
+						nanogui::Slider* slider = (nanogui::Slider*)((Uniform<float>*)this->fractalUniforms[i].uniform)->guiElements[j];
+						slider->setFixedWidth(value);
+						slider->setWidth(value);
+						slider->parent()->setWidth(value + 50);
+					}
+				}
+			}
+
+			this->gui->performLayout();
+		});
+
+
+	// Close submenus button
 	nanogui::Button* collapseButton = gui->form->AddButton("Collapse submenues", "close");
 	collapseButton->setCallback([this]()
 		{
 			for (size_t i = 0; i < this->subMenus.size(); i++)
 			{
-				subMenus[i].window->setVisible(false);
-				for (auto& sub : subMenus[i].children)
+				subMenus[i]->window->setVisible(false);
+				for (auto& sub : subMenus[i]->children)
 				{
 					sub->setVisible(false);
 				}
