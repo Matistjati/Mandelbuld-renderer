@@ -52,7 +52,7 @@ public:
 	std::string name;
 	std::string identifier;
 	Fractal* fractal;
-	std::vector<GuiElement> children;
+	std::vector<nanogui::Widget*> children;
 
 	nanogui::Window* window;
 	Form* form;
@@ -78,8 +78,9 @@ class Form : public nanogui::FormHelper
 public:
 	GUI* gui;
 	Form(GUI* gui);
-	Form(GUI* gui, nanogui::Button* button);
+	Form(GUI* gui, nanogui::Button* button, SubMenu* parentMenu);
 	nanogui::Button* parentButton;
+	SubMenu* parentMenu;
 
 	// C++ doesnt let me define templated methods in another file
 	template <typename Type> nanogui::Slider* AddSlider(nanogui::Window* window, const std::string& label, const std::function<void(const Type&)>& setter, const std::function<Type()>& getter)

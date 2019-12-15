@@ -18,12 +18,12 @@ void GUI::ClearFocusPath()
 }
 
 
-Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui), parentButton()
+Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui), parentButton(), parentMenu()
 {
 
 }
 
-Form::Form(GUI* gui, nanogui::Button* button) : nanogui::FormHelper(gui), gui(gui), parentButton(button)
+Form::Form(GUI* gui, nanogui::Button* button, SubMenu* parentMenu) : nanogui::FormHelper(gui), gui(gui), parentButton(button), parentMenu(parentMenu)
 {
 }
 
@@ -53,16 +53,18 @@ void AddSlider3(Form* form, nanogui::Window* parent, std::string label, Uniform<
 	fractal->gui->performLayout();
 
 
-	Form* subForm = new Form(fractal->gui, button);
+	Form* subForm = new Form(fractal->gui, button, form->parentMenu);
 
 	nanogui::Window* window = subForm->addWindow(form->parentButton->position() + Eigen::Vector2i(form->parentButton->size().x(), (int)(form->parentButton->size().y() / 2.5))
 		+ button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y() / 2)) + Eigen::Vector2i{ 50,0 }, label);
+
+	form->parentMenu->children.push_back(window);
 
 	window->setVisible(false);
 
 	std::vector<nanogui::Slider*> sliders = subForm->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN()); },
 		3, range, glm::vec4(value.x, value.y, value.z, -1));
-	
+
 	sliders[0]->setCallback([fractal, uniform](float value)
 		{
 			uniform->SetValue(glm::vec3(value, uniform->value.y, uniform->value.z), Fractal::renderMode);
@@ -252,7 +254,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 GuiElement::GuiElement(Element element, void* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
 
-SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal) : element(element), name(name), fractal(fractal), identifier(identifier), children({}), window()
+SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window()
 {
 	if (element == Element::SubMenu)
 	{
@@ -261,15 +263,18 @@ SubMenu::SubMenu(Element element, std::string name, std::string identifier, Frac
 		fractal->gui->performLayout();
 
 
-		form = new Form(fractal->gui, button);
+		form = new Form(fractal->gui, button, this);
 		window = form->addWindow(button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + Eigen::Vector2i{ 30,0 }, name);
 
-		button->setCallback([window=window]()
+		button->setCallback([window = window, form=form]()
 			{
 				window->setVisible(!window->visible());
-				for (int i = 0; i < window->childCount(); i++)
+				if (!window->visible())
 				{
-					window->childAt(i)->setVisible(window->visible());
+					for (int i = 0; i < form->parentMenu->children.size(); i++)
+					{
+						form->parentMenu->children[i]->setVisible(false);
+					}
 				}
 			});
 

@@ -1104,6 +1104,7 @@ void Fractal::PopulateGuiFromShader()
 			if (identifier[0] == ' ') identifier = identifier.substr(1);
 
 			subMenus.push_back(SubMenu(GuiElement::GetElementFromString(type), name, identifier, this));
+			subMenus[subMenus.size() - 1].form->parentMenu = &subMenus[subMenus.size() - 1];
 		}
 		else
 		{
@@ -1342,6 +1343,19 @@ void Fractal::PopulateGUI()
 
 
 	fractalUniforms.push_back(GuiElement(Element::Slider, changeRate, this));
+
+	nanogui::Button* collapseButton = gui->form->AddButton("Collapse submenues");
+	collapseButton->setCallback([this]()
+		{
+			for (size_t i = 0; i < this->subMenus.size(); i++)
+			{
+				subMenus[i].window->setVisible(false);
+				for (auto& sub : subMenus[i].form->parentMenu->children)
+				{
+					sub->setVisible(false);
+				}
+			}
+		});
 }
 
 void Fractal::Update()
