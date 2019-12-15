@@ -1344,13 +1344,13 @@ void Fractal::PopulateGUI()
 
 	fractalUniforms.push_back(GuiElement(Element::Slider, changeRate, this));
 
-	nanogui::Button* collapseButton = gui->form->AddButton("Collapse submenues");
+	nanogui::Button* collapseButton = gui->form->AddButton("Collapse submenues", "close");
 	collapseButton->setCallback([this]()
 		{
 			for (size_t i = 0; i < this->subMenus.size(); i++)
 			{
 				subMenus[i].window->setVisible(false);
-				for (auto& sub : subMenus[i].form->parentMenu->children)
+				for (auto& sub : subMenus[i].children)
 				{
 					sub->setVisible(false);
 				}

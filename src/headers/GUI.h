@@ -168,12 +168,12 @@ public:
 		return sliders;
 	}
 
-	nanogui::Button* AddButton(nanogui::Window* parent, const std::string& label)
+	nanogui::Button* AddButton(nanogui::Window* parent, const std::string& label, std::string caption)
 	{
 		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
 		nanogui::Button* widget = new nanogui::Button(parent);
 
-		widget->setCaption("open");
+		widget->setCaption(caption);
 
 		widget->setFontSize(mWidgetFontSize);
 		nanogui::Vector2i fs = widget->fixedSize();
@@ -189,9 +189,19 @@ public:
 		return widget;
 	}
 
+	nanogui::Button* AddButton(const std::string& label, std::string caption)
+	{
+		return AddButton(gui->nanoGuiWindow, label, caption);
+	}
+
+	nanogui::Button* AddButton(nanogui::Window* window, const std::string& label)
+	{
+		return AddButton(window, label, "open");
+	}
+
 	nanogui::Button* AddButton(const std::string& label)
 	{
-		return AddButton(gui->nanoGuiWindow, label);
+		return AddButton(gui->nanoGuiWindow, label, "open");
 	}
 
 	nanogui::CheckBox* AddCheckbox(nanogui::Window* window, const std::string& label, const std::function<void(const bool&)>& setter, const std::function<bool()>& getter)
