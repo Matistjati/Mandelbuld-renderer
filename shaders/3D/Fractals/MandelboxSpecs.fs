@@ -35,7 +35,7 @@
 
 	<uniforms>
 		</*<GuiHint>GuiType: slider, Name: Folding plane, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
-		uniform vec3 plane = vec3(0);>,
+		uniform vec3 plane = vec3(0.6403136678865026,0.952709374335516,0.1672384066895063);>,
 	</uniforms>
 
 	<distanceEstimator>

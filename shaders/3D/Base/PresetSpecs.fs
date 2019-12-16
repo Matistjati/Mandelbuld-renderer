@@ -30,7 +30,7 @@
 	<distanceEstimator>
 		<distanceReturn>[mandelFoldDist]</distanceReturn>,
 		<distanceTrap>[defaultTrap]</distanceTrap>,
-		<distanceSetup>[[mandelFoldSetup], ]</distanceSetup>,
+		<distanceSetup>[[mandelFoldSetup, rotationSetup], ]</distanceSetup>,
 		<distanceTrapReturn>[defaultTrapReturn]</distanceTrapReturn>,
 		<distanceBreakCondition>[defaultBreak]</distanceBreakCondition>,
 		<distanceExtraOperations>[[], ]</distanceExtraOperations>,

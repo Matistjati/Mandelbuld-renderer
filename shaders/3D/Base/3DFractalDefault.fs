@@ -28,6 +28,18 @@
 	<addPositionToW>w+=position;</addPositionToW>,
 	<defaultSetup>vec3 c = w; float m; vec4 trap = vec4(abs(w),m); float dw = 1.0;</defaultSetup>,
 	<mandelBulbInit>vec3 c = w; float m = dot(w,w); vec4 trap = vec4(abs(w),m); float dw = 1.0;</mandelBulbInit>,
+	<rotationSetup>
+		vec3 phase1 = vec3(0,0,0);
+		vec3 phase2 = vec3(0,0,0);
+
+		vec3 sinrot1 = vec3(sin((rot1+phase1)*6.28318530718));
+		vec3 cosrot1 = vec3(cos((rot1+phase1)*6.28318530718));
+		mat3 rotMat1 = mat3(1,0,0,0,cosrot1.x,-sinrot1.x,0,sinrot1.x,cosrot1.x)*mat3(cosrot1.y,0,sinrot1.y,0,1,0,-sinrot1.y,0,cosrot1.y)*mat3(cosrot1.z,-sinrot1.z,0,sinrot1.z,cosrot1.z,0,0,0,1);
+		
+		vec3 sinrot2 = vec3(sin((rot2+phase2)*6.28318530718));
+		vec3 cosrot2 = vec3(cos((rot2+phase2)*6.28318530718));
+		mat3 rotMat2 = mat3(1,0,0,0,cosrot2.x,-sinrot2.x,0,sinrot2.x,cosrot2.x)*mat3(cosrot2.y,0,sinrot2.y,0,1,0,-sinrot2.y,0,cosrot2.y)*mat3(cosrot2.z,-sinrot2.z,0,sinrot2.z,cosrot2.z,0,0,0,1);
+	</rotationSetup>,
 </distanceSetup>
 
 <operations>
