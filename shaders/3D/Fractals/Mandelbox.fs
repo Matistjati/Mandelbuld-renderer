@@ -51,6 +51,10 @@
 	col.z += sqrt(sin(trap.z));
 	>,
 
+	<
+	col = (cos(edgeColor + colorA * steps * 10) * -0.5 + 0.5);
+	>,
+
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
 	//col = sqrt(col);

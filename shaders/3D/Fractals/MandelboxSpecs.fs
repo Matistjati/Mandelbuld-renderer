@@ -33,10 +33,15 @@
 		MandelBox
 	</include>
 
+	<uniforms>
+		</*<GuiHint>GuiType: slider, Name: Folding plane, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
+		uniform vec3 plane = vec3(0);>,
+	</uniforms>
+
 	<distanceEstimator>
 		<distanceBody>[
 		[planeFold(sun), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
-		[planeFold(sun*-1), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
+		[planeFold(normalize(plane)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		[planeFold(vec3(0.577)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		[planeFold(vec3(0.461, 0.877, 0.854)), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],
 		[planeFold(vec3(1.,0,0)*rotation), boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative],

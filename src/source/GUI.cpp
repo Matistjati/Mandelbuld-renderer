@@ -116,10 +116,23 @@ void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform
 	uniform->guiElements = { checkBox };
 }
 
+class ColorWrapper : public nanogui::ColorPicker
+{
+public:
+	// Nanogui won't let us change the color when the user is "editing" (mPushed) it, even though it requests it being changed. Oh well
+	void SetColorTrue(nanogui::Color col)
+	{
+		bool state = mPushed;
+		mPushed = false;
+		setColor(col);
+		mPushed = state;
+	}
+};
+
 void AddColorPicker(Form* form, nanogui::Window* parent, std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
 {
 	nanogui::ColorPicker* picker = form->AddColorPicker(parent, label, ((Uniform<nanogui::Color>*)uniform)->value);
-	uniform->SetGuiValue = [picker, uniform]() { picker->mouseButtonEvent(picker->position(), GLFW_MOUSE_BUTTON_1, true, 0); picker->setColor(uniform->GetValue()); picker->setBackgroundColor(uniform->GetValue()); picker->mouseButtonEvent(picker->position(), GLFW_MOUSE_BUTTON_1, true, 0); };
+	uniform->SetGuiValue = [picker, uniform]() { ((ColorWrapper*)picker)->SetColorTrue(uniform->GetValue()); picker->setBackgroundColor(uniform->GetValue());  };
 	picker->setCallback([fractal, uniform](const nanogui::Color& c)
 		{
 			uniform->SetValue(c, Fractal::renderMode);
