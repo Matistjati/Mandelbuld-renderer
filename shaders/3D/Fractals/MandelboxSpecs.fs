@@ -191,7 +191,7 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative]</distanceBody>,
+		<distanceBody>[[boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, mengerIterate], [icosaIterate, boxFold, sphereFold, scaleAndTranslate, mandelBoxDerivative, mengerIterate]]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 

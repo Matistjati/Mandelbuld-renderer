@@ -1567,13 +1567,30 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 								{
 									while (true)
 									{
+										const size_t paramLength = std::string("parameter").size();
 										size_t start = newSection.find("parameter");
+
+										// Prevent breaking cases like "parameter = parameter1 + parameter";
+										for (size_t i = 0; i < 511; i++)
+										{
+											if (start + paramLength < newSection.size())
+											{
+												if (newSection[start + paramLength] > 47 && newSection[start + paramLength] < 58)
+												{
+													start = newSection.find("parameter", start + paramLength);
+												}
+												else
+												{
+													break;
+												}
+											}
+										}
 										if (start == std::string::npos) break;
 
 										char parameterPostfix = newSection[start + std::string("parameter").length()];
 										if (parameterPostfix < 48 || parameterPostfix > 57) // The postfix isn't a number
 										{
-											Replace(newSection, "parameter", parameters[0]);
+											Replace(newSection, "parameter", parameters[0], start);
 										}
 										else
 										{

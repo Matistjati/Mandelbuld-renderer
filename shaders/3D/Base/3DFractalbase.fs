@@ -45,12 +45,21 @@ uniform float maxDist = 16;
 /*<GuiHint>GuiType: slider, Name: Escacpe Radius, Parent: render, Range: (1, 1024)</GuiHint>*/
 uniform float escapeRadius = 256;
 
+/*<GuiHint>GuiType: slider, Name: Shadow Darkness, Parent: render, Range: (1, 3)</GuiHint>*/
+uniform float shadowDarkness = 1;
+
+/*<GuiHint>GuiType: slider, Name: Specular Strength, Parent: render, Range: (0, 1)</GuiHint>*/
+uniform float specularStrength = 1;
+
+
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring, Parent: color</GuiHint>*/
 uniform bool fogColoring = false;
 
 /*<GuiHint>GuiType: slider, Name: Shadow Softness, Range: (-4, 64), Parent: color</GuiHint>*/
 uniform float shadowSoftness = 4;
+
+
 
 /*<GuiHint>GuiType: slider, Name: Sun Size, Parent: sky, Range: (-1, 10)</GuiHint>*/
 uniform float sunSize = 1.0;

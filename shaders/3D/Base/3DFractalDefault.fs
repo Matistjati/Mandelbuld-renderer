@@ -69,6 +69,7 @@
 	<mandelBoxDist>abs(length(w)/abs(dw));</mandelBoxDist>,
 	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dw);</mandelBulbDist>,
 	<mandelFoldDist>(length(w)-distDiff)*pow(scale,-i);</mandelFoldDist>,
+	<mandelFoldDistParam>(length(w)-distDiff)*pow(parameter,-i);</mandelFoldDistParam>,
 </distanceReturn>
 
 <distanceTrap>
@@ -237,6 +238,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			float diffuse3 = (0.7+0.3*normal.y)*(0.2+0.8*occlusion);
 
 			vec3 light = vec3(0.0); 
+			diffuse *= specularStrength;
 			light += 7.0*vec3(1.50,1.10,0.70)*diffuse;
 			light += 4.0*vec3(0.25,0.20,0.15)*diffuse2;
 			light += 1.5*vec3(0.10,0.20,0.30)*diffuse3;
@@ -244,8 +246,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			light += 4*fakeSSS*occlusion;                            // fake SSS
 			light = pow(light, vec3((light.x<1) ? 1 : 1.5));
 
-			float m = sqrt(length(col*light));
-			col *= light / max(1,m*m*0.3+1.2);
+			light = pow(light, 1/vec3(shadowDarkness));
+			col *= light;
 			col = pow( col, vec3(0.7,0.9,1.0) );                  // fake SSS
 			col += specular;
 

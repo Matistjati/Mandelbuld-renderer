@@ -47,10 +47,15 @@
 		w-=2.0 * max(0,dot(w, parameter)) * parameter;
 	</foldAbout>,
 	<scaleTranslate>w = w*scale-offset*(scale-1);</scaleTranslate>,
+	<scaleTranslateParam>w = w*parameter-parameter1*(parameter-1);</scaleTranslateParam>,
 	<mengerScale>
 		w = w*scale-vec3(offset.xy,0)*(scale-1);
 		if(w.z>0.5*offset.z*(scale-1)) w.z-=offset.z*(scale-1);
 	</mengerScale>,
+	<mengerScaleParam>
+		w = w*parameter-vec3(parameter1.xy,0)*(parameter-1);
+		if(w.z>0.5*parameter1.z*(parameter-1)) w.z-=parameter1.z*(parameter-1);
+	</mengerScaleParam>,
 	<rotate>
 		w*=parameter;
 	</rotate>,

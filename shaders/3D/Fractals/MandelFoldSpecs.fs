@@ -140,15 +140,35 @@
 	</include>
 
 	<distanceEstimator>
-		<distanceBody>[[rotate(rotMat1), sierpinskiFold, mengerFold, icosaFold, rotate(rotMat2), scaleTranslate],
+		<distanceReturn>mandelFoldDistParam(4*2.7)</distanceReturn>,
+		<distanceBreakCondition>foldBreak</distanceBreakCondition>,
+		<distanceBody>[[rotate(rotMat1), sierpinskiFold, rotate(rotMat2), scaleTranslateParam(2, vec3(1)),
+						rotate(rotMat1), mengerFold,	 rotate(rotMat2), mengerScaleParam(2.7, vec3(1)),
+						rotate(rotMat1), sierpinskiFold, rotate(rotMat2), scaleTranslateParam(2, vec3(1))],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
 	</distanceEstimator>
 
-	<variables>
-		<scale>1.7</scale>,
-		<offset>vec3(0.850650808,0,0.3)</offset>,
-	</variables>
+	<cpuVariables>
+		<position>[4, 0, 0]</position>,
+	</cpuVariables>
+}
+
+// Hybrid 7
+{
+	<include>
+		MandelFold
+	</include>
+
+	<distanceEstimator>
+		<distanceReturn>mandelFoldDistParam(1.3*2)</distanceReturn>,
+		<distanceBreakCondition>foldBreak</distanceBreakCondition>,
+		<distanceBody>[[rotate(rotMat1), mushroomFold, rotate(rotMat2), scaleTranslateParam(1.3, vec3(2,4.8,0)),
+						rotate(rotMat1), sierpinskiFold, rotate(rotMat2), scaleTranslateParam(2, vec3(1))
+						],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
 
 	<cpuVariables>
 		<position>[4, 0, 0]</position>,
