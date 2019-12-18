@@ -27,6 +27,10 @@
 
 </uniforms>
 
+<include>
+	boxFold, sphereFold, triplexPow, icosaFold, sierpinskiFold, mengerFold
+</include>
+
 <operations>
 	<sinSinhX>w.x = sin(w.x); w.x = sinh(w.x)*sin(w.x);</sinSinhX>,
 	<cosZsinY>w.z = cos(w.z)*sin(w.z); w.y = cos(w.y)*sin(w.y);</cosZsinY>,
@@ -54,10 +58,6 @@
 		dw*=2;
 	</icosaIterate>
 </operations>
-
-<include>
-	boxFold, sphereFold, triplexPow, icosaFold, sierpinskiFold, mengerFold
-</include>
 
 <distanceTrap>
 	<bulbForest>trap = mix(trap, vec4(w*w, m), 0.5);</bulbForest>

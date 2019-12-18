@@ -174,3 +174,25 @@
 		<position>[4, 0, 0]</position>,
 	</cpuVariables>
 }
+
+// Hybrid 8
+{
+	<include>
+		MandelFold
+	</include>
+
+	<distanceEstimator>
+		<distanceReturn>mandelFoldDistParam(2.7*2*2.2)</distanceReturn>,
+		<distanceBreakCondition>foldBreak</distanceBreakCondition>,
+		<distanceBody>[[rotate(rotMat1), mengerFold,	 rotate(rotMat2), mengerScaleParam(2.7, vec3(1)),
+						rotate(rotMat1), cubeFold, rotate(rotMat2), scaleTranslateParam(2.2, vec3(1)),
+						rotate(rotMat1), sierpinskiFold, rotate(rotMat2), scaleTranslateParam(2, vec3(1)),
+						],
+		]</distanceBody>,
+		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+	</distanceEstimator>
+
+	<cpuVariables>
+		<position>[4, 0, 0]</position>,
+	</cpuVariables>
+}

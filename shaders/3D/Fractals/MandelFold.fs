@@ -92,10 +92,6 @@
 	</icosaFold>,
 </operations>
 
-<include>
-
-</include>
-
 <distanceTrap>
 
 </distanceTrap>

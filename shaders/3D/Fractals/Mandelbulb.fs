@@ -19,7 +19,7 @@
 </uniforms>
 
 <include>
-	boundingSphere, sphereFold, boxFold, triplexPow
+	boundingSphere, sphereFold, boxFold, triplexPow, icosaFold, sierpinskiFold, mengerFold
 </include>
 
 <operations>
