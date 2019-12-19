@@ -30,7 +30,7 @@ uniform int maxSteps = 100;
 /*<GuiHint>GuiType: slider, Name: Anti Aliasing, Parent: render, Range: (1, 5)</GuiHint>*/
 uniform float antiAliasing = 1;
 
-/*<GuiHint>GuiType: slider, Name: Fudge Factor, Parent: render, Range: (0.1, 1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Fudge Factor, Parent: render, Range: (0.1, 3)</GuiHint>*/
 uniform float fudgeFactor = 1;
 
 /*<GuiHint>GuiType: slider, Name: Gamma Correction, Parent: render, Range: (0, 2)</GuiHint>*/
