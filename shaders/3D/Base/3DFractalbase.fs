@@ -48,7 +48,7 @@ uniform float escapeRadius = 256;
 /*<GuiHint>GuiType: slider, Name: Shadow Darkness, Parent: render, Range: (1, 3)</GuiHint>*/
 uniform float shadowDarkness = 1;
 
-/*<GuiHint>GuiType: slider, Name: Specular Strength, Parent: render, Range: (0, 1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Specular Strength, Parent: render, Range: (0, 2)</GuiHint>*/
 uniform float specularStrength = 1;
 
 
