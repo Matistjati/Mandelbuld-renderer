@@ -450,7 +450,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 					}
 
 					int index = 0;
-					if (shaderIndices.count(sectionName))
+					if (shaderIndices.size() && shaderIndices.count(sectionName))
 					{
 						index = *shaderIndices[sectionName];
 						if (index < 0)
