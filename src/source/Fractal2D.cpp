@@ -768,11 +768,7 @@ void Fractal2D::Init()
 		ComputeShader* compute = reinterpret_cast<ComputeShader*>(shader);
 		compute->Invoke(screenSize.value);
 		
-		// Draw to both front and back buffers to avoid stuttering
 		RenderComputeShader();
-		glfwSwapBuffers(window);
-		RenderComputeShader();
-		glfwSwapBuffers(window);
 	}
 }
 
@@ -917,7 +913,6 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 			ParseShader(source, computeBase, specification, specIndex, fractalIndex, shaderSections);
 
 
-			fractalSourceCode = computeBase;
 
 
 			std::string renderSourceName = GetSection(Section("render"), source);
@@ -938,6 +933,17 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 			{
 				Replace(renderBase, "#version 330", "#version 430");
 			}
+			
+			std::string sourceCopy = computeBase;
+
+			std::string uniformStart;
+			if ((uniformStart = GetSection(Section("uniforms"), renderSource))!="")
+			{
+				sourceCopy += uniformStart;
+			}
+
+			fractalSourceCode = sourceCopy;
+
 
 			return new ComputeShader(computeBase, vertexSource, renderBase, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
 		}

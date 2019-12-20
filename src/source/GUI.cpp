@@ -337,6 +337,16 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 {
 	fractal->shader->Use();
 	unsigned int id = glGetUniformLocation(fractal->shader->id, name.c_str());
+	if (id == GL_INVALID_INDEX)
+	{
+		if (fractal->shader->type == ShaderType::compute)
+		{
+			((ComputeShader*)fractal->shader)->UseRender();
+			unsigned int id = glGetUniformLocation(((ComputeShader*)fractal->shader)->renderId, name.c_str());
+			fractal->shader->Use();
+		}
+	}
+
 	if (type == "float")
 	{
 		float val = (value == "") ? 0.f : std::stof(value);

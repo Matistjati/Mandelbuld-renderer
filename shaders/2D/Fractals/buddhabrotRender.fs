@@ -2,6 +2,13 @@
 	<mainLoopOff>
 </flags>
 
+<uniforms>
+
+	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (0, 10000)</GuiHint>*/
+	uniform float brightness = 3500;
+
+</uniforms>
+
 <buffers>
 /*<bufferType>renderInput</bufferType>*/
 layout(std430, binding=0) buffer renderInput
@@ -22,6 +29,6 @@ layout(std430, binding=0) buffer renderInput
 	color = vec4((col.xyz/brightness.xyz)*0.1, 1);
 #else
 	// An approximation used for buddhagrams. May need manual tweaking for optimal results (it depends on alot of paramters, such as screenSize, miniterations and maxiterations)
-	color = vec4(col.xyz/float(frame), 1);
+	color = vec4(col.xyz/(brightness*float(frame)), 1);
 #endif
 </main>

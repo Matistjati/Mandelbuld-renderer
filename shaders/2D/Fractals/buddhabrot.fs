@@ -14,7 +14,6 @@
 <topEdge>1</topEdge>
 <bottomEdge>-1</bottomEdge>
 
-
 <type>compute</type>
 <render>buddhabrotRender.fs</render>
 <localSizeDimensions>2</localSizeDimensions>
@@ -103,6 +102,9 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	//vec2 coord = c;
 	vec2 coord = w;
+	coord.x = mix(coord.x, w.y, xRot.x);
+	coord.x = mix(coord.x, c.x, xRot.y);
+	coord.x = mix(coord.x, c.y, xRot.z);
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
@@ -132,9 +134,9 @@ layout(std430, binding = 1) buffer desirabilityMap
 	#if Colorwheel
 	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
 	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.001,1);
+	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5)),1);
 	#else
-	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
+	vec4 color = vec4(redIter, greenIter, blueIter,1);
 	#endif
 	</buddhaMapSetup>,
 	
@@ -142,9 +144,9 @@ layout(std430, binding = 1) buffer desirabilityMap
 	#if Colorwheel
 	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
 	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5))*0.001,1);
+	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5)),1);
 	#else
-	vec4 color = vec4(redIter, greenIter, blueIter,4000)/4000;
+	vec4 color = vec4(redIter, greenIter, blueIter,1);
 	#endif
 	c/=dot(c,c);</buddhaMapSetupInverse>,
 </loopSetup>
