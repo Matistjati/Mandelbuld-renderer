@@ -260,95 +260,121 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 	return buffers;
 }
 
+void UseProgramIfValid(unsigned int id)
+{
+	if (id != 0xFFFFFFFF)
+	{
+		glUseProgram(id);
+	}
+}
+
 void Shader::SetUniform(const Uniform<float> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1f(value.id, value.value);
 }
 
 void Shader::SetUniform(Uniform<float> value, bool renderMode) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1f(value.id, (renderMode) ? value.renderValue : value.value);
 }
 
 void Shader::SetUniform(Uniform<int> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1i(value.id, value.value);
 }
 
 void Shader::SetUniform(Uniform<int> value, bool renderMode) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1i(value.id, (renderMode) ? value.renderValue : value.value);
 }
 
 void Shader::SetUniform(Uniform<unsigned int> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1ui(value.id, value.value);
 }
 
 void Shader::SetUniform(Uniform<bool> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1i(value.id, value.value);
 }
 
 void Shader::SetUniform(Uniform<bool> value, bool renderMode) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1i(value.id, (renderMode) ? value.renderValue : value.value);
 }
 
 void Shader::SetUniform(Uniform<glm::ivec2> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform2i(vector.id, vector.value.x, vector.value.y);
 }
 
 void Shader::SetUniform(Uniform<glm::vec2> vector, bool renderMode) const
 {
+	UseProgramIfValid(vector.programId);
 	glm::vec2 v = (renderMode) ? vector.renderValue : vector.value;
 	glUniform2f(vector.id, v.x, v.y);
 }
 
 void Shader::SetUniform(Uniform<glm::vec2> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform2f(vector.id, vector.value.x, vector.value.y);
 }
 
 void Shader::SetUniform(Uniform<glm::vec3> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform3f(vector.id, vector.value.x, vector.value.y, vector.value.z);
 }
 
 void Shader::SetUniform(Uniform<glm::vec3> vector, bool renderMode) const
 {
+	UseProgramIfValid(vector.programId);
 	glm::vec3 v = (renderMode) ? vector.renderValue : vector.value;
 	glUniform3f(vector.id, v.x, v.y, v.z);
 }
 
 void Shader::SetUniform(Uniform<Time> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1f(value.id, static_cast<float>(value.value.GetTotalTime()));
 }
 
 void Shader::SetUniform(Uniform<glm::vec4> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform4f(vector.id, vector.value.x, vector.value.y, vector.value.z, vector.value.w);
 }
 
 void Shader::SetUniform(Uniform<glm::mat2> &mat) const
 {
+	UseProgramIfValid(mat.programId);
 	glUniformMatrix2fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
 }
 
 void Shader::SetUniform(Uniform<glm::mat3>& mat) const
 {
+	UseProgramIfValid(mat.programId);
 	glUniformMatrix3fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
 }
 
 void Shader::SetUniform(Uniform<nanogui::Color>& color) const
 {
+	UseProgramIfValid(color.programId);
 	glUniform3f(color.id, color.value.x(), color.value.y(), color.value.z());
 }
 
 void Shader::SetUniform(Uniform<nanogui::Color>& color, bool renderMode) const
 {
+	UseProgramIfValid(color.programId);
 	nanogui::Color c = (renderMode) ? color.renderValue : color.value;
 	glUniform3f(color.id, c.x(), c.y(), c.z());
 }
@@ -370,51 +396,61 @@ void Shader::SetUniform(unsigned int id, int value) const
 
 void Shader::SetUniformStr(Uniform<glm::vec2> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform2f(glGetUniformLocation(id, vector.name.c_str()), vector.value.x, vector.value.y);
 }
 
 void Shader::SetUniformStr(Uniform<glm::vec3> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform3f(glGetUniformLocation(id, vector.name.c_str()), vector.value.x, vector.value.y, vector.value.z);
 }
 
 void Shader::SetUniformStr(Uniform<glm::vec4> vector) const
 {
+	UseProgramIfValid(vector.programId);
 	glUniform4f(glGetUniformLocation(id, vector.name.c_str()), vector.value.x, vector.value.y, vector.value.z, vector.value.w);
 }
 
 void Shader::SetUniformStr(Uniform<glm::mat2> &mat) const
 {
+	UseProgramIfValid(mat.programId);
 	glUniformMatrix2fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
 }
 
 void Shader::SetUniformStr(Uniform<glm::mat3> &mat) const
 {
+	UseProgramIfValid(mat.programId);
 	glUniformMatrix3fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
 }
 
 void Shader::SetUniformStr(Uniform<glm::mat4> &mat) const
 {
+	UseProgramIfValid(mat.programId);
 	glUniformMatrix4fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
 }
 
 void Shader::SetUniformStr(Uniform<bool> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1i(glGetUniformLocation(id, value.name.c_str()), value.value);
 }
 
 void Shader::SetUniformStr(Uniform<int> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1i(glGetUniformLocation(id, value.name.c_str()), value.value);
 }
 
 void Shader::SetUniformStr(Uniform<unsigned int> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1ui(glGetUniformLocation(id, value.name.c_str()), value.value);
 }
 
 void Shader::SetUniformStr(Uniform<float> value) const
 {
+	UseProgramIfValid(value.programId);
 	glUniform1f(glGetUniformLocation(id, value.name.c_str()), value.value);
 }
 

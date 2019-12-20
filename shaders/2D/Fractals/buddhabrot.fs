@@ -55,7 +55,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Colorwheel 1
+	#define Colorwheel 0
 
 </constants>
 

@@ -4,8 +4,8 @@
 
 <uniforms>
 
-	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (0, 10000)</GuiHint>*/
-	uniform float brightness = 3500;
+	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (0, 3000)</GuiHint>*/
+	uniform float brightness = 3000;
 
 </uniforms>
 

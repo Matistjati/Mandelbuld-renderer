@@ -336,13 +336,15 @@ Element GuiElement::GetElementFromString(std::string element)
 UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
 {
 	fractal->shader->Use();
+	unsigned int programId = fractal->shader->id;
 	unsigned int id = glGetUniformLocation(fractal->shader->id, name.c_str());
 	if (id == GL_INVALID_INDEX)
 	{
 		if (fractal->shader->type == ShaderType::compute)
 		{
+			programId = ((ComputeShader*)fractal->shader)->renderId;
 			((ComputeShader*)fractal->shader)->UseRender();
-			unsigned int id = glGetUniformLocation(((ComputeShader*)fractal->shader)->renderId, name.c_str());
+			id = glGetUniformLocation(((ComputeShader*)fractal->shader)->renderId, name.c_str());
 			fractal->shader->Use();
 		}
 	}
@@ -351,19 +353,19 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 	{
 		float val = (value == "") ? 0.f : std::stof(value);
 		float renderVal = (renderValue == "") ? val : std::stof(renderValue);
-		return new Uniform<float>(val, renderVal, name, id);
+		return new Uniform<float>(val, renderVal, name, id, programId);
 	}
 	else if (type == "int")
 	{
 		int val = (value == "") ? 0 : std::stoi(value);
 		int renderVal = (renderValue == "") ? val : std::stoi(renderValue);
-		return new Uniform<int>(val, renderVal, name, id);
+		return new Uniform<int>(val, renderVal, name, id, programId);
 	}
 	else if (type == "bool")
 	{
 		bool val = (value != "false") ? true : false;
 		bool renderVal = (renderValue == "") ? val : ((renderValue != "false") ? true : false);
-		return new Uniform<bool>(val, renderVal, name, id);
+		return new Uniform<bool>(val, renderVal, name, id, programId);
 	}
 	else if (type == "vec3")
 	{
@@ -393,13 +395,13 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 #pragma warning(push)
 #pragma warning(disable: 4316)
 			return new Uniform<nanogui::Color>(nanogui::Color(stof(values[0]),stof(values[1]),stof(values[2]), 1.f),
-											   nanogui::Color(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), 1.f), name, id);
+											   nanogui::Color(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), 1.f), name, id, programId);
 #pragma warning(pop)
 		}
 		else
 		{
 			return new Uniform<glm::vec3>(glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])),
-										  glm::vec3(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2])), name, id);
+										  glm::vec3(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2])), name, id, programId);
 		}
 	}
 	else
