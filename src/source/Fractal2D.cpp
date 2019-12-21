@@ -7,7 +7,7 @@
 
 const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
 
-#define PrintSource 0
+#define PrintSource 1
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
@@ -780,8 +780,6 @@ std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 void Fractal2D::RenderComputeShader()
 {
 	((ComputeShader*) shader)->UseRender();
-	SetUniformLocations(shader, true);
-	SetUniforms(shader, true);
 
 	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(shader);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
@@ -792,8 +790,6 @@ void Fractal2D::RenderComputeShader()
 
 
 	shader->Use();
-	SetUniformLocations(shader);
-	SetUniforms(shader);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
 }
@@ -910,7 +906,8 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 
 			renderingFrequency = (renderingFrequencyStr == "") ? ComputeShader::DefaultRenderingFrequency : std::stoi(renderingFrequencyStr);
 
-			ParseShader(source, computeBase, specification, specIndex, fractalIndex, shaderSections);
+
+
 
 
 
@@ -925,6 +922,19 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 			}
 			renderSource = FileManager::ReadFile(Fractal2D::fractal2dPath + renderSourceName);
 
+			std::string uniforms = GetSection(Section("uniforms"), renderSource);
+			if (uniforms != "")
+			{
+				size_t sourceUniformStart = source.find(Section("uniforms").start);
+				if (sourceUniformStart != std::string::npos)
+				{
+					source.insert(sourceUniformStart + Section("uniforms").start.size(), uniforms);
+				}
+			}
+
+			ParseShader(source, computeBase, specification, specIndex, fractalIndex, shaderSections);
+
+
 			std::string renderBase = FileManager::ReadFile(Fractal2D::path2DBase);
 
 			ParseShader(renderSource, renderBase, specification, specIndex, fractalIndex, shaderSections);
@@ -934,16 +944,14 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 				Replace(renderBase, "#version 330", "#version 430");
 			}
 			
-			std::string sourceCopy = computeBase;
 
-			std::string uniformStart;
-			if ((uniformStart = GetSection(Section("uniforms"), renderSource))!="")
-			{
-				sourceCopy += uniformStart;
-			}
+			fractalSourceCode = computeBase;
 
-			fractalSourceCode = sourceCopy;
 
+			#if PrintSource
+				std::cout << renderBase;
+				std::cout << computeBase;
+			#endif
 
 			return new ComputeShader(computeBase, vertexSource, renderBase, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
 		}

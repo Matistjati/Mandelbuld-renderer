@@ -11,7 +11,6 @@ uniform float time = 0;
 uniform float power = 2;
 uniform uint frame = uint(0);
 
-
 /*<GuiHint>GuiType: submenu, Name: Fractal Parameters, Identifier: fractalParams</GuiHint>*/
 
 
@@ -20,9 +19,6 @@ uniform float maxIterations = 256;
 
 /*<GuiHint>GuiType: slider, Name: Escape Radius, Range: (1, 128)</GuiHint>*/
 uniform float escapeRadius = 8.;
-
-/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (0, 1)</GuiHint>*/
-uniform vec3 xRot = vec3(0);
 
 
 

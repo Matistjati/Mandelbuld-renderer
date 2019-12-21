@@ -1422,6 +1422,7 @@ void Fractal::Update()
 	frame.value++;
 	shader->SetUniform(frame);
 
+	shader->Use();
 	time.value.PollTime();
 	shader->SetUniform(time);
 	time.SetGuiValue();
