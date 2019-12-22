@@ -5,6 +5,7 @@
 
 #include <string>
 #include <glm.hpp>
+#include <map>
 #include "headers/Uniform.h"
 #include "headers/Time.h"
 #include "headers/Debug.h"
@@ -122,6 +123,7 @@ public:
 	int renderingFrequency;
 	ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency);
 	void Invoke(glm::ivec2 screenSize);
+	std::map<std::string, unsigned int> uniformRenderIds;
 protected:
 	unsigned int CreateProgram(std::string source);
 };

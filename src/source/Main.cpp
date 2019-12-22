@@ -68,8 +68,8 @@ constexpr Purpose programPurpose = Purpose::explore;
 // Starting fractal
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalNameIndex = 3;
-#define DefaultFractal Fractal3D
+constexpr auto DefaultFractalNameIndex = 0;
+#define DefaultFractal Fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
 void GLAPIENTRY
@@ -141,6 +141,7 @@ int main()
 	// Create a nanogui screen and pass the glfw pointer to initialize
 
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
+	((DefaultFractal*)fractal)->Init();
 
 	glfwSetWindowUserPointer(mainWindow, fractal);
 

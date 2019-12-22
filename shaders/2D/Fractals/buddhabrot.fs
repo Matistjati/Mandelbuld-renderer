@@ -74,7 +74,8 @@ layout(std430, binding = 1) buffer desirabilityMap
 	float _;
 	for(int i = 0; i < pointsPerFrame; i++)
 	{
-    	vec2 w = getStartValue(vec4(gl_GlobalInvocationID.xy, time, i));
+		int seed = int(intHash(abs(int(time))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+    	vec2 w = getStartValue(seed);
 		if(w.x<-100) continue;
 
 		mainLoop(w);
@@ -187,36 +188,22 @@ vec3 hslToRgb(vec3 c)
 </hslToRgb>
 
 <getStartValue>
+vec2 getStartValue(int seed)
+{
+	uint hash = uint(seed);
 
-vec2 hash23(vec3 p3)
-{
-	p3 = fract(p3 * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
-}
-
-// 4 out, 4 in...
-vec4 hash44(vec4 p4)
-{
-	p4 = fract(p4  * vec4(.1031, .1030, .0973, .1099));
-    p4 += dot(p4, p4.wzxy+33.33);
-    return fract((p4.xxyz+p4.yzzw)*p4.zywx);
-}
-vec2 getStartValue(vec4 seed)
-{
-	float c = abs(fract(sin(seed.w*1500+50)*62758.5453123)); // Do a random choice based on the seed
+	float c = abs(fract(sin(seed++)*62758.5453123)); // Do a random choice based on the seed
 
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
-	uint hash = uint(2);
+	
 	// 40 % chance to mutate with a whole new point, 60% to mutate an existing point with a small step
 	if (c > 0.6)
 	{
 		for(int i = 0; i <startPointAttempts; ++i)
 		{
 			// Generate a random point
-			
-			vec2 random = hash44(vec4(seed.xy, hash23(vec3(seed.zw,i)).xy)).xy;
+			vec2 random = hash2(hash,hash);
 			// Map it from [0,1) to fractal space
 			vec2 point = map01ToInterval(random, screenEdges);
 
@@ -241,7 +228,7 @@ vec2 getStartValue(vec4 seed)
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			vec2 point = (hash44(vec4(seed.xy, hash23(vec3(seed.zw,i)).xy)).xy*2-1)*.001+prev.xy; // Return a point we already know is good with a small mutation
+			vec2 point = (hash2(hash,hash)*2-1)*.001+prev.xy; // Return a point we already know is good with a small mutation
 			if (notInMainBulb(point) && notInMainCardioid(point))
 			{
 				float escapeCount = EscapeCount(point);

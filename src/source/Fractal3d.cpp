@@ -12,9 +12,7 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
 	: Fractal(explorationShader, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
-{
-	Init();
-}
+{	}
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()),fractalNameIndex)), screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
@@ -22,9 +20,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
-{
-	Init();
-}
+{	}
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
@@ -32,9 +28,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
-{
-	Init();
-}
+{	}
 
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {

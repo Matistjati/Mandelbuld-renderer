@@ -1420,13 +1420,15 @@ void Fractal::PopulateGUI()
 void Fractal::Update()
 {
 	frame.value++;
-	shader->SetUniform(frame);
 
-	shader->Use();
 	time.value.PollTime();
-	shader->SetUniform(time);
 	time.SetGuiValue();
 	deltaTime.value = (float)time.value.GetDeltaTime();
+
+
+	shader->Use();
+	shader->SetUniform(time);
+	shader->SetUniform(frame);
 	shader->SetUniform(deltaTime);
 }
 

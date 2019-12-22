@@ -490,7 +490,9 @@ void ComputeShader::UseRender()
 }
 
 ComputeShader::ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency)
-	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute), renderId(CreateFragmentProgram(path ? FileManager::ReadFile(vertexPath) : vertexPath, path ? FileManager::ReadFile(renderPath) : renderPath)), groupSize(groupSize), renderingFrequency(renderingFrequency)
+	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute),
+		renderId(CreateFragmentProgram(path ? FileManager::ReadFile(vertexPath) : vertexPath, path ? FileManager::ReadFile(renderPath) : renderPath)),
+		groupSize(groupSize), renderingFrequency(renderingFrequency), uniformRenderIds()
 {
 	glUseProgram(id);
 	std::string source = path ? FileManager::ReadFile(computePath) : computePath;

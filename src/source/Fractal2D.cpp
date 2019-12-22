@@ -13,17 +13,13 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	power(2), position({ 0,0 })
-{
-	Init();
-}
+{	}
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	power(2), position({ 0,0 })
-{
-	Init();
-}
+{	}
 
 void Fractal2D::PopulateGUI() 
 {
@@ -83,6 +79,15 @@ void Fractal2D::PopulateGUI()
 void Fractal2D::Update()
 {
 	Fractal::Update();
+
+	if (shader->type == ShaderType::compute)
+	{
+		((ComputeShader*)shader)->Use();
+		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[time.name], time.value.GetTotalTime());
+		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[frame.name], frame.value);
+		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[deltaTime.name], deltaTime.value);
+		shader->Use();
+	}
 
 	if (holdingMouse)
 	{
@@ -769,6 +774,13 @@ void Fractal2D::Init()
 		compute->Invoke(screenSize.value);
 		
 		RenderComputeShader();
+
+		compute->UseRender();
+		unsigned int id = compute->renderId;
+		compute->uniformRenderIds[time.name] = glGetUniformLocation(id, time.name.c_str());
+		compute->uniformRenderIds[frame.name] = glGetUniformLocation(id, frame.name.c_str());
+		compute->uniformRenderIds[deltaTime.name] = glGetUniformLocation(id, deltaTime.name.c_str());
+		shader->Use();
 	}
 }
 
