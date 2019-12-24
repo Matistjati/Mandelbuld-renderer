@@ -70,6 +70,28 @@ void Fractal2D::PopulateGUI()
 									};
 	position.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->position, renderMode); };
 
+	if (shader->type == ShaderType::compute)
+	{
+		ComputeShader* comp = (ComputeShader*)shader;
+		nanogui::Slider* sliderX = gui->form->AddSlider("Render X", comp->groupSize.x);
+
+		sliderX->setCallback([this](int value)
+			{
+				((ComputeShader*)shader)->groupSize.x = value;
+			});
+		sliderX->setValue((float)comp->groupSize.x);
+		sliderX->setRange({ comp->groupSize.x, comp->groupSize.x*10 });
+
+		nanogui::Slider* sliderY = gui->form->AddSlider("Render X", comp->groupSize.y);
+
+		sliderY->setCallback([this](int value)
+			{
+				((ComputeShader*)shader)->groupSize.y = value;
+			});
+		sliderY->setValue((float)comp->groupSize.y);
+		sliderY->setRange({ comp->groupSize.y, comp->groupSize.y*10 });
+	}
+
 
 	Fractal::PopulateGuiFromShader();
 

@@ -49,7 +49,8 @@ void AddSlider(Form* form, nanogui::Window* window, std::string label, Uniform<T
 	uniform->guiElements = { slider };
 }
 
-void AddSlider3(Form* form, nanogui::Window* parent, std::string label, Uniform<glm::vec3>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec3 value)
+template<typename T>
+void AddSlidersN(Form* form, nanogui::Window* parent, std::string label, int n, Uniform<T>* uniform, Fractal* fractal, std::pair<float, float> range, T value)
 {
 	nanogui::Button* button = form->AddButton(parent, label);
 	
@@ -65,26 +66,33 @@ void AddSlider3(Form* form, nanogui::Window* parent, std::string label, Uniform<
 
 	window->setVisible(false);
 
-	std::vector<nanogui::Slider*> sliders = subForm->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN()); },
-		3, range, glm::vec4(value.x, value.y, value.z, -1));
+	glm::vec4 initValue = { -1,-1,-1,-1 };
+	for (int i = 0; i < T::length(); i++)
+	{
+		initValue[i] = value[i];
+	}
 
-	sliders[0]->setCallback([fractal, uniform](float value)
-		{
-			uniform->SetValue(glm::vec3(value, uniform->value.y, uniform->value.z), Fractal::renderMode);
-			fractal->shader->SetUniform(*uniform);
-		});
+	std::vector<nanogui::Slider*> sliders = subForm->AddSlidersN(window, [uniform]() -> glm::vec4
+		{	
+			glm::vec4 returnV = { -1,-1,-1,-1 };
+			for (int i = 0; i < T::length(); i++)
+			{
+				returnV[i] = uniform->GetValue()[i];
+			}
+			return returnV; 
+		},
+		n, range, initValue);
 
-	sliders[1]->setCallback([fractal, uniform](float value)
-		{
-			uniform->SetValue(glm::vec3(uniform->value.x, value, uniform->value.z), Fractal::renderMode);
-			fractal->shader->SetUniform(*uniform);
-		});
-
-	sliders[2]->setCallback([fractal, uniform](float value)
-		{
-			uniform->SetValue(glm::vec3(uniform->value.x, uniform->value.y, value), Fractal::renderMode);
-			fractal->shader->SetUniform(*uniform);
-		});
+	for (int i = 0; i < n; i++)
+	{
+		sliders[i]->setCallback([i,fractal, uniform](float value)
+			{
+				T val = uniform->GetValue();
+				val[i] = value;
+				uniform->SetValue(val, Fractal::renderMode);
+				fractal->shader->SetUniform(*uniform);
+			});
+	}
 
 
 	button->setCallback([fractal,uniform,window]()
@@ -96,9 +104,61 @@ void AddSlider3(Form* form, nanogui::Window* parent, std::string label, Uniform<
 			fractal->shader->SetUniform(*uniform, renderMode);
 		});
 
-	uniform->SetGuiValue = [sliders, uniform]() { sliders[0]->setValue(uniform->GetValue().x); sliders[1]->setValue(uniform->GetValue().y); sliders[2]->setValue(uniform->GetValue().z); };
+	uniform->SetGuiValue = [sliders, uniform]() { for (size_t i = 0; i < sliders.size(); i++) { sliders[i]->setValue(uniform->GetValue()[i]); } };
 
-	uniform->guiElements = { sliders[0], sliders[1], sliders[2] };
+	uniform->guiElements = { };
+	for (size_t i = 0; i < sliders.size(); i++)
+	{
+		uniform->guiElements.push_back(sliders[i]);
+	}
+}
+
+void AddSlider2(Form* form, nanogui::Window* parent, std::string label, Uniform<glm::vec2>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec2 value)
+{
+	nanogui::Button* button = form->AddButton(parent, label);
+	
+	fractal->gui->performLayout();
+
+
+	Form* subForm = new Form(fractal->gui, button, form->parentMenu);
+
+	nanogui::Window* window = subForm->addWindow(form->parentButton->position() + Eigen::Vector2i(form->parentButton->size().x(), (int)(form->parentButton->size().y() / 2.5))
+		+ button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y() / 2)) + Eigen::Vector2i{ 50,0 }, label);
+
+	form->parentMenu->children.push_back(window);
+
+	window->setVisible(false);
+
+	std::vector<nanogui::Slider*> sliders = subForm->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()); },
+		2, range, glm::vec4(value.x, value.y, -1, -1));
+
+	sliders[0]->setCallback([fractal, uniform](float value)
+		{
+			uniform->SetValue(glm::vec2(value, uniform->value.y), Fractal::renderMode);
+			fractal->shader->SetUniform(*uniform);
+		});
+
+	sliders[1]->setCallback([fractal, uniform](float value)
+		{
+			uniform->SetValue(glm::vec2(uniform->value.x, value), Fractal::renderMode);
+			fractal->shader->SetUniform(*uniform);
+		});
+
+	
+
+
+	button->setCallback([fractal,uniform,window]()
+		{
+			window->setVisible(!window->visible());
+		});
+	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
+		{
+			fractal->shader->SetUniform(*uniform, renderMode);
+		});
+
+	uniform->SetGuiValue = [sliders, uniform]() { sliders[0]->setValue(uniform->GetValue().x); sliders[1]->setValue(uniform->GetValue().y); };
+
+	uniform->guiElements = { sliders[0], sliders[1] };
 }
 
 void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
@@ -245,7 +305,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 				values.push_back(values[0]);
 			}
 
-			AddSlider3(form, window, elementLabel, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
+			AddSlidersN(form, window, elementLabel, 3, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
 		}
 		else
 		{

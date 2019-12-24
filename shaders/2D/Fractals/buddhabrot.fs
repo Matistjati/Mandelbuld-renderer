@@ -19,10 +19,10 @@
 <localSizeDimensions>2</localSizeDimensions>
 
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (0, 1)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec3 xRot = vec3(0);
 
-	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (0, 1)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec3 yRot = vec3(0);
 </uniforms>
 
