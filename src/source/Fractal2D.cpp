@@ -113,6 +113,7 @@ void Fractal2D::Update()
 
 	if (holdingMouse)
 	{
+		shader->Use();
 		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
 		clickPositions.value = glm::vec4(mouse, position.value);
 		shader->SetUniform(clickPositions);

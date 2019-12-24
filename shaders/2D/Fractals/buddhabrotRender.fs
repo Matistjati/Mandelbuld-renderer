@@ -4,10 +4,10 @@
 
 <uniforms>
 
-	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 3000)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 10000), Parent: color</GuiHint>*/
 	uniform float brightness = 3000;
 	
-	/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0, 2)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0, 2), Parent: color</GuiHint>*/
 	uniform float gamma = 1;
 
 </uniforms>
@@ -24,14 +24,5 @@ layout(std430, binding=0) buffer renderInput
 <main>
 	vec4 col = points[IndexPoints(gl_FragCoord.x, gl_FragCoord.y)];
 
-
-#if 0
-	// Buddhabrot Wx,Wy
-	vec4 brightness = points[IndexPoints(0.35875 * screenSize.x, 0.5 * screenSize.y)];
-
-	color = vec4((col.xyz/brightness.xyz)*0.1, 1);
-#else
-	// An approximation used for buddhagrams. May need manual tweaking for optimal results (it depends on alot of paramters, such as screenSize, miniterations and maxiterations)
 	color = pow(vec4(col.xyz/(brightness*time), 1), vec4(gamma));
-#endif
 </main>

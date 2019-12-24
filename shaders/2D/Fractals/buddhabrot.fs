@@ -19,11 +19,17 @@
 <localSizeDimensions>2</localSizeDimensions>
 
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (-2, 2), Callback: ClearRenderBuffer</GuiHint>*/
 	uniform vec3 xRot = vec3(0);
 
-	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (-2, 2), Callback: ClearRenderBuffer</GuiHint>*/
 	uniform vec3 yRot = vec3(0);
+	
+	/*<GuiHint>GuiType: checkBox, Name: Color Wheel, Parent: color</GuiHint>*/
+	uniform bool colorWheel = true;
+	
+	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
+	uniform float colorOffset = 0;
 </uniforms>
 
 <buffers>
@@ -62,7 +68,8 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Colorwheel 1
+	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
+	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
 
 </constants>
 
@@ -86,8 +93,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 <loopTrap>
 	<incrementWPosition>
-	const float pi2 = 6.28318530717958647692528676655;
-	float t = time/pi2;
+	//float t = time/PI_TWO;
 	// The position we use. We can for example mix between zr, zi to cr, ci for a transition between the buddhabrot and mandelbrot sets.
 	// Time will be in range [0,2pi), which we map to [0,1)
 
@@ -125,40 +131,43 @@ layout(std430, binding = 1) buffer desirabilityMap
 	int index = int(x + y * screenSize.x + screenSize.x * 0.5);
 
 
-#if Colorwheel
-    // Into color
-	points[index] += color;
-#else
-	// Nebulabrot
-	// Smoothstep- more smooth image
-	/*points[index] += vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);*/
+	if (colorWheel)
+	{
+		points[index] += color;
+	}
+	else
+	{
+		// Nebulabrot
+		// Smoothstep- more smooth image
+		/*points[index] += vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);*/
 
-	// Step- too detailed?
-	points[index] += color*vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
-#endif
+		// Step- too detailed?
+		points[index] += color*vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
+	}
 	</incrementWPosition>,
 </loopTrap>
 
 <loopSetup>
-	<buddhaMapSetup>vec2 w = vec2(0);vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));
-	#if Colorwheel
-	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
-	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5)),1);
-	#else
-	vec4 color = vec4(redIter, greenIter, blueIter,1);
-	#endif
-	</buddhaMapSetup>,
-	
-	<buddhaMapSetupInverse>vec2 w = vec2(0);vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));
-	#if Colorwheel
-	vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
-	float hue = (acos(d.x / length(d))*sign(d.y)+(3.1415926535897932384*1.5))/6.283185307179586476925286766559005768394338798750211641949;
-	vec4 color = vec4(hslToRgb(vec3(hue, 1.0, 0.5)),1);
-	#else
-	vec4 color = vec4(redIter, greenIter, blueIter,1);
-	#endif
-	c/=dot(c,c);</buddhaMapSetupInverse>,
+	<mapSetup>vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));</mapSetup>,
+
+	<colorSetup>
+		vec4 color;
+		if (colorWheel)
+		{
+			vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
+			float hue = (acos(d.x / length(d))*sign(d.y)+(PI_ONE_POINT_FIVE))/PI_TWO;
+			color = vec4(hslToRgb(vec3(hue + colorOffset, 1.0, 0.5)),1);
+		}
+		else
+		{
+			color = vec4(redIter, greenIter, blueIter,1);
+		}
+	</colorSetup>,
+
+	<inverseSetup>
+		vec2 w = vec2(0);
+		c/=dot(c,c);
+	</inverseSetup>,
 </loopSetup>
 
 <loopReturn>

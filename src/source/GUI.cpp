@@ -35,9 +35,7 @@ void AddSlider(Form* form, nanogui::Window* window, std::string label, Uniform<T
 		{
 			uniform->SetValue(value, Fractal::renderMode);
 			fractal->shader->SetUniform(*uniform);
-			float v;
-			glGetUniformfv(uniform->programId, uniform->id, &v);
-			std::cout << v<<std::endl;
+			fractal->shader->Use();
 		});
 	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
 		{
