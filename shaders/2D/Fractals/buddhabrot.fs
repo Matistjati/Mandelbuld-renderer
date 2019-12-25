@@ -78,12 +78,11 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
-	float _;
 	for(int i = 0; i < pointsPerFrame; i++)
 	{
-		int seed = int(intHash(abs(int(time))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+		int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
     	vec2 w = getStartValue(seed);
-		if(w.x<-100) continue;
+		if (w.x<-100) continue;
 
 		mainLoop(w);
 	}
@@ -231,13 +230,12 @@ vec2 getStartValue(int seed)
 				}
 			}
 		}
-		return vec2(-1000);
 	}
 	else
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			vec2 point = (hash2(hash,hash)*2-1)*.001+prev.xy; // Return a point we already know is good with a small mutation
+			vec2 point = prev.xy+(hash2(hash,hash)*2-1)*.001; // Return a point we already know is good with a small mutation
 			if (notInMainBulb(point) && notInMainCardioid(point))
 			{
 				float escapeCount = EscapeCount(point);
@@ -251,8 +249,10 @@ vec2 getStartValue(int seed)
 				}
 			}
 		}
-		return vec2(-1000);
 	}
+
+	// Signal that no appropriate point was found
+	return vec2(-1000);
 }
 </getStartValue>
 
