@@ -168,29 +168,29 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			break;
 
 		case GLFW_KEY_Q:
-			shaderIndices["loopReturn"]++;
+			(*shaderIndices["loopReturn"])++;
 			update = true;
 			break;
 		case GLFW_KEY_A:
-			shaderIndices["loopReturn"]--;
+			(*shaderIndices["loopReturn"])--;
 			update = true;
 			break;
 
 		case GLFW_KEY_W:
-			shaderIndices["loopExtraOperations"]++;
+			(*shaderIndices["loopExtraOperations"])++;
 			update = true;
 			break;
 		case GLFW_KEY_S:
-			shaderIndices["loopExtraOperations"]--;
+			(*shaderIndices["loopExtraOperations"])--;
 			update = true;
 			break;
 
 		case GLFW_KEY_E:
-			shaderIndices["loopSetup"]++;
+			(*shaderIndices["loopSetup"])++;
 			update = true;
 			break;
 		case GLFW_KEY_D:
-			shaderIndices["loopSetup"]--;
+			(*shaderIndices["loopSetup"])--;
 			update = true;
 			break;
 
