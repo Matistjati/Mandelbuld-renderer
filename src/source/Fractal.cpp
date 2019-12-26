@@ -681,14 +681,14 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->shader->type == ShaderType::compute)
 		{
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
+			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+			fractal->frame.value = 1;
 			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->shader);
 			compute->Invoke(fractal->screenSize.value);
 			if (fractal->frame.value % compute->renderingFrequency == 0)
 			{
 				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
-				glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
-				fractal->frame.value = 1;
 			}
 		}
 		fractal->gui->drawContents();

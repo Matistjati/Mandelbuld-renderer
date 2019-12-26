@@ -814,7 +814,7 @@ std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
 
 void Fractal2D::RenderComputeShader()
 {
-	((ComputeShader*) shader)->UseRender();
+	((ComputeShader*)shader)->UseRender();
 
 	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(shader);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
