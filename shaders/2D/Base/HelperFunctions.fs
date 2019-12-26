@@ -64,7 +64,7 @@ bool notInMainCardioid(vec2 z)
 {
 	vec2 c=z-vec2(0.25,0);
 	float q = dot(c,c);
-	return q*(q+(z.x-0.25))>0.25*z.y*z.y;
+	return q*(q+(c.x))>0.25*z.y*z.y;
 }
 </notInMainCardioid>
 

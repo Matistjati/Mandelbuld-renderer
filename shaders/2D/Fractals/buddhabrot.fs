@@ -112,14 +112,15 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-	vec2 coord = w;
-	coord.x = mix(coord.x, w.y, xRot.x);
-	coord.x = mix(coord.x, c.x, xRot.y);
-	coord.x = mix(coord.x, c.y, xRot.z);
+	vec4 pos = vec4(w-position, c-position);
+	vec2 coord = pos.xy;
+	coord.x = mix(coord.x, pos.y, xRot.x);
+	coord.x = mix(coord.x, pos.z, xRot.y);
+	coord.x = mix(coord.x, pos.w, xRot.z);
 	
-	coord.y = mix(coord.y, w.x, yRot.x);
-	coord.y = mix(coord.y, c.x, yRot.y);
-	coord.y = mix(coord.y, c.y, yRot.z);
+	coord.y = mix(coord.y, pos.x, yRot.x);
+	coord.y = mix(coord.y, pos.z, yRot.y);
+	coord.y = mix(coord.y, pos.w, yRot.z);
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
@@ -127,7 +128,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	int x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
 	// The steps are to avoid points outside of the image accumulating on the left and right sides
 	int y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
-	int index = int(x + y * screenSize.x + screenSize.x * 0.5);
+	int index = int(x + screenSize.x * (y + 0.5));
 
 
 	if (colorWheel)
@@ -173,15 +174,28 @@ layout(std430, binding = 1) buffer desirabilityMap
 	<nothing>;</nothing>,
 </loopReturn>
 
+
 <EscapeCount>
+bool insideBox(vec2 v, vec4 box) {
+    vec2 s = step(box.xy, v) - step(box.zw, v);
+    return bool(s.x * s.y);   
+}
 int EscapeCount(vec2 w)
 {
 	vec2 c = w;
+	int insideCount = 0;
+	bool boundingBox = xRot != vec3(0) || yRot != vec3(0);
+	vec4 edges = vec4(screenEdges.xw+position, screenEdges.yz+position);
 	for (int i = 0; i < maxIterations; i++)
 	{
 		<loopBody>
 
-		if (dot(w,w)>escapeRadius) return i;
+		if (boundingBox || insideBox(w, edges))
+		{
+			insideCount++;
+		}
+
+		if (dot(w,w)>escapeRadius) return insideCount;
 	}
 	return -1;
 }
@@ -205,7 +219,7 @@ vec2 getStartValue(int seed)
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
 	
-	// 40 % chance to mutate with a whole new point, 60% to mutate an existing point with a small step
+	// 40 % chance to mutate into a whole new point, 60% to mutate an existing point with a small step
 	if (c > 0.6)
 	{
 		for(int i = 0; i <startPointAttempts; ++i)

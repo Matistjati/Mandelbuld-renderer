@@ -686,6 +686,9 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 			if (fractal->frame.value % compute->renderingFrequency == 0)
 			{
 				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
+				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
+				glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+				fractal->frame.value = 1;
 			}
 		}
 		fractal->gui->drawContents();
