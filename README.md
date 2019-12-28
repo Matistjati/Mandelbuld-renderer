@@ -1,9 +1,9 @@
 
 # Mandelbuld-renderer (name subject to change)
-A fractal renderer written using opengl. Gui is done with nanogui.<br/>
-It supports many fractals, including the mandelbrot, mandelbulb, mandelbox, buddhabrot, buddhagram and variations of these<br/>
-There are plenty of sliders to change different aspects of the fractal. Each one has its own appropriate options<br\>
-A 4096 x 2160 with 1000 as max iteration count<br/>
+A realtime fractal renderer written using opengl. Gui is done with nanogui.<br/>
+It supports many fractals, including the mandelbrot, mandelbulb, mandelbox, buddhabrot, buddhagram and variations of these.<br/>
+There are plenty of sliders to change different aspects of the fractal. Each one has its own appropriate options.<br\>
+A 4096 x 2160 with 1000 as max iteration count:<br/>
 ![Alt text](/Images/buddhabrot.png?raw=true)
 A mandelbulb rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
@@ -18,12 +18,12 @@ A mandelbulb rendered in realtime with a 1070 ti<br/>
 **Ctrl+X**: Break if a debugger is attached.<br/>
 **Ctrl+Q/A, W/A, E/D etc**: change some aspects of the fractal, like the coloring method, initial parameter changes and adding extra operations to the main loop.<br/>
 
-**X**: Pause time (this affects things like the sun and some 2d fractals)<br/>
+**X**: Pause time (this affects things like the sun and some 2d fractals).<br/>
 **Z**: flip the fractal across the horizontal axis.<br/>
-**WASD**: movement<br/>
+**WASD**: movement.<br/>
 
 ## **3D**<br/>
-**Space/shift**: Up/down<br/>
+**Space/shift**: Up/down.<br/>
 
 **Q/E**: Tilt the world. Navigation while become subpar when doing this.<br/>
 **Scrolling the mousewheel**: Zoom into the fractal. If you want to go for "deep" zooms, increase maxIterations and decrease zoomDetailRatio (a small number greater than 0).<br/>
