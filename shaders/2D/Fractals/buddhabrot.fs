@@ -53,12 +53,14 @@ layout(std430, binding = 1) buffer desirabilityMap
 </include>
 
 <constants>
+        // Used for nebulabrot coloring. 
 	const float redIter = 20;
 	const float greenIter = 5;
 	const float blueIter = 1;
 	const float maxIterationsRed = maxIterations/redIter;
 	const float maxIterationsGreen = maxIterations/greenIter;
 	const float maxIterationsBlue = maxIterations/blueIter;
+	// Rendering parameters
 	const int minIterations = <minIterations>;
 	const int mutationAttemps = 4;
 	// The area in the complex plane
