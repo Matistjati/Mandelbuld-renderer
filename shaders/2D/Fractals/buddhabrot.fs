@@ -185,6 +185,7 @@ bool insideBox(vec2 v, vec4 box) {
 }
 int EscapeCount(vec2 w)
 {
+	// If we are not purely viewing the projection [w.x, w.y], then w needs to be uniformly sampled and not only if their orbits are inside the viewing area 
 	vec2 c = w;
 	int insideCount = 0;
 	bool boundingBox = xRot != vec3(0) || yRot != vec3(0);
