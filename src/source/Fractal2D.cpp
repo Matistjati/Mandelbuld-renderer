@@ -382,33 +382,14 @@ void Fractal2D::HandleKeyInput()
 
 				// Changing the power of the fractal
 			case GLFW_KEY_C:
-				power.SetValue(power.value + 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()), Fractal::renderMode);
+				power.SetValue(power.value + (0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime())), Fractal::renderMode);
 				power.SetGuiValue();
 				shader->SetUniform(power);
 				break;
 			case GLFW_KEY_V:
-				power.SetValue(power.value - 0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime()), Fractal::renderMode);
+				power.SetValue(power.value - (0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime())), Fractal::renderMode);
 				power.SetGuiValue();
 				shader->SetUniform(power);
-				break;
-
-
-			case GLFW_KEY_R:
-				if (shader->type == ShaderType::compute)
-				{
-					// Draw to both front and back buffers to avoid stuttering
-					RenderComputeShader();
-					gui->drawContents();
-					gui->drawWidgets();
-					shader->Use();
-					glfwSwapBuffers(window);
-
-					RenderComputeShader();
-					gui->drawContents();
-					gui->drawWidgets();
-					shader->Use();
-					glfwSwapBuffers(window);
-				}
 				break;
 
 			default:

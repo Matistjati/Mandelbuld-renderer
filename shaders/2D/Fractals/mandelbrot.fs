@@ -13,6 +13,14 @@
 	<escapeColorLast>periodicLastPositionColor(w, parameter);</escapeColorLast>,
 </loopReturn>
 
+<loopReturn>
+	<flowerSetup>
+		c = complexPow(c,-3);
+		c = complexSin(c);
+		c = complexTan(c);
+	</flowerSetup>,
+</loopReturn>
+
 <iterationColorRed>
 vec3 iterationColorRed(float iterations)
 {
