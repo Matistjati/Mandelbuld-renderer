@@ -801,13 +801,13 @@ void Fractal2D::RenderComputeShader()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
 	glBindVertexArray(explShader->buffers[Fractal::rectangleVertexBufferName].id);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].id);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
 	shader->Use();
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
 }
 
 void Fractal2D::SetShaderGui(bool render)

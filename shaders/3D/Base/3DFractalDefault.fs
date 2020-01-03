@@ -66,10 +66,10 @@
 </operations>
 
 <distanceReturn>
-	<mandelBoxDist>abs(length(w)/abs(dw));</mandelBoxDist>,
-	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dw);</mandelBulbDist>,
-	<mandelFoldDist>(length(w)-distDiff)*pow(scale,-i);</mandelFoldDist>,
-	<mandelFoldDistParam>(length(w)-distDiff)*pow(parameter,-i);</mandelFoldDistParam>,
+	<mandelBoxDist>abs(length(w)/abs(dw))</mandelBoxDist>,
+	<mandelBulbDist>abs(0.25* log(m)*sqrt(m)/dw)</mandelBulbDist>,
+	<mandelFoldDist>(length(w)-distDiff)*pow(scale,-i)</mandelFoldDist>,
+	<mandelFoldDistParam>(length(w)-distDiff)*pow(parameter,-i)</mandelFoldDistParam>,
 </distanceReturn>
 
 <distanceTrap>
@@ -278,7 +278,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 			direction *= rotation;
 			direction.y *= worldFlip;
-	
+			
 
 			Ray	ray = Ray(vec3(position.z, position.y * worldFlip, position.x), direction);
 			col += render(ray, uv);
