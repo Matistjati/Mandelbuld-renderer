@@ -43,6 +43,7 @@
 </boxFold>
 
 <sierpinskiFold>
+	// Fold space about the symmetry planes of a tetrahedron
 	void sierpinskiFold(inout vec3 w)
 	{
 		if(w.x + w.y < 0) w.xy = -w.yx;
@@ -52,6 +53,7 @@
 </sierpinskiFold>
 
 <mengerFold>
+	// Fold space about the symmetry planes of a menger sponge
 	void mengerFold(inout vec3 w)
 	{
 		w=abs(w);
@@ -62,6 +64,7 @@
 </mengerFold>
 
 <icosaFold>
+	// Fold space about the symmetry planes of an icosahedron
 	void icosaFold(inout vec3 w)
 	{
 		const float phi = 1.61803399; // golden ratio.
