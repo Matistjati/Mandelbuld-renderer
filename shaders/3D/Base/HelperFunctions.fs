@@ -16,6 +16,7 @@
 </boundingSphere>
 
 <sphereFold>
+        // Sphere inversion in 3D
 	void sphereFold(inout vec3 z, inout float dz, float r2, float innerRadius, float outerRadius)
 	{
 		if (r2 < innerRadius)
