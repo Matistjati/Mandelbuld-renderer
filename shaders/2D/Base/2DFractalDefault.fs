@@ -79,7 +79,7 @@
 			<loopBreakCondition>
 		}
 
-
+		// Normalize iterations between 0 and 1
 		iterations = i/maxIterations;
 
 		// Reduce error for smooth coloring
@@ -95,6 +95,7 @@
 	vec3 col = vec3(0.0);
 	int AA = int(antiAliasing);
 
+	// Anti aliasing by sampling subpixels and choosing the value with the least iteration count (reduce non-escaping pixels)
 	if (antiAliasingMin)
 	{
 		float minIterations = 1e9;
@@ -110,6 +111,7 @@
 			minIterations = min(minIterations, iterations);
 		}
 	}
+	// Anti aliasing by taking the average color of subpixels
 	else
 	{
 		vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
