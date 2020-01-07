@@ -115,15 +115,19 @@ protected:
 class ComputeShader : public Shader
 {
 public:
-	void UseRender();
-	unsigned int renderId;
 	const static int DefaultRenderingFrequency = 1;
+
+	void UseRender();
+	ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency);
+	void Invoke(glm::ivec2 screenSize);
+
+	unsigned int renderId;
+	bool accumulateImage;
 	Buffer mainBuffer;
 	glm::ivec3 groupSize;
 	int renderingFrequency;
-	ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency);
-	void Invoke(glm::ivec2 screenSize);
 	std::map<std::string, unsigned int> uniformRenderIds;
+
 protected:
 	unsigned int CreateProgram(std::string source);
 };

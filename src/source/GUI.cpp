@@ -25,6 +25,7 @@ Form::Form(GUI* gui) : nanogui::FormHelper(gui), gui(gui), parentButton(), paren
 
 Form::Form(GUI* gui, nanogui::Button* button, SubMenu* parentMenu) : nanogui::FormHelper(gui), gui(gui), parentButton(button), parentMenu(parentMenu)
 {
+
 }
 
 template<typename T>

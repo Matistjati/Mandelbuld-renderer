@@ -41,6 +41,11 @@ void Fractal2D::PopulateGUI()
 	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.GetValue()); };
 	power.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->power, renderMode); };
 
+	if (this->shader->type == ShaderType::compute)
+	{
+		nanogui::CheckBox* checkBox = gui->form->AddCheckbox("Accumulate image", ((ComputeShader*)shader)->accumulateImage);
+	}
+	
 
 	// Position
 	gui->form->addGroup("Position");

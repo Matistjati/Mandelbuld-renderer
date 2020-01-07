@@ -28,6 +28,9 @@
 	/*<GuiHint>GuiType: checkBox, Name: Color Wheel, Parent: color</GuiHint>*/
 	uniform bool colorWheel = true;
 	
+	/*<GuiHint>GuiType: checkBox, Name: Sample partially wrong, Parent: color</GuiHint>*/
+	uniform bool invalidSamples = false;
+	
 	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
 	uniform float colorOffset = 0;
 </uniforms>
@@ -187,23 +190,55 @@ bool insideBox(vec2 v, vec4 box)
 
 int EscapeCount(vec2 w)
 {
-	// If we are not purely viewing the projection [w.x, w.y], then w needs to be uniformly sampled and not only if their orbits are inside the viewing area 
-	vec2 c = w;
-	int insideCount = 0;
-	bool boundingBox = true;//xRot != vec3(0) || yRot != vec3(0);
-	vec4 edges = vec4(screenEdges.xw+position, screenEdges.yz+position);
-	for (int i = 0; i < maxIterations; i++)
+	if (invalidSamples)
 	{
-		<loopBody>
+		vec2 c = w;
+		vec2 oldW = w;
 
-		if (boundingBox || insideBox(w, edges))
+		int stepsTaken = 0;
+		int stepLimit = 2;
+
+		for (int i = 0; i < maxIterations; i++)
 		{
-			insideCount++;
+			<loopBody>
+
+			if (dot(w,w) > escapeRadius || w == oldW)
+			{
+				return i;
+			}
+
+			if (stepsTaken == stepLimit)
+			{
+				oldW = w;
+				stepsTaken = 0;
+				stepLimit *= 2;
+			}
+
+			stepsTaken++;
 		}
 
-		if (dot(w,w)>escapeRadius) return insideCount;
+		return -1;
 	}
-	return -1;
+	else
+	{
+		// If we are not purely viewing the projection [w.x, w.y], then w needs to be uniformly sampled and not only if their orbits are inside the viewing area 
+		vec2 c = w;
+		int insideCount = 0;
+		bool boundingBox = true;//xRot != vec3(0) || yRot != vec3(0);
+		vec4 edges = vec4(screenEdges.xw+position, screenEdges.yz+position);
+		for (int i = 0; i < maxIterations; i++)
+		{
+			<loopBody>
+
+			if (boundingBox || insideBox(w, edges))
+			{
+				insideCount++;
+			}
+
+			if (dot(w,w)>escapeRadius) return insideCount;
+		}
+		return -1;
+	}
 }
 </EscapeCount>
 
