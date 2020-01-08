@@ -35,7 +35,7 @@
 	uniform float colorOffset = 0;
 	
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: color, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderArea = 1;
+	uniform float renderArea = 0.5;
 </uniforms>
 
 <buffers>

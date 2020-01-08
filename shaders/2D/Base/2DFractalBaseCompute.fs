@@ -14,14 +14,16 @@ uniform uint frame = uint(0);
 
 /*<GuiHint>GuiType: submenu, Name: Fractal Parameters, Identifier: fractalParams</GuiHint>*/
 
+/*<GuiHint>GuiType: submenu, Name: Rendering Parameters, Identifier: renderParams</GuiHint>*/
+
 /*<GuiHint>GuiType: submenu, Name: Coloring, Identifier: color</GuiHint>*/
 
 
 
-/*<GuiHint>GuiType: slider, Name: Max Iterations, Range: (1, 1024)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 1024)</GuiHint>*/
 uniform float maxIterations = 256;
 
-/*<GuiHint>GuiType: slider, Name: Escape Radius, Range: (1, 128)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Escape Radius, Parent: renderParams, Range: (0.01, 128)</GuiHint>*/
 uniform float escapeRadius = 8.;
 
 

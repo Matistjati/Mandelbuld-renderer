@@ -4,7 +4,7 @@
 
 <uniforms>
 	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 10000), Parent: color</GuiHint>*/
-	uniform float brightness = 3000;
+	uniform float brightness = 150;
 	
 	/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0, 2), Parent: color</GuiHint>*/
 	uniform float gamma = 1;

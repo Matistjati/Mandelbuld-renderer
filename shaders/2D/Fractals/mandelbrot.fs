@@ -1,9 +1,21 @@
-<maxIterations>256</maxIterations>
-<maxIterationsRelease>2048</maxIterationsRelease>
 
-<color>
-	<vec3(0.7, 0.1, 0.3)>,
-</color>
+<uniforms>
+	/*<GuiHint>GuiType: slider, Name: Color change rate, Parent: color, Range: (0.01, 2)</GuiHint>*/
+	uniform float colorPeriodicity = 0.1;
+
+	/*<GuiHint>GuiType: colorPicker, Name: Color A, Parent: color</GuiHint>*/
+	uniform vec3 colorA = vec3(0.7, 0.5, 0.1);
+
+	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: color</GuiHint>*/
+	uniform vec3 colorB = vec3(0.2, 0.9, 0.9);
+
+	/*<GuiHint>GuiType: slider, Name: Anti Aliasing, Parent: renderParams, Range: (1, 5)</GuiHint>*/
+	uniform float antiAliasing = 1;
+
+	/*<GuiHint>GuiType: checkBox, Name: Min anti aliasing, Parent: renderParams</GuiHint>*/
+	uniform bool antiAliasingMin = false;
+</uniforms>
+
 
 <include>
 	iterationColorRed, complexSquare, complexPow, complexTan, periodicLastPositionColor, complexSin, complexCos, escapeColorPeriodic
@@ -13,13 +25,13 @@
 	<escapeColorLast>periodicLastPositionColor(w, parameter);</escapeColorLast>,
 </loopReturn>
 
-<loopReturn>
+<loopSetup>
 	<flowerSetup>
 		c = complexPow(c,-3);
 		c = complexSin(c);
 		c = complexTan(c);
 	</flowerSetup>,
-</loopReturn>
+</loopSetup>
 
 <iterationColorRed>
 vec3 iterationColorRed(float iterations)
