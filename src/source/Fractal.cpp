@@ -681,12 +681,12 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->shader->type == ShaderType::compute)
 		{
-			if (!((ComputeShader*)fractal->shader)->accumulateImage)
-			{
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
-				glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
-				fractal->frame.value = 1;
-			}
+			//if (!((ComputeShader*)fractal->shader)->accumulateImage)
+			//{
+			//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
+			//	glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+			//	fractal->frame.value = 1;
+			//}
 
 			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->shader);
 			compute->Invoke(fractal->screenSize.value);
@@ -1422,6 +1422,102 @@ void Fractal::PopulateGUI()
 				}
 			}
 		});
+
+	#pragma region ClearBuffers
+	int i = 0;
+	size_t startPos = 0;
+	while (true)
+	{
+		Section clear = Section("shouldBeCleared");
+		size_t clearStart = fractalSourceCode.find(clear.start, startPos);
+		if (clearStart != std::string::npos)
+		{
+			size_t clearEnd = fractalSourceCode.find(clear.end, clearStart);
+			std::string type = fractalSourceCode.substr(clearStart + clear.start.size(), clearEnd - (clearStart + clear.start.size()));
+			startPos = clearEnd + clear.end.size();
+			size_t bufferTypeStart = fractalSourceCode.rfind("<bufferType>", startPos);
+			size_t bufferTypeEnd = fractalSourceCode.rfind("</bufferType>", startPos);
+
+			if (bufferTypeStart == std::string::npos || bufferTypeEnd == std::string::npos)
+			{
+				DebugPrint("Buffer could not be located. Giving up");
+				BreakIfDebug();
+				break;
+			}
+			bufferTypeStart += std::string("<bufferType>").length();
+			std::string bufferName = fractalSourceCode.substr(bufferTypeStart, bufferTypeEnd - bufferTypeStart);
+
+			float* counterPtr = nullptr;
+			std::string name = "";
+			for (std::map<std::string, Buffer>::iterator buffer = shader->buffers.begin(); buffer != shader->buffers.end(); ++buffer)
+			{
+				if (StringEqualNoCase(bufferName, buffer->second.name))
+				{
+					counterPtr = &buffer->second.timesToClear;
+					name = buffer->first;
+					break;
+				}
+			}
+			// Mainbuffer in a compute shader is not included in shader's buffer map
+			if (shader->type == ShaderType::compute)
+			{
+				if (StringEqualNoCase(bufferName, ((ComputeShader*)shader)->mainBuffer.name))
+				{
+					counterPtr = &((ComputeShader*)shader)->mainBuffer.timesToClear;
+					name = ((ComputeShader*)shader)->mainBuffer.name;
+				}
+			}
+
+			if (counterPtr == nullptr)
+			{
+				DebugPrint("Could not find appropriate buffer");
+				BreakIfDebug();
+				continue;
+			}
+
+			if (StringEqualNoCase("checkbox", type))
+			{
+				bool dummy;
+				nanogui::CheckBox* checkBox = gui->form->AddCheckbox("Clear " + name, dummy);
+				checkBox->setCallback([counterPtr](bool checked)
+					{
+						if (checked)
+						{
+							*counterPtr = std::numeric_limits<float>::infinity();
+						}
+						else
+						{
+							*counterPtr = 0;
+						}
+					}
+				);
+			}
+
+			if (StringEqualNoCase("checkbox", type))
+			{
+				bool dummy;
+				nanogui::Button* checkBox = gui->form->AddButton("Clear " + name);
+				checkBox->setCallback([counterPtr]()
+					{
+						*counterPtr = 1;
+					}
+				);
+			}
+
+		}
+		else
+		{
+			break;
+		}
+
+		// In case the loop turns out infinite
+		if (i > 1024)
+		{
+			BreakIfDebug();
+			DebugPrint("The loop turned out infinite :(. Program may suffer a stroke or work completely fine from this point");
+		}
+	}
+#pragma endregion
 }
 
 void Fractal::Update()
@@ -1437,6 +1533,29 @@ void Fractal::Update()
 	shader->SetUniform(time);
 	shader->SetUniform(frame);
 	shader->SetUniform(deltaTime);
+
+	// Clearing buffers that should be cleared
+	for (std::map<std::string, Buffer>::iterator buffer = shader->buffers.begin(); buffer != shader->buffers.end(); ++buffer)
+	{
+		if (buffer->second.timesToClear > 0.f)
+		{
+			buffer->second.timesToClear--;
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->second.id);
+			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+			frame.value = 1;
+		}
+	}
+	if (shader->type == ShaderType::compute)
+	{
+		ComputeShader* compute = (ComputeShader*)shader;
+		if (compute->mainBuffer.timesToClear > 0.f)
+		{
+			compute->mainBuffer.timesToClear--;
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, compute->mainBuffer.id);
+			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+			frame.value = 1;
+		}
+	}
 }
 
 

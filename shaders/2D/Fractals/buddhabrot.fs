@@ -33,10 +33,14 @@
 	
 	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
 	uniform float colorOffset = 0;
+	
+	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: color, Range: (0.01, 1)</GuiHint>*/
+	uniform float renderArea = 1;
 </uniforms>
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
+/*<shouldBeCleared>checkBox</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -84,13 +88,18 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
-	for(int i = 0; i < pointsPerFrame; i++)
+	// Computing long paths area expensive. To run at a decent framerate, we don't render points for every pixel
+	// Renderarea is raised to the 4th power, due to the slider being linear while renderArea is not. We do not use "pow(renderArea, 4)", as this is most likely slower than multiplying it by itself 4 times
+	if (gl_GlobalInvocationID.x<screenSize.x*(renderArea*renderArea*renderArea*renderArea) ||gl_GlobalInvocationID.y<screenSize.y*(renderArea*renderArea*renderArea*renderArea))
 	{
-		int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
-    	vec2 w = getStartValue(seed);
-		if (w.x<-100) continue;
+		for(int i = 0; i < pointsPerFrame; i++)
+		{
+			int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+    		vec2 w = getStartValue(seed);
+			if (w.x<-100) continue;
 
-		mainLoop(w);
+			mainLoop(w);
+		}
 	}
 </main>
 
