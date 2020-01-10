@@ -1495,7 +1495,6 @@ void Fractal::PopulateGUI()
 
 			if (StringEqualNoCase("checkbox", type))
 			{
-				bool dummy;
 				nanogui::Button* checkBox = gui->form->AddButton("Clear " + name);
 				checkBox->setCallback([counterPtr]()
 					{

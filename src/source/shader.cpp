@@ -164,6 +164,19 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 	return id;
 }
 
+uint32_t randomInt(uint32_t upperBound)
+{
+	static uint32_t x = 123456789;
+	static uint32_t y = 362436069;
+	static uint32_t z = 521288629;
+	static uint32_t w = 88675123;
+	uint32_t t;
+	t = x ^ (x << 11);
+	x = y; y = z; z = w;
+	w = w ^ (w >> 19) ^ (t ^ (t >> 8));
+	return uint32_t(float(w) / float(UINT32_MAX) * upperBound);
+}
+
 std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 {
 	std::vector<Buffer> buffers(0);
@@ -212,39 +225,55 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 				bufferInitStart += (std::string("<cpuInitialize>")).length();
 				std::string type = source.substr(bufferInitStart, source.find("</cpuInitialize>") - bufferInitStart);
 
-				std::string functionName = type.substr(0, type.find("("));
-				if (BufferInitialization::functions.count(functionName))
+				std::vector<glm::vec4> data(int(Fractal::screenSize.value.x * Fractal::screenSize.value.y));
+				if (type.find("(") != std::string::npos)
 				{
-					std::vector<float> params;
-					size_t paramStart = type.find("(");
-					if (paramStart != std::string::npos)
+					std::string functionName = type.substr(0, type.find("("));
+					if (BufferInitialization::functions.count(functionName))
 					{
-						std::string parameters = type.substr(paramStart + 1, type.length() - paramStart);
-						std::vector<std::string> values;
-						std::stringstream test(parameters);
-						std::string segment;
-
-						while (std::getline(test, segment, ','))
+						std::vector<float> params;
+						size_t paramStart = type.find("(");
+						if (paramStart != std::string::npos)
 						{
-							values.push_back(segment);
+							std::string parameters = type.substr(paramStart + 1, type.length() - paramStart);
+							std::vector<std::string> values;
+							std::stringstream test(parameters);
+							std::string segment;
+
+							while (std::getline(test, segment, ','))
+							{
+								values.push_back(segment);
+							}
+
+							for (size_t i = 0; i < values.size(); i++)
+							{
+								params.push_back(std::stof(values[i]));
+							}
 						}
 
-						for (size_t i = 0; i < values.size(); i++)
+						BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
+						//std::vector<glm::vec4>().swap(data);
+					}
+				}
+				else
+				{
+					auto myfile = std::ifstream("precomputed/buddhaBrotPoints", std::ios::ate | std::ios::binary);
+
+					std::streamsize size = myfile.tellg();
+					myfile.seekg(0, std::ios::beg);
+
+					std::vector<glm::vec4> points((unsigned int)(size / sizeof(glm::vec4)));
+					if (myfile.read((char*)points.data(), size))
+					{
+						for (size_t i = 0; i < data.size(); i++)
 						{
-							params.push_back(std::stof(values[i]));
+							data[i] = points[randomInt(points.size() - 1)];
 						}
 					}
-					
-					//initialized = true;
-					//std::vector<glm::vec4> data(int(Fractal::screenSize.value.x * Fractal::screenSize.value.y));
-					//if ()
-					//{
-
-					//}
-					//BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
-					//glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
-					//std::vector<glm::vec4>().swap(data);*/
+					myfile.close();
 				}
+				glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
+				initialized = true;
 			}
 			if (!initialized)
 			{

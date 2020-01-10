@@ -36,8 +36,6 @@
 	
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: color, Range: (0.01, 1)</GuiHint>*/
 	uniform float renderArea = 0.5;
-	
-	uniform bool renderPoints = true;
 </uniforms>
 
 <buffers>
@@ -98,7 +96,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 		{
 			int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
     		vec2 w = getStartValue(seed);
-			if (w.x<-100 || !renderPoints) continue;
+			if (w.x<-100) continue;
 
 			mainLoop(w);
 		}

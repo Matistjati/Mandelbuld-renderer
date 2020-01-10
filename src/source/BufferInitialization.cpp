@@ -76,9 +76,9 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4>& data, glm::ivec2 screenSize
 		}
 	}
 
-	auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
-	myfile.write((char*)&goodPoints[0], goodPoints.size()*sizeof(glm::vec4));
-	myfile.close();
+	//auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
+	//myfile.write((char*)&goodPoints[0], goodPoints.size()*sizeof(glm::vec4));
+	//myfile.close();
 
 
 	if (goodPoints.size() > 0)
