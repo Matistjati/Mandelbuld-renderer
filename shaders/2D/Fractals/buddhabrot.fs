@@ -36,6 +36,8 @@
 	
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: color, Range: (0.01, 1)</GuiHint>*/
 	uniform float renderArea = 0.5;
+	
+	uniform bool renderPoints = true;
 </uniforms>
 
 <buffers>
@@ -47,7 +49,7 @@ layout(std430, binding = 0) buffer densityMap
 };
 
 /*<bufferType>privateBuffer</bufferType>*/
-/*<cpuInitialize>buddhaBrotImportanceMap(<maxIterations>, <minIterations>, <leftEdge>, <topEdge>, <rightEdge>, <bottomEdge>)</cpuInitialize>*/
+/*<cpuInitialize>buddhaBrotPoints</cpuInitialize>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
@@ -96,7 +98,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 		{
 			int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
     		vec2 w = getStartValue(seed);
-			if (w.x<-100) continue;
+			if (w.x<-100 || !renderPoints) continue;
 
 			mainLoop(w);
 		}
@@ -129,14 +131,15 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = c;
 	vec4 pos = vec4(w, c);
 	vec2 coord = pos.xy;
-	coord.x = mix(coord.x, pos.y, xRot.x);
+	/*coord.x = mix(coord.x, pos.y, xRot.x);
 	coord.x = mix(coord.x, pos.z, xRot.y);
 	coord.x = mix(coord.x, pos.w, xRot.z);
 	
 	coord.y = mix(coord.y, pos.x, yRot.x);
 	coord.y = mix(coord.y, pos.z, yRot.y);
-	coord.y = mix(coord.y, pos.w, yRot.z);
+	coord.y = mix(coord.y, pos.w, yRot.z);*/
 	coord -= position;
+	coord*=zoom;
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y

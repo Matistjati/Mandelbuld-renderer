@@ -234,11 +234,16 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 							params.push_back(std::stof(values[i]));
 						}
 					}
-					std::vector<glm::vec4> data(int(Fractal::screenSize.value.x * Fractal::screenSize.value.y));
-					BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
-					glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
-					initialized = true;
-					std::vector<glm::vec4>().swap(data);
+					
+					//initialized = true;
+					//std::vector<glm::vec4> data(int(Fractal::screenSize.value.x * Fractal::screenSize.value.y));
+					//if ()
+					//{
+
+					//}
+					//BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
+					//glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
+					//std::vector<glm::vec4>().swap(data);*/
 				}
 			}
 			if (!initialized)
@@ -354,7 +359,7 @@ void Shader::SetUniform(Uniform<glm::vec4> vector) const
 	glUniform4f(vector.id, vector.value.x, vector.value.y, vector.value.z, vector.value.w);
 }
 
-void Shader::SetUniform(Uniform<glm::mat2> &mat) const
+void Shader::SetUniform(Uniform<glm::mat2>& mat) const
 {
 	UseProgramIfValid(mat.programId);
 	glUniformMatrix2fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
@@ -412,19 +417,19 @@ void Shader::SetUniformStr(Uniform<glm::vec4> vector) const
 	glUniform4f(glGetUniformLocation(id, vector.name.c_str()), vector.value.x, vector.value.y, vector.value.z, vector.value.w);
 }
 
-void Shader::SetUniformStr(Uniform<glm::mat2> &mat) const
+void Shader::SetUniformStr(Uniform<glm::mat2>& mat) const
 {
 	UseProgramIfValid(mat.programId);
 	glUniformMatrix2fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
 }
 
-void Shader::SetUniformStr(Uniform<glm::mat3> &mat) const
+void Shader::SetUniformStr(Uniform<glm::mat3>& mat) const
 {
 	UseProgramIfValid(mat.programId);
 	glUniformMatrix3fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
 }
 
-void Shader::SetUniformStr(Uniform<glm::mat4> &mat) const
+void Shader::SetUniformStr(Uniform<glm::mat4>& mat) const
 {
 	UseProgramIfValid(mat.programId);
 	glUniformMatrix4fv(glGetUniformLocation(id, mat.name.c_str()), 1, GL_FALSE, &mat.value[0][0]);
@@ -464,17 +469,17 @@ void Shader::SetUniformStr(const std::string& name, float x) const
 	glUniform1f(glGetUniformLocation(id, name.c_str()), x);
 }
 
-void Shader::SetUniformStr(const std::string & name, float x, float y) const
+void Shader::SetUniformStr(const std::string& name, float x, float y) const
 {
 	glUniform2f(glGetUniformLocation(id, name.c_str()), x, y);
 }
 
-void Shader::SetUniformStr(const std::string &name, float x, float y, float z) const
+void Shader::SetUniformStr(const std::string& name, float x, float y, float z) const
 {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 }
 
-void Shader::SetUniformStr(const std::string &name, float x, float y, float z, float w) const
+void Shader::SetUniformStr(const std::string& name, float x, float y, float z, float w) const
 {
 	glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
 }
@@ -491,13 +496,13 @@ void ComputeShader::UseRender()
 
 ComputeShader::ComputeShader(const std::string& computePath, std::string vertexPath, std::string renderPath, bool path, glm::ivec3 groupSize, int renderingFrequency)
 	: Shader(CreateProgram(path ? FileManager::ReadFile(computePath) : computePath), ShaderType::compute),
-		renderId(CreateFragmentProgram(path ? FileManager::ReadFile(vertexPath) : vertexPath, path ? FileManager::ReadFile(renderPath) : renderPath)),
-		groupSize(groupSize), renderingFrequency(renderingFrequency), uniformRenderIds()
+	renderId(CreateFragmentProgram(path ? FileManager::ReadFile(vertexPath) : vertexPath, path ? FileManager::ReadFile(renderPath) : renderPath)),
+	groupSize(groupSize), renderingFrequency(renderingFrequency), uniformRenderIds()
 {
 	glUseProgram(id);
 	std::string source = path ? FileManager::ReadFile(computePath) : computePath;
 	std::vector<Buffer> buffer = GenerateBuffersForProgram(source);
-	
+
 	for (size_t i = 0; i < buffer.size(); i++)
 	{
 		if (buffer[i].name.find("private") != std::string::npos)

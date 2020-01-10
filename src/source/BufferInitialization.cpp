@@ -4,19 +4,22 @@
 #include <chrono>
 #include <functional>
 #include <stdint.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 bool notInMainCardioid(float zx, float zy)
 {
 	float cx = zx - 0.25f;
 
-	float q = cx*cx+zy*zy;
+	float q = cx * cx + zy * zy;
 	return q * (q + (cx)) > 0.25f * zy * zy;
 }
 
 bool notInMainBulb(float zx, float zy)
 {
 	zx += 1;
-	return zx*zx+zy*zy > 0.062499999f;
+	return zx * zx + zy * zy > 0.062499999f;
 }
 
 uint32_t random(uint32_t upperBound)
@@ -29,10 +32,10 @@ uint32_t random(uint32_t upperBound)
 	t = x ^ (x << 11);
 	x = y; y = z; z = w;
 	w = w ^ (w >> 19) ^ (t ^ (t >> 8));
-	return uint32_t(float(w)/float(UINT32_MAX)*upperBound);
+	return uint32_t(float(w) / float(UINT32_MAX) * upperBound);
 }
 
-void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize, std::vector<float> params)
+void buddhaBrotImportanceMap(std::vector<glm::vec4>& data, glm::ivec2 screenSize, std::vector<float> params)
 {
 	const float dxy = 0.01f;
 	std::vector<glm::vec4> goodPoints;
@@ -45,7 +48,7 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 			float wx = float(x) / screenSize.x;
 			float wy = float(y) / screenSize.y;
 			wx = wx * (params[4] - params[2]) + params[2];
-			wy = wy* (params[5] - params[3]) + params[3];
+			wy = wy * (params[5] - params[3]) + params[3];
 
 			if (notInMainBulb(wx, wy) && notInMainCardioid(wx, wy))
 			{
@@ -58,7 +61,7 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 					float tempX = wx * wx - wy * wy;
 					wy = 2 * wy * wx + cy;
 					wx = tempX + cx;
-					
+
 					if (wx * wx + wy * wy > 4)
 					{
 						break;
@@ -72,6 +75,11 @@ void buddhaBrotImportanceMap(std::vector<glm::vec4> &data, glm::ivec2 screenSize
 			}
 		}
 	}
+
+	auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
+	myfile.write((char*)&goodPoints[0], goodPoints.size()*sizeof(glm::vec4));
+	myfile.close();
+
 
 	if (goodPoints.size() > 0)
 	{
