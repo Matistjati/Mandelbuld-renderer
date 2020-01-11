@@ -1,28 +1,14 @@
-<extraSections>
-[maxIterations], [pointsPerFrame], [startPointAttempts], [minIterations], [leftEdge], [rightEdge], [topEdge], [bottomEdge]
-</extraSections>
-
-<maxIterations>1000</maxIterations>
-<minIterations>50</minIterations>
-<pointsPerFrame>1</pointsPerFrame>
-<startPointAttempts>20</startPointAttempts>
 <renderFrequency>1</renderFrequency>
-
-// The area in the complex plane we render
-<leftEdge>-2.5</leftEdge>
-<rightEdge>1</rightEdge>
-<topEdge>1</topEdge>
-<bottomEdge>-1</bottomEdge>
 
 <type>compute</type>
 <render>buddhabrotRender.fs</render>
 <localSizeDimensions>2</localSizeDimensions>
 
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (-2, 2), Callback: ClearRenderBuffer</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec3 xRot = vec3(0);
 
-	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (-2, 2), Callback: ClearRenderBuffer</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec3 yRot = vec3(0);
 	
 	/*<GuiHint>GuiType: checkBox, Name: Color Wheel, Parent: color</GuiHint>*/
@@ -34,8 +20,34 @@
 	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
 	uniform float colorOffset = 0;
 	
-	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: color, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderArea = 0.5;
+	/*<GuiHint>GuiType: Slider, Name: Color Channel Max, Parent: color, Range: (0, 1)</GuiHint>*/
+	uniform vec3 colorIteration = vec3(0.05, 0.2, 1);
+	
+	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
+	uniform float renderSize = 0.5;
+	
+	/*<GuiHint>GuiType: Slider, Name: Mutation size, Parent: renderParams, Range: (0.0001, 2)</GuiHint>*/
+	uniform float mutationSize = 0.001;
+	
+	/*<GuiHint>GuiType: Slider, Name: Min Iterations, Parent: renderParams, Range: (1, 500)</GuiHint>*/
+	uniform float minIterations = 50;
+	
+	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by random, Parent: renderParams, Range: (1, 100)</GuiHint>*/
+	uniform float startPointAttempts = 20;
+	
+	/*<GuiHint>GuiType: Slider, Name: Chance for new point, Parent: renderParams, Range: (0, 1)</GuiHint>*/
+	uniform float mutationChance = 0.6;
+	
+	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by mutation, Parent: renderParams, Range: (1, 30)</GuiHint>*/
+	uniform float mutationAttemps = 4;
+	
+	/*<GuiHint>GuiType: Slider, Name: Points Per Frame, Parent: renderParams, Range: (1, 5)</GuiHint>*/
+	uniform float pointsPerFrame = 1;
+	
+	// The area in the complex plane we render
+	// ((left edge, top edge), (right edge, bottom edge))
+	/*<GuiHint>GuiType: Slider, Name: Render Area, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
+	uniform vec4 renderArea = vec4(-2.5, 1, 1, -1);
 </uniforms>
 
 <buffers>
@@ -60,27 +72,11 @@ layout(std430, binding = 1) buffer desirabilityMap
 </include>
 
 <constants>
-	// Used for nebulabrot coloring. 
-	const float redIter = 20;
-	const float greenIter = 5;
-	const float blueIter = 1;
-	const float maxIterationsRed = maxIterations/redIter;
-	const float maxIterationsGreen = maxIterations/greenIter;
-	const float maxIterationsBlue = maxIterations/blueIter;
-	// Rendering parameters
-	const int minIterations = <minIterations>;
-	const int mutationAttemps = 4;
-	// The area in the complex plane
-	const vec4 screenEdges = vec4(vec2(<leftEdge>, <topEdge>), vec2(<rightEdge>, <bottomEdge>));
-	const int pointsPerFrame = <pointsPerFrame>;
-	const int startPointAttempts = <startPointAttempts>;
-
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
-
 </constants>
 
 <main>
@@ -89,8 +85,8 @@ layout(std430, binding = 1) buffer desirabilityMap
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
 	// Computing long paths area expensive. To run at a decent framerate, we don't render points for every pixel
-	// Renderarea is raised to the 4th power, due to the slider being linear while renderArea is not. We do not use "pow(renderArea, 4)", as this is most likely slower than multiplying it by itself 4 times
-	if (gl_GlobalInvocationID.x<screenSize.x*(renderArea*renderArea*renderArea*renderArea) ||gl_GlobalInvocationID.y<screenSize.y*(renderArea*renderArea*renderArea*renderArea))
+	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
+	if (gl_GlobalInvocationID.x<screenSize.x*(renderSize*renderSize*renderSize*renderSize) ||gl_GlobalInvocationID.y<screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
 		for(int i = 0; i < pointsPerFrame; i++)
 		{
@@ -137,47 +133,47 @@ layout(std430, binding = 1) buffer desirabilityMap
 	coord.y = mix(coord.y, pos.z, yRot.y);
 	coord.y = mix(coord.y, pos.w, yRot.z);
 	coord -= position;
-	coord*=zoom;
+	coord/=zoom;
 
 	// Converting a position in fractal space to image space- google "map one range to another"
-	// We are mapping from [screenEdges.x, screenEdges.z) to [0, screenSize.x) for x, corresponding for y
+	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
-	int x = int(clamp((coord.x-screenEdges.x)*map.x,0,screenSize.x));
+	int x = int(clamp((coord.x-renderArea.x)*map.x,0,screenSize.x));
 	// The steps are to avoid points outside of the image accumulating on the left and right sides
-	int y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-screenEdges.y)*map.y,0,screenSize.y));
+	int y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-renderArea.y)*map.y,0,screenSize.y));
 	int index = int(x + screenSize.x * (y + 0.5));
 
 
 	if (colorWheel)
 	{
-		points[index] += color;
+		points[index].xyz += color;
 	}
 	else
 	{
 		// Nebulabrot
 		// Smoothstep- more smooth image
-		/*points[index] += vec4(smoothstep(0,maxIterationsRed,i),smoothstep(0,maxIterationsGreen,i),smoothstep(0,maxIterationsBlue,i),1);*/
+		points[index].xyz += smoothstep(vec3(pos.xyz), vec3(i),colorIteration*maxIterations);
 
 		// Step- too detailed?
-		points[index] += color*vec4(step(i,maxIterationsRed),step(i,maxIterationsGreen),step(i,maxIterationsBlue),1);
+		/*points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);*/
 	}
 	</incrementWPosition>,
 </loopTrap>
 
 <loopSetup>
-	<mapSetup>vec2 map = vec2(screenSize.xy/vec2(screenEdges.z-screenEdges.x,screenEdges.w-screenEdges.y));</mapSetup>,
+	<mapSetup>vec2 map = vec2(screenSize.xy/vec2(renderArea.z-renderArea.x,renderArea.w-renderArea.y));</mapSetup>,
 
 	<colorSetup>
-		vec4 color;
+		vec3 color;
 		if (colorWheel)
 		{
-			vec2 d = vec2((c.x-screenEdges.x)/(screenEdges.z-screenEdges.x),1.0-(c.y-screenEdges.y)/(screenEdges.w-screenEdges.y))*2-1; 
+			vec2 d = vec2((c.x-renderArea.x)/(renderArea.z-renderArea.x),1.0-(c.y-renderArea.y)/(renderArea.w-renderArea.y))*2-1; 
 			float hue = (acos(d.x / length(d))*sign(d.y)+(PI_ONE_POINT_FIVE))/PI_TWO;
-			color = vec4(hslToRgb(vec3(hue + colorOffset, 1.0, 0.5)),1);
+			color = vec3(hslToRgb(vec3(hue + colorOffset, 1.0, 0.5)));
 		}
 		else
 		{
-			color = vec4(redIter, greenIter, blueIter,1);
+			color = 1/colorIteration;
 		}
 	</colorSetup>,
 
@@ -193,10 +189,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 
 <EscapeCount>
-bool insideBox(vec2 v, vec4 box)
+float insideBox(vec2 v, vec4 box)
 {
     vec2 s = step(box.xy, v) - step(box.zw, v);
-    return bool(s.x * s.y);   
+    return s.x * s.y;   
 }
 
 int EscapeCount(vec2 w)
@@ -232,11 +228,12 @@ int EscapeCount(vec2 w)
 	}
 	else
 	{
+		/*
 		// If we are not purely viewing the projection [w.x, w.y], then w needs to be uniformly sampled and not only if their orbits are inside the viewing area 
 		vec2 c = w;
 		int insideCount = 0;
 		bool boundingBox = true;//xRot != vec3(0) || yRot != vec3(0);
-		vec4 edges = vec4(screenEdges.xw+position, screenEdges.yz+position);
+		vec4 edges = vec4(renderArea.xw+position, renderArea.yz+position);
 		for (int i = 0; i < maxIterations; i++)
 		{
 			<loopBody>
@@ -247,6 +244,19 @@ int EscapeCount(vec2 w)
 			}
 
 			if (dot(w,w)>escapeRadius) return insideCount;
+		}
+		return -1;
+		*/
+		vec2 c = w;
+		float insideCount = 0;
+		vec4 edges = vec4((renderArea.xw+position)/zoom, (renderArea.yz+position)/zoom);
+		for (int i = 0; i < maxIterations; i++)
+		{
+			<loopBody>
+
+			insideCount += insideBox(w, edges);
+
+			if (dot(w,w)>escapeRadius) return int(insideCount);
 		}
 		return -1;
 	}
@@ -272,14 +282,14 @@ vec2 getStartValue(int seed)
 	vec4 prev = desirability[index];
 	
 	// 40 % chance to mutate into a whole new point, 60% to mutate an existing point with a small step
-	if (c > 0.6)
+	if (c > mutationChance)
 	{
 		for(int i = 0; i <startPointAttempts; ++i)
 		{
 			// Generate a random point
 			vec2 random = hash2(hash,hash);
 			// Map it from [0,1) to fractal space
-			vec2 point = map01ToInterval(random, screenEdges);
+			vec2 point = map01ToInterval(random, renderArea);
 
 			// Checking if it is inside the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
 			if (notInMainBulb(point) && notInMainCardioid(point))
@@ -301,7 +311,7 @@ vec2 getStartValue(int seed)
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			vec2 point = prev.xy+(hash2(hash,hash)*2-1)*.001; // Return a point we already know is good with a small mutation
+			vec2 point = prev.xy+(hash2(hash,hash)*2-1)*mutationSize; // Return a point we already know is good with a small mutation
 			if (notInMainBulb(point) && notInMainCardioid(point))
 			{
 				float escapeCount = EscapeCount(point);

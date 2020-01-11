@@ -393,6 +393,13 @@ void Shader::SetUniform(Uniform<glm::vec4> vector) const
 	glUniform4f(vector.id, vector.value.x, vector.value.y, vector.value.z, vector.value.w);
 }
 
+void Shader::SetUniform(Uniform<glm::vec4> vector, bool renderMode) const
+{
+	UseProgramIfValid(vector.programId);
+	glm::vec4 v = (renderMode) ? vector.renderValue : vector.value;
+	glUniform4f(vector.id, v.x, v.y, v.z, v.w);
+}
+
 void Shader::SetUniform(Uniform<glm::mat2>& mat) const
 {
 	UseProgramIfValid(mat.programId);

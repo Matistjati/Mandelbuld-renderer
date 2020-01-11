@@ -306,6 +306,26 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 			AddSlidersN(form, window, elementLabel, 3, (Uniform<glm::vec3>*)uniform, fractal, rangePair, glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])));
 		}
+		else if (type == "vec4")
+		{
+			if (value.substr(0, 4) == "vec4")
+			{
+				value = value.substr(4);
+			}
+
+			Fractal::CleanString(value, { '(',')' });
+
+			std::vector<std::string> values = Fractal::Split(value, ',');
+
+			if (values.size() == 1)
+			{
+				values.push_back(values[0]);
+				values.push_back(values[0]);
+				values.push_back(values[0]);
+			}
+
+			AddSlidersN(form, window, elementLabel, 4, (Uniform<glm::vec4>*)uniform, fractal, rangePair, glm::vec4(stof(values[0]), stof(values[1]), stof(values[2]), stof(values[3])));
+		}
 		else
 		{
 			std::cout << "Support for type " << type << " has not been added yet" << std::endl;
@@ -467,6 +487,35 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 			return new Uniform<glm::vec3>(glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])),
 										  glm::vec3(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2])), name, id, programId);
 		}
+	}
+	else if (type == "vec4")
+	{
+		if (value.substr(0, 4) == "vec4")
+		{
+			value = value.substr(4);
+		}
+
+		Fractal::CleanString(value, { '(',')' });
+
+		std::vector<std::string> values = Fractal::Split(value, ',');
+		std::vector<std::string> renderValues = (renderValue == "") ? values : Fractal::Split(renderValue, ',');
+
+		if (values.size() == 1)
+		{
+			values.push_back(values[0]);
+			values.push_back(values[0]);
+			values.push_back(values[0]);
+		}
+		if (renderValues.size() == 1)
+		{
+			renderValues.push_back(renderValues[0]);
+			renderValues.push_back(renderValues[0]);
+			renderValues.push_back(renderValues[0]);
+		}
+
+
+		return new Uniform<glm::vec4>(glm::vec4(stof(values[0]), stof(values[1]), stof(values[2]), stof(values[3])),
+			glm::vec4(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), stof(renderValues[3])), name, id, programId);
 	}
 	else
 	{

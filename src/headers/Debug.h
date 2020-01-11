@@ -31,7 +31,7 @@ inline void DebugPrint(std::string content)
 inline void BreakIfDebug()
 {
 #if _DEBUG
-	__debugbreak();
+		__debugbreak();
 #endif
 }
 
