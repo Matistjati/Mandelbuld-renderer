@@ -129,13 +129,13 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = c;
 	vec4 pos = vec4(w, c);
 	vec2 coord = pos.xy;
-	/*coord.x = mix(coord.x, pos.y, xRot.x);
+	coord.x = mix(coord.x, pos.y, xRot.x);
 	coord.x = mix(coord.x, pos.z, xRot.y);
 	coord.x = mix(coord.x, pos.w, xRot.z);
 	
 	coord.y = mix(coord.y, pos.x, yRot.x);
 	coord.y = mix(coord.y, pos.z, yRot.y);
-	coord.y = mix(coord.y, pos.w, yRot.z);*/
+	coord.y = mix(coord.y, pos.w, yRot.z);
 	coord -= position;
 	coord*=zoom;
 
