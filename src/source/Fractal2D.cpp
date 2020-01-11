@@ -4,6 +4,8 @@
 #include "headers/Image.h"
 #include <algorithm>
 #include <nanogui/nanogui.h>
+#include <iostream>
+#include <fstream>
 
 const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DFractal);
 
@@ -263,6 +265,7 @@ void Fractal2D::SaveImage(const std::string path)
 	glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 
+
 	SetShaderUniforms(false);
 
 	GlErrorCheck();
@@ -282,6 +285,15 @@ void Fractal2D::SaveImage(const std::string path)
 		DebugPrint("Error saving image: " + *e.what());
 		return;
 	}
+
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader->buffers["privateBuffer"].id);
+	//void* dat = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+
+	//auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
+	//myfile.write((char*)dat, screenSize.value.x * screenSize.value.y*sizeof(glm::vec4));
+	//myfile.close();
+
+	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 }
 
 void Fractal2D::FindPathAndSaveImage()

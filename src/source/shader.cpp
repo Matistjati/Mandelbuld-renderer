@@ -253,6 +253,8 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 
 						BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
 						//std::vector<glm::vec4>().swap(data);
+						glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
+						initialized = true;
 					}
 				}
 				else
@@ -262,18 +264,21 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 					std::streamsize size = myfile.tellg();
 					myfile.seekg(0, std::ios::beg);
 
-					std::vector<glm::vec4> points((unsigned int)(size / sizeof(glm::vec4)));
-					if (myfile.read((char*)points.data(), size))
+					if (myfile.read((char*)&data[0], size))
 					{
-						for (size_t i = 0; i < data.size(); i++)
+						if (data.size() != size/sizeof(glm::vec4))
 						{
-							data[i] = points[randomInt(points.size() - 1)];
+							for (size_t i = 0; i < data.size(); i++)
+							{
+								data[i] = data[randomInt((uint32_t)size - 1)];
+							}
 						}
 					}
 					myfile.close();
+					glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
+					initialized = true;
 				}
-				glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
-				initialized = true;
+
 			}
 			if (!initialized)
 			{
@@ -534,10 +539,6 @@ ComputeShader::ComputeShader(const std::string& computePath, std::string vertexP
 
 	for (size_t i = 0; i < buffer.size(); i++)
 	{
-		if (buffer[i].name.find("private") != std::string::npos)
-		{
-			continue;
-		}
 		if (buffer[i].name == "mainBuffer")
 		{
 			mainBuffer = buffer[i];

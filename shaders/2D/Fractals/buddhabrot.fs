@@ -60,7 +60,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 </include>
 
 <constants>
-        // Used for nebulabrot coloring. 
+	// Used for nebulabrot coloring. 
 	const float redIter = 20;
 	const float greenIter = 5;
 	const float blueIter = 1;
