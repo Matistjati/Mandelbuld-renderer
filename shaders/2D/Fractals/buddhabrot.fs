@@ -140,34 +140,17 @@ layout(std430, binding = 1) buffer desirabilityMap
 	coord/=zoom;
 	coord -= position;*/
 
-	vec3 eye = vec3(position.x, -yRot.y, position.y);
-	vec3 p = vec3(w.xy,c.x);
-	vec3 b = eye;
-
-	mat4 cam = getPosMatrix(eye) * getRotMatrix(xRot);
-	mat4 rot = getRotMatrix(yRot);
-
-	mat4 mat = getPosMatrix(vec3(p)) * rot * cam;
-
-	vec3 d = vec3(w.xy,c.x);
-	d = (vec4(d,1)*mat).xyz;
-	d.xy /= d.z*zoom;
-	vec2 coord = d.xy;
-	if (d.z>0)
-	{
-		continue;
-	}
 	
-	/*vec3 ep0 = (mdv*vec4(vec3(w, c.x),1)).xyz;
+	vec3 p = vec3(w.xy,c.x);
 
+	mat4 mat = getPosMatrix(vec3(p)) * cam;
 
-	float w0 = 1.0/ep0.z;
+	p = (vec4(p,1)*mat).xyz;
+	p.xy /= p.z*zoom;
+	vec2 coord = p.xy;
+	if (p.z>0) continue;
 
-    vec2 c = 2.0*ep0.xy * -w0;*/
-
-
-
-
+	
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
@@ -175,6 +158,11 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// The steps are to avoid points outside of the image accumulating on the left and right sides
 	int y = int(screenSize.y-(coord.y-renderArea.y)*map.y);
 	int index = int(x + screenSize.x * (y + 0.5));
+
+	if (index > screenSize.x*screenSize.y||index<0)
+	{
+		continue;
+	}
 
 	if (colorWheel)
 	{
@@ -193,7 +181,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 </loopTrap>
 
 <loopSetup>
-	<mapSetup>vec2 map = vec2(screenSize.xy/vec2(renderArea.z-renderArea.x,renderArea.w-renderArea.y));</mapSetup>,
+	<mapSetup>vec2 map = vec2(screenSize.xy/vec2(renderArea.z-renderArea.x,renderArea.w-renderArea.y)); vec3 eye = vec3(position.x, -yRot.y, position.y); mat4 cam = getRotMatrix(yRot) * getPosMatrix(eye) * getRotMatrix(xRot);</mapSetup>,
 
 	<colorSetup>
 		vec3 color;
@@ -305,23 +293,26 @@ vec3 hslToRgb(vec3 c)
 </hslToRgb>
 
 <getStartValue>
-mat4 getRotMatrix(vec3 a) {
-    vec3 s = sin(a);
-    vec3 c = cos(a);    
-    mat4 ret;
-    ret[0] = vec4(c.y*c.z,c.y*s.z,-s.y,0.0);
-    ret[1] = vec4(s.x*s.y*c.z-c.x*s.z,s.x*s.y*s.z+c.x*c.z,s.x*c.y,0.0);
-    ret[2] = vec4(c.x*s.y*c.z+s.x*s.z, c.x*s.y*s.z-s.x*c.z,   c.x*c.y,0.0);    
-    ret[3] = vec4(0.0,0.0,0.0,1.0);
-    return ret;
+mat4 getRotMatrix(vec3 a)
+{
+	vec3 s = sin(a);
+	vec3 c = cos(a);    
+	mat4 ret;
+	ret[0] = vec4(c.y*c.z,c.y*s.z,-s.y,0.0);
+	ret[1] = vec4(s.x*s.y*c.z-c.x*s.z, s.x*s.y*s.z+c.x*c.z, s.x*c.y, 0.0);
+	ret[2] = vec4(c.x*s.y*c.z+s.x*s.z, c.x*s.y*s.z-s.x*c.z, c.x*c.y, 0.0);    
+	ret[3] = vec4(0.0,0.0,0.0,1.0);
+	return ret;
 }
-mat4 getPosMatrix(vec3 p) {   
-    mat4 ret;
-    ret[0] = vec4(1.0,0.0,0.0,p.x);
-    ret[1] = vec4(0.0,1.0,0.0,p.y);
-    ret[2] = vec4(0.0,0.0,1.0,p.z);   
-    ret[3] = vec4(0.0,0.0,0.0,1.0);
-    return ret;
+
+mat4 getPosMatrix(vec3 p)
+{
+	mat4 ret;
+	ret[0] = vec4(1.0,0.0,0.0,p.x);
+	ret[1] = vec4(0.0,1.0,0.0,p.y);
+	ret[2] = vec4(0.0,0.0,1.0,p.z);   
+	ret[3] = vec4(0.0,0.0,0.0,1.0);
+	return ret;
 }
 
 vec2 getStartValue(int seed)
