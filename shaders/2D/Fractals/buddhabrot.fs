@@ -123,7 +123,12 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-	vec4 pos = vec4(w, c);
+	/*if(!insideBox(w,renderArea))
+	{
+		continue;
+	}*/
+
+	/*vec4 pos = vec4(w, c);
 	vec2 coord = pos.xy;
 	coord.x = mix(coord.x, pos.y, xRot.x);
 	coord.x = mix(coord.x, pos.z, xRot.y);
@@ -132,17 +137,44 @@ layout(std430, binding = 1) buffer desirabilityMap
 	coord.y = mix(coord.y, pos.x, yRot.x);
 	coord.y = mix(coord.y, pos.z, yRot.y);
 	coord.y = mix(coord.y, pos.w, yRot.z);
-	coord -= position;
 	coord/=zoom;
+	coord -= position;*/
+
+	vec3 eye = vec3(position.x, -yRot.y, position.y);
+	vec3 p = vec3(w.xy,c.x);
+	vec3 b = eye;
+
+	mat4 cam = getPosMatrix(eye) * getRotMatrix(xRot);
+	mat4 rot = getRotMatrix(yRot);
+
+	mat4 mat = getPosMatrix(vec3(p)) * rot * cam;
+
+	vec3 d = vec3(w.xy,c.x);
+	d = (vec4(d,1)*mat).xyz;
+	d.xy /= d.z*zoom;
+	vec2 coord = d.xy;
+	if (d.z>0)
+	{
+		continue;
+	}
+	
+	/*vec3 ep0 = (mdv*vec4(vec3(w, c.x),1)).xyz;
+
+
+	float w0 = 1.0/ep0.z;
+
+    vec2 c = 2.0*ep0.xy * -w0;*/
+
+
+
 
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
 	int x = int(clamp((coord.x-renderArea.x)*map.x,0,screenSize.x));
 	// The steps are to avoid points outside of the image accumulating on the left and right sides
-	int y = int(step(1,x)*step(x,screenSize.x-1)*clamp(screenSize.y-(coord.y-renderArea.y)*map.y,0,screenSize.y));
+	int y = int(screenSize.y-(coord.y-renderArea.y)*map.y);
 	int index = int(x + screenSize.x * (y + 0.5));
-
 
 	if (colorWheel)
 	{
@@ -152,10 +184,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 	{
 		// Nebulabrot
 		// Smoothstep- more smooth image
-		points[index].xyz += smoothstep(vec3(pos.xyz), vec3(i),colorIteration*maxIterations);
+		/*points[index].xyz += smoothstep(vec3(pos.xyz), vec3(i),colorIteration*maxIterations);*/
 
 		// Step- too detailed?
-		/*points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);*/
+		points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);
 	}
 	</incrementWPosition>,
 </loopTrap>
@@ -189,10 +221,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 
 <EscapeCount>
-float insideBox(vec2 v, vec4 box)
+bool insideBox(vec2 v, vec4 box)
 {
     vec2 s = step(box.xy, v) - step(box.zw, v);
-    return s.x * s.y;   
+    return bool(s.x * s.y);   
 }
 
 int EscapeCount(vec2 w)
@@ -228,7 +260,7 @@ int EscapeCount(vec2 w)
 	}
 	else
 	{
-		/*
+		
 		// If we are not purely viewing the projection [w.x, w.y], then w needs to be uniformly sampled and not only if their orbits are inside the viewing area 
 		vec2 c = w;
 		int insideCount = 0;
@@ -238,15 +270,16 @@ int EscapeCount(vec2 w)
 		{
 			<loopBody>
 
-			if (boundingBox || insideBox(w, edges))
+			if (boundingBox)
 			{
-				insideCount++;
+				insideCount+=1;//int(insideBox(w, edges));
 			}
 
 			if (dot(w,w)>escapeRadius) return insideCount;
 		}
 		return -1;
-		*/
+		
+		/*
 		vec2 c = w;
 		float insideCount = 0;
 		vec4 edges = vec4((renderArea.xw+position)/zoom, (renderArea.yz+position)/zoom);
@@ -258,7 +291,7 @@ int EscapeCount(vec2 w)
 
 			if (dot(w,w)>escapeRadius) return int(insideCount);
 		}
-		return -1;
+		return -1;*/
 	}
 }
 </EscapeCount>
@@ -272,6 +305,25 @@ vec3 hslToRgb(vec3 c)
 </hslToRgb>
 
 <getStartValue>
+mat4 getRotMatrix(vec3 a) {
+    vec3 s = sin(a);
+    vec3 c = cos(a);    
+    mat4 ret;
+    ret[0] = vec4(c.y*c.z,c.y*s.z,-s.y,0.0);
+    ret[1] = vec4(s.x*s.y*c.z-c.x*s.z,s.x*s.y*s.z+c.x*c.z,s.x*c.y,0.0);
+    ret[2] = vec4(c.x*s.y*c.z+s.x*s.z, c.x*s.y*s.z-s.x*c.z,   c.x*c.y,0.0);    
+    ret[3] = vec4(0.0,0.0,0.0,1.0);
+    return ret;
+}
+mat4 getPosMatrix(vec3 p) {   
+    mat4 ret;
+    ret[0] = vec4(1.0,0.0,0.0,p.x);
+    ret[1] = vec4(0.0,1.0,0.0,p.y);
+    ret[2] = vec4(0.0,0.0,1.0,p.z);   
+    ret[3] = vec4(0.0,0.0,0.0,1.0);
+    return ret;
+}
+
 vec2 getStartValue(int seed)
 {
 	uint hash = uint(seed);

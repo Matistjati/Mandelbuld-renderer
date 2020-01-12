@@ -26,11 +26,7 @@
 </loopReturn>
 
 <loopSetup>
-	<flowerSetup>
-		c = complexPow(c,-3);
-		c = complexSin(c);
-		c = complexTan(c);
-	</flowerSetup>,
+	
 </loopSetup>
 
 <iterationColorRed>

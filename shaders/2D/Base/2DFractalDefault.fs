@@ -45,6 +45,11 @@
 	<inverseSetup>vec2 w = vec2(0); vec2 t=mix(c,mat2(c,-c.y,c.x)*c,sin(time));c=t/dot(c,c);</inverseSetup>,
 	<inverseSetupEye>vec2 w = vec2(0); c = mat2(c,-c.y,c.x)*c; c/=dot(c,c);</inverseSetupEye>,
 	<cSetup>vec2 w = c;</cSetup>,
+	<flowerSetup>
+		c = complexPow(c,-3);
+		c = complexSin(c);
+		c = complexTan(c);
+	</flowerSetup>,
 </loopSetup>
 
 <loopReturn>
