@@ -286,12 +286,12 @@ void Fractal2D::SaveImage(const std::string path)
 		return;
 	}
 
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader->buffers["privateBuffer"].id);
-	//void* dat = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader->buffers["privateBuffer"].id);
+	void* dat = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 
-	//auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
-	//myfile.write((char*)dat, screenSize.value.x * screenSize.value.y*sizeof(glm::vec4));
-	//myfile.close();
+	auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
+	myfile.write((char*)dat, screenSize.value.x * screenSize.value.y*sizeof(glm::vec4));
+	myfile.close();
 
 	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 }
