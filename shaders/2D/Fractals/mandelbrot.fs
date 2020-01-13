@@ -1,3 +1,6 @@
+<include>
+	iterationColorRed, complexSquare, complexPow, complexTan, periodicLastPositionColor, complexSin, complexCos, escapeColorPeriodic
+</include>
 
 <uniforms>
 	/*<GuiHint>GuiType: slider, Name: Color change rate, Parent: color, Range: (0.01, 2)</GuiHint>*/
@@ -17,17 +20,9 @@
 </uniforms>
 
 
-<include>
-	iterationColorRed, complexSquare, complexPow, complexTan, periodicLastPositionColor, complexSin, complexCos, escapeColorPeriodic
-</include>
-
 <loopReturn>
 	<escapeColorLast>periodicLastPositionColor(w, parameter);</escapeColorLast>,
 </loopReturn>
-
-<loopSetup>
-	
-</loopSetup>
 
 <iterationColorRed>
 vec3 iterationColorRed(float iterations)

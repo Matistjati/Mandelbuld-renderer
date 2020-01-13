@@ -183,7 +183,7 @@ void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffse
 	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1), Fractal::renderMode);
 	zoom.SetValue(glm::max(1.0f, zoom.GetValue()), Fractal::renderMode);
 	zoom.SetGuiValue();
-	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
+	shader->SetUniform(zoom);
 }
 
 void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
@@ -194,7 +194,7 @@ void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
 	shader->SetUniform(camera.worldFlip);
 	shader->SetUniform(sun);
 	shader->SetUniform(frame);
-	shader->SetUniform(Uniform<float>(GetZoom(), zoom.id));
+	shader->SetUniform(zoom);
 	shader->SetUniform(time);
 	shader->SetUniform(screenSize);
 	GlErrorCheck();
@@ -633,39 +633,39 @@ void Fractal3D::HandleKeyInput()
 			{
 				// WASD movement
 			case GLFW_KEY_W:
-				camera.ProcessMovement(CameraMovement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_S:
-				camera.ProcessMovement(CameraMovement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_A:
-				camera.ProcessMovement(CameraMovement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_D:
-				camera.ProcessMovement(CameraMovement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
 				break;
 
 				// Up and down
 			case GLFW_KEY_SPACE:
-				camera.ProcessMovement(CameraMovement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
-				camera.ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate * GetZoom());
+				camera.ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
 				break;
 
 				// Camera roll
 			case GLFW_KEY_Q:
-				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
+				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate / zoom.value));
 				shader->SetUniform(camera.GetRotationMatrix());
 				break;
 			case GLFW_KEY_E:
-				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate * GetZoom()));
+				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate / zoom.value));
 				shader->SetUniform(camera.GetRotationMatrix());
 				break;
 

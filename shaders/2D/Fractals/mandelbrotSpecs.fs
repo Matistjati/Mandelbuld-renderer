@@ -12,7 +12,7 @@
 	<mainLoop>
 		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye], [flowerSetup, defaultSetup]]</loopSetup>,
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
-				   [tricornIter], [celticIter], [complexPow(power), setW(w.xy+w.x), translate],]</loopBody>,
+				   [tricornIter], [celticIter], [complexPow(power), setW(w.xy+w.x), translate], [setW(complexPow(w,2)+0.19*complexPow(w,3)+c)]]</loopBody>,
 		<loopTrap>none</loopTrap>,
 		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)], [escapeColor], [escapeColorLast(colorPeriodicity)], 
 					 [escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)]]</loopReturn>,

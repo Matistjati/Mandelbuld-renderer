@@ -8,10 +8,10 @@
 #include <map>
 #include <thread>
 
-const ShaderSection shaderSections[] = {ShaderSection("constants", true), ShaderSection("uniforms", true),
-										ShaderSection("sceneDistance"), ShaderSection("trace"),
-										ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false),
-										ShaderSection("lightingFunctions") };
+const ShaderSection shaderSections[] = { ShaderSection("constants", true), ShaderSection("uniforms", true),
+										 ShaderSection("sceneDistance"), ShaderSection("trace"),
+										 ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false),
+										 ShaderSection("lightingFunctions") };
 
 const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, true), ShaderSection("edgeGlow", false, true), ShaderSection("sky", true), ShaderSection("sun", true),
 											 ShaderSection("distanceBody"), ShaderSection("trap") };
@@ -27,7 +27,6 @@ public:
 	Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
-	float GetZoom() override { return 1 / zoom.GetValue(); };
 
 	void PopulateGUI() override;
 	void Update() override;

@@ -109,7 +109,6 @@ public:
 	virtual void SetShaderGui(bool render);
  	static glm::vec2 GetMonitorSize();
 
-	virtual float GetZoom() = 0;
 	virtual void PopulateGUI();
 	virtual void Update();
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
@@ -139,6 +138,7 @@ public:
 
 	static const constexpr char* shaderSuffixes[] = { "Render", "MapImage", "Specs" };
 
+	// String functions
 	static bool Replace(std::string& str, const std::string& from, const std::string& to);
 	static bool Replace(std::string& str, const std::string& from, const std::string& to, size_t start);
 	static bool ReplaceSection(Section originSection, Section destSection, std::string& origin, std::string& dest);

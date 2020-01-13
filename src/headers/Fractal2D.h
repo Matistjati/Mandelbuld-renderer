@@ -5,7 +5,7 @@
 #include "Fractal.h"
 
 const ShaderSection shaderSections2D[] = { ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers", true),
-										   ShaderSection("main", false),};
+										   ShaderSection("main", false), };
 
 const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, true) };
 
@@ -50,7 +50,6 @@ public:
 	void RenderComputeShader();
 	void SetShaderGui(bool render) override;
 	virtual void SetShaderUniforms(bool render);
-	float GetZoom() override;
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";

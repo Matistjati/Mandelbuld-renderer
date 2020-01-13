@@ -1,6 +1,10 @@
-<renderFrequency>1</renderFrequency>
+<include>
+	complexPow, complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
+</include>
+
 
 <type>compute</type>
+<renderFrequency>1</renderFrequency>
 <render>buddhabrotRender.fs</render>
 <localSizeDimensions>2</localSizeDimensions>
 
@@ -67,10 +71,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 };
 </buffers>
 
-<include>
-	complexPow, complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
-</include>
-
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
@@ -86,7 +86,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Computing long paths area expensive. To run at a decent framerate, we don't render points for every pixel
 	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
-	if (gl_GlobalInvocationID.x<screenSize.x*(renderSize*renderSize*renderSize*renderSize) ||gl_GlobalInvocationID.y<screenSize.y*(renderSize*renderSize*renderSize*renderSize))
+	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
 		for(int i = 0; i < pointsPerFrame; i++)
 		{
@@ -193,7 +193,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 		}
 		else
 		{
-			color = 1/colorIteration;
+			color = 1/(colorIteration);
 		}
 	</colorSetup>,
 

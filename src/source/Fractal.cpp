@@ -1306,12 +1306,12 @@ void Fractal::PopulateGUI()
 	zoomField->setCallback([this](float value)
 		{
 			zoom.SetValue(value, Fractal::renderMode);
-			this->shader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id));
+			this->shader->SetUniform(zoom);
 		});
 
 	zoom.guiElements = { zoomField };
-	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(this->GetZoom()); };
-	zoom.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(Uniform<float>(this->GetZoom(), zoom.id)); };
+	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(zoom.value); };
+	zoom.SetShaderValue = [this](bool renderMode) { this->shader->SetUniform(zoom); };
 
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
 	renderCheckbox->setCallback([this](bool value)
