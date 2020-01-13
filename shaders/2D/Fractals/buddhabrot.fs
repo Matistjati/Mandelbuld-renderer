@@ -75,6 +75,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
+	#define Camera 0
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
@@ -129,6 +130,16 @@ layout(std430, binding = 1) buffer desirabilityMap
 		continue;
 	}*/
 
+#if Camera
+	vec3 p = vec3(w.xy,c.x);
+
+	mat4 mat = getPosMatrix(vec3(p)) * cam;
+
+	p = (vec4(p,1)*mat).xyz;
+	p.xy /= p.z*zoom;
+	vec2 coord = p.xy;
+	if (p.z>0) continue;
+#else
 	vec4 pos = vec4(w, c);
 	vec2 coord = pos.xy;
 	coord.x = mix(coord.x, pos.y, xRot.x);
@@ -138,26 +149,16 @@ layout(std430, binding = 1) buffer desirabilityMap
 	coord.y = mix(coord.y, pos.x, yRot.x);
 	coord.y = mix(coord.y, pos.z, yRot.y);
 	coord.y = mix(coord.y, pos.w, yRot.z);
-	//coord*=zoom;
-	//coord -= position;
-	//coord.x = mapFromRange(coord.x, renderArea.x, renderArea.z,renderArea.x/zoom-position.x,renderArea.z/zoom-position.x);
-	//coord.y = mapFromRange(coord.y, renderArea.w, renderArea.y,renderArea.w/zoom-position.y,renderArea.y/zoom-position.y);
+#endif
 	
 	
-	/*vec3 p = vec3(w.xy,c.x);
-
-	mat4 mat = getPosMatrix(vec3(p)) * cam;
-
-	p = (vec4(p,1)*mat).xyz;
-	p.xy /= p.z*zoom;
-	vec2 coord = p.xy;
-	if (p.z>0) continue;*/
+	
 
 	
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
-	int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x));
+	int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
 	// The steps are to avoid points outside of the image accumulating on the left and right sides
 	int y = int(screenSize.y-(coord.y-area.y)*map.y);
 	int index = int(x + screenSize.x * (y + 0.5));
@@ -188,9 +189,14 @@ layout(std430, binding = 1) buffer desirabilityMap
 		// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
 		// To accomplish this, we want to find a number, b such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
 		//  Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
-		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
-		vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
-		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
+		#if Camera
+			vec4 area = renderArea;
+		#else
+			vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
+			vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
+			area += vec4(position.xyxy)*vec4(1,-1,1,-1);
+		#endif
+		
 		vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
 		vec3 eye = vec3(position.x, -yRot.y, position.y);
 		mat4 cam = getRotMatrix(yRot) * getPosMatrix(eye) * getRotMatrix(xRot);
@@ -393,10 +399,6 @@ vec2 getStartValue(int seed)
 vec2 map01ToInterval(vec2 value, vec4 range)
 {
 	return vec2(value.x*(range.z-range.x)+range.x, value.y*(range.w-range.y)+range.y);
-}
-float mapFromRange(float value, float in_min, float in_max, float out_min, float out_max)
-{
-  return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 </map01ToInterval>
 

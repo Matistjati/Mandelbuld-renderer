@@ -264,15 +264,10 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 					std::streamsize size = myfile.tellg();
 					myfile.seekg(0, std::ios::beg);
 
-					if (myfile.read((char*)&data[0], size))
+					if (!myfile.read((char*)&data[0], std::min(data.size()*sizeof(glm::vec4), (unsigned int)size)))
 					{
-						if (data.size() != size/sizeof(glm::vec4))
-						{
-							for (size_t i = 0; i < data.size(); i++)
-							{
-								data[i] = data[randomInt((uint32_t)size - 1)];
-							}
-						}
+						DebugPrint("Critical error: could not read the precomputed file");
+						BreakIfDebug();
 					}
 					myfile.close();
 					glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
