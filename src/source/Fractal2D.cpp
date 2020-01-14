@@ -80,15 +80,6 @@ void Fractal2D::Update()
 {
 	Fractal::Update();
 
-	if (shader->type == ShaderType::compute)
-	{
-		((ComputeShader*)shader)->UseRender();
-		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[time.name], (float)time.value.GetTotalTime());
-		glUniform1ui(((ComputeShader*)shader)->uniformRenderIds[frame.name], frame.value);
-		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[deltaTime.name], deltaTime.value);
-		shader->Use();
-	}
-
 	if (holdingMouse)
 	{
 		shader->Use();

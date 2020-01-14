@@ -163,6 +163,7 @@ public:
 	static std::vector<std::string> GetFractalNames(std::vector<std::string> names);
 	static std::string GetFractalNames(std::vector<std::string> names, size_t index);
 	static bool StringEqualNoCase(const std::string& a, const std::string& b);
+	static bool VectorContainsNoCase(const std::vector<std::string>& stack, const std::string& needle);
 };
 
 #endif

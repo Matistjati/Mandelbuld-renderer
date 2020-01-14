@@ -476,6 +476,20 @@ bool Fractal::StringEqualNoCase(const std::string& a, const std::string& b)
 		});
 }
 
+bool Fractal::VectorContainsNoCase(const std::vector<std::string>& stack, const std::string& needle)
+{
+	for (size_t i = 0; i < stack.size(); i++)
+	{
+		std::string str = stack[i];
+		CleanString(str, { ' ' });
+		if (StringEqualNoCase(str, needle))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void ScrollCallBackDelegate(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -681,13 +695,6 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		}
 		else if (fractal->shader->type == ShaderType::compute)
 		{
-			//if (!((ComputeShader*)fractal->shader)->accumulateImage)
-			//{
-			//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)fractal->shader)->mainBuffer.id);
-			//	glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
-			//	fractal->frame.value = 1;
-			//}
-
 			ComputeShader* compute = reinterpret_cast<ComputeShader*>(fractal->shader);
 			compute->Invoke(fractal->screenSize.value);
 			if (fractal->frame.value % compute->renderingFrequency == 0)
@@ -1433,7 +1440,9 @@ void Fractal::PopulateGUI()
 		if (clearStart != std::string::npos)
 		{
 			size_t clearEnd = fractalSourceCode.find(clear.end, clearStart);
-			std::string type = fractalSourceCode.substr(clearStart + clear.start.size(), clearEnd - (clearStart + clear.start.size()));
+			std::string info = fractalSourceCode.substr(clearStart + clear.start.size(), clearEnd - (clearStart + clear.start.size()));
+			std::vector<std::string> content = Split(info, ',');
+			
 			startPos = clearEnd + clear.end.size();
 			size_t bufferTypeStart = fractalSourceCode.rfind("<bufferType>", startPos);
 			size_t bufferTypeEnd = fractalSourceCode.rfind("</bufferType>", startPos);
@@ -1448,12 +1457,14 @@ void Fractal::PopulateGUI()
 			std::string bufferName = fractalSourceCode.substr(bufferTypeStart, bufferTypeEnd - bufferTypeStart);
 
 			float* counterPtr = nullptr;
+			bool* resetFrame = nullptr;
 			std::string name = "";
 			for (std::map<std::string, Buffer>::iterator buffer = shader->buffers.begin(); buffer != shader->buffers.end(); ++buffer)
 			{
 				if (StringEqualNoCase(bufferName, buffer->second.name))
 				{
 					counterPtr = &buffer->second.timesToClear;
+					resetFrame = &buffer->second.resetFrame;
 					name = buffer->first;
 					break;
 				}
@@ -1464,6 +1475,7 @@ void Fractal::PopulateGUI()
 				if (StringEqualNoCase(bufferName, ((ComputeShader*)shader)->mainBuffer.name))
 				{
 					counterPtr = &((ComputeShader*)shader)->mainBuffer.timesToClear;
+					resetFrame = &((ComputeShader*)shader)->mainBuffer.resetFrame;
 					name = ((ComputeShader*)shader)->mainBuffer.name;
 				}
 			}
@@ -1475,10 +1487,17 @@ void Fractal::PopulateGUI()
 				continue;
 			}
 
-			if (StringEqualNoCase("checkbox", type))
+			bool clearFrame = VectorContainsNoCase(content, "resetFrame");
+			if (resetFrame)
+			{
+				*resetFrame = clearFrame;
+			}
+			
+			if (VectorContainsNoCase(content, "checkbox"))
 			{
 				bool dummy;
 				nanogui::CheckBox* checkBox = gui->form->AddCheckbox("Clear " + name, dummy);
+				
 				checkBox->setCallback([counterPtr](bool checked)
 					{
 						if (checked)
@@ -1492,7 +1511,7 @@ void Fractal::PopulateGUI()
 					}
 				);
 			}
-			else if (StringEqualNoCase("button", type))
+			else if (VectorContainsNoCase(content, "button"))
 			{
 				nanogui::Button* checkBox = gui->form->AddButton("Clear " + name);
 				checkBox->setCallback([counterPtr]()
@@ -1540,7 +1559,11 @@ void Fractal::Update()
 			buffer->second.timesToClear--;
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer->second.id);
 			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
-			frame.value = 1;
+
+			if (buffer->second.resetFrame)
+			{
+				frame.value = 1;
+			}
 		}
 	}
 	if (shader->type == ShaderType::compute)
@@ -1551,8 +1574,19 @@ void Fractal::Update()
 			compute->mainBuffer.timesToClear--;
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, compute->mainBuffer.id);
 			glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
-			frame.value = 1;
+			if (compute->mainBuffer.resetFrame)
+			{
+				frame.value = 1;
+			}
 		}
+	}
+	if (shader->type == ShaderType::compute)
+	{
+		((ComputeShader*)shader)->UseRender();
+		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[time.name], (float)time.value.GetTotalTime());
+		glUniform1ui(((ComputeShader*)shader)->uniformRenderIds[frame.name], frame.value);
+		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[deltaTime.name], deltaTime.value);
+		shader->Use();
 	}
 }
 
