@@ -6,6 +6,8 @@
 #include <vector>
 #include "nanogui/formhelper.h"
 
+class Shader;
+
 struct UniformSuper
 {
 public:
@@ -15,8 +17,10 @@ public:
 	std::string name;
 	unsigned int id;
 	unsigned int programId;
+	std::vector<void*> callbackParams;
+	std::vector<std::function<void(std::vector<void*>)>> callbacks;
 	UniformSuper(std::vector<nanogui::Widget*> guiElements, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue, std::string name, unsigned int id, unsigned int programId)
-		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue), programId(programId)
+		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue), programId(programId), callbacks({}), callbackParams({})
 	{	}
 };
 
@@ -58,6 +62,10 @@ inline void Uniform<T>::SetValue(T value, bool renderMode)
 		this->value = value;
 	}
 	this->renderValue = value;
+	for (size_t i = 0; i < callbacks.size(); i++)
+	{
+		callbacks[i](callbackParams);
+	}
 }
 
 #endif
