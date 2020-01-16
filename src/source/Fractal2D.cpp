@@ -750,6 +750,8 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 
 void Fractal2D::Init()
 {
+	Fractal::Init();
+
 	frame.value = 0;
 
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());

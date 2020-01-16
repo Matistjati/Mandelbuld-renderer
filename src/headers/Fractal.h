@@ -130,6 +130,7 @@ public:
 	virtual Shader* GenerateShader() = 0;
 	virtual Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
 	virtual std::string GetFractalFolderPath() = 0;
+	virtual void Init();
 
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";

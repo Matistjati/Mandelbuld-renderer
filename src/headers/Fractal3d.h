@@ -51,7 +51,7 @@ public:
 	std::string GetFractalFolderPath() override;
 	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification);
 	void ParseShader(std::string& source, std::string& final, const std::string* spec, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
-	void Init();
+	void Init() override;
 	static std::map<std::string, int*> GetDefaultShaderIndices();
 	void SetShaderGui(bool render) override;
 	virtual void SetShaderUniforms(bool render);

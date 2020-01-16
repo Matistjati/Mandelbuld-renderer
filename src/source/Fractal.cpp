@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <thread>
 #include <nanogui/nanogui.h>
+#include "..\headers\Fractal.h"
 
 #define DoNothing [](){}
 #define EmptyThread std::thread(DoNothing)
@@ -1797,4 +1798,9 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 void Fractal::HandleKeyInput()
 {
 	
+}
+
+void Fractal::Init()
+{
+
 }
