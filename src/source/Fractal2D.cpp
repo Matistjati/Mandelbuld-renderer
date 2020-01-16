@@ -793,6 +793,36 @@ void Fractal2D::SetShaderUniforms(bool render)
 // Map from screen space to fractal space
 glm::vec2 Fractal2D::MapScreenMouseToFractal()
 {
+	if (shader->type == ShaderType::compute)
+	{
+		glm::vec4 renderArea = glm::vec4(0);
+		for (size_t i = 0; i < fractalUniforms.size(); i++)
+		{
+			if (StringEqualNoCase(fractalUniforms[i].uniform->name, "renderArea"))
+			{
+				renderArea = ((Uniform<glm::vec4>*)fractalUniforms[i].uniform)->value;
+				break;
+			}
+		}
+
+		glm::vec2 midPoint = glm::vec2(abs(renderArea.x) - abs(renderArea.z), abs(renderArea.y) - abs(renderArea.w))* glm::vec2(0.5);
+		glm::vec4 area = (renderArea + glm::vec4(midPoint, midPoint))* glm::vec4(zoom.value) - glm::vec4(midPoint, midPoint);
+		area += glm::vec4(position.value, position.value) * glm::vec4(1, -1, 1, -1);
+
+
+		glm::vec2 map = glm::vec2(screenSize.value / glm::vec2(area.z - area.x, area.w - area.y));
+		if (renderArea != glm::vec4(0))
+		{
+			// Mapping from fractal space to screen space- simpy solve for coord x and y to go from screen to fractal
+			/*int x = int((coord.x - area.x) * map.x - 0.5);
+			int y = int(screenSize.y - (coord.y - area.y) * map.y);*/
+			float x = (2 * mousePosition.value.x + 1) / (2 * map.x) + area.x;
+			float y = area.y+mousePosition.value.y/map.y;
+			return glm::vec2(x, y);
+		}
+	}
+
+	// If we aren't using a compute shader or something fails, default to normal
 	return (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value + position.value;
 }
 
