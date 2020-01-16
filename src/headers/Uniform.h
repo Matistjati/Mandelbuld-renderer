@@ -17,10 +17,13 @@ public:
 	std::string name;
 	unsigned int id;
 	unsigned int programId;
-	std::vector<void*> callbackParams;
-	std::vector<std::function<void(std::vector<void*>)>> callbacks;
+	
+	// Callback related, fractal has to be null pointer due to c++ not being able to handle fractal and uniform using each other
+	void* fractal;
+	std::vector<std::function<void(void*)>> callbacks;
+
 	UniformSuper(std::vector<nanogui::Widget*> guiElements, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue, std::string name, unsigned int id, unsigned int programId)
-		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue), programId(programId), callbacks({}), callbackParams({})
+		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue), programId(programId), callbacks({}), fractal()
 	{	}
 };
 
@@ -64,7 +67,7 @@ inline void Uniform<T>::SetValue(T value, bool renderMode)
 	this->renderValue = value;
 	for (size_t i = 0; i < callbacks.size(); i++)
 	{
-		callbacks[i](callbackParams);
+		callbacks[i](fractal);
 	}
 }
 

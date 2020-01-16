@@ -117,6 +117,17 @@ void Fractal::CleanString(std::string& str, std::vector<char> chars)
 	}
 }
 
+void Fractal::CleanVector(std::vector<std::string>& str, std::vector<char> chars)
+{
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		for (size_t j = 0; j < chars.size(); j++)
+		{
+			str[i].erase(std::remove(str[i].begin(), str[i].end(), chars[j]), str[i].end());
+		}
+	}
+}
+
 bool Fractal::RemoveOuterSection(std::string& str)
 {
 	int sectionStart = str.find('<');
@@ -477,6 +488,16 @@ bool Fractal::StringEqualNoCase(const std::string& a, const std::string& b)
 		});
 }
 
+bool Fractal::StringContainsNoCase(const std::string& a, const std::string& b)
+{
+	auto it = std::search(
+		a.begin(), a.end(),
+		b.begin(), b.end(),
+		[](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }
+	);
+	return (it != a.end());
+}
+
 bool Fractal::VectorContainsNoCase(const std::vector<std::string>& stack, const std::string& needle)
 {
 	for (size_t i = 0; i < stack.size(); i++)
@@ -484,6 +505,20 @@ bool Fractal::VectorContainsNoCase(const std::vector<std::string>& stack, const 
 		std::string str = stack[i];
 		CleanString(str, { ' ' });
 		if (StringEqualNoCase(str, needle))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Fractal::VectorContainsSubStrNoCase(const std::vector<std::string>& stack, const std::string& needle)
+{
+	for (size_t i = 0; i < stack.size(); i++)
+	{
+		std::string str = stack[i];
+		CleanString(str, { ' ' });
+		if (StringContainsNoCase(str, needle))
 		{
 			return true;
 		}
@@ -1442,7 +1477,7 @@ void Fractal::PopulateGUI()
 		{
 			size_t clearEnd = fractalSourceCode.find(clear.end, clearStart);
 			std::string info = fractalSourceCode.substr(clearStart + clear.start.size(), clearEnd - (clearStart + clear.start.size()));
-			std::vector<std::string> content = Split(info, ',');
+			std::vector<std::string> content = SplitNotInChar(info, ',', { {'[',']'} });
 			
 			startPos = clearEnd + clear.end.size();
 			size_t bufferTypeStart = fractalSourceCode.rfind("<bufferType>", startPos);
@@ -1803,4 +1838,117 @@ void Fractal::HandleKeyInput()
 void Fractal::Init()
 {
 
+	int i = 0;
+	size_t startPos = 0;
+	while (true)
+	{
+		Section clear = Section("shouldBeCleared");
+		size_t clearStart = fractalSourceCode.find(clear.start, startPos);
+		if (clearStart != std::string::npos)
+		{
+			size_t clearEnd = fractalSourceCode.find(clear.end, clearStart);
+			std::string info = fractalSourceCode.substr(clearStart + clear.start.size(), clearEnd - (clearStart + clear.start.size()));
+			std::vector<std::string> content = SplitNotInChar(info, ',', { {'[',']'} });
+
+			startPos = clearEnd + clear.end.size();
+			
+			size_t bufferTypeStart = fractalSourceCode.rfind("<bufferType>", startPos);
+			size_t bufferTypeEnd = fractalSourceCode.rfind("</bufferType>", startPos);
+
+			if (bufferTypeStart == std::string::npos || bufferTypeEnd == std::string::npos)
+			{
+				DebugPrint("Buffer could not be located. Giving up");
+				BreakIfDebug();
+				break;
+			}
+			bufferTypeStart += std::string("<bufferType>").length();
+			std::string bufferName = fractalSourceCode.substr(bufferTypeStart, bufferTypeEnd - bufferTypeStart);
+
+			int id = -1;
+			
+			for (std::map<std::string, Buffer>::iterator buffer = shader->buffers.begin(); buffer != shader->buffers.end(); ++buffer)
+			{
+				if (StringEqualNoCase(bufferName, buffer->second.name))
+				{
+					id = buffer->second.id;
+					break;
+				}
+			}
+
+			if (shader->type == ShaderType::compute)
+			{
+				id = ((ComputeShader*)shader)->mainBuffer.id;
+			}
+
+			if (id == -1)
+			{
+				DebugPrint("Could not find appropriate buffer id");
+				BreakIfDebug();
+				return;
+			}
+
+
+			if (VectorContainsSubStrNoCase(content, "onUniformChange"))
+			{
+				std::string onChangeStr = "";
+
+				for (size_t i = 0; i < content.size(); i++)
+				{
+					if (StringContainsNoCase(content[i], "onUniformChange"))
+					{
+						onChangeStr = content[i];
+						break;
+					}
+				}
+
+				if (onChangeStr == "")
+				{
+					DebugPrint("Something has gone terribly wrong");
+					BreakIfDebug();
+					return;
+				}
+
+				size_t arrayStart = onChangeStr.find('[');
+				size_t arrayEnd = onChangeStr.find(']');
+				if (arrayStart == std::string::npos || arrayEnd == std::string::npos)
+				{
+					DebugPrint("Could not locate array location, giving up");
+					BreakIfDebug();
+					return;
+				}
+				
+				arrayStart += 1;
+
+				std::vector<std::string> onChange = Split(onChangeStr.substr(arrayStart, arrayEnd - arrayStart), ',');
+				CleanVector(onChange, { ' ' });
+
+				auto callBack = [id](void* fractal)
+				{
+					glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
+					glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+					((Fractal*)fractal)->frame.value = 1;
+				};
+
+				for (size_t i = 0; i < fractalUniforms.size(); i++)
+				{
+					if (VectorContainsNoCase(onChange, fractalUniforms[i].uniform->name))
+					{
+						fractalUniforms[i].uniform->callbacks.push_back(callBack);
+						fractalUniforms[i].uniform->fractal = this;
+					}
+				}
+			}
+		}
+		else
+		{
+			break;
+		}
+
+		// In case the loop turns out infinite
+		if (i > 1024)
+		{
+			BreakIfDebug();
+			DebugPrint("The loop turned out infinite :(. Program may suffer a stroke or work completely fine from this point");
+		}
+	}
 }

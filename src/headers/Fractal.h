@@ -149,6 +149,7 @@ public:
 	static std::string GetSectionName(std::string str);
 	static std::string GetSectionValue(std::string str);
 	static void CleanString(std::string& str, std::vector<char> chars);
+	static void CleanVector(std::vector<std::string>& str, std::vector<char> chars);
 	static bool RemoveOuterSection(std::string& str);
 	static bool RemoveOuterChars(std::string& str, char first, char last);
 	static std::vector<std::string> Split(std::string str, char splitBy);
@@ -164,7 +165,9 @@ public:
 	static std::vector<std::string> GetFractalNames(std::vector<std::string> names);
 	static std::string GetFractalNames(std::vector<std::string> names, size_t index);
 	static bool StringEqualNoCase(const std::string& a, const std::string& b);
+	static bool StringContainsNoCase(const std::string& a, const std::string& b);
 	static bool VectorContainsNoCase(const std::vector<std::string>& stack, const std::string& needle);
+	static bool VectorContainsSubStrNoCase(const std::vector<std::string>& stack, const std::string& needle);
 };
 
 #endif

@@ -560,8 +560,6 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 void Fractal3D::Init()
 {
-	Fractal::Init();
-
 	frame.value = 0;
 
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
@@ -575,6 +573,8 @@ void Fractal3D::Init()
 	GlErrorCheck();
 
 	PopulateGUI();
+
+	Fractal::Init();
 }
 
 std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()

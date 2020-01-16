@@ -750,8 +750,6 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 
 void Fractal2D::Init()
 {
-	Fractal::Init();
-
 	frame.value = 0;
 
 	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
@@ -781,6 +779,8 @@ void Fractal2D::Init()
 		compute->uniformRenderIds[screenSize.name] = glGetUniformLocation(id, screenSize.name.c_str());
 		shader->Use();
 	}
+
+	Fractal::Init();
 }
 
 std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
