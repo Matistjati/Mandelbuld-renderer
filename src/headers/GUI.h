@@ -37,7 +37,7 @@ public:
 	GuiElement(Element element, UniformSuper* uniform, Fractal* fractal);
 	GuiElement();
 
-	void DeleteUniform() { delete uniform; }
+	void DeleteUniform() { if (!uniform->objectMember) delete uniform; }
 
 	static Element GetElementFromString(std::string element);
 

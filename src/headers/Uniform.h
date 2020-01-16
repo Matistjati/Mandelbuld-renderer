@@ -18,12 +18,14 @@ public:
 	unsigned int id;
 	unsigned int programId;
 	
+	bool objectMember;
+
 	// Callback related, fractal has to be null pointer due to c++ not being able to handle fractal and uniform using each other
 	void* fractal;
 	std::vector<std::function<void(void*)>> callbacks;
 
-	UniformSuper(std::vector<nanogui::Widget*> guiElements, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue, std::string name, unsigned int id, unsigned int programId)
-		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue), programId(programId), callbacks({}), fractal()
+	UniformSuper(std::vector<nanogui::Widget*> guiElements, std::function<void()> SetGuiValue, std::function<void(bool)> SetShaderValue, std::string name, unsigned int id, unsigned int programId, bool objectMember = true)
+		: guiElements(guiElements), name(name), id(id), SetGuiValue(SetGuiValue), SetShaderValue(SetShaderValue), programId(programId), callbacks({}), fractal(), objectMember(objectMember)
 	{	}
 };
 
@@ -38,7 +40,7 @@ struct Uniform : public UniformSuper
 	void SetValue(T value, bool renderMode);
 	void Reset() { value = renderValue = defaultValue; }
 
-	Uniform(T val, T renderVal, std::string name, unsigned int id, unsigned int programId) : UniformSuper({}, {}, {}, name, id, programId), value(val), renderValue(renderVal), defaultValue(val) {}
+	Uniform(T val, T renderVal, std::string name, unsigned int id, unsigned int programId, bool objectMember) : UniformSuper({}, {}, {}, name, id, programId, objectMember), value(val), renderValue(renderVal), defaultValue(val) {}
 	Uniform(T val, T renderVal, std::string name, unsigned int id) : UniformSuper({}, {}, {}, name, id, -1), value(val), renderValue(renderVal), defaultValue(val) {}
 	Uniform(T val, std::string name, unsigned int id) :				 UniformSuper({}, {}, {}, name, id, -1), value(val), renderValue(val), defaultValue(val) {}
 	Uniform(T val, unsigned int id) :							     UniformSuper({}, {}, {}, "", id, -1),   value(val), renderValue(val), defaultValue(val) {}

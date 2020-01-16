@@ -112,54 +112,6 @@ void AddSlidersN(Form* form, nanogui::Window* parent, std::string label, int n, 
 	}
 }
 
-void AddSlider2(Form* form, nanogui::Window* parent, std::string label, Uniform<glm::vec2>* uniform, Fractal* fractal, std::pair<float, float> range, glm::vec2 value)
-{
-	nanogui::Button* button = form->AddButton(parent, label);
-	
-	fractal->gui->performLayout();
-
-
-	Form* subForm = new Form(fractal->gui, button, form->parentMenu);
-
-	nanogui::Window* window = subForm->addWindow(form->parentButton->position() + Eigen::Vector2i(form->parentButton->size().x(), (int)(form->parentButton->size().y() / 2.5))
-		+ button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y() / 2)) + Eigen::Vector2i{ 50,0 }, label);
-
-	form->parentMenu->children.push_back(window);
-
-	window->setVisible(false);
-
-	std::vector<nanogui::Slider*> sliders = subForm->AddSlidersN(window, [uniform]() -> glm::vec4 {return glm::vec4(uniform->GetValue(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()); },
-		2, range, glm::vec4(value.x, value.y, -1, -1));
-
-	sliders[0]->setCallback([fractal, uniform](float value)
-		{
-			uniform->SetValue(glm::vec2(value, uniform->value.y), Fractal::renderMode);
-			fractal->shader->SetUniform(*uniform);
-		});
-
-	sliders[1]->setCallback([fractal, uniform](float value)
-		{
-			uniform->SetValue(glm::vec2(uniform->value.x, value), Fractal::renderMode);
-			fractal->shader->SetUniform(*uniform);
-		});
-
-	
-
-
-	button->setCallback([fractal,uniform,window]()
-		{
-			window->setVisible(!window->visible());
-		});
-	uniform->SetShaderValue = ([uniform, fractal](bool renderMode)
-		{
-			fractal->shader->SetUniform(*uniform, renderMode);
-		});
-
-	uniform->SetGuiValue = [sliders, uniform]() { sliders[0]->setValue(uniform->GetValue().x); sliders[1]->setValue(uniform->GetValue().y); };
-
-	uniform->guiElements = { sliders[0], sliders[1] };
-}
-
 void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
 {
 	nanogui::CheckBox* checkBox = form->AddCheckbox(parent, label, uniform->value);
@@ -417,6 +369,7 @@ Element GuiElement::GetElementFromString(std::string element)
 
 UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std::string value, std::string renderValue, Element elementType)
 {
+	const static bool isObjectMember = false;
 	fractal->shader->Use();
 	unsigned int programId = fractal->shader->id;
 	unsigned int id = glGetUniformLocation(fractal->shader->id, name.c_str());
@@ -437,19 +390,19 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 	{
 		float val = (value == "") ? 0.f : std::stof(value);
 		float renderVal = (renderValue == "") ? val : std::stof(renderValue);
-		return new Uniform<float>(val, renderVal, name, id, programId);
+		return new Uniform<float>(val, renderVal, name, id, programId, isObjectMember);
 	}
 	else if (type == "int")
 	{
 		int val = (value == "") ? 0 : std::stoi(value);
 		int renderVal = (renderValue == "") ? val : std::stoi(renderValue);
-		return new Uniform<int>(val, renderVal, name, id, programId);
+		return new Uniform<int>(val, renderVal, name, id, programId, isObjectMember);
 	}
 	else if (type == "bool")
 	{
 		bool val = (value != "false") ? true : false;
 		bool renderVal = (renderValue == "") ? val : ((renderValue != "false") ? true : false);
-		return new Uniform<bool>(val, renderVal, name, id, programId);
+		return new Uniform<bool>(val, renderVal, name, id, programId, isObjectMember);
 	}
 	else if (type == "vec3")
 	{
@@ -479,13 +432,13 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 #pragma warning(push)
 #pragma warning(disable: 4316)
 			return new Uniform<nanogui::Color>(nanogui::Color(stof(values[0]),stof(values[1]),stof(values[2]), 1.f),
-											   nanogui::Color(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), 1.f), name, id, programId);
+											   nanogui::Color(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), 1.f), name, id, programId, isObjectMember);
 #pragma warning(pop)
 		}
 		else
 		{
 			return new Uniform<glm::vec3>(glm::vec3(stof(values[0]), stof(values[1]), stof(values[2])),
-										  glm::vec3(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2])), name, id, programId);
+										  glm::vec3(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2])), name, id, programId, isObjectMember);
 		}
 	}
 	else if (type == "vec4")
@@ -515,7 +468,7 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 
 
 		return new Uniform<glm::vec4>(glm::vec4(stof(values[0]), stof(values[1]), stof(values[2]), stof(values[3])),
-			glm::vec4(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), stof(renderValues[3])), name, id, programId);
+			glm::vec4(stof(renderValues[0]), stof(renderValues[1]), stof(renderValues[2]), stof(renderValues[3])), name, id, programId, isObjectMember);
 	}
 	else
 	{

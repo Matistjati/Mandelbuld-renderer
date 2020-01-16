@@ -3,6 +3,9 @@
 </include>
 
 <uniforms>
+	/*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 8)</GuiHint>*/
+	uniform float power = 2;
+
 	/*<GuiHint>GuiType: slider, Name: Color change rate, Parent: color, Range: (0.01, 2)</GuiHint>*/
 	uniform float colorPeriodicity = 0.1;
 

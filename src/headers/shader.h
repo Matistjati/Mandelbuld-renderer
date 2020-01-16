@@ -46,10 +46,6 @@ public:
 
 	void Delete()
 	{
-		if (1==1)
-		{
-
-		}
 		if (glIsBuffer(id))
 		{
 			if (type == BufferType::vertexArray) glDeleteVertexArrays(1, &id);

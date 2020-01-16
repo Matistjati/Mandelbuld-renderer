@@ -1345,6 +1345,12 @@ void Fractal::PopulateGUI()
 		});
 
 	// Zoom
+	GuiElement zoomElement = GuiElement();
+	zoomElement.element = Element::TextBox;
+	zoomElement.fractal = this;
+	zoomElement.uniform = &zoom;
+	fractalUniforms.push_back(zoomElement);
+
 	auto zoomField = gui->form->AddTextBox("Zoom", zoom.value);
 	zoomField->setCallback([this](float value)
 		{

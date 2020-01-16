@@ -12,7 +12,6 @@ const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, 
 class Fractal2D : public Fractal
 {
 public:
-	Uniform<float> power;
 	Uniform<glm::vec2> position;
 	// XY is mouse position in fractal space, ZY is the exploration position
 	Uniform<glm::vec4> clickPositions;

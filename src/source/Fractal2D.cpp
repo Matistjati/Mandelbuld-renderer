@@ -14,36 +14,25 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	power(2), position({ 0,0 })
+	position({ 0,0 })
 {	}
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	power(2), position({ 0,0 })
+	position({ 0,0 })
 {	}
 
 void Fractal2D::PopulateGUI() 
 {
 	Fractal::PopulateGUI();
 
-
-	// Power
- 	nanogui::Slider* slider = gui->form->AddSlider("Power",power.value);
-
-	slider->setCallback([this](float value)
-		{
-			power.SetValue(value, Fractal::renderMode);
-			this->shader->SetUniform(this->power);
-		});
-	slider->setValue(power.value);
-	slider->setRange({ 1.f,10.f });
-	
-	power.guiElements = { slider };
-	power.SetGuiValue = [this]() { ((nanogui::Slider*)this->power.guiElements[0])->setValue(this->power.GetValue()); };
-	power.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->power, renderMode); };
-
 	// Position
+	GuiElement pos = GuiElement();
+	pos.element = Element::TextBox;
+	pos.fractal = this;
+	pos.uniform = &position;
+	fractalUniforms.push_back(pos);
 	gui->form->addGroup("Position");
 	
 	auto positionFieldX = gui->form->AddTextBox("X", position.value.x);
@@ -70,6 +59,8 @@ void Fractal2D::PopulateGUI()
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().y);
 									};
 	position.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->position, renderMode); };
+
+	
 
 	Fractal::PopulateGuiFromShader();
 
@@ -213,7 +204,6 @@ void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
 
 	shader->SetUniform(position);
 	shader->SetUniform(screenSize);
-	shader->SetUniform(power);
 	shader->SetUniform(zoom);
 	shader->SetUniform(mousePosition);
 	shader->SetUniform(time);
@@ -229,7 +219,6 @@ void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
 	else { shader->Use(); }	position.id = glGetUniformLocation(shader->id, position.name.c_str());
 
 	screenSize.id = glGetUniformLocation(id, screenSize.name.c_str());
-	power.id = glGetUniformLocation(id, power.name.c_str());
 	frame.id = glGetUniformLocation(id, frame.name.c_str());
 	zoom.id = glGetUniformLocation(id, zoom.name.c_str());
 	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
@@ -241,7 +230,6 @@ void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
 void Fractal2D::SetUniformNames()
 {
 	position.name = "position";
-	power.name = "power";
 	screenSize.name = "screenSize";
 	zoom.name = "zoom";
 	mousePosition.name = "mousePosition";
@@ -312,11 +300,7 @@ void Fractal2D::FindPathAndSaveImage()
 
 void Fractal2D::SetVariable(std::string name, std::string value)
 {
-	if (name == "power")
-	{
-		power.value = std::stof(value);
-	}
-	else if (name == "position")
+	if (name == "position")
 	{
 		std::vector<std::string> components = Split(value, ',');
 		position.value = glm::vec2(std::stof(components[0]), std::stof(components[1]));
@@ -370,18 +354,6 @@ void Fractal2D::HandleKeyInput()
 				zoom.SetValue(zoom.value / static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
 				zoom.SetGuiValue();
 				shader->SetUniform(zoom);
-				break;
-
-				// Changing the power of the fractal
-			case GLFW_KEY_C:
-				power.SetValue(power.value + (0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime())), Fractal::renderMode);
-				power.SetGuiValue();
-				shader->SetUniform(power);
-				break;
-			case GLFW_KEY_V:
-				power.SetValue(power.value - (0.5f * parameterChangeRate * static_cast<float>(time.value.GetDeltaTime())), Fractal::renderMode);
-				power.SetGuiValue();
-				shader->SetUniform(power);
 				break;
 
 			default:
@@ -807,14 +779,12 @@ void Fractal2D::RenderComputeShader()
 
 void Fractal2D::SetShaderGui(bool render)
 {
-	power.SetGuiValue();
 	position.SetGuiValue();
 	Fractal::SetShaderGui(render);
 }
 
 void Fractal2D::SetShaderUniforms(bool render)
 {
-	power.SetShaderValue(render);
 	position.SetShaderValue(render);
 	Fractal::SetShaderUniforms(render);
 }

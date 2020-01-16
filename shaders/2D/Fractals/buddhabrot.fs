@@ -9,6 +9,9 @@
 <localSizeDimensions>2</localSizeDimensions>
 
 <uniforms>
+	/*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 8)</GuiHint>*/
+	uniform float power = 2;
+	
 	/*<GuiHint>GuiType: slider, Name: X Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec3 xRot = vec3(0);
 
@@ -56,7 +59,7 @@
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea]</shouldBeCleared>*/
+/*<shouldBeCleared>button, resetFrame, onUniformChange: [xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -64,7 +67,7 @@ layout(std430, binding = 0) buffer densityMap
 
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotPoints</cpuInitialize>*/
-/*<shouldBeCleared>button</shouldBeCleared>*/
+/*<shouldBeCleared>button, onUniformChange: [power]</shouldBeCleared>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
@@ -75,7 +78,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Camera 0
+	#define Camera 1
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
