@@ -74,9 +74,10 @@ void Fractal2D::Update()
 	if (holdingMouse)
 	{
 		shader->Use();
-		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
-		clickPositions.value = glm::vec4(mouse, position.value);
-		shader->SetUniform(clickPositions);
+
+		// Map from screen space to fractal space
+		clickPosition.SetValue(MapScreenMouseToFractal(), false);
+		shader->SetUniform(clickPosition);
 	}
 }
 
@@ -91,10 +92,10 @@ void Fractal2D::MousePressCallback(GLFWwindow* window, int button, int action, i
 	if (action == GLFW_PRESS)
 	{
 		holdingMouse = true;
+
 		// Map from screen space to fractal space
-		glm::vec2 mouse = (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value;
-		clickPositions.value = glm::vec4(mouse, position.value);
-		shader->SetUniform(clickPositions);
+		clickPosition.SetValue(MapScreenMouseToFractal(), false);
+		shader->SetUniform(clickPosition);
 	}
 	else if (action == GLFW_RELEASE)
 	{
@@ -208,7 +209,7 @@ void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
 	shader->SetUniform(mousePosition);
 	shader->SetUniform(time);
 	shader->SetUniform(frame);
-	shader->SetUniform(clickPositions);
+	shader->SetUniform(clickPosition);
 	GlErrorCheck();
 }
 
@@ -223,7 +224,7 @@ void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
 	zoom.id = glGetUniformLocation(id, zoom.name.c_str());
 	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
 	time.id = glGetUniformLocation(id, time.name.c_str());
-	clickPositions.id = glGetUniformLocation(id, clickPositions.name.c_str());
+	clickPosition.id = glGetUniformLocation(id, clickPosition.name.c_str());
 	GlErrorCheck();
 }
 
@@ -235,7 +236,7 @@ void Fractal2D::SetUniformNames()
 	mousePosition.name = "mousePosition";
 	time.name = "time";
 	frame.name = "frame";
-	clickPositions.name = "clickPositions";
+	clickPosition.name = "clickPosition";
 }
 
 void Fractal2D::SaveImage(const std::string path)
@@ -787,6 +788,12 @@ void Fractal2D::SetShaderUniforms(bool render)
 {
 	position.SetShaderValue(render);
 	Fractal::SetShaderUniforms(render);
+}
+
+// Map from screen space to fractal space
+glm::vec2 Fractal2D::MapScreenMouseToFractal()
+{
+	return (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value + position.value;
 }
 
 std::vector<int> GetPrimeFactors(int n)

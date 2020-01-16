@@ -14,7 +14,7 @@ class Fractal2D : public Fractal
 public:
 	Uniform<glm::vec2> position;
 	// XY is mouse position in fractal space, ZY is the exploration position
-	Uniform<glm::vec4> clickPositions;
+	Uniform<glm::vec2> clickPosition;
 
 	Uniform<glm::vec2> mousePosition;
 
@@ -49,6 +49,7 @@ public:
 	void RenderComputeShader();
 	void SetShaderGui(bool render) override;
 	virtual void SetShaderUniforms(bool render);
+	glm::vec2 MapScreenMouseToFractal();
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";
