@@ -279,16 +279,16 @@ void Fractal2D::SaveImage(const std::string path)
 
 	image.FlipVertically();
 
-	//try
-	//{
-	//	image.Save(path.c_str());
-	//	DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
-	//}
-	//catch (const std::exception& e)
-	//{
-	//	DebugPrint("Error saving image: " + *e.what());
-	//	return;
-	//}
+	try
+	{
+		image.Save(path.c_str());
+		DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
+	}
+	catch (const std::exception& e)
+	{
+		DebugPrint("Error saving image: " + *e.what());
+		return;
+	}
 
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader->buffers["privateBuffer"].id);
 	//void* dat = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
