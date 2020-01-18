@@ -66,6 +66,13 @@ bool notInMainCardioid(vec2 z)
 	float q = dot(c,c);
 	return q*(q+(c.x))>0.25*z.y*z.y;
 }
+
+bool InMainCardioid(vec2 z)
+{
+	vec2 c=z-vec2(0.25,0);
+	float q = dot(c,c);
+	return q*(q+(c.x))<0.25*z.y*z.y;
+}
 </notInMainCardioid>
 
 <notInMainBulb>
@@ -74,5 +81,11 @@ bool notInMainBulb(vec2 z)
 {
     z += vec2(1,0);
     return bool(step(0.062499999,dot(z,z)));
+}
+
+bool InMainBulb(vec2 z)
+{
+    z += vec2(1,0);
+    return bool(step(dot(z,z),0.062499999));
 }
 </notInMainBulb>

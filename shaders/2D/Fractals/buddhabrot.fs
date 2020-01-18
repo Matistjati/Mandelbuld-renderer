@@ -89,6 +89,17 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
+#if Camera
+	vec4 area = renderArea;
+#else
+	// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
+	// To accomplish this, we want to find a number, b such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
+	// Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
+	vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
+	vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
+	area += vec4(position.xyxy)*vec4(1,-1,1,-1);
+#endif
+
 	// Computing long paths area expensive. To run at a decent framerate, we don't render points for every pixel
 	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
 	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
@@ -96,10 +107,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 		for(int i = 0; i < pointsPerFrame; i++)
 		{
 			int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
-    		vec2 w = getStartValue(seed);
+    		vec2 w = getStartValue(seed, area);
 			if (w.x<-100) continue;
 
-			mainLoop(w);
+			mainLoop(w, area);
 		}
 	}
 </main>
@@ -128,10 +139,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-	/*if(!insideBox(w,area))
+	if(!insideBox(w,area))
 	{
 		continue;
-	}*/
+	}
 
 #if Camera
 	vec3 p = vec3(w.xy,c.x);
@@ -162,10 +173,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 	int y = int(screenSize.y-(coord.y-area.y)*map.y);
 	int index = int(x + screenSize.x * (y + 0.5));
 
-	if (index > screenSize.x*screenSize.y||index<0)
+	/*if (index > screenSize.x*screenSize.y||index<0)
 	{
 		continue;
-	}
+	}*/
 
 	if (colorWheel)
 	{
@@ -185,20 +196,11 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 <loopSetup>
 	<mapSetup>
-		// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
-		// To accomplish this, we want to find a number, b such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
-		//  Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
-		#if Camera
-			vec4 area = renderArea;
-		#else
-			vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
-			vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
-			area += vec4(position.xyxy)*vec4(1,-1,1,-1);
-		#endif
-		
 		vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
+#if Camera
 		vec3 eye = vec3(position.x, -yRot.y, position.y);
 		mat4 cam = getRotMatrix(yRot) * getPosMatrix(eye) * getRotMatrix(xRot);
+#endif
 	</mapSetup>,
 
 	<colorSetup>
@@ -233,8 +235,14 @@ bool insideBox(vec2 v, vec4 box)
     return bool(s.x * s.y);   
 }
 
-int EscapeCount(vec2 w)
+int EscapeCount(vec2 w, vec4 area)
 {
+	// Checking the point is within the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
+	if (InMainCardioid(w) || InMainBulb(w))
+	{
+		return -1;
+	}
+
 	if (invalidSamples)
 	{
 		vec2 c = w;
@@ -266,39 +274,23 @@ int EscapeCount(vec2 w)
 	}
 	else
 	{
-		
-		// If we are not purely viewing the projection [w.x, w.y], then w needs to be uniformly sampled and not only if their orbits are inside the viewing area 
 		vec2 c = w;
+
 		int insideCount = 0;
-		bool boundingBox = true;//xRot != vec3(0) || yRot != vec3(0);
-		vec4 edges = vec4(renderArea.xw+position, renderArea.yz+position);
+
 		for (int i = 0; i < maxIterations; i++)
 		{
 			<loopBody>
 
-			if (boundingBox)
+			if (insideBox(w,area))
 			{
-				insideCount+=1;//int(insideBox(w, edges));
+				insideCount++;
 			}
 
-			if (dot(w,w)>escapeRadius) return insideCount;
+			if (dot(w,w)>escapeRadius) return i*int(insideCount>1);
 		}
 
 		return -1;
-		
-		/*
-		vec2 c = w;
-		float insideCount = 0;
-		vec4 edges = vec4((renderArea.xw+position)/zoom, (renderArea.yz+position)/zoom);
-		for (int i = 0; i < maxIterations; i++)
-		{
-			<loopBody>
-
-			insideCount += insideBox(w, edges);
-
-			if (dot(w,w)>escapeRadius) return int(insideCount);
-		}
-		return -1;*/
 	}
 }
 </EscapeCount>
@@ -334,7 +326,8 @@ mat4 getPosMatrix(vec3 p)
 	return ret;
 }
 
-vec2 getStartValue(int seed)
+
+vec2 getStartValue(int seed, vec4 area)
 {
 	uint hash = uint(seed);
 
@@ -353,19 +346,16 @@ vec2 getStartValue(int seed)
 			// Map it from [0,1) to fractal space
 			vec2 point = map01ToInterval(random, renderArea);
 
-			// Checking if it is inside the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
-			if (notInMainBulb(point) && notInMainCardioid(point))
+
+			int escapeCount = EscapeCount(point, area);
+			// We only want to iterate points that are interesting enough
+			if (escapeCount > minIterations)
 			{
-				int escapeCount = EscapeCount(point);
-				// We only want to iterate points that are interesting enough
-				if (escapeCount > minIterations)
+				if (escapeCount > prev.z)
 				{
-					if (escapeCount > prev.z)
-					{
-						desirability[index] = vec4(point, escapeCount, -1);
-					}
-					return point;
+					desirability[index] = vec4(point, escapeCount, -1);
 				}
+				return point;
 			}
 		}
 	}
@@ -374,17 +364,15 @@ vec2 getStartValue(int seed)
 		for (int i = 0; i < mutationAttemps; i++)
 		{
 			vec2 point = prev.xy+(hash2(hash,hash)*2-1)*mutationSize; // Return a point we already know is good with a small mutation
-			if (notInMainBulb(point) && notInMainCardioid(point))
+
+			float escapeCount = EscapeCount(point, area);
+			if (escapeCount > minIterations)
 			{
-				float escapeCount = EscapeCount(point);
-				if (escapeCount > minIterations)
+				if (escapeCount > prev.z)
 				{
-					if (escapeCount > prev.z)
-					{
-						desirability[index] = vec4(point, escapeCount, -1);
-					}
-					return point;
+					desirability[index] = vec4(point, escapeCount, -1);
 				}
+				return point;
 			}
 		}
 	}
@@ -403,7 +391,7 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 
 
 <mainLoop>
-	void mainLoop(vec2 c)
+	void mainLoop(vec2 c, vec4 area)
 	{
 		<loopSetup>
 		

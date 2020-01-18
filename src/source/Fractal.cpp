@@ -1530,9 +1530,9 @@ void Fractal::PopulateGUI()
 			}
 
 			bool clearFrame = VectorContainsNoCase(content, "resetFrame");
-			if (resetFrame)
+			if (clearFrame)
 			{
-				*resetFrame = clearFrame;
+				*resetFrame = true;
 			}
 			
 			if (VectorContainsNoCase(content, "checkbox"))
@@ -1881,7 +1881,7 @@ void Fractal::Init()
 				}
 			}
 
-			if (shader->type == ShaderType::compute)
+			if (shader->type == ShaderType::compute && id == -1)
 			{
 				id = ((ComputeShader*)shader)->mainBuffer.id;
 			}
