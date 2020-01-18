@@ -287,7 +287,7 @@ int EscapeCount(vec2 w, vec4 area)
 				insideCount++;
 			}
 
-			if (dot(w,w)>escapeRadius) return i*int(insideCount>1);
+			if (dot(w,w)>escapeRadius) return i*insideCount;
 		}
 
 		return -1;
@@ -335,6 +335,7 @@ vec2 getStartValue(int seed, vec4 area)
 
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
+
 	
 	// 40 % chance to mutate into a whole new point, 60% to mutate an existing point with a small step
 	if (c > mutationChance)
@@ -363,7 +364,14 @@ vec2 getStartValue(int seed, vec4 area)
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			vec2 point = prev.xy+(hash2(hash,hash)*2-1)*mutationSize; // Return a point we already know is good with a small mutation
+			// Generate a step with exponential distribution
+			vec2 step = hash2(hash,hash);
+			step.y*=PI_TWO;
+			step = sqrt(step.x) * vec2(cos(step.y), sin(step.y));
+		
+			float s = length(step);
+			step *= -log(s)/s;
+			vec2 point = prev.xy+step*mutationSize; // Return a point we already know is good with a small mutation
 
 			float escapeCount = EscapeCount(point, area);
 			if (escapeCount > minIterations)
