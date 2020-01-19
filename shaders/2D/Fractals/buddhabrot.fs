@@ -360,41 +360,23 @@ vec2 getStartValue(int seed, vec4 area)
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
 
-	
+	int pointAttempts = int((c > mutationSize) ? mutationAttemps : mutationChance);
+	bool stepMutation = c < mutationChance;
 	// 40 % chance to mutate into a whole new point, 60% to mutate an existing point with a small step
-	if (c > mutationChance)
-	{
-		for(int i = 0; i < startPointAttempts; ++i)
-		{
-			vec2 point = mutate(prev.xy, hash, c < mutationChance);
 
-			int escapeCount = EscapeCount(point, area);
-			// We only want to iterate points that are interesting enough
-			if (escapeCount > minIterations)
-			{
-				if (escapeCount > prev.z)
-				{
-					desirability[index] = vec4(point, escapeCount, -1);
-				}
-				return point;
-			}
-		}
-	}
-	else
+	for(int i = 0; i < pointAttempts; ++i)
 	{
-		for (int i = 0; i < mutationAttemps; i++)
-		{
-			vec2 point = mutate(prev.xy, hash, c < mutationChance);
+		vec2 point = mutate(prev.xy, hash, stepMutation);
 
-			float escapeCount = EscapeCount(point, area);
-			if (escapeCount > minIterations)
+		int escapeCount = EscapeCount(point, area);
+		// We only want to iterate points that are interesting enough
+		if (escapeCount > minIterations)
+		{
+			if (escapeCount > prev.z)
 			{
-				if (escapeCount > prev.z)
-				{
-					desirability[index] = vec4(point, escapeCount, -1);
-				}
-				return point;
+				desirability[index] = vec4(point, escapeCount, -1);
 			}
+			return point;
 		}
 	}
 
