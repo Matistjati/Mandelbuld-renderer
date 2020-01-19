@@ -41,7 +41,10 @@
 	
 	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by random, Parent: renderParams, Range: (1, 100)</GuiHint>*/
 	uniform float startPointAttempts = 20;
-	
+
+	/*<GuiHint>GuiType: Slider, Name: Attempts at finding suitable point, Parent: renderParams, Range: (1, 100)</GuiHint>*/
+	uniform float pointFindingAttempts = 20;
+
 	/*<GuiHint>GuiType: Slider, Name: Chance for new point, Parent: renderParams, Range: (0, 1)</GuiHint>*/
 	uniform float mutationChance = 0.6;
 	
@@ -326,6 +329,27 @@ mat4 getPosMatrix(vec3 p)
 	return ret;
 }
 
+vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
+{
+	if (stepMutation)
+	{
+		// Generate a step with exponential distribution
+		vec2 step = hash2(hash,hash);
+		step.y*=PI_TWO;
+		step = sqrt(step.x) * vec2(cos(step.y), sin(step.y));
+		
+		float s = length(step);
+		step *= -log(s)/s;
+		return prev.xy+step*mutationSize; // Return a point we already know is good with a small mutation
+	}
+	else
+	{
+		// Generate a random point
+		vec2 random = hash2(hash,hash);
+		// Map it from [0,1) to fractal space
+		return map01ToInterval(random, renderArea);
+	}
+}
 
 vec2 getStartValue(int seed, vec4 area)
 {
@@ -340,13 +364,9 @@ vec2 getStartValue(int seed, vec4 area)
 	// 40 % chance to mutate into a whole new point, 60% to mutate an existing point with a small step
 	if (c > mutationChance)
 	{
-		for(int i = 0; i <startPointAttempts; ++i)
+		for(int i = 0; i < startPointAttempts; ++i)
 		{
-			// Generate a random point
-			vec2 random = hash2(hash,hash);
-			// Map it from [0,1) to fractal space
-			vec2 point = map01ToInterval(random, renderArea);
-
+			vec2 point = mutate(prev.xy, hash, c < mutationChance);
 
 			int escapeCount = EscapeCount(point, area);
 			// We only want to iterate points that are interesting enough
@@ -364,14 +384,7 @@ vec2 getStartValue(int seed, vec4 area)
 	{
 		for (int i = 0; i < mutationAttemps; i++)
 		{
-			// Generate a step with exponential distribution
-			vec2 step = hash2(hash,hash);
-			step.y*=PI_TWO;
-			step = sqrt(step.x) * vec2(cos(step.y), sin(step.y));
-		
-			float s = length(step);
-			step *= -log(s)/s;
-			vec2 point = prev.xy+step*mutationSize; // Return a point we already know is good with a small mutation
+			vec2 point = mutate(prev.xy, hash, c < mutationChance);
 
 			float escapeCount = EscapeCount(point, area);
 			if (escapeCount > minIterations)
