@@ -33,7 +33,7 @@
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
 	uniform float renderSize = 0.5;
 	
-	/*<GuiHint>GuiType: Slider, Name: Mutation size, Parent: renderParams, Range: (0.0001, 2)</GuiHint>*/
+	/*<GuiHint>GuiType: Slider, Name: Mutation size, Parent: renderParams, Range: (0.0001, 0.1)</GuiHint>*/
 	uniform float mutationSize = 0.001;
 	
 	/*<GuiHint>GuiType: Slider, Name: Min Iterations, Parent: renderParams, Range: (1, 500)</GuiHint>*/
@@ -42,14 +42,11 @@
 	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by random, Parent: renderParams, Range: (1, 100)</GuiHint>*/
 	uniform float startPointAttempts = 20;
 
-	/*<GuiHint>GuiType: Slider, Name: Attempts at finding suitable point, Parent: renderParams, Range: (1, 100)</GuiHint>*/
-	uniform float pointFindingAttempts = 20;
+	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by mutation, Parent: renderParams, Range: (1, 30)</GuiHint>*/
+	uniform float mutationAttemps = 4;
 
 	/*<GuiHint>GuiType: Slider, Name: Chance for new point, Parent: renderParams, Range: (0, 1)</GuiHint>*/
 	uniform float mutationChance = 0.6;
-	
-	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by mutation, Parent: renderParams, Range: (1, 30)</GuiHint>*/
-	uniform float mutationAttemps = 4;
 	
 	/*<GuiHint>GuiType: Slider, Name: Points Per Frame, Parent: renderParams, Range: (1, 5)</GuiHint>*/
 	uniform float pointsPerFrame = 1;
@@ -62,7 +59,7 @@
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom]</shouldBeCleared>*/
+/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -70,7 +67,7 @@ layout(std430, binding = 0) buffer densityMap
 
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotPoints</cpuInitialize>*/
-/*<shouldBeCleared>button, onUniformChange: [power]</shouldBeCleared>*/
+/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize]</shouldBeCleared>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
@@ -85,6 +82,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
+	#define PI 3.1415926535897932384626433832795028841971693993751058209749445923078
 </constants>
 
 <main>
@@ -175,11 +173,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// The steps are to avoid points outside of the image accumulating on the left and right sides
 	int y = int(screenSize.y-(coord.y-area.y)*map.y);
 	int index = int(x + screenSize.x * (y + 0.5));
-
-	/*if (index > screenSize.x*screenSize.y||index<0)
-	{
-		continue;
-	}*/
 
 	if (colorWheel)
 	{
@@ -301,7 +294,7 @@ int EscapeCount(vec2 w, vec4 area)
 <hslToRgb>
 vec3 hslToRgb(vec3 c)
 {
-    vec3 rgb = clamp( abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
+    vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
     return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
 }
 </hslToRgb>
@@ -334,12 +327,11 @@ vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 	if (stepMutation)
 	{
 		// Generate a step with exponential distribution
-		vec2 step = hash2(hash,hash);
-		step.y*=PI_TWO;
+		vec2 step = hash2(hash, hash) * vec2(1, PI_TWO);
 		step = sqrt(step.x) * vec2(cos(step.y), sin(step.y));
 		
 		float s = length(step);
-		step *= -log(s)/s;
+		step *= log(s) / s;
 		return prev.xy+step*mutationSize; // Return a point we already know is good with a small mutation
 	}
 	else
@@ -353,22 +345,21 @@ vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 
 vec2 getStartValue(int seed, vec4 area)
 {
-	uint hash = uint(seed);
-
-	float c = abs(fract(sin(seed++)*62758.5453123)); // Do a random choice based on the seed
-
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
 
+	float c = abs(fract(sin(seed++)*62758.5453123)); // Do a random choice based on the seed
 	int pointAttempts = int((c > mutationSize) ? mutationAttemps : mutationChance);
 	bool stepMutation = c < mutationChance;
-	// 40 % chance to mutate into a whole new point, 60% to mutate an existing point with a small step
+
+	uint hash = uint(seed);
 
 	for(int i = 0; i < pointAttempts; ++i)
 	{
 		vec2 point = mutate(prev.xy, hash, stepMutation);
 
 		int escapeCount = EscapeCount(point, area);
+
 		// We only want to iterate points that are interesting enough
 		if (escapeCount > minIterations)
 		{
