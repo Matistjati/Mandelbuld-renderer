@@ -46,7 +46,7 @@
 	uniform float mutationAttemps = 4;
 
 	/*<GuiHint>GuiType: Slider, Name: Chance for new point, Parent: renderParams, Range: (0, 1)</GuiHint>*/
-	uniform float mutationChance = 0.6;
+	uniform float mutationChance = 0.8;
 	
 	/*<GuiHint>GuiType: Slider, Name: Points Per Frame, Parent: renderParams, Range: (1, 5)</GuiHint>*/
 	uniform float pointsPerFrame = 1;
@@ -231,12 +231,12 @@ bool insideBox(vec2 v, vec4 box)
     return bool(s.x * s.y);   
 }
 
-int EscapeCount(vec2 w, vec4 area)
+vec2 EscapeCount(vec2 w, vec4 area)
 {
 	// Checking the point is within the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
 	if (InMainCardioid(w) || InMainBulb(w))
 	{
-		return -1;
+		return vec2(-1000, 0);
 	}
 
 	if (invalidSamples)
@@ -253,7 +253,7 @@ int EscapeCount(vec2 w, vec4 area)
 
 			if (dot(w,w) > escapeRadius || w == oldW)
 			{
-				return i;
+				return vec2(i,1);
 			}
 
 			if (stepsTaken == stepLimit)
@@ -266,7 +266,7 @@ int EscapeCount(vec2 w, vec4 area)
 			stepsTaken++;
 		}
 
-		return -1;
+		return vec2(-1000, 0);
 	}
 	else
 	{
@@ -283,10 +283,10 @@ int EscapeCount(vec2 w, vec4 area)
 				insideCount++;
 			}
 
-			if (dot(w,w)>escapeRadius) return i*insideCount;
+			if (dot(w,w)>escapeRadius) return vec2(i,insideCount);
 		}
 
-		return -1;
+		return vec2(-1000, 0);
 	}
 }
 </EscapeCount>
@@ -349,7 +349,7 @@ vec2 getStartValue(int seed, vec4 area)
 	vec4 prev = desirability[index];
 
 	float c = abs(fract(sin(seed++)*62758.5453123)); // Do a random choice based on the seed
-	int pointAttempts = int((c > mutationSize) ? mutationAttemps : mutationChance);
+	int pointAttempts = int((c < mutationChance) ? mutationAttemps : startPointAttempts);
 	bool stepMutation = c < mutationChance;
 
 	uint hash = uint(seed);
@@ -358,15 +358,16 @@ vec2 getStartValue(int seed, vec4 area)
 	{
 		vec2 point = mutate(prev.xy, hash, stepMutation);
 
-		int escapeCount = EscapeCount(point, area);
+		vec2 escapeCount = EscapeCount(point, area);
 
 		// We only want to iterate points that are interesting enough
-		if (escapeCount > minIterations)
+		if (escapeCount.x > minIterations)
 		{
-			if (escapeCount > prev.z)
+			if (escapeCount.x * escapeCount.x * escapeCount.y > prev.z * prev.z * prev.w)
 			{
-				desirability[index] = vec4(point, escapeCount, -1);
+				desirability[index] = vec4(point, escapeCount);
 			}
+			
 			return point;
 		}
 	}

@@ -38,7 +38,7 @@ A mandelbulb rendered in realtime with a 1070 ti<br/>
 
 [General on 3D distance estimators and shading](http://blog.hvidtfeldts.net/index.php/2011/06/distance-estimated-3d-fractals-part-i/)<br/>
 
-[An algorith for polygonizing a scalar field (what we use for 3D fractals). This can be used for 3D printing](http://paulbourke.net/geometry/polygonise/)<br/>
+[An algoritmh for polygonizing a scalar field (what we use for 3D fractals). This can be used for 3D printing](http://paulbourke.net/geometry/polygonise/)<br/>
 
 [In-depth techniques for coloring the mandelbrot set](https://www.math.univ-toulouse.fr/~cheritat/wiki-draw/index.php/Mandelbrot_set)<br/>
 

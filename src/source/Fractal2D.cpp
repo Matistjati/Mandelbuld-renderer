@@ -740,9 +740,6 @@ void Fractal2D::Init()
 	if (shader->type == ShaderType::compute)
 	{
 		ComputeShader* compute = reinterpret_cast<ComputeShader*>(shader);
-		compute->Invoke(screenSize.value);
-		
-		RenderComputeShader();
 
 		compute->UseRender();
 		unsigned int id = compute->renderId;
@@ -750,6 +747,7 @@ void Fractal2D::Init()
 		compute->uniformRenderIds[frame.name] = glGetUniformLocation(id, frame.name.c_str());
 		compute->uniformRenderIds[deltaTime.name] = glGetUniformLocation(id, deltaTime.name.c_str());
 		compute->uniformRenderIds[screenSize.name] = glGetUniformLocation(id, screenSize.name.c_str());
+		glUniform2f(compute->uniformRenderIds[screenSize.name], Fractal::screenSize.value.x, Fractal::screenSize.value.y);
 		shader->Use();
 	}
 
