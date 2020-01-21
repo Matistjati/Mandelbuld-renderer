@@ -31,8 +31,6 @@ public:
 	void SetUniforms(Shader* shader, bool computeRender = false) override;
 	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
 	void SetUniformNames() override;
-	void SaveImage(const std::string path) override;
-	void FindPathAndSaveImage() override;
 	void SetVariable(std::string name, std::string value) override;
 	void HandleKeyInput() override;
 	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;

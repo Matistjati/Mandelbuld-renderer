@@ -38,7 +38,31 @@ vec2 complexCos(vec2 w)
 }
 </complexCos>
 
-<intHash>
+<hash>
+float hash11(float p)
+{
+    p = fract(p * .1031);
+    p *= p + 33.33;
+    p *= p + p;
+    return abs(fract(p));
+}
+
+vec2 hash21(inout float p)
+{
+	p = hash11(p);
+	p = hash11(p);
+	vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+	p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx+p3.yz)*p3.zy);
+}
+
+vec2 hash23(vec3 p)
+{
+	vec4 p4 = fract(vec4(p.xyzx)  * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy+33.33);
+    return (fract((p4.xxyz+p4.yzzw)*p4.zywx)).xy;
+}
+
 uint intHash(uint x)
 {
     x = ((x >> 16) ^ x) * 0x45d9f3bU;
@@ -46,9 +70,7 @@ uint intHash(uint x)
     x = (x >> 16) ^ x;
     return x;
 }
-</intHash>
 
-<hash2>
 vec2 hash2(uint n, out uint hash)
 {
     uint ih =intHash(n);
@@ -56,9 +78,9 @@ vec2 hash2(uint n, out uint hash)
     uvec2 k = uvec2(ih,hash);
     return vec2(k & uvec2(0xffffffffU))/float(0xffffffffU);
 }
-</hash2>
+</hash>
 
-<notInMainCardioid>
+<MandelbrotInteriorCheck>
 /*reference: https://en.wikipedia.org/wiki/Mandelbrot_set#Optimizations */
 bool notInMainCardioid(vec2 z)
 {
@@ -73,10 +95,7 @@ bool InMainCardioid(vec2 z)
 	float q = dot(c,c);
 	return q*(q+(c.x))<0.25*z.y*z.y;
 }
-</notInMainCardioid>
 
-<notInMainBulb>
-/*reference: https://en.wikipedia.org/wiki/Mandelbrot_set#Optimizations */
 bool notInMainBulb(vec2 z)
 {
     z += vec2(1,0);
@@ -88,4 +107,4 @@ bool InMainBulb(vec2 z)
     z += vec2(1,0);
     return bool(step(dot(z,z),0.062499999));
 }
-</notInMainBulb>
+</MandelbrotInteriorCheck>

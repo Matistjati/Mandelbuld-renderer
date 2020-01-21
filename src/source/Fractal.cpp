@@ -1311,6 +1311,74 @@ glm::vec2 Fractal::GetMonitorSize()
 	return (glm::vec2)result;
 }
 
+void Fractal::FindPathAndSaveImage()
+{
+	const static std::string baseName = "TestImage/image";
+	int count = 0;
+	// Finding the first unused file with name-pattern imageN.png where n is the number ascending
+	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
+
+	SaveImage(baseName + std::to_string(count) + ".png");
+}
+
+void Fractal::SaveImage(std::string path)
+{
+	if (shader->type == ShaderType::compute)
+	{
+		RenderComputeShader();
+	}
+	else
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+		glBindVertexArray(shader->buffers[Fractal::rectangleVertexBufferName].id);
+		shader->Use();
+		SetShaderUniforms(true);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+
+	std::vector<Pixel> data = std::vector<Pixel>(int(screenSize.value.x * screenSize.value.y));
+	glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+
+
+
+	SetShaderUniforms(false);
+
+	GlErrorCheck();
+
+
+	Image image(int(screenSize.value.x), int(screenSize.value.y), &data);
+
+	image.FlipVertically();
+
+	try
+	{
+		image.Save(path.c_str());
+		DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
+	}
+	catch (const std::exception & e)
+	{
+		DebugPrint("Error saving image: " + *e.what());
+		return;
+	}
+}
+
+void Fractal::RenderComputeShader()
+{
+	((ComputeShader*)shader)->UseRender();
+
+	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(shader);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
+	glBindVertexArray(explShader->buffers[Fractal::rectangleVertexBufferName].id);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].id);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+	shader->Use();
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
+}
+
 void Fractal::PopulateGUI()
 {
 	gui->form->setFixedSize({ 80,30 });

@@ -227,49 +227,6 @@ void Fractal3D::SetUniformNames()
 	GlErrorCheck();
 }
 
-void Fractal3D::SaveImage(const std::string path)
-{
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(shader->buffers[Fractal::rectangleVertexBufferName].id);
-	shader->Use();
-	SetShaderUniforms(true);
-
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-
-	
-	std::vector<Pixel> data = std::vector<Pixel>(int(screenSize.value.x * screenSize.value.y));
-	glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
-
-
-	SetShaderUniforms(false);
-
-	Image image(int(screenSize.value.x), int(screenSize.value.y), &data);
-
-	image.FlipVertically();
-
-	try
-	{
-		image.Save(path.c_str());
-		DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
-	}
-	catch (const std::exception& e)
-	{
-		DebugPrint("Error saving image: " + *e.what());
-		return;
-	}
-}
-
-void Fractal3D::FindPathAndSaveImage()
-{
-	const static std::string baseName = "TestImage/image";
-	int count = 0;
-	// Finding the first unused file with name-pattern imageN.png where n is the number ascending
-	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
-
-	SaveImage(baseName + std::to_string(count) + ".png");
-}
-
 void Fractal3D::PopulateGUI()
 {
 	Fractal::PopulateGUI();

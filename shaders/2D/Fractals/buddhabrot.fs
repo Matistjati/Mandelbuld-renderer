@@ -1,5 +1,5 @@
 <include>
-	complexPow, complexSquare, intHash, hash2, notInMainCardioid, notInMainBulb, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
+	complexPow, complexSquare, hash, MandelbrotInteriorCheck, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
 </include>
 
 
@@ -107,7 +107,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	{
 		for(int i = 0; i < pointsPerFrame; i++)
 		{
-			int seed = int(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+			uint seed = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
     		vec2 w = getStartValue(seed, area);
 			if (w.x<-100) continue;
 
@@ -303,7 +303,7 @@ vec3 hslToRgb(vec3 c)
 mat4 getRotMatrix(vec3 a)
 {
 	vec3 s = sin(a);
-	vec3 c = cos(a);    
+	vec3 c = cos(a);
 	mat4 ret;
 	ret[0] = vec4(c.y*c.z,c.y*s.z,-s.y,0.0);
 	ret[1] = vec4(s.x*s.y*c.z-c.x*s.z, s.x*s.y*s.z+c.x*c.z, s.x*c.y, 0.0);
@@ -343,16 +343,14 @@ vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 	}
 }
 
-vec2 getStartValue(int seed, vec4 area)
+vec2 getStartValue(uint hash, vec4 area)
 {
 	uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
 	vec4 prev = desirability[index];
 
-	float c = abs(fract(sin(seed++)*62758.5453123)); // Do a random choice based on the seed
+	float c = abs(fract(sin(hash)*62758.5453123)); // Do a random choice based on the seed
 	int pointAttempts = int((c < mutationChance) ? mutationAttemps : startPointAttempts);
 	bool stepMutation = c < mutationChance;
-
-	uint hash = uint(seed);
 
 	for(int i = 0; i < pointAttempts; ++i)
 	{

@@ -108,6 +108,9 @@ public:
 	virtual void SetShaderUniforms(bool render);
 	virtual void SetShaderGui(bool render);
  	static glm::vec2 GetMonitorSize();
+	void FindPathAndSaveImage();
+	void SaveImage(std::string path);
+	void RenderComputeShader();
 
 	virtual void PopulateGUI();
 	virtual void Update();
@@ -119,8 +122,6 @@ public:
 	virtual void SetUniformLocations(Shader* shader, bool computeRender = false) = 0;
 	virtual void SetUniforms(Shader* shader, bool computeRender = false) = 0;
 	virtual void SetUniformNames() = 0;
-	virtual void SaveImage(std::string filePath) = 0;
-	virtual void FindPathAndSaveImage() = 0;
 	virtual void SetVariable(std::string name, std::string value) = 0;
 	virtual void HandleKeyInput();
 	virtual std::string GetSpecPath(std::string fileName) = 0;

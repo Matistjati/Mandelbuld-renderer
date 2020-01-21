@@ -23,7 +23,7 @@ Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
 	position({ 0,0 })
 {	}
 
-void Fractal2D::PopulateGUI() 
+void Fractal2D::PopulateGUI()
 {
 	Fractal::PopulateGUI();
 
@@ -237,66 +237,6 @@ void Fractal2D::SetUniformNames()
 	time.name = "time";
 	frame.name = "frame";
 	clickPosition.name = "clickPosition";
-}
-
-void Fractal2D::SaveImage(const std::string path)
-{
-	if (shader->type == ShaderType::compute)
-	{
-		RenderComputeShader();
-	}
-	else
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-		glBindVertexArray(shader->buffers[Fractal::rectangleVertexBufferName].id);
-		shader->Use();
-		SetShaderUniforms(true);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	}
-
-	std::vector<Pixel> data = std::vector<Pixel>(int(screenSize.value.x * screenSize.value.y));
-	glReadPixels(0, 0, int(screenSize.value.x), int(screenSize.value.y), GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
-
-
-
-	SetShaderUniforms(false);
-
-	GlErrorCheck();
-
-
-	Image image(int(screenSize.value.x), int(screenSize.value.y), &data);
-
-	image.FlipVertically();
-
-	try
-	{
-		image.Save(path.c_str());
-		DebugPrint("Successfully saved image \"" + FileManager::GetFileName(path) + "\"");
-	}
-	catch (const std::exception& e)
-	{
-		DebugPrint("Error saving image: " + *e.what());
-		return;
-	}
-
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader->buffers["privateBuffer"].id);
-	//void* dat = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-
-	//auto myfile = std::fstream("precomputed/buddhaBrotPoints", std::ios::out | std::ios::binary);
-	//myfile.write((char*)dat, screenSize.value.x * screenSize.value.y*sizeof(glm::vec4));
-	//myfile.close();
-
-	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-}
-
-void Fractal2D::FindPathAndSaveImage()
-{
-	const static std::string baseName = "TestImage/image";
-	int count = 0;
-	// Finding the first unused file with name-pattern imageN.png where n is the number ascending
-	while (FileManager::FileExists((baseName + std::to_string(count) + ".png"))) count++;
-
-	SaveImage(baseName + std::to_string(count) + ".png");
 }
 
 void Fractal2D::SetVariable(std::string name, std::string value)
