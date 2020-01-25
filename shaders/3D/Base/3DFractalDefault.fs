@@ -111,6 +111,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 <trace>
 #define LinneaRetarded 0
+	// Compute the intersection of the fractal and a given ray parameterised by a starting point and a direction
 	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps, out bool hitSurface)
 	{
 		float res = -1;
