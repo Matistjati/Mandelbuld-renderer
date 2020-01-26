@@ -6,6 +6,7 @@ vec2 complexSquare(vec2 z)
 </complexSquare>
 
 <complexPow>
+// Complex exponentiation- see https://en.wikipedia.org/wiki/Complex_number#Integer_and_fractional_exponents
 vec2 complexPow(vec2 z, float power)
 {
 	float arg = atan(z.y,z.x) * power;
