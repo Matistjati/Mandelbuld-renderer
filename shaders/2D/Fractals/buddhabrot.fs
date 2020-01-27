@@ -24,6 +24,10 @@
 	/*<GuiHint>GuiType: checkBox, Name: Sample partially wrong, Parent: color</GuiHint>*/
 	uniform bool invalidSamples = false;
 	
+	// Option to turn on/off cardiod and main bulb interior checking
+	/*<GuiHint>GuiType: checkBox, Name: Mandelbrot power 2 optimize, Parent: renderParams</GuiHint>*/
+	uniform bool pow2Optimize = true;
+	
 	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
 	uniform float colorOffset = 0;
 	
@@ -234,7 +238,7 @@ bool insideBox(vec2 v, vec4 box)
 vec2 EscapeCount(vec2 w, vec4 area)
 {
 	// Checking the point is within the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
-	if (InMainCardioid(w) || InMainBulb(w))
+	if (pow2Optimize && (InMainCardioid(w) || InMainBulb(w)))
 	{
 		return vec2(-1000, 0);
 	}
