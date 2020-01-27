@@ -82,7 +82,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Camera 0
+	#define Camera 1
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
@@ -144,10 +144,12 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-	if(!insideBox(w,area))
+#if !Camera
+	if(!insideBox(project(w, c),area))
 	{
 		continue;
 	}
+#endif
 
 #if Camera
 	vec3 p = vec3(w.xy,c.x);
@@ -159,15 +161,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	vec2 coord = p.xy;
 	if (p.z>0) continue;
 #else
-	vec4 pos = vec4(w, c);
-	vec2 coord = pos.xy;
-	coord.x = mix(coord.x, pos.y, xRot.x);
-	coord.x = mix(coord.x, pos.z, xRot.y);
-	coord.x = mix(coord.x, pos.w, xRot.z);
-	
-	coord.y = mix(coord.y, pos.x, yRot.x);
-	coord.y = mix(coord.y, pos.z, yRot.y);
-	coord.y = mix(coord.y, pos.w, yRot.z);
+	vec2 coord = project(w, c);
 #endif
 	
 	// Converting a position in fractal space to image space- google "map one range to another"
@@ -221,6 +215,11 @@ layout(std430, binding = 1) buffer desirabilityMap
 		vec2 w = vec2(0);
 		c/=dot(c,c);
 	</inverseSetup>,
+	
+	<complexSetup>
+		vec2 w = vec2(0);
+		c/=complexTan(c);
+	</complexSetup>,
 </loopSetup>
 
 <loopReturn>
@@ -345,6 +344,21 @@ vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 		// Map it from [0,1) to fractal space
 		return map01ToInterval(random, renderArea);
 	}
+}
+
+vec2 project(vec2 w, vec2 c)
+{
+	vec4 pos = vec4(w, c);
+	vec2 coord = pos.xy;
+	coord.x = mix(coord.x, pos.y, xRot.x);
+	coord.x = mix(coord.x, pos.z, xRot.y);
+	coord.x = mix(coord.x, pos.w, xRot.z);
+	
+	coord.y = mix(coord.y, pos.x, yRot.x);
+	coord.y = mix(coord.y, pos.z, yRot.y);
+	coord.y = mix(coord.y, pos.w, yRot.z);
+
+	return coord;
 }
 
 vec2 getStartValue(uint hash, vec4 area)
