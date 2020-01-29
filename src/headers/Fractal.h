@@ -119,9 +119,9 @@ public:
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
 	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
-	virtual void SetUniformLocations(Shader* shader, bool computeRender = false) = 0;
-	virtual void SetUniforms(Shader* shader, bool computeRender = false) = 0;
-	virtual void SetUniformNames() = 0;
+	virtual void SetUniformLocations(Shader* shader, bool computeRender = false);
+	virtual void SetUniforms(Shader* shader, bool computeRender = false);
+	virtual void SetUniformNames();
 	virtual void SetVariable(std::string name, std::string value) = 0;
 	virtual void HandleKeyInput();
 	virtual std::string GetSpecPath(std::string fileName) = 0;

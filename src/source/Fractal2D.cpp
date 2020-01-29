@@ -200,42 +200,34 @@ void Fractal2D::FramebufferSizeCallback(GLFWwindow* window, int width, int heigh
 
 void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
 {
+	Fractal::SetUniforms(shader, computeRender);
+
 	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
 	else { shader->Use(); }
 
 	shader->SetUniform(position);
-	shader->SetUniform(screenSize);
-	shader->SetUniform(zoom);
 	shader->SetUniform(mousePosition);
-	shader->SetUniform(time);
-	shader->SetUniform(frame);
 	shader->SetUniform(clickPosition);
 	GlErrorCheck();
 }
 
 void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
 {
+	Fractal::SetUniformLocations(shader, computeRender);
 	unsigned int id = (computeRender) ? ((ComputeShader*)shader)->renderId : shader->id;
-	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
-	else { shader->Use(); }	position.id = glGetUniformLocation(shader->id, position.name.c_str());
 
-	screenSize.id = glGetUniformLocation(id, screenSize.name.c_str());
-	frame.id = glGetUniformLocation(id, frame.name.c_str());
-	zoom.id = glGetUniformLocation(id, zoom.name.c_str());
+	position.id = glGetUniformLocation(id, position.name.c_str());
 	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
-	time.id = glGetUniformLocation(id, time.name.c_str());
 	clickPosition.id = glGetUniformLocation(id, clickPosition.name.c_str());
 	GlErrorCheck();
 }
 
 void Fractal2D::SetUniformNames()
 {
+	Fractal::SetUniformNames();
+
 	position.name = "position";
-	screenSize.name = "screenSize";
-	zoom.name = "zoom";
 	mousePosition.name = "mousePosition";
-	time.name = "time";
-	frame.name = "frame";
 	clickPosition.name = "clickPosition";
 }
 

@@ -1904,6 +1904,37 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 	delete index;
 }
 
+void Fractal::SetUniformLocations(Shader* shader, bool computeRender)
+{
+	unsigned int id = (computeRender) ? ((ComputeShader*)shader)->renderId : shader->id;
+	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
+	else { shader->Use(); }
+
+	screenSize.id = glGetUniformLocation(id, screenSize.name.c_str());
+	frame.id = glGetUniformLocation(id, frame.name.c_str());
+	zoom.id = glGetUniformLocation(id, zoom.name.c_str());
+	time.id = glGetUniformLocation(id, time.name.c_str());
+}
+
+void Fractal::SetUniforms(Shader* shader, bool computeRender)
+{
+	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
+	else { shader->Use(); }
+
+	shader->SetUniform(frame);
+	shader->SetUniform(zoom);
+	shader->SetUniform(time);
+	shader->SetUniform(screenSize);
+}
+
+void Fractal::SetUniformNames()
+{
+	screenSize.name = "screenSize";
+	frame.name = "frame";
+	zoom.name = "zoom";
+	time.name = "time";
+}
+
 void Fractal::HandleKeyInput()
 {
 	

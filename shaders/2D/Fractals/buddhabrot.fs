@@ -82,7 +82,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Camera 1
+	#define Camera 0
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
@@ -234,6 +234,21 @@ bool insideBox(vec2 v, vec4 box)
     return bool(s.x * s.y);   
 }
 
+vec2 project(vec2 w, vec2 c)
+{
+	vec4 pos = vec4(w, c);
+	vec2 coord = pos.xy;
+	coord.x = mix(coord.x, pos.y, xRot.x);
+	coord.x = mix(coord.x, pos.z, xRot.y);
+	coord.x = mix(coord.x, pos.w, xRot.z);
+	
+	coord.y = mix(coord.y, pos.x, yRot.x);
+	coord.y = mix(coord.y, pos.z, yRot.y);
+	coord.y = mix(coord.y, pos.w, yRot.z);
+
+	return coord;
+}
+
 vec2 EscapeCount(vec2 w, vec4 area)
 {
 	// Checking the point is within the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
@@ -281,7 +296,7 @@ vec2 EscapeCount(vec2 w, vec4 area)
 		{
 			<loopBody>
 
-			if (insideBox(w,area))
+			if (insideBox(project(w,c),area))
 			{
 				insideCount++;
 			}
@@ -344,21 +359,6 @@ vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 		// Map it from [0,1) to fractal space
 		return map01ToInterval(random, renderArea);
 	}
-}
-
-vec2 project(vec2 w, vec2 c)
-{
-	vec4 pos = vec4(w, c);
-	vec2 coord = pos.xy;
-	coord.x = mix(coord.x, pos.y, xRot.x);
-	coord.x = mix(coord.x, pos.z, xRot.y);
-	coord.x = mix(coord.x, pos.w, xRot.z);
-	
-	coord.y = mix(coord.y, pos.x, yRot.x);
-	coord.y = mix(coord.y, pos.z, yRot.y);
-	coord.y = mix(coord.y, pos.w, yRot.z);
-
-	return coord;
 }
 
 vec2 getStartValue(uint hash, vec4 area)
