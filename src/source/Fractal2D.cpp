@@ -177,27 +177,6 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 	}
 }
 
-void Fractal2D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-	screenSize.value = glm::ivec2(width, height);
-	shader->SetUniform(screenSize);
-
-	if (shader->type == ShaderType::compute)
-	{
-		((ComputeShader*)shader)->UseRender();
-		glUniform2f(((ComputeShader*)shader)->uniformRenderIds[screenSize.name], screenSize.value.x, screenSize.value.y);
-		// What is rendered will most likely be trash, dispose of it
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ((ComputeShader*)shader)->mainBuffer.id);
-		glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
-		shader->Use();
-	}
-	
-
-
-
-	glViewport(0, 0, width, height);
-}
-
 void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
 {
 	Fractal::SetUniforms(shader, computeRender);

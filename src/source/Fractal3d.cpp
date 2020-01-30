@@ -170,14 +170,6 @@ void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, i
 	}
 }
 
-void Fractal3D::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-	screenSize.value = glm::ivec2(width, height);
-	shader->SetUniform(screenSize);
-
-	glViewport(0, 0, width, height);
-}
-
 void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1), Fractal::renderMode);

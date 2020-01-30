@@ -117,7 +117,7 @@ public:
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
-	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height) = 0;
+	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
 	virtual void SetUniformLocations(Shader* shader, bool computeRender = false);
 	virtual void SetUniforms(Shader* shader, bool computeRender = false);

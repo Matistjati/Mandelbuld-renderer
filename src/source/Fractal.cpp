@@ -1904,6 +1904,25 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 	delete index;
 }
 
+void Fractal::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	screenSize.value = glm::ivec2(width, height);
+	shader->SetUniform(screenSize);
+
+	if (shader->type == ShaderType::compute)
+	{
+		ComputeShader* compute = (ComputeShader*)shader;
+		compute->UseRender();
+		glUniform2f(compute->uniformRenderIds[screenSize.name], screenSize.value.x, screenSize.value.y);
+		// What is rendered will most likely be trash, dispose of it
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, compute->mainBuffer.id);
+		glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+		shader->Use();
+	}
+
+	glViewport(0, 0, width, height);
+}
+
 void Fractal::SetUniformLocations(Shader* shader, bool computeRender)
 {
 	unsigned int id = (computeRender) ? ((ComputeShader*)shader)->renderId : shader->id;
