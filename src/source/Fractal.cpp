@@ -1945,6 +1945,14 @@ void Fractal::AddShaderParameters(std::string& spec)
 	{
 		std::string parameterStr = GetSection(Section("shaderParameters"), spec);
 		std::vector<std::string> parameters = SplitNotInChar(parameterStr, ',', { { '{', '}' } });
+
+		// Remove keys which were left from previous fractal
+		std::vector<std::string> keysToRemove;
+		for (auto& x : shaderIndices)
+		{
+			keysToRemove.push_back(x.first);
+		}
+
 		for (size_t i = 0; i < parameters.size(); i++)
 		{
 			std::vector<std::string> content = Split(parameters[i], ',');
@@ -1982,26 +1990,53 @@ void Fractal::AddShaderParameters(std::string& spec)
 
 			if (!shaderIndices.count(name))
 			{
-				shaderIndices[name] = new ShaderIndice(value, modifier, { keyUpDown.first, keyUpDown.second });;
+				shaderIndices[name] = new ShaderIndice(value, modifier, { keyUpDown.first, keyUpDown.second });
 			}
+			std::remove(keysToRemove.begin(), keysToRemove.end(), name);
+		}
 
+		for (size_t i = 0; i < keysToRemove.size(); i++)
+		{
+			shaderIndices.erase(keysToRemove[i]);
 		}
 	}
 }
 
 void Fractal::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
+	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, true); // Close program
+
+	// Handle input actions in separate function
+	if (keys[key] || ((mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL && (mods & GLFW_MOD_ALT) != GLFW_MOD_ALT))
+	{
+		if ((action == GLFW_PRESS)) keys[key] = true;
+		else if ((action == GLFW_RELEASE)) keys[key] = false;
+	}
+
+	if (action == GLFW_PRESS)
 	{
 		bool update = false;
 
-		if (key == GLFW_KEY_Z) FindPathAndSaveImage();
-		else if (key == GLFW_KEY_X) BreakIfDebug();
+		if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
+		{
+			if (key == GLFW_KEY_Z) FindPathAndSaveImage();
+			else if (key == GLFW_KEY_X) BreakIfDebug();
+		}
+
+		if (key == GLFW_KEY_X)
+		{
+			time.value.ToogleTimePause();
+			shader->SetUniform(time);
+		}
 
 		for (auto const& x : shaderIndices)
 		{
-			if (key == x.second->button.first)  { (*x.second->value)--; update = true; }
-			if (key == x.second->button.second) { (*x.second->value)++; update = true; }
+			if ((x.second->modifiers & mods) == x.second->modifiers)
+			{
+				if (key == x.second->button.first)  { (*x.second->value)--; update = true; }
+				if (key == x.second->button.second) { (*x.second->value)++; update = true; }
+			}
 		}
 		
 		if (update)

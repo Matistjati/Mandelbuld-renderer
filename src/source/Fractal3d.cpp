@@ -38,76 +38,9 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, true); // Close program
-
-	// Handle input actions in separate function
-	if ((mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL && (mods & GLFW_MOD_ALT) != GLFW_MOD_ALT)
-	{
-		if ((action == GLFW_PRESS)) keys[key] = true;
-		else if ((action == GLFW_RELEASE)) keys[key] = false;
-	}
-
 	Fractal::KeyCallback(window, key, scancode, action, mods);
 
-	// Ctrl key handling
-	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
-	{
-		bool update = false;
-		switch (key)
-		{
-		default:
-			break;
-		case GLFW_KEY_Z:
-			FindPathAndSaveImage();
-			break;
-
-		//case GLFW_KEY_Q:
-		//	(*shaderIndices["coloring"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_A:
-		//	(*shaderIndices["coloring"])--;
-		//	update = true;
-		//	break;
-
-		//case GLFW_KEY_W:
-		//	(*shaderIndices["distanceSetup"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_S:
-		//	(*shaderIndices["distanceSetup"])--;
-		//	update = true;
-		//	break;
-
-		//case GLFW_KEY_E:
-		//	(*shaderIndices["distanceExtraOperations"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_D:
-		//	(*shaderIndices["distanceExtraOperations"])--;
-		//	update = true;
-		//	break;
-
-		//case GLFW_KEY_R:
-		//	(*shaderIndices["rot1"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_F:
-		//	(*shaderIndices["rot1"])--;
-		//	update = true;
-		//	break;
-
-		case GLFW_KEY_X:
-			BreakIfDebug();
-			break;
-		}
-		if (update)
-		{
-			UpdateFractalShader();
-		}
-	}
-	else if (action == GLFW_PRESS)
+	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL)
 	{
 		switch (key)
 		{
@@ -117,10 +50,6 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			// Flipping the world
 			camera.worldFlip.value *= -1;
 			shader->SetUniform(camera.worldFlip);
-			break;
-		case GLFW_KEY_X:
-			time.value.ToogleTimePause();
-			shader->SetUniform(time);
 			break;
 		case GLFW_KEY_F:
 			cursorVisible = !cursorVisible;
@@ -525,11 +454,6 @@ void Fractal3D::Init()
 	PopulateGUI();
 
 	Fractal::Init();
-}
-
-std::map<std::string, ShaderIndice*> Fractal3D::GetDefaultShaderIndices()
-{
-	return {};// { {"coloring", new int(0)}, { "distanceSetup", new int(0) }, { "distanceExtraOperations", new int(0) }, { "rot1", new int(0) } };
 }
 
 void Fractal3D::SetShaderGui(bool render)

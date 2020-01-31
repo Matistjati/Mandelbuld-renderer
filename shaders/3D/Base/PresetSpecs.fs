@@ -1,3 +1,13 @@
+<3D>
+{
+	<shaderParameters>
+		{name: "coloring", key: "CTRL A Q"},
+		{name: "distanceSetup", key: "CTRL S W"},
+		{name: "distanceExtraOperations", key: "CTRL D E"},
+	</shaderParameters>
+}
+</3D>
+
 <FogIteration>
 {
 	<variables>
@@ -7,15 +17,6 @@
 	</variables>
 }
 </FogIteration>
-
-<3D>
-{
-	<shaderParameters>
-		{name: "coloring", key: "CTRL A Q"},
-
-	</shaderParameters>
-}
-</3D>
 
 <MandelBox>
 {
@@ -43,6 +44,10 @@
 	<include>
 		3D
 	</include>
+
+	<shaderParameters>
+		{name: "rot1", key: "CTRL F R"},
+	</shaderParameters>
 
 	<distanceEstimator>
 		<distanceReturn>[mandelFoldDist]</distanceReturn>,

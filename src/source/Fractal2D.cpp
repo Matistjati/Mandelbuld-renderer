@@ -107,76 +107,7 @@ void Fractal2D::MousePressCallback(GLFWwindow* window, int button, int action, i
 
 void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_UNKNOWN) return; // Stay away from weird stuff
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, true); // Close program
-
-	// Handle input actions in separate function
-	if ((mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL && (mods & GLFW_MOD_ALT) != GLFW_MOD_ALT)
-	{
-		if ((action == GLFW_PRESS)) keys[key] = true;
-		else if ((action == GLFW_RELEASE)) keys[key] = false;
-	}
-
-
-	// Ctrl key handling
-	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
-	{
-		bool update = false;
-		switch (key)
-		{
-		default:
-			break;
-		case GLFW_KEY_Z:
-			FindPathAndSaveImage();
-			break;
-
-		//case GLFW_KEY_Q:
-		//	(*shaderIndices["loopReturn"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_A:
-		//	(*shaderIndices["loopReturn"])--;
-		//	update = true;
-		//	break;
-
-		//case GLFW_KEY_W:
-		//	(*shaderIndices["loopExtraOperations"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_S:
-		//	(*shaderIndices["loopExtraOperations"])--;
-		//	update = true;
-		//	break;
-
-		//case GLFW_KEY_E:
-		//	(*shaderIndices["loopSetup"])++;
-		//	update = true;
-		//	break;
-		//case GLFW_KEY_D:
-		//	(*shaderIndices["loopSetup"])--;
-		//	update = true;
-		//	break;
-
-		case GLFW_KEY_X:
-			BreakIfDebug();
-			break;
-		}
-		if (update)
-		{
-			UpdateFractalShader();
-		}
-	}
-	else if (action == GLFW_PRESS)
-	{
-		switch (key)
-		{
-			case GLFW_KEY_X:
-				time.value.ToogleTimePause();
-				shader->SetUniform(time);
-				break;
-
-		}
-	}
+	Fractal::KeyCallback(window, key, scancode, action, mods);
 }
 
 void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
@@ -668,11 +599,6 @@ void Fractal2D::Init()
 	}
 
 	Fractal::Init();
-}
-
-std::map<std::string, ShaderIndice> Fractal2D::GetDefaultShaderIndices()
-{
-	return {};//return { {"loopReturn", {new int(0), {GLFW_KEY_A,GLFW_KEY_Q}}}, {"loopExtraOperations", {new int(0), {GLFW_KEY_A,GLFW_KEY_Q}}}, {"loopSetup", {new int(0), {GLFW_KEY_A,GLFW_KEY_Q}}} };
 }
 
 void Fractal2D::SetShaderGui(bool render)
