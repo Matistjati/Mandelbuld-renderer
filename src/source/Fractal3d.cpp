@@ -11,24 +11,30 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 #define PrintSource 1
 
 Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
-	: Fractal(explorationShader, screenSize, time, GetDefaultShaderIndices()), camera(camera), sun(sun), cursorVisible(false)
-{	}
+	: Fractal(screenSize, time, {}), camera(camera), sun(sun), cursorVisible(false)
+{
+	shader = explorationShader;
+}
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()),fractalNameIndex)), screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
+	: Fractal(screenSize, Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
-{	}
+{
+	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
+}
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
-	: Fractal(GenerateShader(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)), GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
+	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
-{	}
+{
+	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
+}
 
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -42,6 +48,7 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		else if ((action == GLFW_RELEASE)) keys[key] = false;
 	}
 
+	Fractal::KeyCallback(window, key, scancode, action, mods);
 
 	// Ctrl key handling
 	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
@@ -55,41 +62,41 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			FindPathAndSaveImage();
 			break;
 
-		case GLFW_KEY_Q:
-			(*shaderIndices["coloring"])++;
-			update = true;
-			break;
-		case GLFW_KEY_A:
-			(*shaderIndices["coloring"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_Q:
+		//	(*shaderIndices["coloring"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_A:
+		//	(*shaderIndices["coloring"])--;
+		//	update = true;
+		//	break;
 
-		case GLFW_KEY_W:
-			(*shaderIndices["distanceSetup"])++;
-			update = true;
-			break;
-		case GLFW_KEY_S:
-			(*shaderIndices["distanceSetup"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_W:
+		//	(*shaderIndices["distanceSetup"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_S:
+		//	(*shaderIndices["distanceSetup"])--;
+		//	update = true;
+		//	break;
 
-		case GLFW_KEY_E:
-			(*shaderIndices["distanceExtraOperations"])++;
-			update = true;
-			break;
-		case GLFW_KEY_D:
-			(*shaderIndices["distanceExtraOperations"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_E:
+		//	(*shaderIndices["distanceExtraOperations"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_D:
+		//	(*shaderIndices["distanceExtraOperations"])--;
+		//	update = true;
+		//	break;
 
-		case GLFW_KEY_R:
-			(*shaderIndices["rot1"])++;
-			update = true;
-			break;
-		case GLFW_KEY_F:
-			(*shaderIndices["rot1"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_R:
+		//	(*shaderIndices["rot1"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_F:
+		//	(*shaderIndices["rot1"])--;
+		//	update = true;
+		//	break;
 
 		case GLFW_KEY_X:
 			BreakIfDebug();
@@ -320,7 +327,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			{
 				if (versions[versions.size() - 1][0] != '<') versions.pop_back();
 
-				int* indexPtr = shaderIndices[c.name];
+				int* indexPtr = shaderIndices[c.name]->value;
 				if (*indexPtr < 0) *indexPtr = versions.size() - 1;
 				else if ((size_t)*indexPtr > versions.size() - 1) *indexPtr = 0;
 				index = std::to_string(*indexPtr);
@@ -387,7 +394,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 					int index = 0;
 					if (shaderIndices.size() && shaderIndices.count(sectionName))
 					{
-						index = *shaderIndices[sectionName];
+						index = *shaderIndices[sectionName]->value;
 						if (index < 0)
 						{
 							index = versions.size() - 1;
@@ -397,7 +404,7 @@ void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 							index = 0;
 						}
 
-						*shaderIndices[sectionName] = index;
+						*shaderIndices[sectionName]->value = index;
 					}
 
 					value = versions[index];
@@ -421,6 +428,8 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 		DebugPrint("Specification error");
 		return;
 	}
+
+	AddShaderParameters(specSection);
 
 	std::string tip = GetSection(Section("tip"), specSection);
 	if (tip != "") // Only print once
@@ -448,7 +457,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 		final.insert(uniformsStart, finalUniforms);
 	}
 
-	BuildMainLoop(Section("distanceEstimator"),	source, default3DSource, final, specSection, fractalIndex, shaderIndices.size() == 0 ? GetDefaultShaderIndices() : shaderIndices);
+	BuildMainLoop(Section("distanceEstimator"),	source, default3DSource, final, specSection, fractalIndex, shaderIndices);
 
 	std::string flags = GetSection(Section("flags"), specSection);
 
@@ -518,9 +527,9 @@ void Fractal3D::Init()
 	Fractal::Init();
 }
 
-std::map<std::string, int*> Fractal3D::GetDefaultShaderIndices()
+std::map<std::string, ShaderIndice*> Fractal3D::GetDefaultShaderIndices()
 {
-	return { {"coloring", new int(0)}, {"distanceSetup", new int(0)}, {"distanceExtraOperations", new int(0)}, {"rot1", new int(0)} };
+	return {};// { {"coloring", new int(0)}, { "distanceSetup", new int(0) }, { "distanceExtraOperations", new int(0) }, { "rot1", new int(0) } };
 }
 
 void Fractal3D::SetShaderGui(bool render)
@@ -658,7 +667,7 @@ Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string
 	std::cout << base;
 #endif
 
-	return new Shader(vertexSource, base, false);
+	return new Shader(vertexSource, base);
 }
 
 Shader* Fractal3D::GenerateShader()

@@ -8,8 +8,21 @@
 }
 </FogIteration>
 
+<3D>
+{
+	<shaderParameters>
+		{name: "coloring", key: "CTRL A Q"},
+
+	</shaderParameters>
+}
+</3D>
+
 <MandelBox>
 {
+	<include>
+		3D
+	</include>
+
 	<distanceEstimator>
 		<distanceReturn>[mandelBoxDist]</distanceReturn>,
 		<distanceTrap>[defaultTrap]</distanceTrap>,
@@ -27,6 +40,10 @@
 
 <MandelFold>
 {
+	<include>
+		3D
+	</include>
+
 	<distanceEstimator>
 		<distanceReturn>[mandelFoldDist]</distanceReturn>,
 		<distanceTrap>[defaultTrap]</distanceTrap>,
@@ -45,6 +62,10 @@
 
 <MandelBulb>
 {
+	<include>
+		3D
+	</include>
+
 	<distanceEstimator>
 		<distanceReturn>[mandelBulbDist]</distanceReturn>,
 		<distanceTrap>[defaultTrap]</distanceTrap>,

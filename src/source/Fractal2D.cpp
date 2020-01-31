@@ -12,16 +12,18 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 #define PrintSource 1
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	screenSize, Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
+	: Fractal(screenSize, Time(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	position({ 0,0 })
-{	}
+{
+	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
+}
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
-	: Fractal(GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	GetMonitorSize(), Time(), GetDefaultShaderIndices(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
+	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
 	position({ 0,0 })
-{	}
+{
+	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
+}
 
 void Fractal2D::PopulateGUI()
 {
@@ -128,32 +130,32 @@ void Fractal2D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 			FindPathAndSaveImage();
 			break;
 
-		case GLFW_KEY_Q:
-			(*shaderIndices["loopReturn"])++;
-			update = true;
-			break;
-		case GLFW_KEY_A:
-			(*shaderIndices["loopReturn"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_Q:
+		//	(*shaderIndices["loopReturn"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_A:
+		//	(*shaderIndices["loopReturn"])--;
+		//	update = true;
+		//	break;
 
-		case GLFW_KEY_W:
-			(*shaderIndices["loopExtraOperations"])++;
-			update = true;
-			break;
-		case GLFW_KEY_S:
-			(*shaderIndices["loopExtraOperations"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_W:
+		//	(*shaderIndices["loopExtraOperations"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_S:
+		//	(*shaderIndices["loopExtraOperations"])--;
+		//	update = true;
+		//	break;
 
-		case GLFW_KEY_E:
-			(*shaderIndices["loopSetup"])++;
-			update = true;
-			break;
-		case GLFW_KEY_D:
-			(*shaderIndices["loopSetup"])--;
-			update = true;
-			break;
+		//case GLFW_KEY_E:
+		//	(*shaderIndices["loopSetup"])++;
+		//	update = true;
+		//	break;
+		//case GLFW_KEY_D:
+		//	(*shaderIndices["loopSetup"])--;
+		//	update = true;
+		//	break;
 
 		case GLFW_KEY_X:
 			BreakIfDebug();
@@ -452,7 +454,7 @@ void Fractal2D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::
 			{
 				if (versions[versions.size() - 1][0] != '<') versions.pop_back();
 
-				int* indexPtr = shaderIndices[c.name];
+				int* indexPtr = shaderIndices[c.name]->value;
 				if (*indexPtr < 0) *indexPtr = versions.size() - 1;
 				else if ((size_t) *indexPtr > versions.size() - 1) *indexPtr = 0;
 
@@ -513,8 +515,11 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 	if (specSection == "")
 	{
 		DebugPrint("Specification error");
+		BreakIfDebug();
 		return;
 	}
+
+	AddShaderParameters(specSection);
 
 	std::string tip = GetSection(Section("tip"), specSection);
 	if (tip != "") // Only print once
@@ -576,7 +581,7 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 
 	if (source.find(Section("mainLoopOff").start) == std::string::npos)
 	{
-		BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex, (shaderIndices.size() == 0) ? GetDefaultShaderIndices() : shaderIndices);
+		BuildMainLoop(Section("mainLoop"), source, default2DSource, final, specSection, fractalIndex, shaderIndices);
 	}
 	else
 	{
@@ -665,26 +670,9 @@ void Fractal2D::Init()
 	Fractal::Init();
 }
 
-std::map<std::string, int*> Fractal2D::GetDefaultShaderIndices()
+std::map<std::string, ShaderIndice> Fractal2D::GetDefaultShaderIndices()
 {
-	return { {"loopReturn", new int(0)}, {"loopExtraOperations", new int(0)}, {"loopSetup", new int(0)} };
-}
-
-void Fractal2D::RenderComputeShader()
-{
-	((ComputeShader*)shader)->UseRender();
-
-	ComputeShader* explShader = reinterpret_cast<ComputeShader*>(shader);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, explShader->buffers[Fractal::rectangleVertexBufferIndexName].id);
-	glBindVertexArray(explShader->buffers[Fractal::rectangleVertexBufferName].id);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].id);
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->buffers[computeRenderBufferName].binding, explShader->mainBuffer.id);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-
-	shader->Use();
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.id);
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, explShader->mainBuffer.binding, explShader->mainBuffer.id);
+	return {};//return { {"loopReturn", {new int(0), {GLFW_KEY_A,GLFW_KEY_Q}}}, {"loopExtraOperations", {new int(0), {GLFW_KEY_A,GLFW_KEY_Q}}}, {"loopSetup", {new int(0), {GLFW_KEY_A,GLFW_KEY_Q}}} };
 }
 
 void Fractal2D::SetShaderGui(bool render)

@@ -53,6 +53,21 @@ struct ShaderSection
 	}
 };
 
+struct ShaderIndice
+{
+	int* value;
+	int modifiers;
+	std::pair<int, int> button;
+
+	ShaderIndice(int value, int modifiers, std::pair<int, int> button) : value(new int(value)), modifiers(modifiers), button(button) {}
+	ShaderIndice(int value, std::pair<int, int> button) : value(new int(value)), modifiers(0), button(button) {}
+	ShaderIndice() : value(), modifiers(), button() {}
+
+	bool HasModifier(int modifier)
+	{
+		return (modifiers & modifier) == modifier;
+	}
+};
 
 enum class FractalType
 {
@@ -83,7 +98,7 @@ public:
 	std::string fractalName;
 
 	std::map<int, bool> keys;
-	std::map<std::string, int*> shaderIndices;
+	std::map<std::string, ShaderIndice*> shaderIndices;
 	bool holdingMouse;
 
 	GUI* gui;
@@ -95,7 +110,7 @@ public:
 	~Fractal();
 
 	// Nothing fancy
-	Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
+	Fractal(Uniform<glm::vec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
 		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "");
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
@@ -112,11 +127,17 @@ public:
 	void SaveImage(std::string path);
 	void RenderComputeShader();
 
+	static std::string GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets);
+	static void LinkSpecification(std::string& source, std::string& target);
+	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, ShaderIndice*> indices);
+	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, ShaderIndice*> indices);
+	void AddShaderParameters(std::string& spec);
+
 	virtual void PopulateGUI();
 	virtual void Update();
 	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
 	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
-	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) = 0;
+	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
 	virtual void SetUniformLocations(Shader* shader, bool computeRender = false);
@@ -149,17 +170,15 @@ public:
 	static std::string GetWholeSection(Section s, std::string from, size_t start = 0);
 	static std::string GetSectionName(std::string str);
 	static std::string GetSectionValue(std::string str);
+	static std::string SubString(std::string str, int begin, int end);
 	static void CleanString(std::string& str, std::vector<char> chars);
+	static void CleanString(std::string& str, char c);
 	static void CleanVector(std::vector<std::string>& str, std::vector<char> chars);
 	static bool RemoveOuterSection(std::string& str);
 	static bool RemoveOuterChars(std::string& str, char first, char last);
 	static std::vector<std::string> Split(std::string str, char splitBy);
 	static std::vector<std::string> SplitNotInChar(std::string str, char splitBy, char opener, char closer);
 	static std::vector<std::string> SplitNotInChar(std::string str, char splitBy, std::vector<std::pair<char, char>> ignore);
-	static std::string GetSpecificationByIndex(const std::string* specification, int* index, const std::string presets);
-	static void LinkSpecification(std::string& source, std::string& target);
-	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, int*> indices);
-	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, int*> indices);
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static std::vector<std::string> GetSections(std::string& source);
 	static bool StringToBool(std::string str);

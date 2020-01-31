@@ -1,8 +1,8 @@
 #version 330 core
 
-layout(location = 0) in vec4 aPosition;
+layout(location = 0) in vec4 pixelPos;
 
 void main()
 {
-	gl_Position = aPosition;
+	gl_Position = pixelPos;
 };

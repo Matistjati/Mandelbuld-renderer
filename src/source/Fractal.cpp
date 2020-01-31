@@ -109,12 +109,22 @@ std::string Fractal::GetSectionValue(std::string str)
 	return str.substr(startIndex, endIndex - startIndex);
 }
 
+std::string Fractal::SubString(std::string str, int begin, int end)
+{
+	return str.substr(begin, end-begin);
+}
+
 void Fractal::CleanString(std::string& str, std::vector<char> chars)
 {
 	for (size_t i = 0; i < chars.size(); i++)
 	{
 		str.erase(std::remove(str.begin(), str.end(), chars[i]), str.end());
 	}
+}
+
+void Fractal::CleanString(std::string& str, char c)
+{
+	str.erase(std::remove(str.begin(), str.end(), c), str.end());
 }
 
 void Fractal::CleanVector(std::vector<std::string>& str, std::vector<char> chars)
@@ -302,12 +312,36 @@ std::string Fractal::GetSpecificationByIndex(const std::string* specification, i
 	if (section.find(Section("include").start) != std::string::npos)
 	{
 		std::vector<std::string> includes = Split(GetSectionValue(GetSection(Section("include"), section)), ',');
-		if (includes.size() != 0)
+
+		CleanVector(includes, { '\n', '\t', ' ' });
+
+		for (size_t i = 0; i < includes.size(); i++)
 		{
-			for (size_t i = 0; i < includes.size(); i++)
+			CleanString(includes[i], { '\n', '\t', ' ' });
+			std::string preset = GetSection(Section(includes[i]), presets);
+			LinkSpecification(preset, section);
+		}
+
+		std::vector<std::string> newIncludes = Split(GetSectionValue(GetSection(Section("include"), section)), ',');
+		// If we new includes were added from last include, process these too. Too lazy to make it recursive as i do not plan on having depth further than this currently
+		if (newIncludes.size() != includes.size())
+		{
+			std::vector<std::string> notDone;
+			// Find the ones that have not been processed
+			CleanVector(newIncludes, { '\n', '\t', ' ' });
+			for (size_t i = 0; i < newIncludes.size(); i++)
 			{
-				CleanString(includes[i], { '\n', '\t', ' ' });
-				std::string preset = GetSection(Section(includes[i]), presets);
+				if (std::find(includes.begin(), includes.end(), newIncludes[i]) == includes.end())
+				{
+					notDone.push_back(newIncludes[i]);
+				}
+			}
+
+
+			for (size_t i = 0; i < notDone.size(); i++)
+			{
+				CleanString(notDone[i], { '\n', '\t', ' ' });
+				std::string preset = GetSection(Section(notDone[i]), presets);
 				LinkSpecification(preset, section);
 			}
 		}
@@ -681,10 +715,11 @@ Fractal::~Fractal()
 	delete shader;
 }
 
-Fractal::Fractal(Shader* shader, Uniform<glm::vec2> screenSize, Time t, std::map<std::string, int*> shaderIndices, float zoom, FractalType f, int fractalIndex,
+Fractal::Fractal(Uniform<glm::vec2> screenSize, Time t, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
-	: shader(shader), zoom(zoom), fractalType(f), time(t, "time", glGetUniformLocation(shader->id, "time")), deltaTime(0, "deltaTime", glGetUniformLocation(shader->id, "deltaTime")),
-	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), shaderIndices(shaderIndices), holdingMouse(false), fractalUniforms(),
+	: shader(), zoom(zoom), fractalType(f), time(t), deltaTime(0.05f),
+	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), 
+	shaderIndices((shaderIndices.size() == 0) ? std::map<std::string, ShaderIndice*>() : shaderIndices), holdingMouse(false), fractalUniforms(),
 	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus()
 {
 	Fractal::screenSize = screenSize;
@@ -735,7 +770,7 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 			compute->Invoke(fractal->screenSize.value);
 			if (fractal->frame.value % compute->renderingFrequency == 0)
 			{
-				reinterpret_cast<Fractal2D*>(fractal)->RenderComputeShader();
+				fractal->RenderComputeShader();
 			}
 		}
 		fractal->gui->drawContents();
@@ -764,8 +799,8 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	fractal->zoom.value = 2.16f;
 	(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.18303f;
 	(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.f;
-	*fractal->shaderIndices["loopExtraOperations"] = 2;
-	*fractal->shaderIndices["loopReturn"] = 1;
+	*fractal->shaderIndices["loopExtraOperations"]->value = 2;
+	*fractal->shaderIndices["loopReturn"]->value = 1;
 	fractal->UpdateFractalShader();
 
 	fractal->shader->Use();
@@ -1701,7 +1736,7 @@ void Fractal::Update()
 }
 
 
-void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, int*> indices)
+void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, ShaderIndice*> indices)
 {
 	std::string distanceDeclaration;
 	size_t distanceStart = source.find(targetSection.start);
@@ -1759,7 +1794,7 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 				{
 					std::vector<std::string> sequences = SplitNotInChar(sectionValue, ',', '[', ']');
 
-					int* relevantIndex = (indices.count(sectionName)) ? indices[sectionName] : index;
+					int* relevantIndex = (indices.count(sectionName)) ? indices[sectionName]->value : index;
 
 
 					if (*relevantIndex < 0)*relevantIndex = sequences.size() - 1;
@@ -1897,11 +1932,83 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 	}
 }
 
-void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, int*> indices)
+void Fractal::BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, ShaderIndice*> indices)
 {
 	int* index = new int(-1);
 	BuildMainLoop(targetSection, source, defaultSource, target, specification, index, indices);
 	delete index;
+}
+
+void Fractal::AddShaderParameters(std::string& spec)
+{
+	if (StringContainsNoCase(spec, "<shaderParameters>"))
+	{
+		std::string parameterStr = GetSection(Section("shaderParameters"), spec);
+		std::vector<std::string> parameters = SplitNotInChar(parameterStr, ',', { { '{', '}' } });
+		for (size_t i = 0; i < parameters.size(); i++)
+		{
+			std::vector<std::string> content = Split(parameters[i], ',');
+
+			std::string name = GuiElement::GetElement(content, "name");
+			CleanString(name, ' ');
+			name = SubString(name, name.find_first_of(" \" ") + 1, name.find_last_of(" \" "));
+
+			std::string valueStr = GuiElement::GetElement(content, "value");
+			int value = 0;
+			if (valueStr != "") value = std::stoi(valueStr);
+
+			std::string key = GuiElement::GetElement(content, "key");
+			if (key[0] == ' ') key = key.substr(1);
+			key = SubString(key, key.find_first_of(" \" ") + 1, key.find_last_of(" \" "));
+
+			std::vector<std::string> keyContent = Split(key, ' ');
+			std::pair<int, int> keyUpDown{ -1, -1 };
+			int modifier = 0;
+			int offset = 0;
+			if (keyContent[0].size() > 1)
+			{
+				std::string mod = keyContent[0];
+				if (StringEqualNoCase(mod, "ctrl"))		  modifier = GLFW_MOD_CONTROL;
+				else if (StringEqualNoCase(mod, "alt"))   modifier = GLFW_MOD_ALT;
+				else if (StringEqualNoCase(mod, "shift")) modifier = GLFW_MOD_SHIFT;
+				else if (StringEqualNoCase(mod, "super")) modifier = GLFW_MOD_SUPER;
+				else BreakIfDebug();
+				// If you broke here, we have got an unrecognized key modifier
+				offset = 1;
+			}
+
+			keyUpDown.first  = toupper(keyContent[offset+0][0]);
+			keyUpDown.second = toupper(keyContent[offset+1][0]);
+
+			if (!shaderIndices.count(name))
+			{
+				shaderIndices[name] = new ShaderIndice(value, modifier, { keyUpDown.first, keyUpDown.second });;
+			}
+
+		}
+	}
+}
+
+void Fractal::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
+	{
+		bool update = false;
+
+		if (key == GLFW_KEY_Z) FindPathAndSaveImage();
+		else if (key == GLFW_KEY_X) BreakIfDebug();
+
+		for (auto const& x : shaderIndices)
+		{
+			if (key == x.second->button.first)  { (*x.second->value)--; update = true; }
+			if (key == x.second->button.second) { (*x.second->value)++; update = true; }
+		}
+		
+		if (update)
+		{
+			UpdateFractalShader();
+		}
+	}
 }
 
 void Fractal::FramebufferSizeCallback(GLFWwindow* window, int width, int height)

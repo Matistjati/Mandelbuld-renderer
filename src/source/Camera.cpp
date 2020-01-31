@@ -104,17 +104,17 @@ void Camera::SetRotationMatrix()
 }
 
 
-// Upwards vector independent of roll
 glm::vec3 Camera::GetWorldUp()
 {
-	glm::vec2 result = glm::vec2(0, 1) * cos(glm::radians(roll)) + glm::vec2(1, 0) * sin(glm::radians(roll));
-	return glm::normalize(glm::vec3(0, result.y, -result.x));
+	glm::vec3 up = glm::vec3(0, 1, 0);
+	float angle = glm::radians(roll);
+
+	return up;
 }
 
-// Forward vector independent of roll
 glm::vec3 Camera::GetWorldForward()
 {
-	return glm::normalize(glm::vec3(abs(cos(glm::radians(roll))), 0, 0));
+	return glm::vec3(1, 0, 0);
 }
 
 

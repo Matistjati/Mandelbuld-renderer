@@ -1,17 +1,17 @@
 #include "headers/Shader.h"
 #include <glad/glad.h>
 
-#include <iostream>
-#include <fstream>
-#include <string>
 #include "headers/Debug.h"
-#include <vector>
-#include <map>
 #include "headers/FileManager.h"
 #include "headers/Fractal.h"
-#include <algorithm>
 #include "headers/Fractal2D.h"
 #include "headers/BufferInitialization.h"
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <fstream>
 #include <sstream> 
 
 void Shader::Use()

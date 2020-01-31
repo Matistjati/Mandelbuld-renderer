@@ -63,7 +63,7 @@ public:
 	std::map<std::string, Buffer> buffers;
 
 	// constructor reads and builds the shader
-	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path);
+	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path = false);
 	Shader(unsigned int id, ShaderType type);
 	~Shader();
 	// use/activate the shader
