@@ -13,7 +13,7 @@ class Fractal2D : public Fractal
 {
 public:
 	Uniform<glm::vec2> position;
-	// XY is mouse position in fractal space, ZY is the exploration position
+
 	Uniform<glm::vec2> clickPosition;
 
 	Uniform<glm::vec2> mousePosition;

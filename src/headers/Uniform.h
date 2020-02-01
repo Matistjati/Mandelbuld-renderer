@@ -38,7 +38,7 @@ struct Uniform : public UniformSuper
 	void operator=(const T &other);
 	T& GetValue();
 	void SetValue(T value, bool renderMode);
-	void Reset() { value = renderValue = defaultValue; }
+	void Reset() { value = defaultValue; renderValue = defaultValue; }
 
 	Uniform(T val, T renderVal, std::string name, unsigned int id, unsigned int programId, bool objectMember) : UniformSuper({}, {}, {}, name, id, programId, objectMember), value(val), renderValue(renderVal), defaultValue(val) {}
 	Uniform(T val, T renderVal, std::string name, unsigned int id) : UniformSuper({}, {}, {}, name, id, -1), value(val), renderValue(renderVal), defaultValue(val) {}

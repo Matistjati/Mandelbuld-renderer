@@ -1335,14 +1335,6 @@ glm::vec2 Fractal::GetMonitorSize()
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	glm::ivec2 result = { mode->width, mode->height };
 
-	for (int i = 0; i < result.length(); i++)
-	{
-		if (GetCompositeness(result[i]) == 1)
-		{
-			result[i] = GetMostCompositeInRange(result[i], 0.01f);
-		}
-	}
-
 	return (glm::vec2)result;
 }
 
@@ -1510,34 +1502,29 @@ void Fractal::PopulateGUI()
 			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
 			{
 				UniformSuper* uni = (UniformSuper*)fractalUniforms[i].uniform;
-				if (fractalUniforms[i].element == Element::Slider || fractalUniforms[i].element == Element::TextBox)
+				
+				switch (fractalUniforms[i].element)
 				{
-					if (uni->guiElements.size() == 3)
-					{
-						((Uniform<glm::vec3>*)fractalUniforms[i].uniform)->Reset();
+				default:
+					break;
 
-						if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
-						if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
-					}
-					else
-					{
-						((Uniform<float>*)fractalUniforms[i].uniform)->Reset();
-						if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
-						if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
-					}
-				}
-				else if (fractalUniforms[i].element == Element::ColorPicker)
-				{
+				case Element::Slider:
+				case Element::TextBox:
+					if (uni->guiElements.size() == 4)	((Uniform<glm::vec4>*)uni)->Reset();
+					if (uni->guiElements.size() == 3)	((Uniform<glm::vec3>*)uni)->Reset();
+					if (uni->guiElements.size() == 2)	((Uniform<glm::vec2>*)uni)->Reset();
+					if (uni->guiElements.size() == 1)		((Uniform<float>*)uni)->Reset();
+					break;
+				case Element::ColorPicker:
 					((Uniform<nanogui::Color>*)fractalUniforms[i].uniform)->Reset();
-					if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
-					if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
-				}
-				else if (fractalUniforms[i].element == Element::CheckBox)
-				{
+					break;
+				case Element::CheckBox:
 					((Uniform<bool>*)fractalUniforms[i].uniform)->Reset();
-					if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
-					if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
+					break;
 				}
+			
+				if (((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetGuiValue();
+				if (((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue) ((UniformSuper*)fractalUniforms[i].uniform)->SetShaderValue(Fractal::renderMode);
 			}
 		});
 
