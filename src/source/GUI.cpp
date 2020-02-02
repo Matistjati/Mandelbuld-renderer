@@ -112,7 +112,7 @@ void AddSlidersN(Form* form, nanogui::Window* parent, std::string label, int n, 
 	}
 }
 
-void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
+nanogui::CheckBox* Form::AddCheckbox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
 {
 	nanogui::CheckBox* checkBox = form->AddCheckbox(parent, label, uniform->value);
 	checkBox->setCallback([fractal,uniform](bool value)
@@ -128,6 +128,8 @@ void AddCheckBox(Form* form, nanogui::Window* parent, std::string label, Uniform
 	uniform->SetGuiValue = [checkBox, uniform]() {checkBox->setChecked(uniform->GetValue()); };
 
 	uniform->guiElements = { checkBox };
+
+	return checkBox;
 }
 
 class ColorWrapper : public nanogui::ColorPicker
@@ -290,7 +292,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	}
 	else if (element == Element::CheckBox)
 	{
-		AddCheckBox(form, window, elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
+		Form::AddCheckbox(form, window, elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
 	}
 	else if (element == Element::error)
 	{
@@ -301,7 +303,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 GuiElement::GuiElement(Element element, UniformSuper* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
 
-SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window(), form()
+SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal, Eigen::Vector2i offset) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window(), form()
 {
 	if (element == Element::SubMenu)
 	{
@@ -311,7 +313,7 @@ SubMenu::SubMenu(Element element, std::string name, std::string identifier, Frac
 
 
 		form = new Form(fractal->gui, button, this);
-		window = form->addWindow(button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + Eigen::Vector2i{ 30,0 }, name);
+		window = form->addWindow(button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + Eigen::Vector2i{ 30,0 } + offset, name);
 
 		form->parentButton->setCallback([this]()
 			{

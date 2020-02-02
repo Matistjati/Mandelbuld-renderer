@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <thread>
 #include <nanogui/nanogui.h>
-#include "..\headers\Fractal.h"
 
 #define DoNothing [](){}
 #define EmptyThread std::thread(DoNothing)
@@ -1438,6 +1437,14 @@ void Fractal::PopulateGUI()
 			
 			this->gui->performLayout();
 		});
+
+	SubMenu* sub = new SubMenu(Element::SubMenu, "Camera", "cam", this, { 65, 0 });
+	subMenus.push_back(sub);
+
+	Uniform<bool>* checkBox3D = new Uniform<bool>(this->fractalType == FractalType::fractal3D);
+	
+	Form::AddCheckbox(sub->form, sub->window, "3D", checkBox3D, this, checkBox3D->value);
+	
 
 	// Zoom
 	GuiElement zoomElement = GuiElement();
