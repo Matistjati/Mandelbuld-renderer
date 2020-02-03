@@ -278,10 +278,10 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			vec3 direction = normalize(vec3(uv.xy, 1));
 
 			direction *= rotation;
-			direction.y *= worldFlip;
+			direction.y *= -1;
 			
 
-			Ray	ray = Ray(vec3(position.z, position.y * worldFlip, position.x), direction);
+			Ray	ray = Ray(vec3(position.z, position.y * -1, position.x), direction);
 			col += render(ray, uv);
 		}
 	}

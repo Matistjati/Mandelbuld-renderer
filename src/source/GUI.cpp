@@ -112,9 +112,9 @@ void AddSlidersN(Form* form, nanogui::Window* parent, std::string label, int n, 
 	}
 }
 
-nanogui::CheckBox* Form::AddCheckbox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
+nanogui::CheckBox* Form::AddCheckbox(nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value)
 {
-	nanogui::CheckBox* checkBox = form->AddCheckbox(parent, label, uniform->value);
+	nanogui::CheckBox* checkBox = AddCheckbox(parent, label, uniform->value);
 	checkBox->setCallback([fractal,uniform](bool value)
 		{
 			uniform->SetValue(value, Fractal::renderMode);
@@ -292,7 +292,7 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 	}
 	else if (element == Element::CheckBox)
 	{
-		Form::AddCheckbox(form, window, elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
+		form->AddCheckbox(window, elementLabel, (Uniform<bool>*)uniform, fractal, value != "false");
 	}
 	else if (element == Element::error)
 	{

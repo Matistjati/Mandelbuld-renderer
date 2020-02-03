@@ -185,4 +185,9 @@
       <Filter>Resource Files\3D\Fractals</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="resources.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

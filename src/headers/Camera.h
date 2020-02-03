@@ -32,14 +32,10 @@ class Camera
 {
 public:
 
-	// -1 or 1, flipping the world upside up
-	Uniform<int> worldFlip;
-
 	// Camera Attributes
 	Uniform<glm::vec3> position;
 
-	// Matrices
-
+	// Viewing direction
 	float GetYaw();
 	float GetRoll();
 	float GetPitch();
@@ -53,10 +49,7 @@ public:
 	float mouseSensitivity;
 	float rollSpeed;
 
-	// Used for orientation
-	const glm::vec3 worldUp = glm::vec3(0, 1, 0);
-	
-	// Constructor with vectors
+	// Constructors
 	Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll);
 	Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float mouseSensitivity, float movementSpeed, float rollSpeed);
 

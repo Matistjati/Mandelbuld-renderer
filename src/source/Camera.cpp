@@ -52,7 +52,7 @@ Uniform<glm::mat3>& Camera::GetRotationMatrix()
 }
 
 Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
-	rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
+	rollSpeed(ROLLSPEED), rotationMatrixIsCurrent(false)
 {
 	position.value = Position;
 	yaw = Yaw;
@@ -60,7 +60,7 @@ Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw
 	roll = Roll;
 }
 
-Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : worldFlip(-1), rotationMatrixIsCurrent(false)
+Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : rotationMatrixIsCurrent(false)
 {
 	position.value = Position;
 	yaw = Yaw;
@@ -72,7 +72,7 @@ Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, flo
 }
 
 Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
-	rollSpeed(ROLLSPEED), worldFlip(-1), rotationMatrixIsCurrent(false)
+	rollSpeed(ROLLSPEED), rotationMatrixIsCurrent(false)
 {
 	position.value = glm::vec3(posX, posY, posZ);
 	yaw = Yaw;
@@ -142,7 +142,7 @@ glm::vec3 Camera::GetForwardVector()
 
 glm::vec3 Camera::GetRightVector()
 {
-	return glm::normalize(glm::cross(GetForwardVector(), worldUp));
+	return glm::normalize(glm::cross(GetForwardVector(), GetWorldUp()));
 }
 
 void Camera::ProcessMovement(CameraMovement direction, float magnitude)

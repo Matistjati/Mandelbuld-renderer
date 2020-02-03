@@ -3,7 +3,6 @@
 layout(location = 0) out vec4 color;
 
 uniform vec2 screenSize = vec2(1920, 1080);
-uniform int worldFlip = -1;
 uniform vec3 position;
 uniform vec3 sun;
 uniform mat3 rotation;

@@ -9,6 +9,12 @@
 <localSizeDimensions>2</localSizeDimensions>
 
 <uniforms>
+	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 1024)</GuiHint>*/
+	uniform float maxIterations = 256;
+
+	/*<GuiHint>GuiType: slider, Name: Escape Radius, Parent: renderParams, Range: (0.01, 1000)</GuiHint>*/
+	uniform float escapeRadius = 8.;
+
 	/*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 8)</GuiHint>*/
 	uniform float power = 2;
 	

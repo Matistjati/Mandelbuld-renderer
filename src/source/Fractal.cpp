@@ -75,6 +75,7 @@ std::string Fractal::GetSection(Section s, std::string from, size_t start)
 	else if (endIndex == std::string::npos)
 	{
 		std::cout << "Could not find closing tag for section " + s.start << std::endl;
+		return "";
 	}
 
 	startIndex += s.start.length();
@@ -578,6 +579,7 @@ void ScrollCallBackDelegate(GLFWwindow* window, double xoffset, double yoffset)
 
 void MouseCallbackDelegate(GLFWwindow* window, double x, double y)
 {
+
 	Fractal* fractal = (reinterpret_cast<Fractal*>(glfwGetWindowUserPointer(window)));
 	fractal->gui->cursorPosCallbackEvent(x, y);
 
@@ -1438,12 +1440,14 @@ void Fractal::PopulateGUI()
 			this->gui->performLayout();
 		});
 
-	SubMenu* sub = new SubMenu(Element::SubMenu, "Camera", "cam", this, { 65, 0 });
-	subMenus.push_back(sub);
+	SubMenu* cameraMenu = new SubMenu(Element::SubMenu, "Camera", "cam", this, { 65, 0 });
+	subMenus.push_back(cameraMenu);
+
+	cameraMenu->form->setFixedSize({ 75, 25 });
 
 	Uniform<bool>* checkBox3D = new Uniform<bool>(this->fractalType == FractalType::fractal3D);
 	
-	Form::AddCheckbox(sub->form, sub->window, "3D", checkBox3D, this, checkBox3D->value);
+	cameraMenu->form->AddCheckbox(cameraMenu->window, "3D", checkBox3D, this, checkBox3D->value);
 	
 
 	// Zoom
@@ -1453,7 +1457,7 @@ void Fractal::PopulateGUI()
 	zoomElement.uniform = &zoom;
 	fractalUniforms.push_back(zoomElement);
 
-	auto zoomField = gui->form->AddTextBox("Zoom", zoom.value);
+	auto zoomField = cameraMenu->form->AddTextBox("Zoom", zoom.value);
 	zoomField->setCallback([this](float value)
 		{
 			zoom.SetValue(value, Fractal::renderMode);
@@ -1464,6 +1468,8 @@ void Fractal::PopulateGUI()
 	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(zoom.value); };
 	zoom.SetShaderValue = [this](bool renderMode) { this->shader->SetUniform(zoom); };
 
+
+	// Render mode
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
 	renderCheckbox->setCallback([this](bool value)
 		{

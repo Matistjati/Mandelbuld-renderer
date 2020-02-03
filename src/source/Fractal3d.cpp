@@ -46,11 +46,6 @@ void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int actio
 		{
 		default:
 			break;
-		case GLFW_KEY_Z:
-			// Flipping the world
-			camera.worldFlip.value *= -1;
-			shader->SetUniform(camera.worldFlip);
-			break;
 		case GLFW_KEY_F:
 			cursorVisible = !cursorVisible;
 			if (cursorVisible)
@@ -120,7 +115,6 @@ void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
 
 	shader->SetUniform(camera.position);
 	shader->SetUniform(camera.GetRotationMatrix());
-	shader->SetUniform(camera.worldFlip);
 	shader->SetUniform(sun);
 	GlErrorCheck();
 }
@@ -131,7 +125,6 @@ void Fractal3D::SetUniformLocations(Shader* shader, bool computeRender)
 	
 	camera.GetRotationMatrix().id = glGetUniformLocation(shader->id, camera.GetRotationMatrix().name.c_str());
 	camera.position.id =			glGetUniformLocation(shader->id, camera.position.name.c_str());
-	camera.worldFlip.id =			glGetUniformLocation(shader->id, camera.worldFlip.name.c_str());
 	sun.id =						glGetUniformLocation(shader->id, sun.name.c_str());
 	GlErrorCheck();
 }
@@ -142,7 +135,6 @@ void Fractal3D::SetUniformNames()
 
 	camera.GetRotationMatrix().name = "rotation";
 	camera.position.name = "position";
-	camera.worldFlip.name = "worldFlip";
 	sun.name = "sun";
 	GlErrorCheck();
 }
@@ -490,10 +482,6 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	{
 		std::vector<std::string> components = Split(value, ',');
 		sun.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
-	}
-	else if (name == "worldFlip")
-	{
-		camera.worldFlip.value = std::stoi(value);
 	}
 }
 

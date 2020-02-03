@@ -82,7 +82,7 @@ public:
 	nanogui::Button* parentButton;
 	SubMenu* parentMenu;
 
-	static nanogui::CheckBox* AddCheckbox(Form* form, nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value);
+	nanogui::CheckBox* AddCheckbox(nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value);
 
 	// C++ doesnt let me define templated methods in another file
 	template <typename Type> nanogui::Slider* AddSlider(nanogui::Window* window, const std::string& label, const std::function<void(const Type&)>& setter, const std::function<Type()>& getter)
