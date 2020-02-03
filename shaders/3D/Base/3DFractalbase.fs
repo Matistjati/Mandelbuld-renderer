@@ -79,12 +79,6 @@ const vec3 light = vec3(-0.707107, 0.000, 0.707107);
 
 <constants>
 
-struct Ray
-{
-	vec3 origin;
-	vec3 dir;
-};
-
 // Helper functions
 <helperFunctions>
 

@@ -1,5 +1,6 @@
 #include "headers/Camera.h"
 #include <glm.hpp>
+#include "gtc/matrix_transform.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -13,11 +14,6 @@ float Camera::GetYaw()
 	return yaw;
 }
 
-float Camera::GetRoll()
-{
-	return roll;
-}
-
 float Camera::GetPitch()
 {
 	return pitch;
@@ -26,12 +22,6 @@ float Camera::GetPitch()
 void Camera::SetYaw(float v)
 {
 	yaw = v;
-	rotationMatrixIsCurrent = false;
-}
-
-void Camera::SetRoll(float v)
-{
-	roll = v;
 	rotationMatrixIsCurrent = false;
 }
 
@@ -51,70 +41,31 @@ Uniform<glm::mat3>& Camera::GetRotationMatrix()
 	return rotation;
 }
 
-Camera::Camera(const glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f), float Yaw = YAW, float Pitch = PITCH, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
-	rollSpeed(ROLLSPEED), rotationMatrixIsCurrent(false)
-{
-	position.value = Position;
-	yaw = Yaw;
-	pitch = Pitch;
-	roll = Roll;
-}
-
-Camera::Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float MouseSensitivity, float MovementSpeed, float RollSpeed) : rotationMatrixIsCurrent(false)
-{
-	position.value = Position;
-	yaw = Yaw;
-	pitch = Pitch;
-	roll = Roll;
-	mouseSensitivity = MouseSensitivity;
-	movementSpeed = MovementSpeed;
-	rollSpeed = RollSpeed;
-}
-
-Camera::Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float Roll = ROLL) : movementSpeed(SPEED), mouseSensitivity(SENSITIVITY),
-	rollSpeed(ROLLSPEED), rotationMatrixIsCurrent(false)
-{
-	position.value = glm::vec3(posX, posY, posZ);
-	yaw = Yaw;
-	pitch = Pitch;
-	roll = Roll;
-}
+Camera::Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed) : position(position), yaw(yaw), pitch(pitch),
+	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false)
+{ }
 
 void Camera::SetRotationMatrix()
 {
 	// The standard 3d rotation matrices
-	float p = glm::radians(-GetPitch());
-	glm::mat3 pitchMatrix = glm::mat3(1,     0,       0,
-									  0, cos(p), -sin(p),
-									  0, sin(p),  cos(p));
+	float p = glm::radians(GetPitch());
+	glm::mat3 pitch = glm::mat3(1, 0, 0, 0, cos(p), -sin(p), 0, sin(p), cos(p));
+	
+	float y = glm::radians(-GetYaw());
+	glm::mat3 yaw = glm::mat3(cos(y), 0, sin(y), 0, 1, 0, -sin(y), 0, cos(y));
 
-
-	float y = glm::radians(GetYaw());
-	glm::mat3 yawMatrix = glm::mat3(cos(y), 0, sin(y),
-								    0,	    1,      0,
-								   -sin(y), 0, cos(y));
-
-
-	float r = glm::radians(-GetRoll());
-	glm::mat3 rollMatrix = glm::mat3(cos(r), -sin(r),  0,
-									 sin(r),  cos(r),  0,
-									 0,       0,       1);
-
-	rotation.value = pitchMatrix * yawMatrix * rollMatrix;
+	rotation.value = pitch * yaw;
 }
 
 
 glm::vec3 Camera::GetWorldUp()
 {
-	glm::vec3 up = glm::vec3(0, 1, 0);
-	float angle = glm::radians(roll);
-
-	return up;
+	return glm::vec3(0, 1, 0);
 }
 
 glm::vec3 Camera::GetWorldForward()
 {
-	return glm::vec3(1, 0, 0);
+	return glm::vec3(0, 0, -1);
 }
 
 
@@ -125,15 +76,14 @@ glm::vec3 Camera::GetForwardVector()
 	out.y = -cos(glm::radians(pitch) + static_cast<float>(M_PI_2));
 
 
-	glm::vec3 forward = rotation.value * glm::vec3(1, 0, 0);
+	glm::vec3 forward = glm::vec3(-cos(glm::radians(GetYaw()) + M_PI_2), 0, -sin(glm::radians(GetYaw()) + M_PI_2));
 	forward.y = 0;
 	float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
 	forward *= sin(rads);
 	out += forward;
 	
 	// Zero if very small
-	const static float epsilon = 0.00001f;
-	out.x = (abs(out.x) < epsilon) ? 0 : out.x;
+	const static float epsilon = 0.0001f;
 	out.y = (abs(out.y) < epsilon) ? 0 : out.y;
 
 	return glm::normalize(out);
@@ -172,12 +122,6 @@ void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 	default:
 		break;
 	}
-}
-
-// Give a positive or negative float representing the change you want to see
-void Camera::ProcessRoll(float delta)
-{
-	SetRoll(roll + delta);
 }
 
 void Camera::ProcessMouseMovement(glm::vec2 offset)

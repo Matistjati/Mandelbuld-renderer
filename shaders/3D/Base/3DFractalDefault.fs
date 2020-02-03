@@ -7,11 +7,11 @@
 </sceneDistance>
 
 <sky>
-	col += skyColor * (0.6 + 0.4 * ray.dir.y);
+	col += skyColor * (0.6 + 0.4 * direction.y);
 </sky>
 
 <sun>
-	col += sunSize * sunColor * pow(clamp(dot(ray.dir, sun), 0.0, 1.0), sunSpread);
+	col += sunSize * sunColor * pow(clamp(dot(direction, sun), 0.0, 1.0), sunSpread);
 </sun>
 
 <distanceSetup>
@@ -112,7 +112,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 <trace>
 #define LinneaRetarded 0
 	// Compute the intersection of the fractal and a given ray parameterised by a starting point and a direction
-	float trace(Ray ray, out vec4 trapOut, float px, out float percentSteps, out bool hitSurface)
+	float trace(vec3 origin, vec3 direction, out vec4 trapOut, float px, out float percentSteps, out bool hitSurface)
 	{
 		float res = -1;
 		vec4 trap;
@@ -123,7 +123,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float th = 0;
 		for(; i<maxSteps; i++)
 		{ 
-			vec3 pos = ray.origin + ray.dir * t;
+			vec3 pos = origin + direction * t;
 			h = fudgeFactor * sceneDistance(pos, trap);
 			th = 0.25 * px * t;
 
@@ -168,7 +168,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return normalize(gradient);
 	}
 
-	float SoftShadow(Ray ray, float k)
+	float SoftShadow(vec3 origin, vec3 direction, float k)
 	{
 		float result = 1.0;
 		float t = 0.0;
@@ -177,7 +177,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 		for(int i = 0; i < maxSteps; i++)
 		{
-			float h = sceneDistance(ray.origin + ray.dir * t, temp);
+			float h = sceneDistance(origin + direction * t, temp);
 			result = min(result, k * h / t);
 
 			if(result < 0.001) break;
@@ -189,14 +189,14 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 </lightingFunctions>
 
 <render>
-	vec3 render(Ray ray, vec2 uv)
+	vec3 render(vec3 origin, vec3 direction, vec2 uv)
 	{
 		float px = (100/screenSize.y) / zoom * zoomDetailRatio;
 		vec4 trap;
 		float steps;
 		bool hitSurface = false;
 
-		float t = trace(ray, trap, px, steps, hitSurface);
+		float t = trace(origin, direction, trap, px, steps, hitSurface);
 
 		vec3 col = vec3(0);
 
@@ -219,17 +219,17 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			// Lighting
 
 			// The end position of the ray
-			vec3 pos = (ray.origin + ray.dir * t);
+			vec3 pos = (origin + direction * t);
 
 			vec3 normal = calculateNormal(pos);
-			Ray fractalToSun = Ray(pos + 0.001 * normal, sun);
-			vec3 fractalToSunDir = normalize(sun - ray.dir);
+
+			vec3 fractalToSunDir = normalize(sun - direction);
 			float occlusion = clamp(0.05*log(trap.x),0.0,1.0);
-			float fakeSSS = clamp(1.0+dot(ray.dir,normal),0.0,1.0);
+			float fakeSSS = clamp(1.0+dot(direction, normal),0.0,1.0);
 
 			// Sun
-			float shadow = SoftShadow(fractalToSun, shadowSoftness);
-			float diffuse = clamp(dot(sun, normal), 0.0, 1.0 ) * pow(clamp(dot(pos,sun),0,1),2) * shadow * min(3,0.5/steps);
+			float shadow = SoftShadow(pos + 0.001 * normal, fractalToSunDir, shadowSoftness);
+			float diffuse = clamp(dot(sun, normal), 0.0, 1.0) * shadow * min(3,0.5/steps);
 			float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
 
 			// Bounce
@@ -275,14 +275,11 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			uv.x *= float(screenSize.x) / float(screenSize.y);
 			uv /= zoom;
 
-			vec3 direction = normalize(vec3(uv.xy, 1));
+			vec3 direction = normalize(vec3(uv.xy, -1));
 
 			direction *= rotation;
-			direction.y *= -1;
 			
-
-			Ray	ray = Ray(vec3(position.z, position.y * -1, position.x), direction);
-			col += render(ray, uv);
+			col += render(position, direction, uv*zoom);
 		}
 	}
 	col /= AA*AA;

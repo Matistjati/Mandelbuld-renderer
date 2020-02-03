@@ -10,12 +10,6 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 
 #define PrintSource 1
 
-Fractal3D::Fractal3D(float power, Shader* explorationShader, Shader* renderShader, Camera& camera, glm::vec3 sun, glm::vec2 screenSize, Time time, int* specIndex, std::string specification)
-	: Fractal(screenSize, time, {}), camera(camera), sun(sun), cursorVisible(false)
-{
-	shader = explorationShader;
-}
-
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(screenSize, Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
@@ -103,7 +97,7 @@ void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, i
 
 void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * scrollSpeed + 1), Fractal::renderMode);
+	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * camera.scrollSpeed + 1), Fractal::renderMode);
 	zoom.SetValue(glm::max(1.0f, zoom.GetValue()), Fractal::renderMode);
 	zoom.SetGuiValue();
 	shader->SetUniform(zoom);
@@ -155,7 +149,7 @@ void Fractal3D::Update()
 	// Move sun in shader
 	double t = time.value.GetTotalTime();
 	sun.value = glm::normalize(glm::vec3(sin(t * 0.25),
-		std::abs(sin(t * 0.1)) * -1,
+		std::abs(sin(t * 0.1)),
 		cos(t * 0.25)));
 	shader->SetUniform(sun);
 }
@@ -474,10 +468,6 @@ inline void Fractal3D::SetVariable(std::string name, std::string value)
 	{
 		camera.SetPitch(std::stof(value));
 	}
-	else if (name == "roll")
-	{
-		camera.SetRoll(std::stof(value));
-	}
 	else if (name == "sun")
 	{
 		std::vector<std::string> components = Split(value, ',');
@@ -521,16 +511,6 @@ void Fractal3D::HandleKeyInput()
 			case GLFW_KEY_LEFT_SHIFT:
 				camera.ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
 				shader->SetUniform(camera.position);
-				break;
-
-				// Camera roll
-			case GLFW_KEY_Q:
-				camera.ProcessRoll(static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate / zoom.value));
-				shader->SetUniform(camera.GetRotationMatrix());
-				break;
-			case GLFW_KEY_E:
-				camera.ProcessRoll(-static_cast<float>(camera.rollSpeed * time.value.GetDeltaTime() * parameterChangeRate / zoom.value));
-				shader->SetUniform(camera.GetRotationMatrix());
 				break;
 
 			default:

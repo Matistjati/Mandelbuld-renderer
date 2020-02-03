@@ -85,6 +85,7 @@ public:
 	void SetUniform(Uniform<glm::vec4> vector, bool renderMode) const;
 	void SetUniform(Uniform<glm::mat2> &mat) const;
 	void SetUniform(Uniform<glm::mat3> &mat) const;
+	void SetUniform(Uniform<glm::mat4> &mat) const;
 	void SetUniform(Uniform<nanogui::Color> &color) const;
 	void SetUniform(Uniform<nanogui::Color> &color, bool renderMode) const;
 	void SetUniform(Uniform<Time> time) const;

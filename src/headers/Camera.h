@@ -17,15 +17,8 @@ enum class CameraMovement
 	down
 };
 
-// Default camera values
-const float YAW = 0;
-const float PITCH = 0.0f;
-const float ROLL = 0.0f;
-const float SPEED = 2.5f;
-const float ROLLSPEED = 1.0f;
-const float SENSITIVITY = 0.005f;
-const double scrollSpeed = 10;
-#define DefaultCamera *(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, 0.001f, /*Yaw, pitch, roll*/ 0.15f, 3, 200 /*mouseSensitivity, movementSpeed, rollSpeed*/))
+// Default camera
+#define DefaultCamera *(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, /*Yaw, pitch, roll*/ 0.15f, 3, 10 /*mouseSensitivity, movementSpeed, rollSpeed*/))
 
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -37,25 +30,17 @@ public:
 
 	// Viewing direction
 	float GetYaw();
-	float GetRoll();
 	float GetPitch();
 	void SetYaw(float v);
-	void SetRoll(float v);
 	void SetPitch(float v);
 	Uniform<glm::mat3>& GetRotationMatrix();
 
 	// Camera options
 	float movementSpeed;
 	float mouseSensitivity;
-	float rollSpeed;
+	float scrollSpeed;
 
-	// Constructors
-	Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll);
-	Camera(const glm::vec3 Position, float Yaw, float Pitch, float Roll, float mouseSensitivity, float movementSpeed, float rollSpeed);
-
-	// Constructor with scalar values
-	Camera(float posX, float posY, float posZ, float Yaw, float Pitch, float roll);
-
+	Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed);
 
 	glm::vec3 GetWorldUp();
 
@@ -70,16 +55,12 @@ public:
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessMovement(CameraMovement direction, float magnitude);
 
-	// Processes input received from any keyboard-like input system. Accepts a 
-	void ProcessRoll(float offset);
-
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(glm::vec2 offset);
 private:
 	// Euler Angles
 	float yaw;
 	float pitch;
-	float roll;
 	bool rotationMatrixIsCurrent;
 	Uniform<glm::mat3> rotation;
 

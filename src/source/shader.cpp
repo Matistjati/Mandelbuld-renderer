@@ -407,6 +407,12 @@ void Shader::SetUniform(Uniform<glm::mat3>& mat) const
 	glUniformMatrix3fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
 }
 
+void Shader::SetUniform(Uniform<glm::mat4>& mat) const
+{
+	UseProgramIfValid(mat.programId);
+	glUniformMatrix4fv(mat.id, 1, GL_FALSE, &mat.value[0][0]);
+}
+
 void Shader::SetUniform(Uniform<nanogui::Color>& color) const
 {
 	UseProgramIfValid(color.programId);
