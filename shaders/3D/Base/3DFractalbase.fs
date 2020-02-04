@@ -35,7 +35,7 @@ uniform float fudgeFactor = 1;
 /*<GuiHint>GuiType: slider, Name: Gamma Correction, Parent: render, Range: (0, 2)</GuiHint>*/
 uniform float gamma = 1;
 
-/*<GuiHint>GuiType: slider, Name: ray acceptance, Parent: render, Range: (0.0001, 0.1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: ray acceptance, Parent: render, Range: (0.0001, 0.001)</GuiHint>*/
 uniform float zoomDetailRatio = 0.001;
 
 /*<GuiHint>GuiType: slider, Name: Max Ray Distance, Parent: render, Range: (1, 64)</GuiHint>*/

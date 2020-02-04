@@ -111,7 +111,7 @@
 		vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
 		for (float i = 0; i < AA; i++)
 		{
-			vec2 c = mix(p, p2, i/AA) * zoom + position;
+			vec2 c = mix(p, p2, i/AA) * zoom + position.xy;
 
 			float iterations = 0;
 			vec3 tempCol = mainLoop(c, iterations);
@@ -126,7 +126,7 @@
 		vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
 		for (float i = 0; i < AA; i++)
 		{
-			vec2 c = mix(p, p2, i/AA) * zoom + position;
+			vec2 c = mix(p, p2, i/AA) * zoom + position.xy;
 
 			float iterations = 0;
 			col += mainLoop(c, iterations);
@@ -145,7 +145,7 @@
 	{
 		for (float j = 0; j < antiAliasing; j++)
 		{
-		    vec2 c = ((2*gl_FragCoord.xy-screenSize)/screenSize.y+(vec2(i,j)/antiAliasing)) * zoom + position; 
+		    vec2 c = ((2*gl_FragCoord.xy-screenSize)/screenSize.y+(vec2(i,j)/antiAliasing)) * zoom + position.xy; 
 
 			float iterations = 0;
 			vec3 tempCol = mainLoop(c, iterations);

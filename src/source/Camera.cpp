@@ -41,18 +41,22 @@ Uniform<glm::mat3>& Camera::GetRotationMatrix()
 	return rotation;
 }
 
-Camera::Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed) : position(position), yaw(yaw), pitch(pitch),
-	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false)
+Camera::Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed, float zoom, bool viewMode3D) : position(position), yaw(yaw), pitch(pitch),
+	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false), viewMode3D(viewMode3D), zoom(zoom)
 { }
 
 void Camera::SetRotationMatrix()
 {
 	// The standard 3d rotation matrices
 	float p = glm::radians(GetPitch());
-	glm::mat3 pitch = glm::mat3(1, 0, 0, 0, cos(p), -sin(p), 0, sin(p), cos(p));
+	glm::mat3 pitch = glm::mat3(1,      0,       0,
+								0, cos(p), -sin(p),
+								0, sin(p),  cos(p));
 	
 	float y = glm::radians(-GetYaw());
-	glm::mat3 yaw = glm::mat3(cos(y), 0, sin(y), 0, 1, 0, -sin(y), 0, cos(y));
+	glm::mat3 yaw = glm::mat3(cos(y), 0, sin(y),
+							  0,      1,      0,
+		                     -sin(y), 0, cos(y));
 
 	rotation.value = pitch * yaw;
 }
@@ -75,8 +79,8 @@ glm::vec3 Camera::GetForwardVector()
 	// Vertical movement
 	out.y = -cos(glm::radians(pitch) + static_cast<float>(M_PI_2));
 
-
-	glm::vec3 forward = glm::vec3(-cos(glm::radians(GetYaw()) + M_PI_2), 0, -sin(glm::radians(GetYaw()) + M_PI_2));
+	float yaw = glm::radians(GetYaw()) + static_cast<float>(M_PI_2);
+	glm::vec3 forward = glm::vec3(-cos(yaw), 0, -sin(yaw));
 	forward.y = 0;
 	float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
 	forward *= sin(rads);
@@ -99,28 +103,49 @@ void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 {
 	float velocity = movementSpeed * magnitude;
 
+	glm::vec3 startValue = position.value;
+
 	switch (direction)
 	{
 	case CameraMovement::forward:
-		position.value += GetForwardVector() * velocity;
+		if (viewMode3D)	position.value += GetForwardVector() * velocity;
+		else position.value.y += velocity;
 		break;
 	case CameraMovement::back:
-		position.value -= GetForwardVector() * velocity;
+		if (viewMode3D)	position.value -= GetForwardVector() * velocity;
+		else position.value.y -= velocity;
 		break;
 	case CameraMovement::right:
-		position.value += GetRightVector() * velocity;
+		if (viewMode3D)	position.value += GetRightVector() * velocity;
+		else position.value.x += velocity;
 		break;
 	case CameraMovement::left:
-		position.value -= GetRightVector() * velocity;
+		if (viewMode3D)	position.value -= GetRightVector() * velocity;
+		else position.value.x -= velocity;
 		break;
 	case CameraMovement::up:
-		position.value += GetWorldUp() * velocity;
+		if (viewMode3D) position.value += GetWorldUp() * velocity;
 		break;
 	case CameraMovement::down:
-		position.value -= GetWorldUp() * velocity;
+		if (viewMode3D) position.value -= GetWorldUp() * velocity;
 		break;
 	default:
 		break;
+	}
+
+	// Call callbacks if position changed
+	if (position.value != startValue)
+	{
+		position.SetValue(position.value, false);
+	}
+}
+
+void Camera::ProcessZoom(float magnitude)
+{
+	zoom.SetValue(zoom.value * magnitude, false);
+	if (viewMode3D)
+	{
+		zoom.SetValue(glm::clamp(zoom.GetValue(), 1e-7f, 1.f), false);
 	}
 }
 

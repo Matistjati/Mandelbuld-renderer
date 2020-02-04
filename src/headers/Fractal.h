@@ -8,6 +8,7 @@
 
 #include "headers/Uniform.h"
 #include "headers/Shader.h"
+#include "headers/Camera.h"
 #include "glm.hpp"
 #include <vector>
 #include <map>
@@ -21,6 +22,7 @@ class Shader;
 class GUI;
 class GuiElement;
 class SubMenu;
+class Camera;
 
 struct Section
 {
@@ -86,10 +88,10 @@ public:
 	static GLFWwindow* window;
 	float parameterChangeRate = 1;
 	Shader* shader;
-	Uniform<float> zoom;
 	Uniform<Time> time;
 	Uniform<float> deltaTime;
 	Uniform<unsigned int> frame;
+	Camera* camera;
 
 	FractalType fractalType;
 	int fractalIndex;
@@ -132,6 +134,8 @@ public:
 	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, int* index, std::map<std::string, ShaderIndice*> indices);
 	static void BuildMainLoop(Section targetSection, std::string& source, const std::string& defaultSource, std::string& target, std::string& specification, std::map<std::string, ShaderIndice*> indices);
 	void AddShaderParameters(std::string& spec);
+	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+	void HandleKeyInput();
 
 	virtual void PopulateGUI();
 	virtual void Update();
@@ -139,12 +143,10 @@ public:
 	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-	virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) = 0;
 	virtual void SetUniformLocations(Shader* shader, bool computeRender = false);
 	virtual void SetUniforms(Shader* shader, bool computeRender = false);
 	virtual void SetUniformNames();
-	virtual void SetVariable(std::string name, std::string value) = 0;
-	virtual void HandleKeyInput();
+	virtual void SetVariable(std::string name, std::string value);
 	virtual std::string GetSpecPath(std::string fileName) = 0;
 	virtual std::string GetFractalPath(std::string fileName) = 0;
 	virtual Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;

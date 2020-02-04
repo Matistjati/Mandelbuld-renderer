@@ -20,7 +20,6 @@ class Fractal3D : public Fractal
 {
 public:
 	bool cursorVisible;
-	Camera& camera;
 	Uniform<glm::vec3> sun;
 	glm::dvec2 lastNonGuiPos;
 
@@ -32,12 +31,10 @@ public:
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
 	void SetUniforms(Shader* shader, bool computeRender = false) override;
 	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
 	void SetUniformNames() override;
 	void SetVariable(std::string name, std::string value) override;
-	void HandleKeyInput() override;
 	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	Shader* GenerateShader() override;
 	Shader* GenerateShader(std::string fractalName) override;

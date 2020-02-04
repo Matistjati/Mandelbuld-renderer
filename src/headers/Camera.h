@@ -17,16 +17,22 @@ enum class CameraMovement
 	down
 };
 
+class Fractal;
+
 // Default camera
-#define DefaultCamera *(new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, /*Yaw, pitch, roll*/ 0.15f, 3, 10 /*mouseSensitivity, movementSpeed, rollSpeed*/))
+#define DefaultCamera3D new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, /*Yaw, pitch*/ 0.15f, 3, 0.5, 1 /*mouseSensitivity, movementSpeed, scrollSpeed, zoom*/, true /* viewMode3D*/)
+#define DefaultCamera2D new Camera(glm::vec3(0, 0, 0), /*Position*/ 0, 0, /*Yaw, pitch*/ 0, 1, 0.5, 1 /*mouseSensitivity, movementSpeed, scrollSpeed, zoom*/, false /* viewMode3D*/)
 
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
 public:
 
+	bool viewMode3D;
+
 	// Camera Attributes
 	Uniform<glm::vec3> position;
+	Uniform<float> zoom;
 
 	// Viewing direction
 	float GetYaw();
@@ -40,7 +46,7 @@ public:
 	float mouseSensitivity;
 	float scrollSpeed;
 
-	Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed);
+	Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed, float zoom, bool viewMode3D = true);
 
 	glm::vec3 GetWorldUp();
 
@@ -54,6 +60,8 @@ public:
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessMovement(CameraMovement direction, float magnitude);
+
+	void ProcessZoom(float magnitude);
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(glm::vec2 offset);

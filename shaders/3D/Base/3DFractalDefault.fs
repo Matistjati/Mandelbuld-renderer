@@ -191,7 +191,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 <render>
 	vec3 render(vec3 origin, vec3 direction, vec2 uv)
 	{
-		float px = (100/screenSize.y) / zoom * zoomDetailRatio;
+		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
 		vec4 trap;
 		float steps;
 		bool hitSurface = false;
@@ -273,7 +273,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			frag += vec2(float(i),float(j))/float(AA);
 			vec2 uv = frag / screenSize * 2.0 - 1.0;
 			uv.x *= float(screenSize.x) / float(screenSize.y);
-			uv /= zoom;
+			uv *= zoom;
 
 			vec3 direction = normalize(vec3(uv.xy, -1));
 

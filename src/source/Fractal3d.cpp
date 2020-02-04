@@ -13,7 +13,6 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(screenSize, Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	camera(DefaultCamera),
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
 {
@@ -23,7 +22,6 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	camera(DefaultCamera), 
 	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
 	cursorVisible(false)
 {
@@ -75,12 +73,12 @@ void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 		mouseOffset = newPos;
 		firstMouse = false;
 	}
-	Camera* c = &this->Fractal3D::camera;
-	camera.ProcessMouseMovement(glm::vec2(newPos.x - mouseOffset.x, mouseOffset.y - newPos.y) * camera.mouseSensitivity * (1/zoom.value)); // reversed since y-coordinates go from bottom to top
+
+	camera->ProcessMouseMovement(glm::vec2(newPos.x - mouseOffset.x, mouseOffset.y - newPos.y) * camera->mouseSensitivity * camera->zoom.value); // reversed since y-coordinates go from bottom to top
 
 	mouseOffset = newPos;
 
-	shader->SetUniform(camera.GetRotationMatrix());
+	shader->SetUniform(camera->GetRotationMatrix());
 }
 
 void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
@@ -95,20 +93,10 @@ void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, i
 	}
 }
 
-void Fractal3D::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	zoom.SetValue(zoom.GetValue() * static_cast<float>(yoffset * time.value.GetDeltaTime() * camera.scrollSpeed + 1), Fractal::renderMode);
-	zoom.SetValue(glm::max(1.0f, zoom.GetValue()), Fractal::renderMode);
-	zoom.SetGuiValue();
-	shader->SetUniform(zoom);
-}
-
 void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
 {
 	Fractal::SetUniforms(shader, computeRender);
 
-	shader->SetUniform(camera.position);
-	shader->SetUniform(camera.GetRotationMatrix());
 	shader->SetUniform(sun);
 	GlErrorCheck();
 }
@@ -117,8 +105,6 @@ void Fractal3D::SetUniformLocations(Shader* shader, bool computeRender)
 {
 	Fractal::SetUniformLocations(shader, computeRender);
 	
-	camera.GetRotationMatrix().id = glGetUniformLocation(shader->id, camera.GetRotationMatrix().name.c_str());
-	camera.position.id =			glGetUniformLocation(shader->id, camera.position.name.c_str());
 	sun.id =						glGetUniformLocation(shader->id, sun.name.c_str());
 	GlErrorCheck();
 }
@@ -127,8 +113,6 @@ void Fractal3D::SetUniformNames()
 {
 	Fractal::SetUniformNames();
 
-	camera.GetRotationMatrix().name = "rotation";
-	camera.position.name = "position";
 	sun.name = "sun";
 	GlErrorCheck();
 }
@@ -455,68 +439,12 @@ void Fractal3D::SetShaderUniforms(bool render)
 // This is really nasty, be careful
 inline void Fractal3D::SetVariable(std::string name, std::string value)
 {
-	if (name == "position")
-	{
-		std::vector<std::string> components = Split(value, ',');
-		camera.position.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
-	}
-	else if (name == "yaw")
-	{
-		camera.SetYaw(std::stof(value));
-	}
-	else if (name == "pitch")
-	{
-		camera.SetPitch(std::stof(value));
-	}
-	else if (name == "sun")
+	Fractal::SetVariable(name, value);
+
+	if (name == "sun")
 	{
 		std::vector<std::string> components = Split(value, ',');
 		sun.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
-	}
-}
-
-void Fractal3D::HandleKeyInput()
-{
-	Fractal::HandleKeyInput();
-
-	for (auto const& key : keys)
-	{
-		if (key.second)
-		{
-			switch (key.first)
-			{
-				// WASD movement
-			case GLFW_KEY_W:
-				camera.ProcessMovement(CameraMovement::forward, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
-				shader->SetUniform(camera.position);
-				break;
-			case GLFW_KEY_S:
-				camera.ProcessMovement(CameraMovement::back, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
-				shader->SetUniform(camera.position);
-				break;
-			case GLFW_KEY_A:
-				camera.ProcessMovement(CameraMovement::left, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
-				shader->SetUniform(camera.position);
-				break;
-			case GLFW_KEY_D:
-				camera.ProcessMovement(CameraMovement::right, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
-				shader->SetUniform(camera.position);
-				break;
-
-				// Up and down
-			case GLFW_KEY_SPACE:
-				camera.ProcessMovement(CameraMovement::up, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
-				shader->SetUniform(camera.position);
-				break;
-			case GLFW_KEY_LEFT_SHIFT:
-				camera.ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime()) * parameterChangeRate / zoom.value);
-				shader->SetUniform(camera.position);
-				break;
-
-			default:
-				break;
-			}
-		}
 	}
 }
 

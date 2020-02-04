@@ -69,7 +69,7 @@
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize]</shouldBeCleared>*/
+/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -198,8 +198,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	<mapSetup>
 		vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
 #if Camera
-		vec3 eye = vec3(position.x, -yRot.y, position.y);
-		mat4 cam = getRotMatrix(yRot) * getPosMatrix(eye) * getRotMatrix(xRot);
+		mat4 cam = getRotMatrix(yRot) * getPosMatrix(position) * getRotMatrix(xRot);
 #endif
 	</mapSetup>,
 

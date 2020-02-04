@@ -12,8 +12,6 @@ const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, 
 class Fractal2D : public Fractal
 {
 public:
-	Uniform<glm::vec2> position;
-
 	Uniform<glm::vec2> clickPosition;
 
 	Uniform<glm::vec2> mousePosition;
@@ -26,12 +24,10 @@ public:
 	void MouseCallback(GLFWwindow* window, double x, double y) override;
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;
 	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override {}
 	void SetUniforms(Shader* shader, bool computeRender = false) override;
 	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
 	void SetUniformNames() override;
 	void SetVariable(std::string name, std::string value) override;
-	void HandleKeyInput() override;
 	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	Shader* GenerateShader() override;
 	Shader* GenerateShader(std::string fractalName) override;

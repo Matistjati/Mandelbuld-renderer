@@ -718,10 +718,9 @@ Fractal::~Fractal()
 
 Fractal::Fractal(Uniform<glm::vec2> screenSize, Time t, float zoom, FractalType f, int fractalIndex,
 	int specIndex, int fractalNameIndex, std::string fractalName)
-	: shader(), zoom(zoom), fractalType(f), time(t), deltaTime(0.05f),
-	fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), 
+	: shader(), fractalType(f), time(t), deltaTime(0.05f), fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), 
 	shaderIndices((shaderIndices.size() == 0) ? std::map<std::string, ShaderIndice*>() : shaderIndices), holdingMouse(false), fractalUniforms(),
-	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus()
+	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus(), camera((f == FractalType::fractal3D) ? DefaultCamera3D : DefaultCamera2D)
 {
 	Fractal::screenSize = screenSize;
 	this->gui = new GUI(window, this);
@@ -797,9 +796,9 @@ void Fractal::GenerateSingleImage(GLFWwindow* window, Fractal* fractal)
 	//fractal->zoom.value = 0.0150609445;
 	//(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.73962032;
 	//(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.210820600;
-	fractal->zoom.value = 2.16f;
-	(reinterpret_cast<Fractal2D*>(fractal))->position.value.x = -0.18303f;
-	(reinterpret_cast<Fractal2D*>(fractal))->position.value.y = 0.f;
+	fractal->camera->zoom.value = 2.16f;
+	(reinterpret_cast<Fractal2D*>(fractal))->camera->position.value.x = -0.18303f;
+	(reinterpret_cast<Fractal2D*>(fractal))->camera->position.value.y = 0.f;
 	*fractal->shaderIndices["loopExtraOperations"]->value = 2;
 	*fractal->shaderIndices["loopReturn"]->value = 1;
 	fractal->UpdateFractalShader();
@@ -1236,7 +1235,7 @@ void Fractal::SetShaderUniforms(bool render)
 
 	Fractal::renderMode = render;
 
-	zoom.SetShaderValue(Fractal::renderMode);
+	camera->zoom.SetShaderValue(Fractal::renderMode);
 
 	for (size_t i = 0; i < this->fractalUniforms.size(); i++)
 	{
@@ -1263,7 +1262,7 @@ void Fractal::SetShaderGui(bool render)
 
 	Fractal::renderMode = render;
 
-	zoom.SetGuiValue();
+	camera->zoom.SetGuiValue();
 
 
 	for (auto& uni : fractalUniforms)
@@ -1449,24 +1448,30 @@ void Fractal::PopulateGUI()
 	
 	cameraMenu->form->AddCheckbox(cameraMenu->window, "3D", checkBox3D, this, checkBox3D->value);
 	
+	// Position
+	GuiElement positionElement = GuiElement();
+	positionElement.element = Element::TextBox;
+	positionElement.fractal = this;
+	positionElement.uniform = &camera->position;
+	fractalUniforms.push_back(positionElement);
 
 	// Zoom
 	GuiElement zoomElement = GuiElement();
 	zoomElement.element = Element::TextBox;
 	zoomElement.fractal = this;
-	zoomElement.uniform = &zoom;
+	zoomElement.uniform = &camera->zoom;
 	fractalUniforms.push_back(zoomElement);
 
-	auto zoomField = cameraMenu->form->AddTextBox("Zoom", zoom.value);
+	auto zoomField = cameraMenu->form->AddTextBox("Zoom", camera->zoom.value);
 	zoomField->setCallback([this](float value)
 		{
-			zoom.SetValue(value, Fractal::renderMode);
-			this->shader->SetUniform(zoom);
+			camera->zoom.SetValue(value, Fractal::renderMode);
+			this->shader->SetUniform(camera->zoom);
 		});
 
-	zoom.guiElements = { zoomField };
-	zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->zoom.guiElements[0])->setValue(zoom.value); };
-	zoom.SetShaderValue = [this](bool renderMode) { this->shader->SetUniform(zoom); };
+	camera->zoom.guiElements = { zoomField };
+	camera->zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->camera->zoom.guiElements[0])->setValue(camera->zoom.value); };
+	camera->zoom.SetShaderValue = [this](bool renderMode) { this->shader->SetUniform(camera->zoom); };
 
 
 	// Render mode
@@ -2065,6 +2070,15 @@ void Fractal::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void Fractal::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	// Clamp yoffset. Extreme values break zooming due to precision
+	yoffset = glm::clamp(yoffset, -1., 1.);
+	camera->ProcessZoom(static_cast<float>(1 / (yoffset * camera->scrollSpeed + 1)));
+	camera->zoom.SetGuiValue();
+	shader->SetUniform(camera->zoom);
+}
+
 void Fractal::SetUniformLocations(Shader* shader, bool computeRender)
 {
 	unsigned int id = (computeRender) ? ((ComputeShader*)shader)->renderId : shader->id;
@@ -2073,8 +2087,11 @@ void Fractal::SetUniformLocations(Shader* shader, bool computeRender)
 
 	screenSize.id = glGetUniformLocation(id, screenSize.name.c_str());
 	frame.id = glGetUniformLocation(id, frame.name.c_str());
-	zoom.id = glGetUniformLocation(id, zoom.name.c_str());
 	time.id = glGetUniformLocation(id, time.name.c_str());
+	camera->zoom.id = glGetUniformLocation(id, camera->zoom.name.c_str());
+	camera->GetRotationMatrix().id = glGetUniformLocation(shader->id, camera->GetRotationMatrix().name.c_str());
+	camera->position.id = glGetUniformLocation(shader->id, camera->position.name.c_str());
+
 }
 
 void Fractal::SetUniforms(Shader* shader, bool computeRender)
@@ -2083,22 +2100,98 @@ void Fractal::SetUniforms(Shader* shader, bool computeRender)
 	else { shader->Use(); }
 
 	shader->SetUniform(frame);
-	shader->SetUniform(zoom);
 	shader->SetUniform(time);
 	shader->SetUniform(screenSize);
+	shader->SetUniform(camera->zoom);
+	shader->SetUniform(camera->position);
+	shader->SetUniform(camera->GetRotationMatrix());
 }
 
 void Fractal::SetUniformNames()
 {
 	screenSize.name = "screenSize";
 	frame.name = "frame";
-	zoom.name = "zoom";
 	time.name = "time";
+	camera->zoom.name = "zoom";
+	camera->GetRotationMatrix().name = "rotation";
+	camera->position.name = "position";
+}
+
+void Fractal::SetVariable(std::string name, std::string value)
+{
+	if (StringEqualNoCase(name, "position"))
+	{
+		std::vector<std::string> components = Split(value, ',');
+		glm::vec3 value;
+		for (size_t i = 0; i < components.size(); i++)
+		{
+			value[i] = std::stof(components[i]);
+		}
+		camera->position.value = value;
+	}
+	else if (StringEqualNoCase(name, "yaw"))
+	{
+		camera->SetYaw(std::stof(value));
+	}
+	else if (StringEqualNoCase(name, "pitch"))
+	{
+		camera->SetPitch(std::stof(value));
+	}
 }
 
 void Fractal::HandleKeyInput()
 {
-	
+	for (auto const& key : keys)
+	{
+		if (key.second)
+		{
+			switch (key.first)
+			{
+				// Zooming using exponential decay
+			case GLFW_KEY_Q:
+				camera->ProcessZoom(static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)));
+				camera->zoom.SetGuiValue();
+				shader->SetUniform(camera->zoom);
+				break;
+			case GLFW_KEY_E:
+				camera->ProcessZoom(static_cast<float>(1/exp(time.value.GetDeltaTime() * -parameterChangeRate)));
+				camera->zoom.SetGuiValue();
+				shader->SetUniform(camera->zoom);
+				break;
+
+				// WASD movement
+			case GLFW_KEY_W:
+				camera->ProcessMovement(CameraMovement::forward, static_cast<float>(time.value.GetDeltaTime())* parameterChangeRate* camera->zoom.value);
+				shader->SetUniform(camera->position);
+				break;
+			case GLFW_KEY_S:
+				camera->ProcessMovement(CameraMovement::back, static_cast<float>(time.value.GetDeltaTime())* parameterChangeRate* camera->zoom.value);
+				shader->SetUniform(camera->position);
+				break;
+			case GLFW_KEY_A:
+				camera->ProcessMovement(CameraMovement::left, static_cast<float>(time.value.GetDeltaTime())* parameterChangeRate* camera->zoom.value);
+				shader->SetUniform(camera->position);
+				break;
+			case GLFW_KEY_D:
+				camera->ProcessMovement(CameraMovement::right, static_cast<float>(time.value.GetDeltaTime())* parameterChangeRate* camera->zoom.value);
+				shader->SetUniform(camera->position);
+				break;
+
+				// Up and down
+			case GLFW_KEY_SPACE:
+				camera->ProcessMovement(CameraMovement::up, static_cast<float>(time.value.GetDeltaTime())* parameterChangeRate* camera->zoom.value);
+				shader->SetUniform(camera->position);
+				break;
+			case GLFW_KEY_LEFT_SHIFT:
+				camera->ProcessMovement(CameraMovement::down, static_cast<float>(time.value.GetDeltaTime())* parameterChangeRate* camera->zoom.value);
+				shader->SetUniform(camera->position);
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
 }
 
 void Fractal::Init()

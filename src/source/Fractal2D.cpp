@@ -12,15 +12,13 @@ const std::string& Fractal2D::default2DSource = FileManager::ReadFile(default2DF
 #define PrintSource 1
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
-	: Fractal(screenSize, Time(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	position({ 0,0 })
+	: Fractal(screenSize, Time(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex))
 {
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
 }
 
 Fractal2D::Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex)
-	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	position({ 0,0 })
+	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal2D, fractalIndex, specIndex, fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex))
 {
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
 }
@@ -30,7 +28,7 @@ void Fractal2D::PopulateGUI()
 	Fractal::PopulateGUI();
 
 	// Position
-	GuiElement pos = GuiElement();
+	/*GuiElement pos = GuiElement();
 	pos.element = Element::TextBox;
 	pos.fractal = this;
 	pos.uniform = &position;
@@ -60,7 +58,7 @@ void Fractal2D::PopulateGUI()
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.GetValue().x);
 									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().y);
 									};
-	position.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->position, renderMode); };
+	position.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->position, renderMode); };*/
 
 	
 
@@ -117,10 +115,9 @@ void Fractal2D::SetUniforms(Shader* shader, bool computeRender)
 	if (computeRender) { ((ComputeShader*)shader)->UseRender(); }
 	else { shader->Use(); }
 
-	shader->SetUniform(position);
+	//shader->SetUniform(position);
 	shader->SetUniform(mousePosition);
 	shader->SetUniform(clickPosition);
-	GlErrorCheck();
 }
 
 void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
@@ -128,7 +125,7 @@ void Fractal2D::SetUniformLocations(Shader* shader, bool computeRender)
 	Fractal::SetUniformLocations(shader, computeRender);
 	unsigned int id = (computeRender) ? ((ComputeShader*)shader)->renderId : shader->id;
 
-	position.id = glGetUniformLocation(id, position.name.c_str());
+	//position.id = glGetUniformLocation(id, position.name.c_str());
 	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
 	clickPosition.id = glGetUniformLocation(id, clickPosition.name.c_str());
 	GlErrorCheck();
@@ -138,73 +135,19 @@ void Fractal2D::SetUniformNames()
 {
 	Fractal::SetUniformNames();
 
-	position.name = "position";
+	//position.name = "position";
 	mousePosition.name = "mousePosition";
 	clickPosition.name = "clickPosition";
 }
 
 void Fractal2D::SetVariable(std::string name, std::string value)
 {
-	if (name == "position")
-	{
-		std::vector<std::string> components = Split(value, ',');
-		position.value = glm::vec2(std::stof(components[0]), std::stof(components[1]));
-	}
-	else if (name == "mousePosition")
+	Fractal::SetVariable(name, value);
+
+	if (name == "mousePosition")
 	{
 		std::vector<std::string> components = Split(value, ',');
 		mousePosition.value = glm::vec2(std::stof(components[0]), std::stof(components[1]));
-	}
-}
-
-void Fractal2D::HandleKeyInput()
-{
-	Fractal::HandleKeyInput();
-
-	for (auto const& key : keys)
-	{
-		if (key.second)
-		{
-			switch (key.first)
-			{
-				// WASD movement
-			case GLFW_KEY_W:
-				position.SetValue({ position.value.x, position.value.y + static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value) }, Fractal::renderMode);
-				position.SetGuiValue();
-				shader->SetUniform(position);
-				break;
-			case GLFW_KEY_S:
-				position.SetValue({ position.value.x, position.value.y - static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value) }, Fractal::renderMode);
-				position.SetGuiValue();
-				shader->SetUniform(position);
-				break;
-			case GLFW_KEY_A:
-				position.SetValue({ position.value.x - static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value), position.value.y }, Fractal::renderMode);
-				position.SetGuiValue();
-				shader->SetUniform(position);
-				break;
-			case GLFW_KEY_D:
-				position.SetValue({ position.value.x + static_cast<float>(time.value.GetDeltaTime() * parameterChangeRate * zoom.value), position.value.y }, Fractal::renderMode);
-				position.SetGuiValue();
-				shader->SetUniform(position);
-				break;
-
-				// Zooming using exponential decay
-			case GLFW_KEY_Q:
-				zoom.SetValue(zoom.value * static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
-				zoom.SetGuiValue();
-				shader->SetUniform(zoom);
-				break;
-			case GLFW_KEY_E:
-				zoom.SetValue(zoom.value / static_cast<float>(exp(time.value.GetDeltaTime() * -parameterChangeRate)), Fractal::renderMode);
-				zoom.SetGuiValue();
-				shader->SetUniform(zoom);
-				break;
-
-			default:
-				break;
-			}
-		}
 	}
 }
 
@@ -603,13 +546,11 @@ void Fractal2D::Init()
 
 void Fractal2D::SetShaderGui(bool render)
 {
-	position.SetGuiValue();
 	Fractal::SetShaderGui(render);
 }
 
 void Fractal2D::SetShaderUniforms(bool render)
 {
-	position.SetShaderValue(render);
 	Fractal::SetShaderUniforms(render);
 }
 
@@ -629,8 +570,8 @@ glm::vec2 Fractal2D::MapScreenMouseToFractal()
 		}
 
 		glm::vec2 midPoint = glm::vec2(abs(renderArea.x) - abs(renderArea.z), abs(renderArea.y) - abs(renderArea.w))* glm::vec2(0.5);
-		glm::vec4 area = (renderArea + glm::vec4(midPoint, midPoint))* glm::vec4(zoom.value) - glm::vec4(midPoint, midPoint);
-		area += glm::vec4(position.value, position.value) * glm::vec4(1, -1, 1, -1);
+		glm::vec4 area = (renderArea + glm::vec4(midPoint, midPoint))* glm::vec4(camera->zoom.value) - glm::vec4(midPoint, midPoint);
+		area += glm::vec4(glm::vec2(camera->position.value), glm::vec2(camera->position.value)) * glm::vec4(1, -1, 1, -1);
 
 
 		glm::vec2 map = glm::vec2(screenSize.value / glm::vec2(area.z - area.x, area.w - area.y));
@@ -646,7 +587,7 @@ glm::vec2 Fractal2D::MapScreenMouseToFractal()
 	}
 
 	// If we aren't using a compute shader or something fails, default to normal
-	return (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * zoom.value + position.value;
+	return (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * camera->zoom.value + glm::vec2(camera->position.value);
 }
 
 std::vector<int> GetPrimeFactors(int n)
