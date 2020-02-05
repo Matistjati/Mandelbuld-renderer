@@ -5,6 +5,7 @@
 
 #include <glm.hpp>
 #include "headers/Fractal.h"
+#include "headers/GUI.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum class CameraMovement
@@ -18,6 +19,7 @@ enum class CameraMovement
 };
 
 class Fractal;
+class SubMenu;
 
 // Default camera
 #define DefaultCamera3D new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, /*Yaw, pitch*/ 0.15f, 3, 0.5, 1 /*mouseSensitivity, movementSpeed, scrollSpeed, zoom*/, true /* viewMode3D*/)
@@ -28,7 +30,9 @@ class Camera
 {
 public:
 
+	SubMenu* cameraMenu;
 	bool viewMode3D;
+	void PopulateCameraGUI(Fractal* fractal);
 
 	// Camera Attributes
 	Uniform<glm::vec3> position;

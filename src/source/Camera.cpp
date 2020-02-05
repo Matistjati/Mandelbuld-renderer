@@ -9,6 +9,96 @@
 #include "headers/ToString.h"
 #include "headers/Debug.h"
 
+void Camera::PopulateCameraGUI(Fractal* fractal)
+{
+	// 3D option
+	Uniform<bool>* checkBox3D = new Uniform<bool>(viewMode3D);
+
+	nanogui::CheckBox* view3D = cameraMenu->form->AddCheckbox(cameraMenu->window, "3D", checkBox3D, fractal, checkBox3D->value);
+
+	view3D->setCallback([this, fractal, checkBox3D](bool mode)
+		{
+			this->viewMode3D = mode;
+
+			nanogui::Window* window = this->cameraMenu->window;
+
+			this->cameraMenu->window = this->cameraMenu->form->addWindow(this->cameraMenu->window->position(), "Camera");
+
+			this->PopulateCameraGUI(fractal);
+			fractal->gui->performLayout();
+			delete checkBox3D;
+			window->dispose();
+		});
+
+	// Zoom
+	GuiElement zoomElement = GuiElement();
+	zoomElement.element = Element::TextBox;
+	zoomElement.fractal = fractal;
+	zoomElement.uniform = &fractal->camera->zoom;
+	fractal->fractalUniforms.push_back(zoomElement);
+
+	auto zoomField = cameraMenu->form->AddTextBox("Zoom", fractal->camera->zoom.value);
+	zoomField->setCallback([fractal](float value)
+		{
+			fractal->camera->zoom.SetValue(value, Fractal::renderMode);
+			fractal->shader->SetUniform(fractal->camera->zoom);
+		});
+
+	fractal->camera->zoom.guiElements = { zoomField };
+	fractal->camera->zoom.SetGuiValue = [fractal]() { ((nanogui::detail::FormWidget<float, std::true_type>*)fractal->camera->zoom.guiElements[0])->setValue(fractal->camera->zoom.value); };
+	fractal->camera->zoom.SetShaderValue = [fractal](bool renderMode) { fractal->shader->SetUniform(fractal->camera->zoom); };
+
+	// Position
+	GuiElement positionElement = GuiElement();
+	positionElement.element = Element::TextBox;
+	positionElement.fractal = fractal;
+	positionElement.uniform = &fractal->camera->position;
+	fractal->fractalUniforms.push_back(positionElement);
+
+	
+	cameraMenu->form->addGroup("Position");
+
+	auto positionFieldX = cameraMenu->form->AddTextBox("X", position.value.x);
+	positionFieldX->setCallback([fractal](float value)
+		{
+			fractal->camera->position.SetValue({ value, fractal->camera->position.value.y, fractal->camera->position.value.z }, false);
+			fractal->shader->SetUniform(fractal->camera->position);
+		});
+
+	positionFieldX->numberFormat("%.6g");
+
+	auto positionFieldY = cameraMenu->form->AddTextBox("Y", position.value.y);
+	positionFieldY->setCallback([fractal](float value)
+		{
+			fractal->camera->position.SetValue({ fractal->camera->position.value.x, value, fractal->camera->position.value.z }, false);
+			fractal->shader->SetUniform(fractal->camera->position);
+		});
+
+	positionFieldY->numberFormat("%.6g");
+
+	position.guiElements = { positionFieldX, positionFieldY };
+	position.SetGuiValue = [this]() {
+		for (size_t i = 0; i < this->position.guiElements.size(); i++)
+		{
+			((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[i])->setValue(this->position.value[i]);
+		}
+	};
+	position.SetShaderValue = [fractal](bool renderMode) {fractal->shader->SetUniform(fractal->camera->position, false); };
+
+	if (viewMode3D)
+	{
+		auto positionFieldZ = cameraMenu->form->AddTextBox("Z", position.value.y);
+		positionFieldY->setCallback([fractal](float value)
+			{
+				fractal->camera->position.SetValue({ fractal->camera->position.value.x, fractal->camera->position.value.y, value }, false);
+				fractal->shader->SetUniform(fractal->camera->position);
+			});
+
+		positionFieldY->numberFormat("%.6g");
+		position.guiElements.push_back(positionFieldZ);
+	}
+}
+
 float Camera::GetYaw()
 {
 	return yaw;
@@ -42,7 +132,7 @@ Uniform<glm::mat3>& Camera::GetRotationMatrix()
 }
 
 Camera::Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed, float zoom, bool viewMode3D) : position(position), yaw(yaw), pitch(pitch),
-	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false), viewMode3D(viewMode3D), zoom(zoom)
+	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false), viewMode3D(viewMode3D), zoom(zoom), cameraMenu()
 { }
 
 void Camera::SetRotationMatrix()
@@ -137,6 +227,7 @@ void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 	if (position.value != startValue)
 	{
 		position.SetValue(position.value, false);
+		position.SetGuiValue();
 	}
 }
 

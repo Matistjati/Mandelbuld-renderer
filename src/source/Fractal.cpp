@@ -1441,38 +1441,12 @@ void Fractal::PopulateGUI()
 
 	SubMenu* cameraMenu = new SubMenu(Element::SubMenu, "Camera", "cam", this, { 65, 0 });
 	subMenus.push_back(cameraMenu);
+	camera->cameraMenu = cameraMenu;
 
 	cameraMenu->form->setFixedSize({ 75, 25 });
 
-	Uniform<bool>* checkBox3D = new Uniform<bool>(this->fractalType == FractalType::fractal3D);
-	
-	cameraMenu->form->AddCheckbox(cameraMenu->window, "3D", checkBox3D, this, checkBox3D->value);
-	
-	// Position
-	GuiElement positionElement = GuiElement();
-	positionElement.element = Element::TextBox;
-	positionElement.fractal = this;
-	positionElement.uniform = &camera->position;
-	fractalUniforms.push_back(positionElement);
-
-	// Zoom
-	GuiElement zoomElement = GuiElement();
-	zoomElement.element = Element::TextBox;
-	zoomElement.fractal = this;
-	zoomElement.uniform = &camera->zoom;
-	fractalUniforms.push_back(zoomElement);
-
-	auto zoomField = cameraMenu->form->AddTextBox("Zoom", camera->zoom.value);
-	zoomField->setCallback([this](float value)
-		{
-			camera->zoom.SetValue(value, Fractal::renderMode);
-			this->shader->SetUniform(camera->zoom);
-		});
-
-	camera->zoom.guiElements = { zoomField };
-	camera->zoom.SetGuiValue = [this]() { ((nanogui::detail::FormWidget<float, std::true_type>*)this->camera->zoom.guiElements[0])->setValue(camera->zoom.value); };
-	camera->zoom.SetShaderValue = [this](bool renderMode) { this->shader->SetUniform(camera->zoom); };
-
+	camera->viewMode3D = fractalType == FractalType::fractal3D;
+	camera->PopulateCameraGUI(this);
 
 	// Render mode
 	auto renderCheckbox = gui->form->AddCheckbox("Render Mode", renderMode);
