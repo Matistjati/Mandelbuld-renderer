@@ -34,6 +34,9 @@
 	/*<GuiHint>GuiType: checkBox, Name: Mandelbrot power 2 optimize, Parent: renderParams</GuiHint>*/
 	uniform bool pow2Optimize = true;
 	
+	/*<GuiHint>GuiType: checkBox, Name: 3D camera, Parent: cam</GuiHint>*/
+	uniform bool camera = true;
+	
 	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
 	uniform float colorOffset = 0;
 	
@@ -69,7 +72,7 @@
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize]</shouldBeCleared>*/
+/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -88,7 +91,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
-	#define Camera 0
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
@@ -100,16 +102,20 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
-#if Camera
-	vec4 area = renderArea;
-#else
-	// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
-	// To accomplish this, we want to find a number, b such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
-	// Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
-	vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
-	vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
-	area += vec4(position.xyxy)*vec4(1,-1,1,-1);
-#endif
+	vec4 area;
+	if (camera)
+	{
+		area = renderArea;
+	}
+	else
+	{
+		// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
+		// To accomplish this, we want to find a number, b such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
+		// Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
+		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
+		area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
+		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
+	}
 
 	// Computing long paths area expensive. To run at a decent framerate, we don't render points for every pixel
 	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
@@ -150,26 +156,12 @@ layout(std430, binding = 1) buffer desirabilityMap
 	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
 
 	//vec2 coord = c;
-#if !Camera
-	if(!insideBox(project(w, c),area))
+	vec2 coord = project(w,c);
+	if(!insideBox(coord, area))
 	{
 		continue;
 	}
-#endif
 
-#if Camera
-	vec3 p = vec3(w.xy,c.x);
-
-	mat4 mat = getPosMatrix(vec3(p)) * cam;
-
-	p = (vec4(p,1)*mat).xyz;
-	p.xy /= p.z*zoom;
-	vec2 coord = p.xy;
-	if (p.z>0) continue;
-#else
-	vec2 coord = project(w, c);
-#endif
-	
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
@@ -197,9 +189,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 <loopSetup>
 	<mapSetup>
 		vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
-#if Camera
-		mat4 cam = getRotMatrix(yRot) * getPosMatrix(position) * getRotMatrix(xRot);
-#endif
 	</mapSetup>,
 
 	<colorSetup>
@@ -233,6 +222,29 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 
 <EscapeCount>
+mat4 getRotMatrix(vec3 a)
+{
+	vec3 s = sin(a);
+	vec3 c = cos(a);
+	mat4 ret;
+	ret[0] = vec4(c.y*c.z,c.y*s.z,-s.y,0.0);
+	ret[1] = vec4(s.x*s.y*c.z-c.x*s.z, s.x*s.y*s.z+c.x*c.z, s.x*c.y, 0.0);
+	ret[2] = vec4(c.x*s.y*c.z+s.x*s.z, c.x*s.y*s.z-s.x*c.z, c.x*c.y, 0.0);    
+	ret[3] = vec4(0.0,0.0,0.0,1.0);
+	return ret;
+}
+
+mat4 getPosMatrix(vec3 p)
+{
+	mat4 ret;
+	ret[0] = vec4(1.0,0.0,0.0,p.x);
+	ret[1] = vec4(0.0,1.0,0.0,p.y);
+	ret[2] = vec4(0.0,0.0,1.0,p.z);   
+	ret[3] = vec4(0.0,0.0,0.0,1.0);
+	return ret;
+}
+
+
 bool insideBox(vec2 v, vec4 box)
 {
     vec2 s = step(box.xy, v) - step(box.zw, v);
@@ -250,6 +262,23 @@ vec2 project(vec2 w, vec2 c)
 	coord.y = mix(coord.y, pos.x, yRot.x);
 	coord.y = mix(coord.y, pos.z, yRot.y);
 	coord.y = mix(coord.y, pos.w, yRot.z);
+
+	if (camera)
+	{
+		mat4 cam = getRotMatrix(yRot) * getPosMatrix(position) * mat4(rotation[0].xyz,0,rotation[1].xyz,0,rotation[2].xyz,0,0,0,0,1);
+
+		vec3 p = vec3(w.xy, c.x);
+		p.x = mix(p.x, c.y, xRot.x);
+		p.y = mix(p.y, c.y, xRot.y);
+		p.z = mix(p.z, c.y, xRot.z);
+
+		mat4 mat = getPosMatrix(vec3(p)) * cam;
+
+		p = (vec4(p,1)*mat).xyz;
+		p.xy /= p.z*zoom;
+		coord = p.xy;
+		if (p.z>0) return vec2(-10000000);
+	}
 
 	return coord;
 }
@@ -323,28 +352,6 @@ vec3 hslToRgb(vec3 c)
 </hslToRgb>
 
 <getStartValue>
-mat4 getRotMatrix(vec3 a)
-{
-	vec3 s = sin(a);
-	vec3 c = cos(a);
-	mat4 ret;
-	ret[0] = vec4(c.y*c.z,c.y*s.z,-s.y,0.0);
-	ret[1] = vec4(s.x*s.y*c.z-c.x*s.z, s.x*s.y*s.z+c.x*c.z, s.x*c.y, 0.0);
-	ret[2] = vec4(c.x*s.y*c.z+s.x*s.z, c.x*s.y*s.z-s.x*c.z, c.x*c.y, 0.0);    
-	ret[3] = vec4(0.0,0.0,0.0,1.0);
-	return ret;
-}
-
-mat4 getPosMatrix(vec3 p)
-{
-	mat4 ret;
-	ret[0] = vec4(1.0,0.0,0.0,p.x);
-	ret[1] = vec4(0.0,1.0,0.0,p.y);
-	ret[2] = vec4(0.0,0.0,1.0,p.z);   
-	ret[3] = vec4(0.0,0.0,0.0,1.0);
-	return ret;
-}
-
 vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 {
 	if (stepMutation)
@@ -410,7 +417,7 @@ vec2 map01ToInterval(vec2 value, vec4 range)
 	void mainLoop(vec2 c, vec4 area)
 	{
 		<loopSetup>
-		
+
 		float i = 0;
 		for (; i < maxIterations; i++)
 		{

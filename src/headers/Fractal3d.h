@@ -19,9 +19,7 @@ const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, tr
 class Fractal3D : public Fractal
 {
 public:
-	bool cursorVisible;
 	Uniform<glm::vec3> sun;
-	glm::dvec2 lastNonGuiPos;
 
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
@@ -57,8 +55,6 @@ public:
 
 private:
 	const static std::string& default3DSource;
-	glm::vec2 mouseOffset;
-	bool firstMouse = true;
 };
 
 #endif

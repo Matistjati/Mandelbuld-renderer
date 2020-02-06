@@ -139,7 +139,7 @@ public:
 
 	virtual void PopulateGUI();
 	virtual void Update();
-	virtual void MouseCallback(GLFWwindow* window, double x, double y) = 0;
+	virtual void MouseCallback(GLFWwindow* window, double x, double y);
 	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
 	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);

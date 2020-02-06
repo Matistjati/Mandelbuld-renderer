@@ -27,41 +27,6 @@ void Fractal2D::PopulateGUI()
 {
 	Fractal::PopulateGUI();
 
-	// Position
-	/*GuiElement pos = GuiElement();
-	pos.element = Element::TextBox;
-	pos.fractal = this;
-	pos.uniform = &position;
-	fractalUniforms.push_back(pos);
-	gui->form->addGroup("Position");
-	
-	auto positionFieldX = gui->form->AddTextBox("X", position.value.x);
-	positionFieldX->setCallback([this](float value)
-		{
-			position.SetValue({ position.value.x, value }, Fractal::renderMode);
-			this->shader->SetUniform(this->position);
-		});
-
-	positionFieldX->numberFormat("%.6g");
-
-	auto positionFieldY = gui->form->AddTextBox("Y", position.value.y);
-	positionFieldY->setCallback([this](float value)
-		{
-			position.SetValue({ value, position.value.y }, Fractal::renderMode);
-			this->shader->SetUniform(this->position);
-		});
-
-	positionFieldY->numberFormat("%.6g");
-
-	position.guiElements = { positionFieldX, positionFieldY };
-	position.SetGuiValue = [this]() { 
-									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[0])->setValue(this->position.GetValue().x);
-									  ((nanogui::detail::FormWidget<float, std::true_type>*)this->position.guiElements[1])->setValue(this->position.GetValue().y);
-									};
-	position.SetShaderValue = [this](bool renderMode) {this->shader->SetUniform(this->position, renderMode); };*/
-
-	
-
 	Fractal::PopulateGuiFromShader();
 
 	gui->performLayout();
@@ -83,6 +48,7 @@ void Fractal2D::Update()
 
 void Fractal2D::MouseCallback(GLFWwindow* window, double x, double y)
 {
+	Fractal::MouseCallback(window, x, y);
 	mousePosition.value = { x, y };
 	shader->SetUniform(mousePosition);
 }

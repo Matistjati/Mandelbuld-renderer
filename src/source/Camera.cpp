@@ -97,6 +97,13 @@ void Camera::PopulateCameraGUI(Fractal* fractal)
 		positionFieldY->numberFormat("%.6g");
 		position.guiElements.push_back(positionFieldZ);
 	}
+
+	// Rotation
+	GuiElement rotationElement = GuiElement();
+	rotationElement.element = Element::error;
+	rotationElement.fractal = fractal;
+	rotationElement.uniform = &rotation;
+	fractal->fractalUniforms.push_back(rotationElement);
 }
 
 float Camera::GetYaw()
@@ -131,30 +138,48 @@ Uniform<glm::mat3>& Camera::GetRotationMatrix()
 	return rotation;
 }
 
-Camera::Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed, float zoom, bool viewMode3D) : position(position), yaw(yaw), pitch(pitch),
-	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false), viewMode3D(viewMode3D), zoom(zoom), cameraMenu()
+Camera::Camera(const glm::vec3 position, float yaw, float pitch, float mouseSensitivity, float movementSpeed, float scrollSpeed, float zoom, bool viewMode3D) : position(position),
+	yaw(yaw), pitch(pitch),	mouseSensitivity(mouseSensitivity), movementSpeed(movementSpeed), scrollSpeed(scrollSpeed), rotationMatrixIsCurrent(false), viewMode3D(viewMode3D),
+	zoom(zoom), cameraMenu(), cursorVisible(!viewMode3D), mouseOffset(), firstMouse(true), lastNonGuiPos(), useBuddhabrotRotation(false)
 { }
 
-void Camera::SetRotationMatrix()
+void Camera::SetRotationMatrix(glm::vec3 offset)
 {
-	// The standard 3d rotation matrices
-	float p = glm::radians(GetPitch());
-	glm::mat3 pitch = glm::mat3(1,      0,       0,
-								0, cos(p), -sin(p),
-								0, sin(p),  cos(p));
-	
-	float y = glm::radians(-GetYaw());
-	glm::mat3 yaw = glm::mat3(cos(y), 0, sin(y),
-							  0,      1,      0,
-		                     -sin(y), 0, cos(y));
+	// The standard 3d rotation matrices: https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
 
-	rotation.value = pitch * yaw;
+	if (!useBuddhabrotRotation)
+	{
+		float p = glm::radians(GetPitch());
+		glm::mat3 pitch = glm::mat3(1, 0, 0,
+			0, cos(p), -sin(p),
+			0, sin(p), cos(p));
+
+		float y = glm::radians(-GetYaw());
+		glm::mat3 yaw = glm::mat3(cos(y), 0, sin(y),
+			0, 1, 0,
+			-sin(y), 0, cos(y));
+
+		rotation.SetValue(pitch * yaw, false);
+	}
+	else
+	{
+		float p = glm::radians(GetPitch());
+		float y = glm::radians(GetYaw());
+		glm::vec3 s = { sin(p)+offset.y, sin(y)+offset.x, sin(0) };
+		glm::vec3 c = { cos(p)+offset.y, cos(y)+offset.x, cos(0) };
+		glm::mat3 rot;
+		rot[0] = glm::vec3(c.y * c.z, c.y * s.z, -s.y);
+		rot[1] = glm::vec3(s.x * s.y * c.z - c.x * s.z, s.x * s.y * s.z + c.x * c.z, s.x * c.y);
+		rot[2] = glm::vec3(c.x * s.y * c.z + s.x * s.z, c.x * s.y * s.z - s.x * c.z, c.x * c.y);
+		rotation.SetValue(rot, false);
+	}	
 }
 
 
 glm::vec3 Camera::GetWorldUp()
 {
-	return glm::vec3(0, 1, 0);
+	if (useBuddhabrotRotation) return glm::vec3(0, -1, 0);
+	else					   return glm::vec3(0,  1, 0);
 }
 
 glm::vec3 Camera::GetWorldForward()
@@ -167,14 +192,26 @@ glm::vec3 Camera::GetForwardVector()
 {
 	glm::vec3 out;
 	// Vertical movement
-	out.y = -cos(glm::radians(pitch) + static_cast<float>(M_PI_2));
+	//out = GetWorldUp() * cos(glm::radians(pitch) + static_cast<float>(M_PI_2));
 
-	float yaw = glm::radians(GetYaw()) + static_cast<float>(M_PI_2);
-	glm::vec3 forward = glm::vec3(-cos(yaw), 0, -sin(yaw));
-	forward.y = 0;
-	float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
-	forward *= sin(rads);
-	out += forward;
+	if (useBuddhabrotRotation)
+	{
+		glm::vec3 forward = glm::vec3(1, 0, 0);
+
+		forward.y = 0;
+		float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
+		forward *= sin(rads);
+		out += forward;
+	}
+	else
+	{
+		float yaw = glm::radians(GetYaw()) + static_cast<float>(M_PI_2);
+		glm::vec3 forward = glm::vec3(-cos(yaw), 0, -sin(yaw));
+		forward.y = 0;
+		float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
+		forward *= sin(rads);
+		out += forward;
+	}
 	
 	// Zero if very small
 	const static float epsilon = 0.0001f;
@@ -243,6 +280,7 @@ void Camera::ProcessZoom(float magnitude)
 void Camera::ProcessMouseMovement(glm::vec2 offset)
 {
 	SetYaw(yaw + offset.x);
+	//std::cout << (fmod(glm::radians(yaw), M_PI*2)) << std::endl;
 
 	const static float pitchLimit = 89.999f;
 	// Lock horizontal movement (making an "impossible" turn breaks movement)

@@ -23,7 +23,7 @@ class SubMenu;
 
 // Default camera
 #define DefaultCamera3D new Camera(glm::vec3(1.8f, 0.8f, -0.6f), /*Position*/ 169, -14, /*Yaw, pitch*/ 0.15f, 3, 0.5, 1 /*mouseSensitivity, movementSpeed, scrollSpeed, zoom*/, true /* viewMode3D*/)
-#define DefaultCamera2D new Camera(glm::vec3(0, 0, 0), /*Position*/ 0, 0, /*Yaw, pitch*/ 0, 1, 0.5, 1 /*mouseSensitivity, movementSpeed, scrollSpeed, zoom*/, false /* viewMode3D*/)
+#define DefaultCamera2D new Camera(glm::vec3(0, 0, 0), /*Position*/ 0, 0, /*Yaw, pitch*/ 0.15f, 1, 0.5, 1 /*mouseSensitivity, movementSpeed, scrollSpeed, zoom*/, false /* viewMode3D*/)
 
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -33,6 +33,12 @@ public:
 	SubMenu* cameraMenu;
 	bool viewMode3D;
 	void PopulateCameraGUI(Fractal* fractal);
+	bool cursorVisible;
+	glm::vec2 mouseOffset;
+	bool firstMouse = true;
+	bool useBuddhabrotRotation = false;
+	glm::dvec2 lastNonGuiPos;
+
 
 	// Camera Attributes
 	Uniform<glm::vec3> position;
@@ -76,6 +82,6 @@ private:
 	bool rotationMatrixIsCurrent;
 	Uniform<glm::mat3> rotation;
 
-	void SetRotationMatrix();
+	void SetRotationMatrix(glm::vec3 offset = { 0,0,0 });
 };
 #endif

@@ -1445,6 +1445,7 @@ void Fractal::PopulateGUI()
 
 	cameraMenu->form->setFixedSize({ 75, 25 });
 
+	camera->useBuddhabrotRotation = shader->type == ShaderType::compute;
 	camera->viewMode3D = fractalType == FractalType::fractal3D;
 	camera->PopulateCameraGUI(this);
 
@@ -1712,6 +1713,28 @@ void Fractal::Update()
 		glUniform1f(((ComputeShader*)shader)->uniformRenderIds[deltaTime.name], deltaTime.value);
 		shader->Use();
 	}
+}
+
+void Fractal::MouseCallback(GLFWwindow* window, double x, double y)
+{
+	// If cursor is not set to first person, do not move
+	if (camera->cursorVisible)
+	{
+		return;
+	}
+
+	glm::vec2 newPos = glm::vec2(x, y);
+	if (camera->firstMouse)
+	{
+		camera->mouseOffset = newPos;
+		camera->firstMouse = false;
+	}
+
+	camera->ProcessMouseMovement(glm::vec2(newPos.x - camera->mouseOffset.x, camera->mouseOffset.y - newPos.y) * camera->mouseSensitivity * camera->zoom.value); // reversed since y-coordinates go from bottom to top
+
+	camera->mouseOffset = newPos;
+
+	shader->SetUniform(camera->GetRotationMatrix());
 }
 
 
@@ -2007,6 +2030,24 @@ void Fractal::KeyCallback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			time.value.ToogleTimePause();
 			shader->SetUniform(time);
+		}
+
+		if (key == GLFW_KEY_F)
+		{
+			camera->cursorVisible = !camera->cursorVisible;
+			if (camera->cursorVisible)
+			{
+				double x;
+				double y;
+				glfwGetCursorPos(window, &x, &y);
+				camera->lastNonGuiPos = { x,y };
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+			else
+			{
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				glfwSetCursorPos(window, camera->lastNonGuiPos.x, camera->lastNonGuiPos.y);
+			}
 		}
 
 		for (auto const& x : shaderIndices)

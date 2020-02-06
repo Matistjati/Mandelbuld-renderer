@@ -13,8 +13,7 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(screenSize, Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	cursorVisible(false)
+	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
 {
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
 }
@@ -22,8 +21,7 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm:
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
 		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577))),
-	cursorVisible(false)
+	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
 {
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
 }
@@ -31,54 +29,12 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	Fractal::KeyCallback(window, key, scancode, action, mods);
-
-	if (action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL) != GLFW_MOD_CONTROL)
-	{
-		switch (key)
-		{
-		default:
-			break;
-		case GLFW_KEY_F:
-			cursorVisible = !cursorVisible;
-			if (cursorVisible)
-			{
-				double x;
-				double y;
-				glfwGetCursorPos(window, &x, &y);
-				lastNonGuiPos = { x,y };
-				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			}
-			else
-			{
-				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-				glfwSetCursorPos(window, lastNonGuiPos.x, lastNonGuiPos.y);
-			}
-			break;
-		}
-	}
 }
 
 
 void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
 {
-	// If cursor is not set to first person, do not move
-	if (cursorVisible)
-	{
-		return;
-	}
-
-	glm::vec2 newPos = glm::vec2(x, y);
-	if (firstMouse)
-	{
-		mouseOffset = newPos;
-		firstMouse = false;
-	}
-
-	camera->ProcessMouseMovement(glm::vec2(newPos.x - mouseOffset.x, mouseOffset.y - newPos.y) * camera->mouseSensitivity * camera->zoom.value); // reversed since y-coordinates go from bottom to top
-
-	mouseOffset = newPos;
-
-	shader->SetUniform(camera->GetRotationMatrix());
+	Fractal::MouseCallback(window, x, y);
 }
 
 void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
