@@ -293,23 +293,6 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 	}
 }
 
-void Fractal3D::Init()
-{
-	Fractal::fractalType = FractalType::fractal3D;
-
-	Fractal::Init();
-}
-
-void Fractal3D::SetShaderGui(bool render)
-{
-	Fractal::SetShaderGui(render);
-}
-
-void Fractal3D::SetShaderUniforms(bool render)
-{
-	Fractal::SetShaderUniforms(render);
-}
-
 Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
 {
 	GlErrorCheck();

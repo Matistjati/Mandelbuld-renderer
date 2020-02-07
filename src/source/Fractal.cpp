@@ -1130,18 +1130,7 @@ void Fractal::UpdateFractalShader()
 	fractalUniforms.clear();
 	subMenus.clear();
 
-	if (fractalType == FractalType::fractal3D)
-	{
-		(reinterpret_cast<Fractal3D*> (this))->Init();
-	}
-	else if (fractalType == FractalType::fractal2D)
-	{
-		(reinterpret_cast<Fractal2D*> (this))->Init();
-	}
-	else
-	{
-		DebugPrint("Case default reached in UpdateFractalShader");
-	}
+	Init();
 }
 
 bool FindSubStrNoCase(const std::string& strHaystack, const std::string& strNeedle)
@@ -1945,6 +1934,8 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 										const size_t paramLength = std::string("parameter").size();
 										size_t start = newSection.find("parameter");
 
+										if (start == std::string::npos) break;
+
 										// Prevent breaking cases like "parameter = parameter1 + parameter";
 
 										while (true)
@@ -1964,8 +1955,6 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 												}
 											}
 										}
-
-										if (start == std::string::npos) break;
 
 										char parameterPostfix = newSection[start + std::string("parameter").length()];
 										if (parameterPostfix < 48 || parameterPostfix > 57) // The postfix isn't a number

@@ -141,7 +141,7 @@ int main()
 	// Create a nanogui screen and pass the glfw pointer to initialize
 
 	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
-	((DefaultFractal*)fractal)->Init();
+	fractal->Init();
 
 	glfwSetWindowUserPointer(mainWindow, fractal);
 

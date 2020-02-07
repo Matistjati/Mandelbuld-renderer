@@ -144,6 +144,7 @@ public:
 	glm::vec2 MapScreenMouseToFractal();
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods);
 	void PopulateGUI();
+	void Init();
 
 	virtual void Update();
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -158,7 +159,6 @@ public:
 	virtual Shader* GenerateShader() = 0;
 	virtual Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
 	virtual std::string GetFractalFolderPath() = 0;
-	virtual void Init();
 
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";

@@ -10,7 +10,7 @@
 </sky>
 
 <sun>
-	col += sunSize * sunColor * pow(clamp(dot(direction, sun), 0.0, 1.0), sunSpread);
+	col += sunSize * sunColor * pow(clamp(dot(direction, Sun), 0.0, 1.0), sunSpread);
 </sun>
 
 <distanceSetup>
@@ -200,17 +200,14 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		vec3 col = vec3(0);
 
 		
-		vec3 sun = normalize(vec3(sin(time * 0.25),
-							  abs(sin(time * 0.1)),
-								  cos(time * 0.25)));
+		vec3 Sun = sun;
 
 		// Color the sky if we don't hit the fractal
 		if(t < 0.0)
 		{
 			// Sky gradient
 			<sky>
-     	
-
+     		
 			// Sun
 			<sun>
 
@@ -227,14 +224,14 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 			vec3 normal = calculateNormal(pos);
 
-			vec3 fractalToSunDir = normalize(sun - direction);
+			vec3 fractalToSunDir = normalize(Sun - direction);
 			float occlusion = clamp(0.05*log(trap.x),0.0,1.0);
 			float fakeSSS = clamp(1.0+dot(direction, normal),0.0,1.0);
 
 			// Sun
 			float shadow = SoftShadow(pos + 0.001 * normal, fractalToSunDir, shadowSoftness);
-			float diffuse = clamp(dot(sun, normal), 0.0, 1.0) * shadow * min(3,0.5/steps);
-			float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,sun),0.0,1.0),5.0));
+			float diffuse = clamp(dot(Sun, normal), 0.0, 1.0) * shadow * min(3,0.5/steps);
+			float specular = pow(clamp(dot(normal,fractalToSunDir),0.0,1), 32.0 )*diffuse*(0.04+0.96*pow(clamp(1.0-dot(fractalToSunDir,Sun),0.0,1.0),5.0));
 
 			// Bounce
 			float diffuse2 = clamp( 0.5 + 0.5*dot(light, normal), 0.0, 1.0 )*occlusion;

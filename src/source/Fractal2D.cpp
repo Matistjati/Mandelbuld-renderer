@@ -383,23 +383,6 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 	}
 }
 
-void Fractal2D::Init()
-{
-	Fractal::fractalType = FractalType::fractal2D;
-
-	Fractal::Init();
-}
-
-void Fractal2D::SetShaderGui(bool render)
-{
-	Fractal::SetShaderGui(render);
-}
-
-void Fractal2D::SetShaderUniforms(bool render)
-{
-	Fractal::SetShaderUniforms(render);
-}
-
 std::vector<int> GetPrimeFactors(int n)
 {
 	std::vector<int> factors = std::vector<int>();

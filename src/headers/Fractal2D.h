@@ -24,9 +24,6 @@ public:
 	std::string GetFractalFolderPath() override;
 	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string & final, std::string specification);
 	void ParseShader(std::string& source, std::string & final, const std::string* spec, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
-	void Init() override;
-	void SetShaderGui(bool render) override;
-	virtual void SetShaderUniforms(bool render);
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";
@@ -44,6 +41,3 @@ private:
 };
 
 #endif
-
-
-
