@@ -19,20 +19,9 @@ const ShaderSection postShaderSections[] = { ShaderSection("coloring", false, tr
 class Fractal3D : public Fractal
 {
 public:
-	Uniform<glm::vec3> sun;
-
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex);
 
-	void PopulateGUI() override;
-	void Update() override;
-	void MouseCallback(GLFWwindow* window, double x, double y) override;
-	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;
-	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-	void SetUniforms(Shader* shader, bool computeRender = false) override;
-	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
-	void SetUniformNames() override;
-	void SetVariable(std::string name, std::string value) override;
 	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	Shader* GenerateShader() override;
 	Shader* GenerateShader(std::string fractalName) override;

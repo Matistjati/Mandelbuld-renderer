@@ -12,86 +12,16 @@ const std::string& Fractal3D::default3DSource = FileManager::ReadFile(default3DF
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize)
 	: Fractal(screenSize, Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
-		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
+		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex))
 {
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
 }
 
 Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	: Fractal(GetMonitorSize(), Time(), 1.f, FractalType::fractal3D, fractalIndex, specIndex,
-		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex)),
-	sun(glm::normalize(glm::vec3(0.577, 0.577, 0.577)))
+		fractalNameIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex))
 {
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
-}
-
-void Fractal3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	Fractal::KeyCallback(window, key, scancode, action, mods);
-}
-
-
-void Fractal3D::MouseCallback(GLFWwindow* window, double x, double y)
-{
-	Fractal::MouseCallback(window, x, y);
-}
-
-void Fractal3D::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
-{
-	if (action == GLFW_PRESS)
-	{
-		holdingMouse = true;
-	}
-	else if (action == GLFW_RELEASE)
-	{
-		holdingMouse = false;
-	}
-}
-
-void Fractal3D::SetUniforms(Shader* shader, bool computeRender)
-{
-	Fractal::SetUniforms(shader, computeRender);
-
-	shader->SetUniform(sun);
-	GlErrorCheck();
-}
-
-void Fractal3D::SetUniformLocations(Shader* shader, bool computeRender)
-{
-	Fractal::SetUniformLocations(shader, computeRender);
-	
-	sun.id =						glGetUniformLocation(shader->id, sun.name.c_str());
-	GlErrorCheck();
-}
-
-void Fractal3D::SetUniformNames()
-{
-	Fractal::SetUniformNames();
-
-	sun.name = "sun";
-	GlErrorCheck();
-}
-
-void Fractal3D::PopulateGUI()
-{
-	Fractal::PopulateGUI();
-
-	Fractal::PopulateGuiFromShader();
-
-	gui->performLayout();
-}
-
-void Fractal3D::Update()
-{
-	Fractal::Update();
-
-	// Move sun in shader
-	double t = time.value.GetTotalTime();
-	sun.value = glm::normalize(glm::vec3(sin(t * 0.25),
-		std::abs(sin(t * 0.1)),
-		cos(t * 0.25)));
-	shader->SetUniform(sun);
 }
 
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification)
@@ -365,19 +295,7 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 
 void Fractal3D::Init()
 {
-	frame.value = 0;
-
-	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
 	Fractal::fractalType = FractalType::fractal3D;
-	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName), Fractal3D::presetSpec3D);
-	SetUniformNames();
-
-	SetUniformLocations(shader);
-	SetUniforms(shader);
-	shader->Use();
-	GlErrorCheck();
-
-	PopulateGUI();
 
 	Fractal::Init();
 }
@@ -390,18 +308,6 @@ void Fractal3D::SetShaderGui(bool render)
 void Fractal3D::SetShaderUniforms(bool render)
 {
 	Fractal::SetShaderUniforms(render);
-}
-
-// This is really nasty, be careful
-inline void Fractal3D::SetVariable(std::string name, std::string value)
-{
-	Fractal::SetVariable(name, value);
-
-	if (name == "sun")
-	{
-		std::vector<std::string> components = Split(value, ',');
-		sun.value = glm::vec3(std::stof(components[0]), std::stof(components[1]), std::stof(components[2]));
-	}
 }
 
 Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)

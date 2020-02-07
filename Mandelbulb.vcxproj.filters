@@ -175,14 +175,14 @@
     <None Include="shaders\2D\Base\2DFractalBaseCompute.fs">
       <Filter>Resource Files\2D\Default</Filter>
     </None>
-    <None Include="shaders\2D\Fractals\buddhabrotRender.fs">
-      <Filter>Resource Files\2D\Fractals</Filter>
-    </None>
     <None Include="shaders\3D\Fractals\MandelFold.fs">
       <Filter>Resource Files\3D\Fractals</Filter>
     </None>
     <None Include="shaders\3D\Fractals\MandelFoldSpecs.fs">
       <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
+    <None Include="shaders\2D\Fractals\buddhabrotRender.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

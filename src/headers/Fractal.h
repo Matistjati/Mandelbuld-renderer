@@ -92,6 +92,9 @@ public:
 	Uniform<float> deltaTime;
 	Uniform<unsigned int> frame;
 	Camera* camera;
+	Uniform<glm::vec2> mousePosition;
+	Uniform<glm::vec2> clickPosition;
+
 
 	FractalType fractalType;
 	int fractalIndex;
@@ -136,12 +139,13 @@ public:
 	void AddShaderParameters(std::string& spec);
 	void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	void HandleKeyInput();
+	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void MouseCallback(GLFWwindow* window, double x, double y);
+	glm::vec2 MapScreenMouseToFractal();
+	void MousePressCallback(GLFWwindow* window, int button, int action, int mods);
+	void PopulateGUI();
 
-	virtual void PopulateGUI();
 	virtual void Update();
-	virtual void MouseCallback(GLFWwindow* window, double x, double y);
-	virtual void MousePressCallback(GLFWwindow* window, int button, int action, int mods) = 0;
-	virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 	virtual void SetUniformLocations(Shader* shader, bool computeRender = false);
 	virtual void SetUniforms(Shader* shader, bool computeRender = false);

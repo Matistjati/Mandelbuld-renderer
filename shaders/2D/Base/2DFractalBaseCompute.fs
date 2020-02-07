@@ -6,10 +6,11 @@ layout(local_size_x = <sizeX>, local_size_y = <sizeY>, local_size_z = <sizeZ>) i
 uniform vec2 screenSize = vec2(1920, 1080);
 uniform vec3 position = vec3(0);
 uniform mat3 rotation;
-uniform vec2 mousePosition = vec2(0,0);
+uniform vec2 mousePosition = vec2(0);
 uniform vec2 clickPosition = vec2(0);
 uniform float zoom = 1;
 uniform float time = 0;
+uniform float deltaTime = 1/30;
 uniform uint frame = uint(0);
 
 /*<GuiHint>GuiType: submenu, Name: Fractal Parameters, Identifier: fractalParams</GuiHint>*/

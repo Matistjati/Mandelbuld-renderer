@@ -12,22 +12,9 @@ const ShaderSection postShaderSections2D[] = { ShaderSection("coloring", false, 
 class Fractal2D : public Fractal
 {
 public:
-	Uniform<glm::vec2> clickPosition;
-
-	Uniform<glm::vec2> mousePosition;
-
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex, glm::vec2 screenSize);
 	Fractal2D(int specIndex, int fractalIndex, int fractalNameIndex);
 
-	void PopulateGUI() override;
-	void Update() override;
-	void MouseCallback(GLFWwindow* window, double x, double y) override;
-	void MousePressCallback(GLFWwindow* window, int button, int action, int mods) override;
-	void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-	void SetUniforms(Shader* shader, bool computeRender = false) override;
-	void SetUniformLocations(Shader* shader, bool computeRender = false) override;
-	void SetUniformNames() override;
-	void SetVariable(std::string name, std::string value) override;
 	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) override;
 	Shader* GenerateShader() override;
 	Shader* GenerateShader(std::string fractalName) override;
@@ -40,7 +27,6 @@ public:
 	void Init() override;
 	void SetShaderGui(bool render) override;
 	virtual void SetShaderUniforms(bool render);
-	glm::vec2 MapScreenMouseToFractal();
 
 	static const constexpr char* fractal2dPath = "shaders/2D/Fractals/";
 	static const constexpr char* path2DBase = "shaders/2D/Base/2DFractalBase.fs";

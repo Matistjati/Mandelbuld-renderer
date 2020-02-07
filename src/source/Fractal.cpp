@@ -720,7 +720,8 @@ Fractal::Fractal(Uniform<glm::vec2> screenSize, Time t, float zoom, FractalType 
 	int specIndex, int fractalNameIndex, std::string fractalName)
 	: shader(), fractalType(f), time(t), deltaTime(0.05f), fractalIndex(fractalIndex), specIndex(specIndex), fractalName(fractalName), fractalNameIndex(fractalNameIndex), 
 	shaderIndices((shaderIndices.size() == 0) ? std::map<std::string, ShaderIndice*>() : shaderIndices), holdingMouse(false), fractalUniforms(),
-	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus(), camera((f == FractalType::fractal3D) ? DefaultCamera3D : DefaultCamera2D)
+	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus(), camera((f == FractalType::fractal3D) ? DefaultCamera3D : DefaultCamera2D),
+	mousePosition(), clickPosition()
 {
 	Fractal::screenSize = screenSize;
 	this->gui = new GUI(window, this);
@@ -1676,6 +1677,15 @@ void Fractal::Update()
 	shader->SetUniform(frame);
 	shader->SetUniform(deltaTime);
 
+	if (holdingMouse && !camera->viewMode3D)
+	{
+		shader->Use();
+
+		// Map from screen space to fractal space
+		clickPosition.SetValue(MapScreenMouseToFractal(), false);
+		shader->SetUniform(clickPosition);
+	}
+
 	// Clearing buffers that should be cleared
 	for (std::map<std::string, Buffer>::iterator buffer = shader->buffers.begin(); buffer != shader->buffers.end(); ++buffer)
 	{
@@ -1720,6 +1730,8 @@ void Fractal::MouseCallback(GLFWwindow* window, double x, double y)
 	// If cursor is not set to first person, do not move
 	if (camera->cursorVisible)
 	{
+		mousePosition.value = { x, y };
+		shader->SetUniform(mousePosition);
 		return;
 	}
 
@@ -1735,6 +1747,61 @@ void Fractal::MouseCallback(GLFWwindow* window, double x, double y)
 	camera->mouseOffset = newPos;
 
 	shader->SetUniform(camera->GetRotationMatrix());
+}
+
+// Map from screen space to fractal space
+glm::vec2 Fractal::MapScreenMouseToFractal()
+{
+	if (shader->type == ShaderType::compute)
+	{
+		glm::vec4 renderArea = glm::vec4(0);
+		for (size_t i = 0; i < fractalUniforms.size(); i++)
+		{
+			if (StringEqualNoCase(fractalUniforms[i].uniform->name, "renderArea"))
+			{
+				renderArea = ((Uniform<glm::vec4>*)fractalUniforms[i].uniform)->value;
+				break;
+			}
+		}
+
+		glm::vec2 midPoint = glm::vec2(abs(renderArea.x) - abs(renderArea.z), abs(renderArea.y) - abs(renderArea.w)) * glm::vec2(0.5);
+		glm::vec4 area = (renderArea + glm::vec4(midPoint, midPoint)) * glm::vec4(camera->zoom.value) - glm::vec4(midPoint, midPoint);
+		area += glm::vec4(glm::vec2(camera->position.value), glm::vec2(camera->position.value)) * glm::vec4(1, -1, 1, -1);
+
+
+		glm::vec2 map = glm::vec2(screenSize.value / glm::vec2(area.z - area.x, area.w - area.y));
+		if (renderArea != glm::vec4(0))
+		{
+			// Mapping from fractal space to screen space- simpy solve for coord x and y to go from screen to fractal
+			/*int x = int((coord.x - area.x) * map.x - 0.5);
+			int y = int(screenSize.y - (coord.y - area.y) * map.y);*/
+			float x = (2 * mousePosition.value.x + 1) / (2 * map.x) + area.x;
+			float y = area.y + mousePosition.value.y / map.y;
+			return glm::vec2(x, y);
+		}
+	}
+
+	// If we aren't using a compute shader or something fails, default to normal
+	return (2.f * glm::vec2(mousePosition.value.x, screenSize.value.y - mousePosition.value.y) - (glm::vec2)screenSize.value) / (float)screenSize.value.y * camera->zoom.value + glm::vec2(camera->position.value);
+}
+
+void Fractal::MousePressCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		holdingMouse = true;
+
+		if (!camera->viewMode3D)
+		{
+			// Map from screen space to fractal space
+			clickPosition.SetValue(MapScreenMouseToFractal(), false);
+			shader->SetUniform(clickPosition);
+		}
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		holdingMouse = false;
+	}
 }
 
 
@@ -2106,7 +2173,10 @@ void Fractal::SetUniformLocations(Shader* shader, bool computeRender)
 	camera->zoom.id = glGetUniformLocation(id, camera->zoom.name.c_str());
 	camera->GetRotationMatrix().id = glGetUniformLocation(shader->id, camera->GetRotationMatrix().name.c_str());
 	camera->position.id = glGetUniformLocation(shader->id, camera->position.name.c_str());
-
+	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
+	clickPosition.id = glGetUniformLocation(id, clickPosition.name.c_str());
+	
+	GlErrorCheck();
 }
 
 void Fractal::SetUniforms(Shader* shader, bool computeRender)
@@ -2120,6 +2190,8 @@ void Fractal::SetUniforms(Shader* shader, bool computeRender)
 	shader->SetUniform(camera->zoom);
 	shader->SetUniform(camera->position);
 	shader->SetUniform(camera->GetRotationMatrix());
+	shader->SetUniform(mousePosition);
+	shader->SetUniform(clickPosition);
 }
 
 void Fractal::SetUniformNames()
@@ -2130,8 +2202,11 @@ void Fractal::SetUniformNames()
 	camera->zoom.name = "zoom";
 	camera->GetRotationMatrix().name = "rotation";
 	camera->position.name = "position";
+	mousePosition.name = "mousePosition";
+	clickPosition.name = "clickPosition";
 }
 
+// This is really nasty, be careful
 void Fractal::SetVariable(std::string name, std::string value)
 {
 	if (StringEqualNoCase(name, "position"))
@@ -2151,6 +2226,11 @@ void Fractal::SetVariable(std::string name, std::string value)
 	else if (StringEqualNoCase(name, "pitch"))
 	{
 		camera->SetPitch(std::stof(value));
+	}
+	else if (StringEqualNoCase(name, "mousePosition"))
+	{
+		std::vector<std::string> components = Split(value, ',');
+		mousePosition.value = glm::vec2(std::stof(components[0]), std::stof(components[1]));
 	}
 }
 
@@ -2211,6 +2291,36 @@ void Fractal::HandleKeyInput()
 
 void Fractal::Init()
 {
+	frame.value = 0;
+
+	SetFractalNameFromIndex(&fractalNameIndex, GetFractalFolderPath());
+	SetVariablesFromSpec(&specIndex, GetSpecPath(fractalName), Fractal3D::presetSpec3D);
+
+	SetUniformNames();
+
+	SetUniformLocations(shader);
+	SetUniforms(shader);
+	shader->Use();
+	GlErrorCheck();
+
+	PopulateGUI();
+	PopulateGuiFromShader();
+	gui->performLayout();
+
+
+	if (shader->type == ShaderType::compute)
+	{
+		ComputeShader* compute = reinterpret_cast<ComputeShader*>(shader);
+
+		compute->UseRender();
+		unsigned int id = compute->renderId;
+		compute->uniformRenderIds[time.name] = glGetUniformLocation(id, time.name.c_str());
+		compute->uniformRenderIds[frame.name] = glGetUniformLocation(id, frame.name.c_str());
+		compute->uniformRenderIds[deltaTime.name] = glGetUniformLocation(id, deltaTime.name.c_str());
+		compute->uniformRenderIds[screenSize.name] = glGetUniformLocation(id, screenSize.name.c_str());
+		glUniform2f(compute->uniformRenderIds[screenSize.name], Fractal::screenSize.value.x, Fractal::screenSize.value.y);
+		shader->Use();
+	}
 
 	int i = 0;
 	size_t startPos = 0;

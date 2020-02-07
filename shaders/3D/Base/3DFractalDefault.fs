@@ -1,4 +1,3 @@
-
 <sceneDistance>
 	float sceneDistance(vec3 w, out vec4 resColor)
 	{
@@ -199,6 +198,11 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float t = trace(origin, direction, trap, px, steps, hitSurface);
 
 		vec3 col = vec3(0);
+
+		
+		vec3 sun = normalize(vec3(sin(time * 0.25),
+							  abs(sin(time * 0.1)),
+								  cos(time * 0.25)));
 
 		// Color the sky if we don't hit the fractal
 		if(t < 0.0)

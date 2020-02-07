@@ -192,7 +192,7 @@ glm::vec3 Camera::GetForwardVector()
 {
 	glm::vec3 out;
 	// Vertical movement
-	//out = GetWorldUp() * cos(glm::radians(pitch) + static_cast<float>(M_PI_2));
+	out = GetWorldUp() * cos(glm::radians(-pitch) + static_cast<float>(M_PI_2));
 
 	if (useBuddhabrotRotation)
 	{
