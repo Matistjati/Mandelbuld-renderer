@@ -1,7 +1,7 @@
 #include "headers/FileManager.h"
+#include "headers/Debug.h"
 #include <Shlwapi.h>
 #include <sys/stat.h>
-#include "headers/Debug.h"
 #include <fstream>
 
 bool FileManager::correctWorkingDir = false;
@@ -16,7 +16,7 @@ inline std::string FileManager::GetWorkingDirectory()
 
 std::string FileManager::ReadFile(std::string path)
 {
-	SetCorrectDirectory(); // Has built-in check and returns if unnecesseray
+	SetCorrectDirectory(); // Does nothing if correct
 
 	std::ifstream t(path);
 	if (t.fail())
@@ -46,14 +46,18 @@ std::string FileManager::GetFileName(std::string path)
 
 bool FileManager::FileExists(const std::string& name)
 {
+	SetCorrectDirectory(); // Does nothing if correct
+
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
 std::vector<std::string> FileManager::GetDirectoryFileNames(const std::string directory)
 {
+	SetCorrectDirectory(); // Does nothing if correct
+
 	std::vector<std::string> names;
-	std::string search_path = directory + "/*.*";
+	std::string search_path = directory + "*.*";
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
 	if (hFind != INVALID_HANDLE_VALUE) {

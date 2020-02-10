@@ -4,7 +4,6 @@
 #include "headers/Debug.h"
 #include "headers/FileManager.h"
 #include "headers/Fractal.h"
-#include "headers/Fractal2D.h"
 #include "headers/BufferInitialization.h"
 #include <string>
 #include <vector>

@@ -146,7 +146,6 @@
   <ItemGroup>
     <ClCompile Include="Dependencies\opengl\include\glad\src\glad.c" />
     <ClCompile Include="src/source/Fractal.cpp" />
-    <ClCompile Include="src/source/Fractal3D.cpp" />
     <ClCompile Include="src/source/Uniform.cpp" />
     <ClCompile Include="src/source/Image.cpp" />
     <ClCompile Include="src/source/Camera.cpp" />
@@ -155,12 +154,10 @@
     <ClCompile Include="src/source/Time.cpp" />
     <ClCompile Include="src\source\BufferInitialization.cpp" />
     <ClCompile Include="src\source\FileManager.cpp" />
-    <ClCompile Include="src\source\Fractal2D.cpp" />
     <ClCompile Include="src\source\GUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/headers/Debug.h" />
-    <ClInclude Include="src/headers/Fractal3D.h" />
     <ClInclude Include="src/headers/Fractal.h" />
     <ClInclude Include="src/headers/Image.h" />
     <ClInclude Include="src/headers/Camera.h" />
@@ -170,7 +167,6 @@
     <ClInclude Include="src/headers/Uniform.h" />
     <ClInclude Include="src\headers\BufferInitialization.h" />
     <ClInclude Include="src\headers\FileManager.h" />
-    <ClInclude Include="src\headers\Fractal2D.h" />
     <ClInclude Include="src\headers\GUI.h" />
   </ItemGroup>
   <ItemGroup>

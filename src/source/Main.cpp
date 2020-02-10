@@ -28,8 +28,7 @@
 #include "headers/shader.h"
 #include "headers/Image.h"
 #include "headers/FileManager.h"
-#include "headers/Fractal3D.h"
-#include "headers/Fractal2D.h"
+#include "headers/Fractal.h"
 #include "headers/Debug.h"
 #include "headers/GUI.h"
 
@@ -69,7 +68,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
-#define DefaultFractal Fractal2D
+#define DefaultFractalType FractalType::fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
 void GLAPIENTRY
@@ -140,7 +139,7 @@ int main()
 
 	// Create a nanogui screen and pass the glfw pointer to initialize
 
-	Fractal* fractal = new DefaultFractal(DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
+	Fractal* fractal = new Fractal(DefaultFractalType, DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
 	fractal->Init();
 
 	glfwSetWindowUserPointer(mainWindow, fractal);

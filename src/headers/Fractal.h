@@ -115,8 +115,7 @@ public:
 	~Fractal();
 
 	// Nothing fancy
-	Fractal(Uniform<glm::vec2> screenSize, Time t, float zoom = 1, FractalType f = FractalType::error, int fractalIndex = 0,
-		int specIndex = 0, int fractalNameIndex = 0, std::string fractalName = "");
+	Fractal(FractalType fractalType, int specIndex, int fractalIndex, int fractalNameIndex, Uniform<glm::vec2> screenSize);
 
 	static void RenderLoop(GLFWwindow* window, Fractal* fractal);
 	static void GenerateSingleImage(GLFWwindow* window, Fractal* fractal);
@@ -152,14 +151,27 @@ public:
 	void SetUniformNames();
 	void SetVariable(std::string name, std::string value);
 	std::vector<int> GetPrimeFactors(int n);
+	void ParseShader(std::string& source, std::string & final, const std::string* spec, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
+	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string & final, std::string specification);
+	Shader* CreateShader(std::string source, const std::string* specification, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections);
 
-	virtual std::string GetSpecPath(std::string fileName) = 0;
-	virtual std::string GetFractalPath(std::string fileName) = 0;
-	virtual Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;
-	virtual Shader* GenerateShader(std::string name) = 0;
-	virtual Shader* GenerateShader() = 0;
-	virtual Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName) = 0;
-	virtual std::string GetFractalFolderPath() = 0;
+	std::string GetDefaultFractalSourcePath();
+	std::string GetAlternateDefaultFunctionsPath();
+	std::string GetPresetSpecPath();
+	std::string GetHelperFunctionPath();
+	std::string GetBasePath();
+	std::string GetComputeBasePath();
+	std::string GetFractalPath();
+	std::string GetFractalFolderPath();
+	std::string GetSpecPath(std::string fileName);
+	std::string GetFractalPath(std::string fileName);
+	std::vector<ShaderSection> GetPostShaderSections();
+	std::vector<ShaderSection> GetShaderSections();
+
+	Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name);
+	Shader* GenerateShader(int specIndex, int fractalIndex, std::string fractalName);
+	Shader* GenerateShader(std::string name);
+	Shader* GenerateShader();
 
 
 	static const constexpr char* pathRectangleVertexshader = "shaders/Rectangle.glsl";

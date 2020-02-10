@@ -51,16 +51,10 @@
     <ClCompile Include="src/source/Uniform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/source/Fractal3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src/source/Fractal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\source\FileManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\source\Fractal2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\source\GUI.cpp">
@@ -95,16 +89,10 @@
     <ClInclude Include="src/headers/Uniform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src/headers/Fractal3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src/headers/Debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\FileManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\headers\Fractal2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\GUI.h">

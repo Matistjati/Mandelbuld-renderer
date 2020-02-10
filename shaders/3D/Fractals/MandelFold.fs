@@ -99,7 +99,7 @@
 <coloring>
 	<
 	col = vec3(0.1);
-	col = mix(col, colorA, clamp(pow(trap.w,6.0), 0, 1));
+	col = mix(col, colorA, clamp(pow(trap.w,6.0), 0., 1.));
 	col += colorA * 0.1;
 	>,
 
