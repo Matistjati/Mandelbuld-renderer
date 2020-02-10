@@ -32,15 +32,17 @@ public:
 	void ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification);
 	void ParseShader(std::string& source, std::string& final, const std::string* spec, int* specIndex, int* fractalIndex, const std::vector<ShaderSection> extraSections);
 
+	static const constexpr char* fractal3dPath = "shaders/3D/Fractals/";
 	static const constexpr char* path3DBase = "shaders/3D/Base/3DFractalbase.fs";
+	static const constexpr char* path3DBaseCompute = "shaders/3D/Base/3DFractalBaseCompute.fs";
+	static const constexpr char* presetSpec3D = "shaders/3D/Base/PresetSpecs.fs";
 	static const constexpr char* default3DFractal = "shaders/3D/Base/3DFractalDefault.fs";
 	static const constexpr char* helperFunctions = "shaders/3D/Base/HelperFunctions.fs";
-	static const constexpr char* presetSpec3D = "shaders/3D/Base/PresetSpecs.fs";
 	static const constexpr char* alternateDefaultFunctionsPath = "shaders/3D/Base/AlternateDefault.fs";
-	static const constexpr char* fractal3dPath = "shaders/3D/Fractals/";
 
 private:
 	const static std::string& default3DSource;
+	Shader* CreateShader(std::string source, const std::string* specification, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections);
 };
 
 #endif

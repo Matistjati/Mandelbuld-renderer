@@ -33,8 +33,6 @@ public:
 	static const constexpr char* helperFunctions = "shaders/2D/Base/HelperFunctions.fs";
 	static const constexpr char* alternateDefaultFunctionsPath = "shaders/2D/Base/AlternateDefault.fs";
 
-	static const constexpr char* computeRenderBufferName = "renderInput";
-
 private:
 	const static std::string& default2DSource;
 	Shader* CreateShader(std::string source, const std::string* specification, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections);

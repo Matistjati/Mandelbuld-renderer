@@ -24,6 +24,77 @@ Fractal3D::Fractal3D(int specIndex, int fractalIndex, int fractalNameIndex)
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalFolderPath()), fractalNameIndex));
 }
 
+
+Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
+{
+	GlErrorCheck();
+
+	std::vector<ShaderSection> sections{};
+
+	std::string source = FileManager::ReadFile(Fractal3D::GetFractalPath(name));
+
+	Section extraSects = Section("extraSections");
+	size_t extraSectionIndex = source.find(extraSects.start);
+	if (extraSectionIndex != std::string::npos)
+	{
+		size_t extraSectionEnd = source.find(extraSects.end);
+		std::vector<std::string> sectionContents = SplitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
+		for (size_t i = 0; i < sectionContents.size(); i++)
+		{
+			CleanString(sectionContents[i], { '\n', '\t', ' ', '[', ']', '\"' });
+			std::vector<std::string> value = Split(sectionContents[i], ',');
+			if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
+			else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
+			else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), StringToBool(value[3])));
+		}
+	}
+
+	const std::string specification = FileManager::ReadFile(Fractal3D::GetSpecPath(name));
+
+
+	return CreateShader(source, &specification, fractalIndex, specIndex, sections);
+}
+
+Shader* Fractal3D::GenerateShader()
+{
+	return GenerateShader(&specIndex, &fractalIndex, fractalName);
+}
+
+Shader* Fractal3D::GenerateShader(std::string fractalName)
+{
+	int* specIndex = new int(0);
+	int* fractalIndex = new int(0);
+	Shader* shader = Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
+	delete specIndex;
+	delete fractalIndex;
+	return shader;
+}
+
+Shader* Fractal3D::GenerateShader(int spec, int fractal, std::string fractalName)
+{
+	int* specIndex = new int(spec);
+	int* fractalIndex = new int(fractal);
+	Shader* shader = Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
+	delete specIndex;
+	delete fractalIndex;
+	return shader;
+}
+
+std::string Fractal3D::GetSpecPath(std::string fileName)
+{
+	return (Fractal3D::fractal3dPath + fileName) + "Specs.fs";
+}
+
+std::string Fractal3D::GetFractalPath(std::string fileName)
+{
+	return (Fractal3D::fractal3dPath + fileName) + ".fs";
+}
+
+std::string Fractal3D::GetFractalFolderPath()
+{
+	return fractal3dPath;
+}
+
 void Fractal3D::ParseShaderDefault(std::map<ShaderSection, bool> sections, std::string& source, std::string& final, std::string specification)
 {
 	std::string defaultSource = default3DSource;
@@ -293,84 +364,132 @@ void Fractal3D::ParseShader(std::string& source, std::string& final, const std::
 	}
 }
 
-Shader* Fractal3D::GenerateShader(int* specIndex, int* fractalIndex, std::string name)
+Shader* Fractal3D::CreateShader(std::string source, const std::string* specification, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections)
 {
-	GlErrorCheck();
-
-	std::string base = FileManager::ReadFile(Fractal3D::path3DBase);
-
-	std::vector<ShaderSection> sections{};
-
-	std::string source = FileManager::ReadFile(Fractal3D::GetFractalPath(name));
-
-	Section extraSects = Section("extraSections");
-	size_t extraSectionIndex = source.find(extraSects.start);
-	if (extraSectionIndex != std::string::npos)
-	{
-		size_t extraSectionEnd = source.find(extraSects.end);
-		std::vector<std::string> sectionContents = SplitNotInChar(source.substr(extraSectionIndex + extraSects.start.length(), extraSectionEnd - (extraSectionIndex + extraSects.start.length())), ',', '[', ']');
-		for (size_t i = 0; i < sectionContents.size(); i++)
-		{
-			CleanString(sectionContents[i], {'\n', '\t', ' ', '[', ']', '\"'});
-			std::vector<std::string> value = Split(sectionContents[i], ',');
-			if (value.size() == 1)	sections.push_back(ShaderSection(value[0]));
-			else if (value.size() == 2) sections.push_back(ShaderSection(value[0], StringToBool(value[1])));
-			else if (value.size() == 4) sections.push_back(ShaderSection(value[0], StringToBool(value[1]), StringToBool(value[3])));
-		}
-	}
-
-	const std::string specification = FileManager::ReadFile(Fractal3D::GetSpecPath(name));
-
-	ParseShader(source, base, &specification, specIndex, fractalIndex, sections);
-
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
 
+	std::string renderBase;
+	std::string type = GetSection(Section("type"), source);
+	if (type != "")
+	{
+		if (type == "fragment")
+		{
+			renderBase = FileManager::ReadFile(Fractal3D::path3DBase);
+		}
+		else if (type == "compute")
+		{
+			const static int maxDimensions = 3;
 
-	fractalSourceCode = base;
+
+			std::string dimensionNumber = GetSection(Section("localSizeDimensions"), source);
+			if (dimensionNumber == "") dimensionNumber = "1";
+
+			int dimensions;
+			dimensions = std::stoi(dimensionNumber);
+			if (dimensions > maxDimensions) dimensions = maxDimensions;
+
+			int workGroupMaxProduct;
+			glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &workGroupMaxProduct);
+
+			int maxProductRoot = (int)std::floor(pow((double)workGroupMaxProduct, 1. / dimensions));
+
+			std::vector<int> factors[3] = { GetPrimeFactors(int(screenSize.value.x)), GetPrimeFactors(int(screenSize.value.y)), {1} };
+
+			int workGroups[maxDimensions] = { 1, 1, 1 };
+			for (int i = 0; i < dimensions; i++)
+			{
+				int maxGroupSize;
+				glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &maxGroupSize);
+				for (size_t j = 0; j < factors[i].size(); j++)
+				{
+					workGroups[i] *= factors[i][j];
+					if (workGroups[i] > maxGroupSize || workGroups[i] > maxProductRoot)
+					{
+						workGroups[i] /= factors[i][j];
+						break;
+					}
+				}
+			}
+
+			std::string computeBase = FileManager::ReadFile(Fractal3D::path3DBaseCompute);
+
+			if (!Replace(computeBase, "<sizeX>", std::to_string(workGroups[0]))) DebugPrint("Could not replace compute shader <sizeX> with " + std::to_string(workGroups[0]));
+			if (!Replace(computeBase, "<sizeY>", std::to_string(workGroups[1]))) DebugPrint("Could not replace compute shader <sizeY> with " + std::to_string(workGroups[1]));
+			if (!Replace(computeBase, "<sizeZ>", std::to_string(workGroups[2]))) DebugPrint("Could not replace compute shader <sizeZ> with " + std::to_string(workGroups[2]));
+
+			if (source.find("std430" != 0))
+			{
+				Replace(computeBase, "#version 330", "#version 430");
+			}
+
+			int renderingFrequency;
+			std::string renderingFrequencyStr = GetSection(Section("renderFrequency"), source);
+
+			renderingFrequency = (renderingFrequencyStr == "") ? ComputeShader::DefaultRenderingFrequency : std::stoi(renderingFrequencyStr);
+
+
+			std::string renderSourceName = GetSection(Section("render"), source);
+			std::string renderSource;
+
+			if (renderSourceName == "")
+			{
+				std::cout << "Could not find render source";
+				BreakIfDebug();
+			}
+			renderSource = FileManager::ReadFile(Fractal3D::fractal3dPath + renderSourceName);
+
+			std::string uniforms = GetSection(Section("uniforms"), renderSource);
+			if (uniforms != "")
+			{
+				size_t sourceUniformStart = source.find(Section("uniforms").start);
+				if (sourceUniformStart != std::string::npos)
+				{
+					source.insert(sourceUniformStart + Section("uniforms").start.size(), uniforms);
+				}
+			}
+
+			ParseShader(source, computeBase, specification, specIndex, fractalIndex, shaderSections);
+
+
+			std::string renderBase = FileManager::ReadFile(Fractal3D::path3DBase);
+
+			ParseShader(renderSource, renderBase, specification, specIndex, fractalIndex, shaderSections);
+
+			if (renderBase.find("std430" != 0))
+			{
+				Replace(renderBase, "#version 330", "#version 430");
+			}
+
+
+			fractalSourceCode = computeBase;
+
 
 #if PrintSource
-	std::cout << base;
+			std::cout << renderBase;
+			std::cout << computeBase;
 #endif
 
-	return new Shader(vertexSource, base);
-}
+			return new ComputeShader(computeBase, vertexSource, renderBase, false, { workGroups[0], workGroups[1], workGroups[2] }, renderingFrequency);
+		}
+	}
+	else // Assume fragment shader
+	{
+		renderBase = FileManager::ReadFile(Fractal3D::path3DBase);
+	}
 
-Shader* Fractal3D::GenerateShader()
-{
-	return GenerateShader(&specIndex, &fractalIndex, fractalName);
-}
+	if (source.find("std430" != 0))
+	{
+		Replace(renderBase, "#version 330", "#version 430");
+	}
 
-Shader* Fractal3D::GenerateShader(std::string fractalName)
-{
-	int* specIndex = new int(0);
-	int* fractalIndex = new int(0);
-	Shader* shader = Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
-	delete specIndex;
-	delete fractalIndex;
-	return shader;
-}
+	ParseShader(source, renderBase, specification, specIndex, fractalIndex, shaderSections);
 
-Shader* Fractal3D::GenerateShader(int spec, int fractal, std::string fractalName)
-{
-	int* specIndex = new int(spec);
-	int* fractalIndex = new int(fractal);
-	Shader* shader = Fractal3D::GenerateShader(specIndex, fractalIndex, fractalName);
-	delete specIndex;
-	delete fractalIndex;
-	return shader;
-}
+#if PrintSource
+	std::cout << renderBase;
+#endif
 
-std::string Fractal3D::GetSpecPath(std::string fileName)
-{
-	return (Fractal3D::fractal3dPath + fileName) + "Specs.fs";
-}
 
-std::string Fractal3D::GetFractalPath(std::string fileName)
-{
-	return (Fractal3D::fractal3dPath + fileName) + ".fs";
-}
+	fractalSourceCode = renderBase;
 
-std::string Fractal3D::GetFractalFolderPath()
-{
-	return fractal3dPath;
+	return new Shader(vertexSource, renderBase, false);
 }

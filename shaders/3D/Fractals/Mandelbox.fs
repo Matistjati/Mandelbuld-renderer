@@ -66,20 +66,20 @@
 
 <coloring>
 	<
-	col = vec3(0.1);
-	col = mix(col, colorA, clamp(pow(trap.w,6.0), 0, 1));
-	col += colorA * 0.1;
+		col = vec3(0.1);
+		col = mix(col, colorA, clamp(pow(trap.w,6.0), 0., 1.));
+		col += colorA * 0.1;
 	>,
 
 
 	<
-	col.x += 1-cos(trap.y);
-	col.y += 0.8*cos(trap.x);
-	col.z += sqrt(sin(trap.z));
+		col.x += 1-cos(trap.y);
+		col.y += 0.8*cos(trap.x);
+		col.z += sqrt(sin(trap.z));
 	>,
 
 	<
-	col = (cos(edgeColor + colorA * steps * colorFrequency) * -0.5 + 0.5);
+		col = (cos(edgeColor + colorA * steps * colorFrequency) * -0.5 + 0.5);
 	>,
 
 	//col *= steps;
@@ -89,20 +89,20 @@
 
 <edgeGlow>
 	<
-	col = mix(col, edgeColor, pow(steps,fogDarkness));
+		col = mix(col, edgeColor, pow(steps,fogDarkness));
 	>,
 
 	<
-	col = edgeColor * pow(1-steps,pow(fogDarkness,1.1))*exp(-1/fogDarkness*t); /*Fog*/
-	col = mix(col, vec3(sqrt(col)), clamp(pow(clamp(trap.w-steps*steps,0,0.95),pow(fogDarkness,1.5)),0,1));
-	col *= float(hitSurface);
+		col = edgeColor * pow(1-steps,pow(fogDarkness,1.1))*exp(-1/fogDarkness*t); /*Fog*/
+		col = mix(col, vec3(sqrt(col)), clamp(pow(clamp(trap.w-steps*steps,0,0.95),pow(fogDarkness,1.5)),0,1));
+		col *= float(hitSurface);
 	>,
 	
 	<
-	col *= float(hitSurface);
+		col *= float(hitSurface);
 	>,
 
 	<
-	col = (cos(edgeColor + colorA * steps * 10 * frequency) * -0.5 + 0.5);
+		col = (cos(edgeColor + colorA * steps * 10 * frequency) * -0.5 + 0.5);
 	>,
 </edgeGlow>

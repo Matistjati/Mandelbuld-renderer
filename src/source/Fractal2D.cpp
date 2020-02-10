@@ -62,18 +62,20 @@ Shader* Fractal2D::GenerateShader(std::string fractalName)
 {
 	int* specIndex = new int(0);
 	int* fractalIndex = new int(0);
-	return Fractal2D::GenerateShader(specIndex, fractalIndex, fractalName);
+	Shader* shader = Fractal2D::GenerateShader(specIndex, fractalIndex, fractalName);
 	delete specIndex;
 	delete fractalIndex;
+	return shader;
 }
 
 Shader* Fractal2D::GenerateShader(int spec, int fractal, std::string fractalName)
 {
 	int* specIndex = new int(spec);
 	int* fractalIndex = new int(fractal);
-	return Fractal2D::GenerateShader(specIndex, fractalIndex, fractalName);
+	Shader* shader = Fractal2D::GenerateShader(specIndex, fractalIndex, fractalName);
 	delete specIndex;
 	delete fractalIndex;
+	return shader;
 }
 
 std::string Fractal2D::GetSpecPath(std::string fileName)
@@ -383,36 +385,6 @@ void Fractal2D::ParseShader(std::string& source, std::string & final, const std:
 	}
 }
 
-std::vector<int> GetPrimeFactors(int n)
-{
-	std::vector<int> factors = std::vector<int>();
-
-
-	while (n % 2 == 0)
-	{
-		factors.push_back(2);
-		n /= 2;
-	}
-
-	int root = int(ceil(sqrt(n)));
-
-	for (int i = 3; i <= root; i+=2)
-	{
-		if (n % i == 0)
-		{
-			factors.push_back(i);
-			n /= i;
-		}
-	}
-
-	if (n > 2)
-	{
-		factors.push_back(n);
-	}
-
-	return factors;
-}
-
 Shader* Fractal2D::CreateShader(std::string source, const std::string* specification, int* fractalIndex, int* specIndex, std::vector<ShaderSection> shaderSections)
 {
 	const static std::string vertexSource = FileManager::ReadFile(Fractal::pathRectangleVertexshader);
@@ -475,11 +447,6 @@ Shader* Fractal2D::CreateShader(std::string source, const std::string* specifica
 			std::string renderingFrequencyStr = GetSection(Section("renderFrequency"), source);
 
 			renderingFrequency = (renderingFrequencyStr == "") ? ComputeShader::DefaultRenderingFrequency : std::stoi(renderingFrequencyStr);
-
-
-
-
-
 
 
 			std::string renderSourceName = GetSection(Section("render"), source);

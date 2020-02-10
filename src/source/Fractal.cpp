@@ -2167,6 +2167,35 @@ void Fractal::SetVariable(std::string name, std::string value)
 	}
 }
 
+std::vector<int> Fractal::GetPrimeFactors(int n)
+{
+	std::vector<int> factors = std::vector<int>();
+
+	while (n % 2 == 0)
+	{
+		factors.push_back(2);
+		n /= 2;
+	}
+
+	int root = int(ceil(sqrt(n)));
+
+	for (int i = 3; i <= root; i += 2)
+	{
+		if (n % i == 0)
+		{
+			factors.push_back(i);
+			n /= i;
+		}
+	}
+
+	if (n > 2)
+	{
+		factors.push_back(n);
+	}
+
+	return factors;
+}
+
 void Fractal::HandleKeyInput()
 {
 	for (auto const& key : keys)

@@ -145,13 +145,14 @@ public:
 	void MousePressCallback(GLFWwindow* window, int button, int action, int mods);
 	void PopulateGUI();
 	void Init();
+	void Update();
+	void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
+	void SetUniformLocations(Shader* shader, bool computeRender = false);
+	void SetUniforms(Shader* shader, bool computeRender = false);
+	void SetUniformNames();
+	void SetVariable(std::string name, std::string value);
+	std::vector<int> GetPrimeFactors(int n);
 
-	virtual void Update();
-	virtual void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
-	virtual void SetUniformLocations(Shader* shader, bool computeRender = false);
-	virtual void SetUniforms(Shader* shader, bool computeRender = false);
-	virtual void SetUniformNames();
-	virtual void SetVariable(std::string name, std::string value);
 	virtual std::string GetSpecPath(std::string fileName) = 0;
 	virtual std::string GetFractalPath(std::string fileName) = 0;
 	virtual Shader* GenerateShader(int* specIndex, int* fractalIndex, std::string name) = 0;
