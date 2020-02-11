@@ -1375,7 +1375,7 @@ void Fractal::PopulateGUI()
 	cameraMenu->form->setFixedSize({ 75, 25 });
 
 	camera->useBuddhabrotRotation = shader->type == ShaderType::compute;
-	camera->viewMode3D = fractalType == FractalType::fractal3D;
+	camera->viewMode3D.value = fractalType == FractalType::fractal3D;
 	camera->PopulateCameraGUI(this);
 
 	// Render mode
@@ -1605,7 +1605,7 @@ void Fractal::Update()
 	shader->SetUniform(frame);
 	shader->SetUniform(deltaTime);
 
-	if (holdingMouse && !camera->viewMode3D)
+	if (holdingMouse && !camera->viewMode3D.value)
 	{
 		shader->Use();
 
@@ -1719,7 +1719,7 @@ void Fractal::MousePressCallback(GLFWwindow* window, int button, int action, int
 	{
 		holdingMouse = true;
 
-		if (!camera->viewMode3D)
+		if (!camera->viewMode3D.value)
 		{
 			// Map from screen space to fractal space
 			clickPosition.SetValue(MapScreenMouseToFractal(), false);
@@ -2101,6 +2101,7 @@ void Fractal::SetUniformLocations(Shader* shader, bool computeRender)
 	camera->zoom.id = glGetUniformLocation(id, camera->zoom.name.c_str());
 	camera->GetRotationMatrix().id = glGetUniformLocation(shader->id, camera->GetRotationMatrix().name.c_str());
 	camera->position.id = glGetUniformLocation(shader->id, camera->position.name.c_str());
+	camera->viewMode3D.id = glGetUniformLocation(shader->id, camera->viewMode3D.name.c_str());
 	mousePosition.id = glGetUniformLocation(id, mousePosition.name.c_str());
 	clickPosition.id = glGetUniformLocation(id, clickPosition.name.c_str());
 	
@@ -2118,6 +2119,7 @@ void Fractal::SetUniforms(Shader* shader, bool computeRender)
 	shader->SetUniform(camera->zoom);
 	shader->SetUniform(camera->position);
 	shader->SetUniform(camera->GetRotationMatrix());
+	shader->SetUniform(camera->viewMode3D);
 	shader->SetUniform(mousePosition);
 	shader->SetUniform(clickPosition);
 }
@@ -2130,6 +2132,7 @@ void Fractal::SetUniformNames()
 	camera->zoom.name = "zoom";
 	camera->GetRotationMatrix().name = "rotation";
 	camera->position.name = "position";
+	camera->viewMode3D.name = "view3D";
 	mousePosition.name = "mousePosition";
 	clickPosition.name = "clickPosition";
 }
@@ -2286,6 +2289,10 @@ void Fractal::ParseShader(std::string& source, std::string & final, const std::s
 		if (flags.find("<" + GetSectionName(s.start) + "Default>") == std::string::npos)
 		{
 			sections[c] = ReplaceSection(s, Section(c.name), source, final);
+			if (!sections[c])
+			{
+				sections[c] = ReplaceSection(s, Section(c.name), defaultSource, final);
+			}
 		}
 	}
 
@@ -2693,8 +2700,8 @@ std::vector<ShaderSection> Fractal::GetShaderSections()
 {
 	return (fractalType == FractalType::fractal2D)
 		? std::vector<ShaderSection>{ ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers", true), ShaderSection("main", false), }
-		: std::vector<ShaderSection>{ ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("sceneDistance"), ShaderSection("trace"),
-									  ShaderSection("render"), ShaderSection("render"), ShaderSection("main", false), ShaderSection("lightingFunctions") };
+		: std::vector<ShaderSection>{ ShaderSection("constants", true), ShaderSection("uniforms", true), ShaderSection("buffers"), ShaderSection("sceneDistance"),
+									  ShaderSection("trace"), ShaderSection("render"), ShaderSection("main", false), ShaderSection("lightingFunctions") };
 }
 
 Shader* Fractal::GenerateShader(int* specIndex, int* fractalIndex, std::string name)

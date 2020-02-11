@@ -9,6 +9,8 @@
 <localSizeDimensions>2</localSizeDimensions>
 
 <uniforms>
+	/*<CanView2DAnd3D>*/
+
 	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 1024)</GuiHint>*/
 	uniform float maxIterations = 256;
 
@@ -33,9 +35,6 @@
 	// Option to turn on/off cardiod and main bulb interior checking
 	/*<GuiHint>GuiType: checkBox, Name: Mandelbrot power 2 optimize, Parent: renderParams</GuiHint>*/
 	uniform bool pow2Optimize = true;
-	
-	/*<GuiHint>GuiType: checkBox, Name: 3D camera, Parent: cam</GuiHint>*/
-	uniform bool camera = true;
 	
 	/*<GuiHint>GuiType: Slider, Name: Color Offset, Parent: color, Range: (-1, 1)</GuiHint>*/
 	uniform float colorOffset = 0;
@@ -90,7 +89,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
-	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x+screenSize.x*(.5))
+	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587
 	#define PI_TWO 6.283185307179586476925286766559005768394338798750211641949889184
@@ -103,7 +102,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
 	vec4 area;
-	if (camera)
+	if (view3D)
 	{
 		area = renderArea;
 	}
@@ -263,7 +262,7 @@ vec2 project(vec2 w, vec2 c)
 	coord.y = mix(coord.y, pos.z, yRot.y);
 	coord.y = mix(coord.y, pos.w, yRot.z);
 
-	if (camera)
+	if (view3D)
 	{
 		mat4 cam = getRotMatrix(yRot) * getPosMatrix(position) * mat4(rotation[0].xyz,0,rotation[1].xyz,0,rotation[2].xyz,0,0,0,0,1);
 

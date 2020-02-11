@@ -6,6 +6,7 @@
 #include <glm.hpp>
 #include "headers/Fractal.h"
 #include "headers/GUI.h"
+#include "headers/Uniform.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum class CameraMovement
@@ -31,7 +32,7 @@ class Camera
 public:
 
 	SubMenu* cameraMenu;
-	bool viewMode3D;
+	Uniform<bool> viewMode3D;
 	void PopulateCameraGUI(Fractal* fractal);
 	bool cursorVisible;
 	glm::vec2 mouseOffset;

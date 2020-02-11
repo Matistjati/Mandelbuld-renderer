@@ -13,6 +13,14 @@
 	col += sunSize * sunColor * pow(clamp(dot(direction, Sun), 0.0, 1.0), sunSpread);
 </sun>
 
+<buffers>
+/*<bufferType>mainBuffer</bufferType>*/
+layout(std430, binding = 0) buffer densityMap
+{
+	vec4 image[];
+};
+</buffers>
+
 <distanceSetup>
 	<sinTanW>w = sin(w); w = tan(w);</sinTanW>,
 	<sinW>w = sin(w);</sinW>,
@@ -284,6 +292,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		}
 	}
 	col /= AA*AA;
-
-    color = vec4(col.xyz, 1.0);
+	
+    color = vec4(col, 1);
 </main>

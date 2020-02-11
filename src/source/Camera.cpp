@@ -11,25 +11,34 @@
 
 void Camera::PopulateCameraGUI(Fractal* fractal)
 {
-	// 3D option
-	Uniform<bool>* checkBox3D = new Uniform<bool>(viewMode3D);
-
-	nanogui::CheckBox* view3D = cameraMenu->form->AddCheckbox(cameraMenu->window, "3D", checkBox3D, fractal, checkBox3D->value);
-
-	view3D->setCallback([this, fractal, checkBox3D](bool mode)
+	// 3D/2D option if supported
+	if (fractal->fractalSourceCode.find("CanView2DAnd3D") != std::string::npos)
+	{
+		nanogui::CheckBox* view3D = cameraMenu->form->AddCheckbox(cameraMenu->window, "3D", &viewMode3D, fractal, viewMode3D.value);
+		viewMode3D.SetShaderValue = [fractal, this](bool value)
 		{
-			this->viewMode3D = mode;
+			fractal->shader->SetUniform(this->viewMode3D);
+			if (fractal->shader->type == ShaderType::compute)
+			{
+				((ComputeShader*)fractal->shader)->mainBuffer.Clear();
+			}
+		};
 
-			nanogui::Window* window = this->cameraMenu->window;
+		view3D->setCallback([this, fractal](bool mode)
+			{
+				this->viewMode3D.value = mode;
+				this->viewMode3D.SetShaderValue(false);
 
-			this->cameraMenu->window = this->cameraMenu->form->addWindow(this->cameraMenu->window->position(), "Camera");
+				nanogui::Window* window = this->cameraMenu->window;
 
-			this->PopulateCameraGUI(fractal);
-			fractal->gui->performLayout();
-			delete checkBox3D;
-			window->dispose();
-		});
+				this->cameraMenu->window = this->cameraMenu->form->addWindow(this->cameraMenu->window->position(), "Camera");
 
+				this->PopulateCameraGUI(fractal);
+				fractal->gui->performLayout();
+				window->dispose();
+			});
+	}
+	
 	// Zoom
 	GuiElement zoomElement = GuiElement();
 	zoomElement.element = Element::TextBox;
@@ -85,7 +94,7 @@ void Camera::PopulateCameraGUI(Fractal* fractal)
 	};
 	position.SetShaderValue = [fractal](bool renderMode) {fractal->shader->SetUniform(fractal->camera->position, false); };
 
-	if (viewMode3D)
+	if (viewMode3D.value)
 	{
 		auto positionFieldZ = cameraMenu->form->AddTextBox("Z", position.value.y);
 		positionFieldY->setCallback([fractal](float value)
@@ -235,26 +244,26 @@ void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 	switch (direction)
 	{
 	case CameraMovement::forward:
-		if (viewMode3D)	position.value += GetForwardVector() * velocity;
+		if (viewMode3D.value)	position.value += GetForwardVector() * velocity;
 		else position.value.y += velocity;
 		break;
 	case CameraMovement::back:
-		if (viewMode3D)	position.value -= GetForwardVector() * velocity;
+		if (viewMode3D.value)	position.value -= GetForwardVector() * velocity;
 		else position.value.y -= velocity;
 		break;
 	case CameraMovement::right:
-		if (viewMode3D)	position.value += GetRightVector() * velocity;
+		if (viewMode3D.value)	position.value += GetRightVector() * velocity;
 		else position.value.x += velocity;
 		break;
 	case CameraMovement::left:
-		if (viewMode3D)	position.value -= GetRightVector() * velocity;
+		if (viewMode3D.value)	position.value -= GetRightVector() * velocity;
 		else position.value.x -= velocity;
 		break;
 	case CameraMovement::up:
-		if (viewMode3D) position.value += GetWorldUp() * velocity;
+		if (viewMode3D.value) position.value += GetWorldUp() * velocity;
 		break;
 	case CameraMovement::down:
-		if (viewMode3D) position.value -= GetWorldUp() * velocity;
+		if (viewMode3D.value) position.value -= GetWorldUp() * velocity;
 		break;
 	default:
 		break;
@@ -271,7 +280,7 @@ void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 void Camera::ProcessZoom(float magnitude)
 {
 	zoom.SetValue(zoom.value * magnitude, false);
-	if (viewMode3D)
+	if (viewMode3D.value)
 	{
 		zoom.SetValue(glm::clamp(zoom.GetValue(), 1e-7f, 1.f), false);
 	}

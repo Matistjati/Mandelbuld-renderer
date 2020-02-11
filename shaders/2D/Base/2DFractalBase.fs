@@ -11,6 +11,7 @@ uniform float zoom = 1;
 uniform float time = 0;
 uniform float deltaTime = 1/30;
 uniform uint frame = uint(0);
+uniform bool view3D = false;
 
 
 /*<GuiHint>GuiType: submenu, Name: Fractal Parameters, Identifier: fractalParams</GuiHint>*/

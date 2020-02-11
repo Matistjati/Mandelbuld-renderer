@@ -28,21 +28,30 @@ public:
 		buffer,
 		none
 	};
-	Buffer(unsigned int id, int binding, BufferType type, std::string name) : id(id), binding(binding), type(type), name(name), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id, int binding, std::string name) : id(id), binding(binding), type(BufferType::buffer), name(name), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id, BufferType type, std::string name) : id(id), binding(-1), type(type), name(name), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id, int binding, BufferType type) : id(id), binding(binding), type(type), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id, std::string name) : id(id), binding(-1), type(BufferType::buffer), name(name), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id, int binding) : id(id), binding(binding), type(BufferType::buffer), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id, BufferType type) : id(id), binding(-1), type(type), timesToClear(0), resetFrame() {}
-	Buffer(unsigned int id) : id(id), binding(-1), type(BufferType::buffer), timesToClear(0), resetFrame() {}
-	Buffer() : id(-1), binding(-1), type(BufferType::none), timesToClear(0), resetFrame() {}
 	BufferType type;
 	unsigned int id;
 	int binding;
 	std::string name;
 	float timesToClear;
 	bool resetFrame;
+	bool initialized;
+
+	// Cursed contructor wall. Basically different ways of initializing the members declared above
+	Buffer(unsigned int id, int binding, BufferType type, std::string name, bool initialized = false) : id(id), binding(binding), type(type), name(name), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, int binding, std::string name, bool initialized = false) : id(id), binding(binding), type(BufferType::buffer), name(name), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, BufferType type, std::string name, bool initialized = false) : id(id), binding(-1), type(type), name(name), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, int binding, BufferType type, bool initialized = false) : id(id), binding(binding), type(type), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, std::string name, bool initialized = false) : id(id), binding(-1), type(BufferType::buffer), name(name), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, int binding, bool initialized = false) : id(id), binding(binding), type(BufferType::buffer), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, BufferType type, bool initialized = false) : id(id), binding(-1), type(type), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(unsigned int id, bool initialized = false) : id(id), binding(-1), type(BufferType::buffer), timesToClear(0), resetFrame(), initialized(initialized) {}
+	Buffer(bool initialized = false) : id(-1), binding(-1), type(BufferType::none), timesToClear(0), resetFrame(), initialized(initialized) {}
+
+	void Clear()
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
+		glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_RGBA32F, GL_RED, GL_FLOAT, nullptr);
+	}
 
 	void Delete()
 	{

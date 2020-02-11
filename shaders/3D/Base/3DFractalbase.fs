@@ -11,6 +11,8 @@ uniform float zoom = 1;
 uniform float time = 0;
 uniform float deltaTime = 1/30;
 uniform uint frame = uint(0);
+uniform bool view3D = true;
+
 
 /*<GuiHint>GuiType: submenu, Name: Rendering options, Identifier: render</GuiHint>*/
 
@@ -80,6 +82,8 @@ uniform vec3 skyColor = vec3(0.8, 0.95, 1.0);
 const vec3 light = vec3(-0.707107, 0.000, 0.707107);
 
 #define sun normalize(vec3(sin(time * 0.25),abs(sin(time * 0.1)),cos(time * 0.25)))
+
+<buffers>
 
 <constants>
 
