@@ -123,7 +123,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 		for(int i = 0; i < pointsPerFrame; i++)
 		{
 			uint seed = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
-    		vec2 w = getStartValue(seed, area);
+			vec2 w = getStartValue(seed, area);
 			if (w.x<-100) continue;
 
 			mainLoop(w, area);
@@ -246,8 +246,8 @@ mat4 getPosMatrix(vec3 p)
 
 bool insideBox(vec2 v, vec4 box)
 {
-    vec2 s = step(box.xy, v) - step(box.zw, v);
-    return bool(s.x * s.y);   
+	vec2 s = step(box.xy, v) - step(box.zw, v);
+	return bool(s.x * s.y);   
 }
 
 vec2 project(vec2 w, vec2 c)
@@ -345,8 +345,8 @@ vec2 EscapeCount(vec2 w, vec4 area)
 <hslToRgb>
 vec3 hslToRgb(vec3 c)
 {
-    vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
-    return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
+	vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0,1.0);
+	return c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
 }
 </hslToRgb>
 

@@ -53,6 +53,8 @@ struct Uniform : public UniformSuper
 // Don't even try to to include it up there; stuff will break left and right and you end up with 300+ errors
 #include "headers/Fractal.h"
 
+class Fractal;
+
 template<typename T>
 inline T& Uniform<T>::GetValue()
 {

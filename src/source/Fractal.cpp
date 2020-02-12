@@ -1989,7 +1989,7 @@ void Fractal::AddShaderParameters(std::string& spec)
 			{
 				shaderIndices[name] = new ShaderIndice(value, modifier, { keyUpDown.first, keyUpDown.second });
 			}
-			std::remove(keysToRemove.begin(), keysToRemove.end(), name);
+			keysToRemove.erase(std::remove(keysToRemove.begin(), keysToRemove.end(), name), keysToRemove.end());
 		}
 
 		for (size_t i = 0; i < keysToRemove.size(); i++)

@@ -5,6 +5,7 @@
 Polygonising distance fields (works with distance estimator): http://paulbourke.net/geometry/polygonise/
 A research paper on the buddhabrot: https://vixra.org/pdf/1604.0392v1.pdf
 Raymarching intro: https://www.youtube.com/watch?v=yxNnRSefK94&list=LLk3DQC5zS5U7Icg-YoE8Rsw&index=6&t=0s
+Path tracing: https://www.iquilezles.org/www/articles/simplepathtracing/simplepathtracing.htm
 
 
 /////////////

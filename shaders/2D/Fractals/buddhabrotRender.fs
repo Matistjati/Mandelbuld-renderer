@@ -17,7 +17,7 @@
 /*<bufferType>renderInput</bufferType>*/
 layout(std430, binding=0) buffer renderInput
 {
-    vec4 points[];
+	vec4 points[];
 };
 #define IndexPoints(X,Y) uint(X+(Y-step(3,Y)*3)*screenSize.x+screenSize.x)
 </buffers>

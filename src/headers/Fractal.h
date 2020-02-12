@@ -126,7 +126,7 @@ public:
 	void PopulateGuiFromShader();
 	virtual void SetShaderUniforms(bool render);
 	virtual void SetShaderGui(bool render);
- 	static glm::vec2 GetMonitorSize();
+	static glm::vec2 GetMonitorSize();
 	void FindPathAndSaveImage();
 	void SaveImage(std::string path);
 	void RenderComputeShader();

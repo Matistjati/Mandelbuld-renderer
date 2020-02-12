@@ -14,11 +14,11 @@
 </sun>
 
 <buffers>
-/*<bufferType>mainBuffer</bufferType>*/
-layout(std430, binding = 0) buffer densityMap
-{
-	vec4 image[];
-};
+	/*<bufferType>mainBuffer</bufferType>*/
+	layout(std430, binding = 0) buffer PathTracedImage
+	{
+		vec4 image[];
+	};
 </buffers>
 
 <distanceSetup>
@@ -215,7 +215,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		{
 			// Sky gradient
 			<sky>
-     		
+			
 			// Sun
 			<sun>
 
@@ -293,5 +293,5 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	}
 	col /= AA*AA;
 	
-    color = vec4(col, 1);
+	color = vec4(col, 1);
 </main>
