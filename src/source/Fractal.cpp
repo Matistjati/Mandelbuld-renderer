@@ -1203,12 +1203,13 @@ void Fractal::SetShaderGui(bool render)
 
 	Fractal::renderMode = render;
 
-	camera->zoom.SetGuiValue();
-
 
 	for (auto& uni : fractalUniforms)
 	{
-		((UniformSuper*)uni.uniform)->SetGuiValue();
+		if (((UniformSuper*)uni.uniform)->SetGuiValue)
+		{
+			((UniformSuper*)uni.uniform)->SetGuiValue();
+		}
 	}
 
 	Fractal::renderMode = preserveOld;
