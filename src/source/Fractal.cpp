@@ -1067,6 +1067,18 @@ void Fractal::UpdateFractalShader()
 	renderMode = false;
 
 	fractalUniforms.clear();
+	// Resetting uniform callbacks
+	clickPosition.callbacks = {};
+	screenSize.callbacks = {};
+	time.callbacks = {};
+	deltaTime.callbacks = {};
+	frame.callbacks = {};
+	mousePosition.callbacks = {};
+	camera->GetRotationMatrix().callbacks = {};
+	camera->viewMode3D.callbacks = {};
+	camera->position.callbacks = {};
+	camera->zoom.callbacks = {};
+
 	subMenus.clear();
 
 	Init();

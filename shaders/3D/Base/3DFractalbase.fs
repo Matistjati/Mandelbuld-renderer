@@ -54,6 +54,8 @@ uniform float shadowDarkness = 1;
 /*<GuiHint>GuiType: slider, Name: Specular Strength, Parent: render, Range: (0, 2)</GuiHint>*/
 uniform float specularStrength = 1;
 
+/*<GuiHint>GuiType: checkBox, Name: Path Trace Image, Parent: render</GuiHint>*/
+uniform bool pathTrace = false;
 
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring, Parent: color</GuiHint>*/

@@ -1,5 +1,4 @@
 <uniforms>
-
 	/*<GuiHint>GuiType: slider, Name: Scale, Parent: fractalParams, Range: (-10, 10)</GuiHint>*/
 	uniform float scale = 2;
 	
@@ -24,7 +23,6 @@
 
 	/*<GuiHint>GuiType: slider, Name: Color Period, Parent: Color, Range: (0, 100)</GuiHint>*/
 	uniform float colorFrequency = 10;
-
 </uniforms>
 
 <include>
@@ -94,7 +92,7 @@
 
 	<
 		col = edgeColor * pow(1-steps,pow(fogDarkness,1.1))*exp(-1/fogDarkness*t); /*Fog*/
-		col = mix(col, vec3(sqrt(col)), clamp(pow(clamp(trap.w-steps*steps,0,0.95),pow(fogDarkness,1.5)),0.,1.));
+		col = mix(col, vec3(sqrt(col)), clamp(pow(clamp(trap.w-steps*steps,0.,0.95),pow(fogDarkness,1.5)),0.,1.));
 		col *= float(hitSurface);
 	>,
 	

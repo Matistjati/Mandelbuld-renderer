@@ -251,7 +251,6 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 						}
 
 						BufferInitialization::functions[functionName](data, Fractal::screenSize.value, params);
-						//std::vector<glm::vec4>().swap(data);
 						glBufferData(GL_SHADER_STORAGE_BUFFER, int(Fractal::screenSize.value.x * Fractal::screenSize.value.y * sizeof(glm::vec4)), &data[0], GL_DYNAMIC_DRAW);
 						initialized = true;
 					}
@@ -283,7 +282,12 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 
 			offset = bufferTypeStart;
 			GlErrorCheck();
-			buffers.push_back(Buffer(buffer, binding, type));
+			Buffer newBuffer = Buffer(buffer, binding, type);
+			if (!initialized)
+			{
+				newBuffer.Clear();
+			}
+			buffers.push_back(newBuffer);
 		}
 		else
 		{

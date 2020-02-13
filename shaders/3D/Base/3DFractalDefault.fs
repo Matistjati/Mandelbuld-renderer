@@ -14,8 +14,9 @@
 </sun>
 
 <buffers>
-	/*<bufferType>mainBuffer</bufferType>*/
-	layout(std430, binding = 0) buffer PathTracedImage
+	/*<bufferType>imageBuffer</bufferType>*/
+	/*<shouldBeCleared>button, resetFrame, onUniformChange: [position, rotation, zoom, pathTrace]</shouldBeCleared>*/
+	layout(std430, binding = 4) buffer PathTracedImage
 	{
 		vec4 image[];
 	};
@@ -292,6 +293,15 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		}
 	}
 	col /= AA*AA;
+	
+	if (pathTrace)
+	{
+		// gl_FragCoord is in the range [0.5, screenSize+0.5], so we subtract to get to [0, screenSize]
+		vec2 pos = gl_FragCoord.xy-vec2(0.5);
+		int index = int(pos.y*screenSize.x+pos.x); 
+		image[index] += vec4(0.5, 0, 0, 1);
+		col = image[index].xyz;
+	}
 	
 	color = vec4(col, 1);
 </main>
