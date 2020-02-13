@@ -3,6 +3,12 @@
 	{
 		return DistanceEstimator(w, resColor);
 	}
+	
+	float sceneDistance(vec3 w)
+	{
+		vec4 temp;
+		return DistanceEstimator(w, temp);
+	}
 </sceneDistance>
 
 <sky>
@@ -181,11 +187,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float result = 1.0;
 		float t = 0.0;
 	
-		vec4 temp;
-
 		for(int i = 0; i < maxSteps; i++)
 		{
-			float h = sceneDistance(origin + direction * t, temp);
+			float h = sceneDistance(origin + direction * t);
 			result = min(result, k * h / t);
 
 			if(result < 0.001) break;
@@ -197,6 +201,151 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 </lightingFunctions>
 
 <render>
+	float shadow( in vec3 ro, in vec3 rd )
+	{
+		float res = 0.0;
+    
+		float tmax = 12.0;
+    
+		float t = 0.001;
+		for(int i=0; i<80; i++ )
+		{
+			float h = sceneDistance(ro+rd*t);
+			if( h<0.0001 || t>tmax) break;
+			t += h;
+		}
+
+		if( t>tmax ) res = 1.0;
+    
+		return res;
+	}
+
+	float hash(float seed)
+	{
+		return fract(sin(seed)*43758.5453 );
+	}
+
+	vec3 cosineDirection( in float seed, in vec3 nor)
+	{
+		float u = hash( 78.233 + seed);
+		float v = hash( 10.873 + seed);
+
+    
+		// Method 1 and 2 first generate a frame of reference to use with an arbitrary
+		// distribution, cosine in this case. Method 3 (invented by fizzer) specializes 
+		// the whole math to the cosine distribution and simplfies the result to a more 
+		// compact version that does not depend on a full frame of reference.
+
+		#if 0
+			// method 1 by http://orbit.dtu.dk/fedora/objects/orbit:113874/datastreams/file_75b66578-222e-4c7d-abdf-f7e255100209/content
+			vec3 tc = vec3( 1.0+nor.z-nor.xy*nor.xy, -nor.x*nor.y)/(1.0+nor.z);
+			vec3 uu = vec3( tc.x, tc.z, -nor.x );
+			vec3 vv = vec3( tc.z, tc.y, -nor.y );
+
+			float a = 6.2831853 * v;
+			return sqrt(u)*(cos(a)*uu + sin(a)*vv) + sqrt(1.0-u)*nor;
+		#endif
+		#if 0
+    		// method 2 by pixar:  http://jcgt.org/published/0006/01/01/paper.pdf
+    		float ks = (nor.z>=0.0)?1.0:-1.0;     //do not use sign(nor.z), it can produce 0.0
+			float ka = 1.0 / (1.0 + abs(nor.z));
+			float kb = -ks * nor.x * nor.y * ka;
+			vec3 uu = vec3(1.0 - nor.x * nor.x * ka, ks*kb, -ks*nor.x);
+			vec3 vv = vec3(kb, ks - nor.y * nor.y * ka * ks, -nor.y);
+    
+			float a = 6.2831853 * v;
+			return sqrt(u)*(cos(a)*uu + sin(a)*vv) + sqrt(1.0-u)*nor;
+		#endif
+		#if 1
+    		// method 3 by fizzer: http://www.amietia.com/lambertnotangent.html
+			float a = 6.2831853 * v;
+			u = 2.0*u - 1.0;
+			return normalize( nor + vec3(sqrt(1.0-u*u) * vec2(cos(a), sin(a)), u) );
+		#endif
+	}
+
+	vec3 calculateColor(vec3 ro, vec3 rd, float seed )
+	{
+		vec3 sunDir = sun;
+		vec3 sunCol = 6.0*sunColor;
+		vec3 skyCol =  4.0*vec3(0.2,0.35,0.5);
+		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
+		const float epsilon = 0.0001;
+
+		vec3 colorMask = vec3(1.0);
+		vec3 accumulatedColor = vec3(0.0);
+
+		float fdis = 0.0;
+		for( int bounce = 0; bounce<3; bounce++ ) // bounces of GI
+		{
+			//rd = normalize(rd);
+       
+			//-----------------------
+			// trace
+			//-----------------------
+			vec4 trap;
+			float steps;
+			bool hitSurface;
+			float t = trace(ro, rd, trap, px, steps, hitSurface);
+
+			if( t < 0.0 )
+			{
+				if( bounce==0 ) return mix( 0.05*vec3(0.9,1.0,1.0), skyCol, smoothstep(0.1,0.25,rd.y) );
+				break;
+			}
+
+			if( bounce==0 ) fdis = t;
+
+			vec3 pos = ro + rd * t;
+			vec3 nor = calculateNormal(pos);
+			vec3 surfaceColor = vec3(0.4)*vec3(1.2,1.1,1.0);
+
+			//-----------------------
+			// add direct lighitng
+			//-----------------------
+			colorMask *= surfaceColor;
+
+			vec3 col = vec3(0.0);
+			<coloring>
+
+			// light 1        
+			float sunDif =  max(0.0, dot(sunDir, nor));
+			float sunSha = 1.0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, sunDir);
+			col += sunCol * sunDif * sunSha;
+			// todo - add back direct specular
+
+			// light 2
+			vec3 skyPoint = cosineDirection( seed + 7.1*float(frame) + 5681.123 + float(bounce)*92.13, nor);
+			float skySha = shadow( pos + nor*epsilon, skyPoint);
+			col += skyCol * skySha;
+
+
+			accumulatedColor += colorMask * col;
+
+			//-----------------------
+			// calculate new ray
+			//-----------------------
+			//float isDif = 0.8;
+			//if( hash(sa + 1.123 + 7.7*float(bounce)) < isDif )
+			{
+			   rd = cosineDirection(76.2 + 73.1*float(bounce) + seed + 17.7*float(frame), nor);
+			}
+			//else
+			{
+			//    float glossiness = 0.2;
+			//    rd = normalize(reflect(rd, nor)) + uniformVector(sa + 111.123 + 65.2*float(bounce)) * glossiness;
+			}
+
+			ro = pos;
+	   }
+
+	   float ff = exp(-0.01*fdis*fdis);
+	   accumulatedColor *= ff; 
+	   accumulatedColor += (1.0-ff)*0.05*vec3(0.9,1.0,1.0);
+
+	   return accumulatedColor;
+	}
+
 	vec3 render(vec3 origin, vec3 direction, vec2 uv)
 	{
 		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
@@ -275,32 +424,46 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	int AA = int(antiAliasing);
 	vec3 col = vec3(0.0);
 
-	for (int i = 0; i < AA; i++)
-	{
-		for (int j = 0; j < AA; j++)
-		{
-			vec2 frag = gl_FragCoord.xy;
-			frag += vec2(float(i),float(j))/float(AA);
-			vec2 uv = frag / screenSize * 2.0 - 1.0;
-			uv.x *= float(screenSize.x) / float(screenSize.y);
-			uv *= zoom;
-
-			vec3 direction = normalize(vec3(uv.xy, -1));
-
-			direction *= rotation;
-			
-			col += render(position, direction, uv*zoom);
-		}
-	}
-	col /= AA*AA;
-	
 	if (pathTrace)
 	{
+		float seed = intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))) /float(0xffffffffU);
+		vec2 frag = gl_FragCoord.xy;
+		vec2 uv = frag / screenSize * 2.0 - 1.0;
+		uv.x *= float(screenSize.x) / float(screenSize.y);
+		uv *= zoom;
+
+		vec3 direction = normalize(vec3(uv.xy, -1));
+
+		direction *= rotation;
+
+		col = calculateColor(position, direction, seed);
+
 		// gl_FragCoord is in the range [0.5, screenSize+0.5], so we subtract to get to [0, screenSize]
 		vec2 pos = gl_FragCoord.xy-vec2(0.5);
 		int index = int(pos.y*screenSize.x+pos.x); 
-		image[index] += vec4(0.5, 0, 0, 1);
-		col = image[index].xyz;
+		image[index] += vec4(col, 1);
+		col = image[index].xyz / frame;
+	}
+	else
+	{
+		for (int i = 0; i < AA; i++)
+		{
+			for (int j = 0; j < AA; j++)
+			{
+				vec2 frag = gl_FragCoord.xy;
+				frag += vec2(float(i),float(j))/float(AA);
+				vec2 uv = frag / screenSize * 2.0 - 1.0;
+				uv.x *= float(screenSize.x) / float(screenSize.y);
+				uv *= zoom;
+
+				vec3 direction = normalize(vec3(uv.xy, -1));
+
+				direction *= rotation;
+			
+				col += render(position, direction, uv*zoom);
+			}
+		}
+		col /= AA*AA;
 	}
 	
 	color = vec4(col, 1);

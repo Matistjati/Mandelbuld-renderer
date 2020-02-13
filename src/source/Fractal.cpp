@@ -322,29 +322,45 @@ std::string Fractal::GetSpecificationByIndex(const std::string* specification, i
 			LinkSpecification(preset, section);
 		}
 
-		std::vector<std::string> newIncludes = Split(GetSectionValue(GetSection(Section("include"), section)), ',');
-		// If we new includes were added from last include, process these too. Too lazy to make it recursive as i do not plan on having depth further than this currently
-		if (newIncludes.size() != includes.size())
+		std::vector<std::string> newIncludes;
+		int i = 0;
+		std::vector<std::string> notDone;
+		do
 		{
-			std::vector<std::string> notDone;
-			// Find the ones that have not been processed
-			CleanVector(newIncludes, { '\n', '\t', ' ' });
-			for (size_t i = 0; i < newIncludes.size(); i++)
+			notDone.clear();
+			newIncludes = Split(GetSectionValue(GetSection(Section("include"), section)), ',');
+			
+			if (newIncludes.size() != includes.size())
 			{
-				if (std::find(includes.begin(), includes.end(), newIncludes[i]) == includes.end())
+				// Find the ones that have not been processed
+				CleanVector(newIncludes, { '\n', '\t', ' ' });
+				for (size_t i = 0; i < newIncludes.size(); i++)
 				{
-					notDone.push_back(newIncludes[i]);
+					if (std::find(includes.begin(), includes.end(), newIncludes[i]) == includes.end())
+					{
+						notDone.push_back(newIncludes[i]);
+						includes.push_back(newIncludes[i]);
+					}
+				}
+
+
+				for (size_t i = 0; i < notDone.size(); i++)
+				{
+					CleanString(notDone[i], { '\n', '\t', ' ' });
+					std::string preset = GetSection(Section(notDone[i]), presets);
+					LinkSpecification(preset, section);
 				}
 			}
 
-
-			for (size_t i = 0; i < notDone.size(); i++)
+			i++;
+			// Break if infinite loop
+			if (i > 512)
 			{
-				CleanString(notDone[i], { '\n', '\t', ' ' });
-				std::string preset = GetSection(Section(notDone[i]), presets);
-				LinkSpecification(preset, section);
+				DebugPrint("Infinite loop, sorry");
+				BreakIfDebug();
+				break;
 			}
-		}
+		} while (notDone.size());
 	}
 	return section;
 }
@@ -2256,12 +2272,21 @@ void Fractal::ParseShader(std::string& source, std::string & final, const std::s
 
 	Section include("include");
 	std::string includes = GetSection(include, source);
-
+	
 	if (includes != "")
 	{
-		includes.erase(std::remove(includes.begin(), includes.end(), '\n'), includes.end());
-		includes.erase(std::remove(includes.begin(), includes.end(), '\t'), includes.end());
-		includes.erase(std::remove(includes.begin(), includes.end(), ' '), includes.end());
+		CleanString(includes, { ' ', '\t', '\n' });
+
+		size_t includeStart = specSection.find("<include>");
+		size_t includeEnd = specSection.find("</include>");
+		if (includeStart != std::string::npos && includeEnd != std::string::npos)
+		{
+			std::string includeList = SubString(specSection, includeStart + std::string("<include>").size(), includeEnd);
+			CleanString(includeList, { ' ', '\n', '\t' });
+			if (includes[includes.size() - 1] != ',') includes += ",";
+
+			includes += includeList;
+		}
 
 		std::vector<std::string> includeList = Fractal::Split(includes, ',');
 

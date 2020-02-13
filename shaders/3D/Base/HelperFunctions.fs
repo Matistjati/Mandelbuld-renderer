@@ -1,3 +1,45 @@
+<random>
+	float hash11(float p)
+	{
+		p = fract(p * .1031);
+		p *= p + 33.33;
+		p *= p + p;
+		return abs(fract(p));
+	}
+
+	vec2 hash21(inout float p)
+	{
+		p = hash11(p);
+		p = hash11(p);
+		vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+		p3 += dot(p3, p3.yzx + 33.33);
+		return fract((p3.xx+p3.yz)*p3.zy);
+	}
+
+	vec2 hash23(vec3 p)
+	{
+		vec4 p4 = fract(vec4(p.xyzx)  * vec4(.1031, .1030, .0973, .1099));
+		p4 += dot(p4, p4.wzxy+33.33);
+		return (fract((p4.xxyz+p4.yzzw)*p4.zywx)).xy;
+	}
+
+	uint intHash(uint x)
+	{
+		x = ((x >> 16) ^ x) * 0x45d9f3bU;
+		x = ((x >> 16) ^ x) * 0x45d9f3bU;
+		x = (x >> 16) ^ x;
+		return x;
+	}
+
+	vec2 hash2(uint n, out uint hash)
+	{
+		uint ih =intHash(n);
+		hash = intHash(ih);
+		uvec2 k = uvec2(ih,hash);
+		return vec2(k & uvec2(0xffffffffU))/float(0xffffffffU);
+	}
+</random>
+
 <boundingSphere>
 	vec2 boundingSphere(vec4 sph, vec3 origin, vec3 ray)
 	{
@@ -16,7 +58,7 @@
 </boundingSphere>
 
 <sphereFold>
-        // Sphere inversion in 3D
+    // Sphere inversion
 	void sphereFold(inout vec3 z, inout float dz, float r2, float innerRadius, float outerRadius)
 	{
 		if (r2 < innerRadius)

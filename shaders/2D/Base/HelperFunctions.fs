@@ -1,111 +1,111 @@
 <complexSquare>
-vec2 complexSquare(vec2 z)
-{
-	return mat2(z, -z.y, z.x) * z;
-}
+	vec2 complexSquare(vec2 z)
+	{
+		return mat2(z, -z.y, z.x) * z;
+	}
 </complexSquare>
 
 <complexPow>
-// Complex exponentiation- see https://en.wikipedia.org/wiki/Complex_number#Integer_and_fractional_exponents
-vec2 complexPow(vec2 z, float power)
-{
-	float arg = atan(z.y,z.x) * power;
-	return pow(length(z), power) * vec2(cos(arg), sin(arg));
-}
+	// Complex exponentiation- see https://en.wikipedia.org/wiki/Complex_number#Integer_and_fractional_exponents
+	vec2 complexPow(vec2 z, float power)
+	{
+		float arg = atan(z.y,z.x) * power;
+		return pow(length(z), power) * vec2(cos(arg), sin(arg));
+	}
 </complexPow>
 
 <complexTan>
-vec2 complexTan(vec2 w)
-{
-	vec2 w2 = w * 2;
+	vec2 complexTan(vec2 w)
+	{
+		vec2 w2 = w * 2;
 
-	float denominator = cos(w2.x)+cosh(w2.y);
+		float denominator = cos(w2.x)+cosh(w2.y);
 
-	return vec2(sin(w2.x)/denominator, sinh(w2.y)/denominator);
-}
+		return vec2(sin(w2.x)/denominator, sinh(w2.y)/denominator);
+	}
 </complexTan>
 
 <complexSin>
-vec2 complexSin(vec2 w)
-{
-	return vec2(sin(w.x)*cosh(w.y), cos(w.x)*sinh(w.y));
-}
+	vec2 complexSin(vec2 w)
+	{
+		return vec2(sin(w.x)*cosh(w.y), cos(w.x)*sinh(w.y));
+	}
 </complexSin>
 
 <complexCos>
-vec2 complexCos(vec2 w)
-{
-	return vec2(cos(w.x)*cosh(w.y), -sin(w.x)*sinh(w.y));
-}
+	vec2 complexCos(vec2 w)
+	{
+		return vec2(cos(w.x)*cosh(w.y), -sin(w.x)*sinh(w.y));
+	}
 </complexCos>
 
 <hash>
-float hash11(float p)
-{
-    p = fract(p * .1031);
-    p *= p + 33.33;
-    p *= p + p;
-    return abs(fract(p));
-}
+	float hash11(float p)
+	{
+		p = fract(p * .1031);
+		p *= p + 33.33;
+		p *= p + p;
+		return abs(fract(p));
+	}
 
-vec2 hash21(inout float p)
-{
-	p = hash11(p);
-	p = hash11(p);
-	vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
-	p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
-}
+	vec2 hash21(inout float p)
+	{
+		p = hash11(p);
+		p = hash11(p);
+		vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+		p3 += dot(p3, p3.yzx + 33.33);
+		return fract((p3.xx+p3.yz)*p3.zy);
+	}
 
-vec2 hash23(vec3 p)
-{
-	vec4 p4 = fract(vec4(p.xyzx)  * vec4(.1031, .1030, .0973, .1099));
-    p4 += dot(p4, p4.wzxy+33.33);
-    return (fract((p4.xxyz+p4.yzzw)*p4.zywx)).xy;
-}
+	vec2 hash23(vec3 p)
+	{
+		vec4 p4 = fract(vec4(p.xyzx)  * vec4(.1031, .1030, .0973, .1099));
+		p4 += dot(p4, p4.wzxy+33.33);
+		return (fract((p4.xxyz+p4.yzzw)*p4.zywx)).xy;
+	}
 
-uint intHash(uint x)
-{
-    x = ((x >> 16) ^ x) * 0x45d9f3bU;
-    x = ((x >> 16) ^ x) * 0x45d9f3bU;
-    x = (x >> 16) ^ x;
-    return x;
-}
+	uint intHash(uint x)
+	{
+		x = ((x >> 16) ^ x) * 0x45d9f3bU;
+		x = ((x >> 16) ^ x) * 0x45d9f3bU;
+		x = (x >> 16) ^ x;
+		return x;
+	}
 
-vec2 hash2(uint n, out uint hash)
-{
-    uint ih =intHash(n);
-    hash = intHash(ih);
-    uvec2 k = uvec2(ih,hash);
-    return vec2(k & uvec2(0xffffffffU))/float(0xffffffffU);
-}
+	vec2 hash2(uint n, out uint hash)
+	{
+		uint ih =intHash(n);
+		hash = intHash(ih);
+		uvec2 k = uvec2(ih,hash);
+		return vec2(k & uvec2(0xffffffffU))/float(0xffffffffU);
+	}
 </hash>
 
 <MandelbrotInteriorCheck>
-/*reference: https://en.wikipedia.org/wiki/Mandelbrot_set#Optimizations */
-bool notInMainCardioid(vec2 z)
-{
-	vec2 c=z-vec2(0.25,0);
-	float q = dot(c,c);
-	return q*(q+(c.x))>0.25*z.y*z.y;
-}
+	/*reference: https://en.wikipedia.org/wiki/Mandelbrot_set#Optimizations */
+	bool notInMainCardioid(vec2 z)
+	{
+		vec2 c=z-vec2(0.25,0);
+		float q = dot(c,c);
+		return q*(q+(c.x))>0.25*z.y*z.y;
+	}
 
-bool InMainCardioid(vec2 z)
-{
-	vec2 c=z-vec2(0.25,0);
-	float q = dot(c,c);
-	return q*(q+(c.x))<0.25*z.y*z.y;
-}
+	bool InMainCardioid(vec2 z)
+	{
+		vec2 c=z-vec2(0.25,0);
+		float q = dot(c,c);
+		return q*(q+(c.x))<0.25*z.y*z.y;
+	}
 
-bool notInMainBulb(vec2 z)
-{
-    z += vec2(1,0);
-    return bool(step(0.062499999,dot(z,z)));
-}
+	bool notInMainBulb(vec2 z)
+	{
+		z += vec2(1,0);
+		return bool(step(0.062499999,dot(z,z)));
+	}
 
-bool InMainBulb(vec2 z)
-{
-    z += vec2(1,0);
-    return bool(step(dot(z,z),0.062499999));
-}
+	bool InMainBulb(vec2 z)
+	{
+		z += vec2(1,0);
+		return bool(step(dot(z,z),0.062499999));
+	}
 </MandelbrotInteriorCheck>

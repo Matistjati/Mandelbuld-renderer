@@ -1,5 +1,8 @@
 <3D>
 {
+	<include>
+		random,</include>
+
 	<shaderParameters>
 		{name: "coloring", key: "CTRL A Q"},
 		{name: "distanceSetup", key: "CTRL S W"},
