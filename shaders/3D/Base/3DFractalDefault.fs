@@ -264,19 +264,21 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		#endif
 	}
 
-	vec3 calculateColor(vec3 ro, vec3 rd, float seed )
+	vec3 calculateColor(vec3 ro, vec3 direction, float seed )
 	{
-		vec3 sunDir = sun;
-		vec3 sunCol = 6.0*sunColor;
-		vec3 skyCol =  4.0*vec3(0.2,0.35,0.5);
+		vec3 Sun = sun;
+		vec3 sunCol = 3.0*sunColor;
+		vec3 skyCol =  4.0*skyColor;
 		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
 		const float epsilon = 0.0001;
 
-		vec3 colorMask = vec3(1.0);
+		vec3 col;
+		vec3 colorMask = vec3(1);
+		vec3 surfaceColor = vec3(0.4)*vec3(1.2,1.1,1.0);
 		vec3 accumulatedColor = vec3(0.0);
 
 		float fdis = 0.0;
-		for( int bounce = 0; bounce<3; bounce++ ) // bounces of GI
+		for( int bounce = 0; bounce<bounces; bounce++ ) // bounces of GI
 		{
 			//rd = normalize(rd);
        
@@ -286,41 +288,48 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			vec4 trap;
 			float steps;
 			bool hitSurface;
-			float t = trace(ro, rd, trap, px, steps, hitSurface);
+			float t = trace(ro, direction, trap, px, steps, hitSurface);
 
 			if( t < 0.0 )
 			{
-				if( bounce==0 ) return mix( 0.05*vec3(0.9,1.0,1.0), skyCol, smoothstep(0.1,0.25,rd.y) );
+				if( bounce==0 )
+				{
+					<sky>
+			
+					<sun>
+
+					<edgeGlow>
+					return col;
+				}
 				break;
 			}
 
 			if( bounce==0 ) fdis = t;
 
-			vec3 pos = ro + rd * t;
+			vec3 pos = ro + direction * t;
 			vec3 nor = calculateNormal(pos);
-			vec3 surfaceColor = vec3(0.4)*vec3(1.2,1.1,1.0);
 
 			//-----------------------
 			// add direct lighitng
 			//-----------------------
 			colorMask *= surfaceColor;
-
-			vec3 col = vec3(0.0);
 			<coloring>
+			col*=brightness;
 
-			// light 1        
-			float sunDif =  max(0.0, dot(sunDir, nor));
-			float sunSha = 1.0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, sunDir);
-			col += sunCol * sunDif * sunSha;
-			// todo - add back direct specular
+			vec3 light = vec3(0.0);
+
+			// light 1
+			float sunDif =  max(0.0, dot(Sun, nor));
+			float sunSha = 1.0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, Sun);
+			light += sunCol * sunDif * sunSha;
 
 			// light 2
 			vec3 skyPoint = cosineDirection( seed + 7.1*float(frame) + 5681.123 + float(bounce)*92.13, nor);
 			float skySha = shadow( pos + nor*epsilon, skyPoint);
-			col += skyCol * skySha;
+			light += skyCol * skySha;
 
 
-			accumulatedColor += colorMask * col;
+			accumulatedColor += colorMask * col * light;
 
 			//-----------------------
 			// calculate new ray
@@ -328,7 +337,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			//float isDif = 0.8;
 			//if( hash(sa + 1.123 + 7.7*float(bounce)) < isDif )
 			{
-			   rd = cosineDirection(76.2 + 73.1*float(bounce) + seed + 17.7*float(frame), nor);
+			   direction = cosineDirection(76.2 + 73.1*float(bounce) + seed + 17.7*float(frame), nor);
 			}
 			//else
 			{
@@ -338,10 +347,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 			ro = pos;
 	   }
-
-	   float ff = exp(-0.01*fdis*fdis);
-	   accumulatedColor *= ff; 
-	   accumulatedColor += (1.0-ff)*0.05*vec3(0.9,1.0,1.0);
 
 	   return accumulatedColor;
 	}
@@ -428,6 +433,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	{
 		float seed = intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))) /float(0xffffffffU);
 		vec2 frag = gl_FragCoord.xy;
+		uint hash = uint(seed);
+		// Anti aliasing
+		frag += hash2(hash, hash);
 		vec2 uv = frag / screenSize * 2.0 - 1.0;
 		uv.x *= float(screenSize.x) / float(screenSize.y);
 		uv *= zoom;
@@ -442,7 +450,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		vec2 pos = gl_FragCoord.xy-vec2(0.5);
 		int index = int(pos.y*screenSize.x+pos.x); 
 		image[index] += vec4(col, 1);
-		col = image[index].xyz / frame;
+		col = pow(image[index].xyz / frame, vec3(gamma));
 	}
 	else
 	{

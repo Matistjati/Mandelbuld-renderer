@@ -57,6 +57,12 @@ uniform float specularStrength = 1;
 /*<GuiHint>GuiType: checkBox, Name: Path Trace Image, Parent: render</GuiHint>*/
 uniform bool pathTrace = false;
 
+/*<GuiHint>GuiType: slider, Name: Bounces, Parent: render, Range: (1, 10)</GuiHint>*/
+uniform float bounces = 3;
+
+/*<GuiHint>GuiType: slider, Name: Brightness, Parent: render, Range: (1, 50)</GuiHint>*/
+uniform float brightness = 5;
+
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring, Parent: color</GuiHint>*/
 uniform bool fogColoring = false;
