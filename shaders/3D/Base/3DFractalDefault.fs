@@ -345,13 +345,19 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 		// Water intersection and reflection
 		float dist;
-		bool intersects = intersectPlane(ro, direction, 0.5, dist);
-		if (((!hitSurface && (ro + direction*t).y > 0.5) && intersects) || (hitSurface && (ro + direction*t).y < 0.5))
+		bool intersects = intersectPlane(ro, direction, waterHeight, dist);
+		bool aboveWater = (ro + direction*t).y > waterHeight;
+
+		// With unsifficient raymarching steps, we will we unable to make a perfect deduction about the state of the ray
+		// The following approach suffers in form of incorrectly labelling some of the water around the fractal as part of the real fractal
+		// This is the least punishing case, as the fractal will still be reflected on the water, thus we will most likely be able to get away with it
+		// Case A: Hit the fractal but we are under water. Case B: Did not hit the fractal, still above water after marching but will intersect with water. 
+		if ((hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects))
 		{
 			col = vec3(0.,0,0.05);
 			ro = ro + direction*dist;
 
-			const float BUMPFACTOR = 0.2;
+			const float BUMPFACTOR = 0.1;
 			const float BUMPDISTANCE = 200.;
 			const float EPSILON = 0.1;
 
@@ -359,12 +365,11 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			float bumpfactor = BUMPFACTOR * (1. - smoothstep( 0., BUMPDISTANCE, dist));
 
 			vec2 coord = ro.xz;
-			vec2 dx = vec2( EPSILON, 0. );
-			vec2 dz = vec2( 0., EPSILON );
+			vec2 step = vec2(EPSILON, 0.);
 
 			vec3 nor = vec3(0.,1.,0.);
-			nor.x = -bumpfactor * (waterHeightMap(coord + dx) - waterHeightMap(coord-dx) ) / (2. * EPSILON);
-			nor.z = -bumpfactor * (waterHeightMap(coord + dz) - waterHeightMap(coord-dz) ) / (2. * EPSILON);
+			nor.x = -bumpfactor * (waterHeightMap(coord + step.xy) - waterHeightMap(coord - step.xy)) / (2. * EPSILON);
+			nor.z = -bumpfactor * (waterHeightMap(coord + step.yx) - waterHeightMap(coord - step.yx)) / (2. * EPSILON);
 			nor = normalize(nor);
 			direction = reflect(direction, nor);
 		}

@@ -63,6 +63,9 @@ uniform float bounces = 3;
 /*<GuiHint>GuiType: slider, Name: Brightness, Parent: render, Range: (1, 50)</GuiHint>*/
 uniform float brightness = 5;
 
+/*<GuiHint>GuiType: slider, Name: Water Height, Parent: render, Range: (-5, 5)</GuiHint>*/
+uniform float waterHeight = 0.5;
+
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring, Parent: color</GuiHint>*/
 uniform bool fogColoring = false;
