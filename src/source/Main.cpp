@@ -68,7 +68,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
 constexpr auto DefaultFractalNameIndex = 0;
-#define DefaultFractalType FractalType::fractal2D
+#define DefaultFractalType FractalType::fractal3D
 constexpr auto ProgramName = "Mandelbulb";
 
 void GLAPIENTRY

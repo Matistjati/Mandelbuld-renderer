@@ -289,40 +289,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return false;
 	}
 
-	float noise(vec3 p3)
-	{
-		p3 = fract(p3 * vec3(.1031, .1030, .0973));
-		p3 += dot(p3, p3.yxz+33.33);
-		return fract((p3.xxy + p3.yxx)*p3.zyx).x;
-
-	}
-
-	const mat2 m2 = mat2( 0.80, -0.60, 0.60, 0.80 );
-
-	const mat3 m3 = mat3( 0.00,  0.80,  0.60,
-                     -0.80,  0.36, -0.48,
-                     -0.60, -0.48,  0.64 );
-
-	float fbm( vec3 p ) {
-		float f = 0.0;
-		f += 0.5000*noise( p ); p = m3*p*2.02;
-		f += 0.2500*noise( p ); p = m3*p*2.03;
-		f += 0.1250*noise( p ); p = m3*p*2.01;
-		f += 0.0625*noise( p );
-		return f/0.9375;
-	}
-
-	float waterHeightMap( vec2 pos )
-	{
-		vec2 posm = 0.7*pos * m2;
-		posm.x += 0.001*time;
-		float f = fbm( vec3( posm*1.9, time*0.01 ));
-		float height = 0.5+0.1*f;
-		height += 0.05*sin( posm.x*6.0 + 10.0*f );
-	
-		return  height;
-	}
-
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
 		vec3 Sun = sun;
@@ -357,7 +323,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			col = vec3(0.,0,0.05);
 			ro = ro + direction*dist;
 
-			const float BUMPFACTOR = 0.1;
+			const float BUMPFACTOR = 0.05;
 			const float BUMPDISTANCE = 200.;
 			const float EPSILON = 0.1;
 
@@ -368,8 +334,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			vec2 step = vec2(EPSILON, 0.);
 
 			vec3 nor = vec3(0.,1.,0.);
-			nor.x = -bumpfactor * (waterHeightMap(coord + step.xy) - waterHeightMap(coord - step.xy)) / (2. * EPSILON);
-			nor.z = -bumpfactor * (waterHeightMap(coord + step.yx) - waterHeightMap(coord - step.yx)) / (2. * EPSILON);
+			nor.x = -bumpfactor * (cellular(coord + step.xy) - cellular(coord - step.xy)) / (2. * EPSILON);
+			nor.z = -bumpfactor * (cellular(coord + step.yx) - cellular(coord - step.yx)) / (2. * EPSILON);
 			nor = normalize(nor);
 			direction = reflect(direction, nor);
 		}
@@ -384,18 +350,15 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			
 			t = trace(ro, direction, trap, px, steps, hitSurface);
 
-			if(t < 0.0)
+			if(!hitSurface)
 			{
-				if(!hitSurface)
-				{
-					<sky>
+				<sky>
 			
-					<sun>
+				<sun>
 
-					<edgeGlow>
+				<edgeGlow>
 
-					return col;
-				}
+				return col;
 				break;
 			}
 
