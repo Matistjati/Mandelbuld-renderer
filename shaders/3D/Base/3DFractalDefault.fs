@@ -135,7 +135,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float h = 0;
 		int i = 0;
 		float th = 0;
-		for(; i<maxSteps; i++)
+		for(; i < maxSteps; i++)
 		{ 
 			vec3 pos = origin + direction * t;
 			h = fudgeFactor * sceneDistance(pos, trap);
@@ -152,7 +152,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 		trapOut = trap;
 
-		hitSurface = h < th;
+		hitSurface = h < th && i < maxSteps;
 
 #if LinneaRetarded
 		if (t < maxDist && !fogColoring)
@@ -208,21 +208,21 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float tmax = 12.0;
     
 		float t = 0.001;
-		for(int i=0; i<80; i++ )
+		for (int i = 0; i < maxSteps; i++)
 		{
 			float h = sceneDistance(ro+rd*t);
-			if( h<0.0001 || t>tmax) break;
+			if(h < 0.0001 || t > tmax) break;
 			t += h;
 		}
 
-		if( t>tmax ) res = 1.0;
+		if (t > tmax) res = 1.0;
     
 		return res;
 	}
 
 	float hash(float seed)
 	{
-		return fract(sin(seed)*43758.5453 );
+		return fract(sin(seed)*43758.5453);
 	}
 
 	vec3 cosineDirection( in float seed, in vec3 nor)
@@ -264,7 +264,50 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		#endif
 	}
 
-	vec3 calculateColor(vec3 ro, vec3 direction, float seed )
+	
+	vec3 uniformVector( in float seed)
+	{
+		float a = 3.141593*hash( 78.233 + seed);
+		float b = 6.283185*hash( 10.873 + seed);
+		return vec3( sin(b)*sin(a), cos(b)*sin(a), cos(a) );
+	}
+
+	bool intersectPlane(vec3 ro, vec3 rd, float height, out float dist)
+	{	
+		if (rd.y==0.0)
+		{
+			return false;
+		}
+		
+		float d = -(ro.y - height)/rd.y;
+		d = min(100000.0, d);
+		if( d > 0. )
+		{
+			dist = d;
+			return true;
+		}
+		return false;
+	}
+
+	float noise(vec3 p3)
+	{
+		p3 = fract(p3 * vec3(.1031, .1030, .0973));
+		p3 += dot(p3, p3.yxz+33.33);
+		return fract((p3.xxy + p3.yxx)*p3.zyx).x;
+
+	}
+
+	float waterHeightMap( vec2 pos )
+	{
+		vec2 posm = 0.02*pos;
+		posm.x += 0.001*time;
+		float height = 0.5;
+		height += 0.05*sin( posm.x*6.0 );
+	
+		return  height;
+	}
+
+	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
 		vec3 Sun = sun;
 		vec3 sunCol = 3.0*sunColor;
@@ -274,31 +317,62 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 		vec3 col;
 		vec3 colorMask = vec3(1);
-		vec3 surfaceColor = vec3(0.4)*vec3(1.2,1.1,1.0);
+		vec3 surfaceColor = vec3(0.1)*vec3(1.2,1.1,1.0);
 		vec3 accumulatedColor = vec3(0.0);
 
 		float fdis = 0.0;
-		for( int bounce = 0; bounce<bounces; bounce++ ) // bounces of GI
+
+		vec4 trap;
+		float steps;
+		bool hitSurface;
+		float t = trace(ro, direction, trap, px, steps, hitSurface);
+
+		// Water intersection and reflection
+		float dist;
+		bool intersects = intersectPlane(ro, direction, 0.5, dist);
+		if (((!hitSurface && (ro + direction*t).y > 0.5) && intersects) || (hitSurface && (ro + direction*t).y < 0.5))
+		{
+			col = vec3(0.,0,0.05);
+			ro = ro + direction*dist;
+
+			const float BUMPFACTOR = 0.2;
+			const float BUMPDISTANCE = 200.;
+			const float EPSILON = 0.1;
+
+
+			float bumpfactor = BUMPFACTOR * (1. - smoothstep( 0., BUMPDISTANCE, dist));
+
+			vec2 coord = ro.xz;
+			vec2 dx = vec2( EPSILON, 0. );
+			vec2 dz = vec2( 0., EPSILON );
+
+			vec3 nor = vec3(0.,1.,0.);
+			nor.x = -bumpfactor * (waterHeightMap(coord + dx) - waterHeightMap(coord-dx) ) / (2. * EPSILON);
+			nor.z = -bumpfactor * (waterHeightMap(coord + dz) - waterHeightMap(coord-dz) ) / (2. * EPSILON);
+			nor = normalize(nor);
+			direction = reflect(direction, nor);
+		}
+
+		for(int bounce = 0; bounce < bounces; bounce++) // bounces of GI
 		{
 			//rd = normalize(rd);
        
 			//-----------------------
 			// trace
 			//-----------------------
-			vec4 trap;
-			float steps;
-			bool hitSurface;
-			float t = trace(ro, direction, trap, px, steps, hitSurface);
+			
+			t = trace(ro, direction, trap, px, steps, hitSurface);
 
-			if( t < 0.0 )
+			if(t < 0.0)
 			{
-				if( bounce==0 )
+				if(!hitSurface)
 				{
 					<sky>
 			
 					<sun>
 
 					<edgeGlow>
+
 					return col;
 				}
 				break;
@@ -334,15 +408,15 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			//-----------------------
 			// calculate new ray
 			//-----------------------
-			//float isDif = 0.8;
-			//if( hash(sa + 1.123 + 7.7*float(bounce)) < isDif )
+			float isDif = 0.8;
+			if( hash(seed + 1.123 + 7.7*float(bounce)) < isDif )
 			{
 			   direction = cosineDirection(76.2 + 73.1*float(bounce) + seed + 17.7*float(frame), nor);
 			}
-			//else
+			else
 			{
-			//    float glossiness = 0.2;
-			//    rd = normalize(reflect(rd, nor)) + uniformVector(sa + 111.123 + 65.2*float(bounce)) * glossiness;
+			    float glossiness = 0.2;
+			    direction = normalize(reflect(direction, nor)) + uniformVector(seed + 111.123 + 65.2*float(bounce)) * glossiness;
 			}
 
 			ro = pos;
@@ -431,11 +505,10 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	if (pathTrace)
 	{
-		float seed = intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))) /float(0xffffffffU);
+		uint hash = uint(intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))));
 		vec2 frag = gl_FragCoord.xy;
-		uint hash = uint(seed);
 		// Anti aliasing
-		frag += hash2(hash, hash);
+		frag += hash2(hash, hash)*2-1;
 		vec2 uv = frag / screenSize * 2.0 - 1.0;
 		uv.x *= float(screenSize.x) / float(screenSize.y);
 		uv *= zoom;
@@ -444,6 +517,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 		direction *= rotation;
 
+		float seed = float(hash)/float(0xffffffffU);
 		col = calculateColor(position, direction, seed);
 
 		// gl_FragCoord is in the range [0.5, screenSize+0.5], so we subtract to get to [0, screenSize]
