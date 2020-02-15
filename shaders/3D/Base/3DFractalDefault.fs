@@ -297,12 +297,28 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	}
 
+	const mat2 m2 = mat2( 0.80, -0.60, 0.60, 0.80 );
+
+	const mat3 m3 = mat3( 0.00,  0.80,  0.60,
+                     -0.80,  0.36, -0.48,
+                     -0.60, -0.48,  0.64 );
+
+	float fbm( vec3 p ) {
+		float f = 0.0;
+		f += 0.5000*noise( p ); p = m3*p*2.02;
+		f += 0.2500*noise( p ); p = m3*p*2.03;
+		f += 0.1250*noise( p ); p = m3*p*2.01;
+		f += 0.0625*noise( p );
+		return f/0.9375;
+	}
+
 	float waterHeightMap( vec2 pos )
 	{
-		vec2 posm = 0.02*pos;
+		vec2 posm = 0.7*pos * m2;
 		posm.x += 0.001*time;
-		float height = 0.5;
-		height += 0.05*sin( posm.x*6.0 );
+		float f = fbm( vec3( posm*1.9, time*0.01 ));
+		float height = 0.5+0.1*f;
+		height += 0.05*sin( posm.x*6.0 + 10.0*f );
 	
 		return  height;
 	}
