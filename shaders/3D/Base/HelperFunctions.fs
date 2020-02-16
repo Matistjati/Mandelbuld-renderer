@@ -47,6 +47,7 @@
 	}
 
 	// Cellular noise taken from: https://github.com/ashima/webgl-noise
+
 	//Copyright (C) 2011 by Ashima Arts (Simplex noise)
 	//Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
 

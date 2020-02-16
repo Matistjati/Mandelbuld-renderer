@@ -21,7 +21,7 @@
 
 <buffers>
 	/*<bufferType>imageBuffer</bufferType>*/
-	/*<shouldBeCleared>button, resetFrame, onUniformChange: [position, rotation, zoom, pathTrace]</shouldBeCleared>*/
+	/*<shouldBeCleared>button, resetFrame, onUniformChange: [position, rotation, zoom, pathTrace, maxWaterDist, cloudAmount, surfaceColor, bumpFactor, waterHeight, brightness]</shouldBeCleared>*/
 	layout(std430, binding = 4) buffer PathTracedImage
 	{
 		vec4 image[];
@@ -289,6 +289,45 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return false;
 	}
 
+	float hash(vec3 p)  // replace this by something better
+	{
+		p  = fract( p*0.3183099+.1 );
+		p *= 17.0;
+		return fract( p.x*p.y*p.z*(p.x+p.y+p.z) );
+	}
+
+	float noise( in vec3 x )
+	{
+		x*=10.;
+		vec3 i = floor(x);
+		vec3 f = fract(x);
+		f = f*f*(3.0-2.0*f);
+	
+		return mix(mix(mix( hash(i+vec3(0,0,0)), 
+							hash(i+vec3(1,0,0)),f.x),
+					   mix( hash(i+vec3(0,1,0)), 
+							hash(i+vec3(1,1,0)),f.x),f.y),
+				   mix(mix( hash(i+vec3(0,0,1)), 
+							hash(i+vec3(1,0,1)),f.x),
+					   mix( hash(i+vec3(0,1,1)), 
+							hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+	}
+
+	const mat3 m = mat3( 0.00,  0.80,  0.60,
+						-0.80,  0.36, -0.48,
+						-0.60, -0.48,  0.64 );
+
+	float cloudNoise(vec3 pos)
+	{
+		float f;
+		vec3 q = 0.001*pos;
+		f  = 0.5000*noise( q ); q = m*q*2.01;
+		f += 0.2500*noise( q ); q = m*q*2.02;
+		f += 0.1250*noise( q ); q = m*q*2.03;
+		f += 0.0625*noise( q ); q = m*q*2.01;
+		return f;
+	}
+
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
 		vec3 Sun = sun;
@@ -299,7 +338,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 		vec3 col;
 		vec3 colorMask = vec3(1);
-		vec3 surfaceColor = vec3(0.1)*vec3(1.2,1.1,1.0);
 		vec3 accumulatedColor = vec3(0.0);
 
 		float fdis = 0.0;
@@ -318,24 +356,23 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		// The following approach suffers in form of incorrectly labelling some of the water around the fractal as part of the real fractal
 		// This is the least punishing case, as the fractal will still be reflected on the water, thus we will most likely be able to get away with it
 		// Case A: Hit the fractal but we are under water. Case B: Did not hit the fractal, still above water after marching but will intersect with water. 
-		if ((hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects))
+		if (dist < maxWaterDist && (hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects))
 		{
 			col = vec3(0.,0,0.05);
 			ro = ro + direction*dist;
 
-			const float BUMPFACTOR = 0.05;
-			const float BUMPDISTANCE = 200.;
-			const float EPSILON = 0.1;
+			const float bumpDistance = 200;
+			const float epsilon = 0.2;
 
 
-			float bumpfactor = BUMPFACTOR * (1. - smoothstep( 0., BUMPDISTANCE, dist));
+			float bumpfactor = bumpFactor * (1. - smoothstep( 0., bumpDistance, dist));
 
-			vec2 coord = ro.xz;
-			vec2 step = vec2(EPSILON, 0.);
+			vec2 coord = ro.xz+time*0.1;
+			vec2 step = vec2(epsilon, 0.);
 
 			vec3 nor = vec3(0.,1.,0.);
-			nor.x = -bumpfactor * (cellular(coord + step.xy) - cellular(coord - step.xy)) / (2. * EPSILON);
-			nor.z = -bumpfactor * (cellular(coord + step.yx) - cellular(coord - step.yx)) / (2. * EPSILON);
+			nor.x = -bumpfactor * (cellular(coord + step.xy) - cellular(coord - step.xy)) / (2. * epsilon);
+			nor.z = -bumpfactor * (cellular(coord + step.yx) - cellular(coord - step.yx)) / (2. * epsilon);
 			nor = normalize(nor);
 			direction = reflect(direction, nor);
 		}
@@ -352,14 +389,29 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 			if(!hitSurface)
 			{
-				<sky>
+				float skyDist;
+				float cloudBrightness = 1;
+				bool intersects = intersectPlane(ro, direction, 20, skyDist);
+				if (intersects && skyDist < maxWaterDist)
+				{
+					vec2 coord = (ro+direction*skyDist).xz+time*10+1000;
+					cloudBrightness = pow(cloudNoise(vec3(coord,0)),2);
+				}
+
+				if (cloudBrightness > cloudAmount)
+				{
+					<sky>
 			
-				<sun>
+					<sun>
+				}
+				else
+				{
+					col += smoothstep(cloudAmount, 1, 1-cloudBrightness);
+				}
 
 				<edgeGlow>
 
 				return col;
-				break;
 			}
 
 			if( bounce==0 ) fdis = t;

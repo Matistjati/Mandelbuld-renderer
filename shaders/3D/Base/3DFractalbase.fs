@@ -16,6 +16,8 @@ uniform bool view3D = true;
 
 /*<GuiHint>GuiType: submenu, Name: Rendering options, Identifier: render</GuiHint>*/
 
+/*<GuiHint>GuiType: submenu, Name: Path tracing, Identifier: pathTrace</GuiHint>*/
+
 /*<GuiHint>GuiType: submenu, Name: Sky, Identifier: sky</GuiHint>*/
 
 /*<GuiHint>GuiType: submenu, Name: Fractal Parameters, Identifier: fractalParams</GuiHint>*/
@@ -28,7 +30,7 @@ uniform bool view3D = true;
 uniform int maxIterations = 40;
 
 /*<GuiHint>GuiType: slider, Name: Max Steps, Parent: render, Range: (1, 1000)</GuiHint>*/
-uniform int maxSteps = 100;
+uniform int maxSteps = 300;
 
 /*<GuiHint>GuiType: slider, Name: Anti Aliasing, Parent: render, Range: (1, 5)</GuiHint>*/
 uniform float antiAliasing = 1;
@@ -54,17 +56,31 @@ uniform float shadowDarkness = 1;
 /*<GuiHint>GuiType: slider, Name: Specular Strength, Parent: render, Range: (0, 2)</GuiHint>*/
 uniform float specularStrength = 1;
 
-/*<GuiHint>GuiType: checkBox, Name: Path Trace Image, Parent: render</GuiHint>*/
+/*<GuiHint>GuiType: checkBox, Name: Path Trace Image, Parent: pathTrace</GuiHint>*/
 uniform bool pathTrace = false;
 
-/*<GuiHint>GuiType: slider, Name: Bounces, Parent: render, Range: (1, 10)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Bounces, Parent: pathTrace, Range: (1, 10)</GuiHint>*/
 uniform float bounces = 3;
 
-/*<GuiHint>GuiType: slider, Name: Brightness, Parent: render, Range: (1, 50)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Brightness, Parent: pathTrace, Range: (0.2, 10)</GuiHint>*/
 uniform float brightness = 5;
 
-/*<GuiHint>GuiType: slider, Name: Water Height, Parent: render, Range: (-5, 5)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Water Height, Parent: pathTrace, Range: (-5, 5)</GuiHint>*/
 uniform float waterHeight = 0.5;
+
+/*<GuiHint>GuiType: slider, Name: Water bumpiness, Parent: pathTrace, Range: (0, 2)</GuiHint>*/
+uniform float bumpFactor = 0.05;
+
+/*<GuiHint>GuiType: colorPicker, Name: Surface Color, Parent: pathTrace</GuiHint>*/
+uniform vec3 surfaceColor = vec3(0.1)*vec3(1.2,1.1,1.0);
+
+/*<GuiHint>GuiType: slider, Name: Cloud amount, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float cloudAmount = 0.3;
+
+/*<GuiHint>GuiType: slider, Name: Water and sky max distance, Parent: pathTrace, Range: (0, 1000)</GuiHint>*/
+uniform float maxWaterDist = 1000;
+
+
 
 
 /*<GuiHint>GuiType: checkBox, Name: Fog Coloring, Parent: color</GuiHint>*/
