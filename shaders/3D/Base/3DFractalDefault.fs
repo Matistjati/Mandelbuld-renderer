@@ -328,6 +328,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return f;
 	}
 
+	vec3 hsv2rgb(vec3 c)
+	{
+		vec4 k = vec4(1,2./3.,1./3.,3.);
+		vec3 p = abs(fract(c.xxx + k.xyz) * 6.0 - k.www);
+		return c.z * mix(k.xxx, clamp(p - k.xxx, 0.0, 1.0), c.y);
+	}
+
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
 		vec3 Sun = sun;
@@ -356,7 +363,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		// The following approach suffers in form of incorrectly labelling some of the water around the fractal as part of the real fractal
 		// This is the least punishing case, as the fractal will still be reflected on the water, thus we will most likely be able to get away with it
 		// Case A: Hit the fractal but we are under water. Case B: Did not hit the fractal, still above water after marching but will intersect with water. 
-		if (dist < maxWaterDist && (hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects))
+		// Stored as variable for future info
+		bool reflected = dist < maxWaterDist && (hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects);
+		if (reflected)
 		{
 			col = vec3(0.,0,0.05);
 			ro = ro + direction*dist;
@@ -392,21 +401,33 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 				float skyDist;
 				float cloudBrightness = 1;
 				bool intersects = intersectPlane(ro, direction, 20, skyDist);
+				bool occluded = false;
 				if (intersects && skyDist < maxWaterDist)
 				{
-					vec2 coord = (ro+direction*skyDist).xz+time*10+1000;
-					cloudBrightness = pow(cloudNoise(vec3(coord,0)),2);
+					//vec2 coord = (ro+direction*skyDist).xz+time*10+1000;
+					//cloudBrightness = pow(cloudNoise(vec3(coord,0)),2);
+					
+					for (float t = 0; t < skyDist + 2; t+=0.03)
+					{
+						float v = cnoise(ro+direction*t);
+						if (v>cloudAmount)
+						{
+							occluded = true;
+							if (reflected)
+							{
+								col += hsv2rgb(vec3(cellular((ro+direction*t).xz*0.1),0.5,0.5))*(t/(skyDist+2)+1.5);
+							}
+							
+							break;
+						}
+					}
 				}
 
-				if (cloudBrightness > cloudAmount)
+				if (!occluded || !reflected)
 				{
 					<sky>
 			
 					<sun>
-				}
-				else
-				{
-					col += smoothstep(cloudAmount, 1, 1-cloudBrightness);
 				}
 
 				<edgeGlow>
