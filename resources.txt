@@ -16,6 +16,20 @@ Learn opengl: https://learnopengl.com/Getting-started/Hello-Triangle
 Rotation matrices in 3D: https://i.stack.imgur.com/ps8Xz.png
 
 
+////////////
+// Noise: //
+////////////
+Webgl noise (easily ported to glsl): https://github.com/ashima/webgl-noise/tree/master/src
+Fast non-sin hash: https://www.shadertoy.com/view/4djSRW
+
+
+/////////////
+// Clouds: //
+/////////////
+https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky
+Shadertoy implementations: https://www.shadertoy.com/view/XslGRr
+https://www.shadertoy.com/view/4tdSWr
+
 //////////////////
 // Mandelbrot: //
 //////////////////
