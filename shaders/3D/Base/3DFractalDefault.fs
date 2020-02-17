@@ -319,13 +319,14 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	float cloudNoise(vec3 pos)
 	{
-		float f;
-		vec3 q = 0.001*pos;
-		f  = 0.5000*noise( q ); q = m*q*2.01;
-		f += 0.2500*noise( q ); q = m*q*2.02;
-		f += 0.1250*noise( q ); q = m*q*2.03;
-		f += 0.0625*noise( q ); q = m*q*2.01;
-		return f;
+		float a;
+		float b;
+		float c;
+		a = 1-cellular(pos, noiseScaleLarge.x*noiseScaleSmall.x);
+		b = 1-cellular(pos, noiseScaleLarge.y*noiseScaleSmall.y);
+		c = 1-cellular(pos, noiseScaleLarge.z*noiseScaleSmall.z);
+		float f = a+(b*persistence)+(c*persistence*persistence);
+		return max(0, f - densityThreshold) * densityLevel;
 	}
 
 	vec3 hsv2rgb(vec3 c)
@@ -399,40 +400,28 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			if(!hitSurface)
 			{
 				float skyDist;
-				float cloudBrightness = 1;
+				float transmittance = 1;
 				bool intersects = intersectPlane(ro, direction, 20, skyDist);
-				bool occluded = false;
+
 				if (intersects && skyDist < maxWaterDist)
 				{
-					//vec2 coord = (ro+direction*skyDist).xz+time*10+1000;
-					//cloudBrightness = pow(cloudNoise(vec3(coord,0)),2);
-					
-					for (float t = 0; t < skyDist + 2; t+=0.03)
+					float totalDensity = 0;
+
+					for (float t = skyDist-4; t < skyDist + 2; t+=stepSize)
 					{
-						float v = cnoise(ro+direction*t);
-						if (v>cloudAmount)
-						{
-							occluded = true;
-							if (reflected)
-							{
-								col += hsv2rgb(vec3(cellular((ro+direction*t).xz*0.1),0.5,0.5))*(t/(skyDist+2)+1.5);
-							}
-							
-							break;
-						}
+						totalDensity += cloudNoise(ro+direction*t) * stepSize;
 					}
+					transmittance = exp(-totalDensity)*cloudBrightness;
 				}
 
-				if (!occluded || !reflected)
-				{
-					<sky>
+
+				<sky>
 			
-					<sun>
-				}
+				<sun>
 
 				<edgeGlow>
 
-				return col;
+				return col*transmittance;
 			}
 
 			if( bounce==0 ) fdis = t;

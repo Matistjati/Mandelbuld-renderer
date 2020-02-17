@@ -90,8 +90,19 @@
 	  return x - floor(x * (1.0 / 7.0)) * 7.0;
 	}
 
+	// Modulo 7 without a division
+	vec4 mod7(vec4 x)
+	{
+	  return x - floor(x * (1.0 / 7.0)) * 7.0;
+	}
+
 	// Permutation polynomial: (34x^2 + x) mod 289
 	vec3 permute(vec3 x)
+	{
+	  return mod289((34.0 * x + 1.0) * x);
+	}
+
+	vec4 permute(vec4 x)
 	{
 	  return mod289((34.0 * x + 1.0) * x);
 	}
@@ -100,9 +111,9 @@
 	// Standard 3x3 search window for good F1 and F2 values
 	float cellular(vec2 P)
 	{
-	#define K 0.142857142857 // 1/7
-	#define Ko 0.428571428571 // 3/7
-	#define jitter 1.0 // Less gives more regular pattern
+		#define K 0.142857142857 // 1/7
+		#define Ko 0.428571428571 // 3/7
+		const float jitter = 1.0; // Less gives more regular pattern
 		P.x*=3;
 		P.y*=5;
 		vec2 Pi = mod289(floor(P));
@@ -142,90 +153,55 @@
 		return sqrt(d1.y);
 	}
 
-vec4 permute(vec4 x)
+
+
+// Cellular noise, returning F1 and F2 in a vec2.
+// 3x3x3 search region for good F2 everywhere, but a lot
+// slower than the 2x2x2 version.
+// The code below is a bit scary even to its author,
+// but it has at least half decent performance on a
+// modern GPU. In any case, it beats any software
+// implementation of Worley noise hands down.
+float cellular(vec3 P, float scale)
 {
-  return mod289(((x*34.0)+1.0)*x);
+	#define K 0.142857142857 // 1/7
+	#define Ko 0.428571428571 // 1/2-K/2
+	#define K2 0.020408163265306 // 1/(7*7)
+	#define Kz 0.166666666667 // 1/6
+	#define Kzo 0.416666666667 // 1/2-1/6*2
+
+	P*=scale;
+	const float jitter = 0.8; // smaller jitter gives less errors in F2
+	vec3 Pi = mod289(floor(P));
+ 	vec3 Pf = fract(P);
+	vec4 Pfx = Pf.x + vec4(0.0, -1.0, 0.0, -1.0);
+	vec4 Pfy = Pf.y + vec4(0.0, 0.0, -1.0, -1.0);
+	vec4 p = permute(Pi.x + vec4(0.0, 1.0, 0.0, 1.0));
+	p = permute(p + Pi.y + vec4(0.0, 0.0, 1.0, 1.0));
+	vec4 p1 = permute(p + Pi.z); // z+0
+	vec4 p2 = permute(p + Pi.z + vec4(1.0)); // z+1
+	vec4 ox1 = fract(p1*K) - Ko;
+	vec4 oy1 = mod7(floor(p1*K))*K - Ko;
+	vec4 oz1 = floor(p1*K2)*Kz - Kzo; // p1 < 289 guaranteed
+	vec4 ox2 = fract(p2*K) - Ko;
+	vec4 oy2 = mod7(floor(p2*K))*K - Ko;
+	vec4 oz2 = floor(p2*K2)*Kz - Kzo;
+	vec4 dx1 = Pfx + jitter*ox1;
+	vec4 dy1 = Pfy + jitter*oy1;
+	vec4 dz1 = Pf.z + jitter*oz1;
+	vec4 dx2 = Pfx + jitter*ox2;
+	vec4 dy2 = Pfy + jitter*oy2;
+	vec4 dz2 = Pf.z - 1.0 + jitter*oz2;
+	vec4 d1 = dx1 * dx1 + dy1 * dy1 + dz1 * dz1; // z+0
+	vec4 d2 = dx2 * dx2 + dy2 * dy2 + dz2 * dz2; // z+1
+
+	// Cheat and sort out only F1
+	d1 = min(d1, d2);
+	d1.xy = min(d1.xy, d1.wz);
+	d1.x = min(d1.x, d1.y);
+	return sqrt(d1.x);
 }
 
-vec4 taylorInvSqrt(vec4 r)
-{
-  return 1.79284291400159 - 0.85373472095314 * r;
-}
-
-vec3 fade(vec3 t) {
-  return t*t*t*(t*(t*6.0-15.0)+10.0);
-}
-
-// Classic Perlin noise
-float cnoise(vec3 P)
-{
-	P/=2;
-  vec3 Pi0 = floor(P); // Integer part for indexing
-  vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
-  Pi0 = mod289(Pi0);
-  Pi1 = mod289(Pi1);
-  vec3 Pf0 = fract(P); // Fractional part for interpolation
-  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-  vec4 iy = vec4(Pi0.yy, Pi1.yy);
-  vec4 iz0 = Pi0.zzzz;
-  vec4 iz1 = Pi1.zzzz;
-
-  vec4 ixy = permute(permute(ix) + iy);
-  vec4 ixy0 = permute(ixy + iz0);
-  vec4 ixy1 = permute(ixy + iz1);
-
-  vec4 gx0 = ixy0 * (1.0 / 7.0);
-  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-  gx0 = fract(gx0);
-  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-  vec4 sz0 = step(gz0, vec4(0.0));
-  gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-  gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-  vec4 gx1 = ixy1 * (1.0 / 7.0);
-  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-  gx1 = fract(gx1);
-  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-  vec4 sz1 = step(gz1, vec4(0.0));
-  gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-  gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-  g000 *= norm0.x;
-  g010 *= norm0.y;
-  g100 *= norm0.z;
-  g110 *= norm0.w;
-  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-  g001 *= norm1.x;
-  g011 *= norm1.y;
-  g101 *= norm1.z;
-  g111 *= norm1.w;
-
-  float n000 = dot(g000, Pf0);
-  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-  float n111 = dot(g111, Pf1);
-
-  vec3 fade_xyz = fade(Pf0);
-  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
-  return 2.2 * n_xyz;
-}
 </random>
 
 <boundingSphere>

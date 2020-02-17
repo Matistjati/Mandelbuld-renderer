@@ -56,6 +56,8 @@ uniform float shadowDarkness = 1;
 /*<GuiHint>GuiType: slider, Name: Specular Strength, Parent: render, Range: (0, 2)</GuiHint>*/
 uniform float specularStrength = 1;
 
+
+
 /*<GuiHint>GuiType: checkBox, Name: Path Trace Image, Parent: pathTrace</GuiHint>*/
 uniform bool pathTrace = false;
 
@@ -79,6 +81,27 @@ uniform float cloudAmount = 0.3;
 
 /*<GuiHint>GuiType: slider, Name: Water and sky max distance, Parent: pathTrace, Range: (0, 1000)</GuiHint>*/
 uniform float maxWaterDist = 1000;
+
+/*<GuiHint>GuiType: slider, Name: Noise Scale small, Parent: pathTrace, Range: (0.0001, 1)</GuiHint>*/
+uniform vec3 noiseScaleSmall = vec3(0.09, 0.195, 1);
+
+/*<GuiHint>GuiType: slider, Name: Noise Scale large, Parent: pathTrace, Range: (1, 100)</GuiHint>*/
+uniform vec3 noiseScaleLarge = vec3(1,2,1);
+
+/*<GuiHint>GuiType: slider, Name: Noise persistence, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float persistence = 0.711;
+
+/*<GuiHint>GuiType: slider, Name: Density level, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float densityLevel = 0.215;
+
+/*<GuiHint>GuiType: slider, Name: Density threshold, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float densityThreshold = 0.937;
+
+/*<GuiHint>GuiType: slider, Name: Cloud brightness, Parent: pathTrace, Range: (0.001, 5)</GuiHint>*/
+uniform float cloudBrightness = 1.2;
+
+/*<GuiHint>GuiType: slider, Name: Step size, Parent: pathTrace, Range: (0.01, 4)</GuiHint>*/
+uniform float stepSize = 0.33;
 
 
 
