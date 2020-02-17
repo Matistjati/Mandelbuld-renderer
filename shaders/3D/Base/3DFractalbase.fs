@@ -101,7 +101,13 @@ uniform float densityThreshold = 0.937;
 uniform float cloudBrightness = 1.2;
 
 /*<GuiHint>GuiType: slider, Name: Step size, Parent: pathTrace, Range: (0.01, 4)</GuiHint>*/
-uniform float stepSize = 0.33;
+uniform float stepSize = 0.11;
+
+/*<GuiHint>GuiType: slider, Name: Cloud box position, Parent: pathTrace, Range: (-50, 50)</GuiHint>*/
+uniform vec3 boxPos = vec3(0,20,0);
+
+/*<GuiHint>GuiType: slider, Name: Cloud box width, Parent: pathTrace, Range: (0, 500)</GuiHint>*/
+uniform vec3 boxWidth = vec3(40,10,40);
 
 
 

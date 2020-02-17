@@ -201,23 +201,73 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 </lightingFunctions>
 
 <render>
-	float shadow( in vec3 ro, in vec3 rd )
+	vec2 rayBoxDst(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 invRaydir)
+	{
+		// Adapted from: http://jcgt.org/published/0007/03/04/
+		vec3 t0 = (boundsMin - rayOrigin) * invRaydir;
+		vec3 t1 = (boundsMax - rayOrigin) * invRaydir;
+		vec3 tmin = min(t0, t1);
+		vec3 tmax = max(t0, t1);
+				
+		float dstA = max(max(tmin.x, tmin.y), tmin.z);
+		float dstB = min(tmax.x, min(tmax.y, tmax.z));
+
+		// CASE 1: ray intersects box from outside (0 <= dstA <= dstB)
+		// dstA is dst to nearest intersection, dstB dst to far intersection
+
+		// CASE 2: ray intersects box from inside (dstA < 0 < dstB)
+		// dstA is the dst to intersection behind the ray, dstB is dst to forward intersection
+
+		// CASE 3: ray misses box (dstA > dstB)
+
+		float dstToBox = max(0, dstA);
+		float dstInsideBox = max(0, dstB - dstToBox);
+		return vec2(dstToBox, dstInsideBox);
+	}
+
+	float cloudNoise(vec3 pos)
+	{
+		float a;
+		float b;
+		float c;
+		a = 1-cellular(pos, noiseScaleLarge.x * noiseScaleSmall.x);
+		b = 1-cellular(pos, noiseScaleLarge.y * noiseScaleSmall.y);
+		c = 1-cellular(pos, noiseScaleLarge.z * noiseScaleSmall.z);
+		float f = a + (b * persistence) + (c * persistence * persistence);
+		return max(0, f - densityThreshold) * densityLevel;
+	}
+
+	float SampleCloudDensity(vec3 ro, vec3 rd)
+	{
+		vec2 intersect = rayBoxDst(boxPos-boxWidth*0.5, boxPos+boxWidth*0.5, ro, 1/rd);
+		float totalDensity = 0;
+		for (float t = intersect.x; t < intersect.y; t+=stepSize)
+		{
+			totalDensity += cloudNoise(ro+rd*t) * stepSize;
+		}
+		float transmittance = exp(-totalDensity)*cloudBrightness;
+		return transmittance;
+	}
+
+	float shadow(in vec3 ro, in vec3 rd)
 	{
 		float res = 0.0;
-    
-		float tmax = 12.0;
-    
+	
+		float maxDist = 12.0;
+	
 		float t = 0.001;
 		for (int i = 0; i < maxSteps; i++)
 		{
 			float h = sceneDistance(ro+rd*t);
-			if(h < 0.0001 || t > tmax) break;
+			if(h < 0.0001 || t > maxDist) break;
 			t += h;
 		}
 
-		if (t > tmax) res = 1.0;
-    
-		return res;
+		if (t > maxDist) res = 1.0;// + pow(clamp(dot(ro, rd),0,1),5);
+		
+
+
+		return res*SampleCloudDensity(ro, rd);
 	}
 
 	float hash(float seed)
@@ -230,7 +280,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float u = hash( 78.233 + seed);
 		float v = hash( 10.873 + seed);
 
-    
+	
 		// Method 1 and 2 first generate a frame of reference to use with an arbitrary
 		// distribution, cosine in this case. Method 3 (invented by fizzer) specializes 
 		// the whole math to the cosine distribution and simplfies the result to a more 
@@ -246,18 +296,18 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			return sqrt(u)*(cos(a)*uu + sin(a)*vv) + sqrt(1.0-u)*nor;
 		#endif
 		#if 0
-    		// method 2 by pixar:  http://jcgt.org/published/0006/01/01/paper.pdf
-    		float ks = (nor.z>=0.0)?1.0:-1.0;     //do not use sign(nor.z), it can produce 0.0
+			// method 2 by pixar:  http://jcgt.org/published/0006/01/01/paper.pdf
+			float ks = (nor.z>=0.0)?1.0:-1.0;     //do not use sign(nor.z), it can produce 0.0
 			float ka = 1.0 / (1.0 + abs(nor.z));
 			float kb = -ks * nor.x * nor.y * ka;
 			vec3 uu = vec3(1.0 - nor.x * nor.x * ka, ks*kb, -ks*nor.x);
 			vec3 vv = vec3(kb, ks - nor.y * nor.y * ka * ks, -nor.y);
-    
+	
 			float a = 6.2831853 * v;
 			return sqrt(u)*(cos(a)*uu + sin(a)*vv) + sqrt(1.0-u)*nor;
 		#endif
 		#if 1
-    		// method 3 by fizzer: http://www.amietia.com/lambertnotangent.html
+			// method 3 by fizzer: http://www.amietia.com/lambertnotangent.html
 			float a = 6.2831853 * v;
 			u = 2.0*u - 1.0;
 			return normalize( nor + vec3(sqrt(1.0-u*u) * vec2(cos(a), sin(a)), u) );
@@ -294,46 +344,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		p  = fract( p*0.3183099+.1 );
 		p *= 17.0;
 		return fract( p.x*p.y*p.z*(p.x+p.y+p.z) );
-	}
-
-	float noise( in vec3 x )
-	{
-		x*=10.;
-		vec3 i = floor(x);
-		vec3 f = fract(x);
-		f = f*f*(3.0-2.0*f);
-	
-		return mix(mix(mix( hash(i+vec3(0,0,0)), 
-							hash(i+vec3(1,0,0)),f.x),
-					   mix( hash(i+vec3(0,1,0)), 
-							hash(i+vec3(1,1,0)),f.x),f.y),
-				   mix(mix( hash(i+vec3(0,0,1)), 
-							hash(i+vec3(1,0,1)),f.x),
-					   mix( hash(i+vec3(0,1,1)), 
-							hash(i+vec3(1,1,1)),f.x),f.y),f.z);
-	}
-
-	const mat3 m = mat3( 0.00,  0.80,  0.60,
-						-0.80,  0.36, -0.48,
-						-0.60, -0.48,  0.64 );
-
-	float cloudNoise(vec3 pos)
-	{
-		float a;
-		float b;
-		float c;
-		a = 1-cellular(pos, noiseScaleLarge.x*noiseScaleSmall.x);
-		b = 1-cellular(pos, noiseScaleLarge.y*noiseScaleSmall.y);
-		c = 1-cellular(pos, noiseScaleLarge.z*noiseScaleSmall.z);
-		float f = a+(b*persistence)+(c*persistence*persistence);
-		return max(0, f - densityThreshold) * densityLevel;
-	}
-
-	vec3 hsv2rgb(vec3 c)
-	{
-		vec4 k = vec4(1,2./3.,1./3.,3.);
-		vec3 p = abs(fract(c.xxx + k.xyz) * 6.0 - k.www);
-		return c.z * mix(k.xxx, clamp(p - k.xxx, 0.0, 1.0), c.y);
 	}
 
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
@@ -390,7 +400,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		for(int bounce = 0; bounce < bounces; bounce++) // bounces of GI
 		{
 			//rd = normalize(rd);
-       
+	   
 			//-----------------------
 			// trace
 			//-----------------------
@@ -399,21 +409,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 			if(!hitSurface)
 			{
-				float skyDist;
-				float transmittance = 1;
-				bool intersects = intersectPlane(ro, direction, 20, skyDist);
-
-				if (intersects && skyDist < maxWaterDist)
-				{
-					float totalDensity = 0;
-
-					for (float t = skyDist-4; t < skyDist + 2; t+=stepSize)
-					{
-						totalDensity += cloudNoise(ro+direction*t) * stepSize;
-					}
-					transmittance = exp(-totalDensity)*cloudBrightness;
-				}
-
+				// Clouds
+				float transmittance = SampleCloudDensity(ro, direction);
 
 				<sky>
 			
@@ -461,8 +458,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			}
 			else
 			{
-			    float glossiness = 0.2;
-			    direction = normalize(reflect(direction, nor)) + uniformVector(seed + 111.123 + 65.2*float(bounce)) * glossiness;
+				float glossiness = 0.2;
+				direction = normalize(reflect(direction, nor)) + uniformVector(seed + 111.123 + 65.2*float(bounce)) * glossiness;
 			}
 
 			ro = pos;
