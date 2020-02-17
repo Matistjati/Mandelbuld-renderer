@@ -61,6 +61,9 @@ uniform float specularStrength = 1;
 /*<GuiHint>GuiType: checkBox, Name: Path Trace Image, Parent: pathTrace</GuiHint>*/
 uniform bool pathTrace = false;
 
+/*<GuiHint>GuiType: checkBox, Name: Display cloud noise, Parent: pathTrace</GuiHint>*/
+uniform bool displayCloudNoise = false;
+
 /*<GuiHint>GuiType: slider, Name: Bounces, Parent: pathTrace, Range: (1, 10)</GuiHint>*/
 uniform float bounces = 3;
 
@@ -83,22 +86,34 @@ uniform float cloudAmount = 0.3;
 uniform float maxWaterDist = 1000;
 
 /*<GuiHint>GuiType: slider, Name: Noise Scale small, Parent: pathTrace, Range: (0.0001, 1)</GuiHint>*/
-uniform vec3 noiseScaleSmall = vec3(0.09, 0.195, 1);
+uniform vec3 noiseScaleSmall = vec3(0.087, 0.195, 1);
 
 /*<GuiHint>GuiType: slider, Name: Noise Scale large, Parent: pathTrace, Range: (1, 100)</GuiHint>*/
 uniform vec3 noiseScaleLarge = vec3(1,2,1);
 
 /*<GuiHint>GuiType: slider, Name: Noise persistence, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
-uniform float persistence = 0.711;
+uniform float persistence = 0.3511;
 
 /*<GuiHint>GuiType: slider, Name: Density level, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
-uniform float densityLevel = 0.215;
+uniform float densityLevel = 0.4;
 
-/*<GuiHint>GuiType: slider, Name: Density threshold, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
-uniform float densityThreshold = 0.937;
+/*<GuiHint>GuiType: slider, Name: Density threshold, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
+uniform float densityThreshold = 0.69;
+
+/*<GuiHint>GuiType: slider, Name: Darkness threshold, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float darknessThreshold = 0.5;
+
+/*<GuiHint>GuiType: slider, Name: Light absorbtion sun, Parent: pathTrace, Range: (0, 3)</GuiHint>*/
+uniform float lightAbsorbtionSun = 1;
+
+/*<GuiHint>GuiType: slider, Name: Light absorbtion through cloud, Parent: pathTrace, Range: (0, 3)</GuiHint>*/
+uniform float lightAbsorptionThroughCloud = 0.1;
 
 /*<GuiHint>GuiType: slider, Name: Cloud brightness, Parent: pathTrace, Range: (0.001, 5)</GuiHint>*/
 uniform float cloudBrightness = 1.2;
+
+/*<GuiHint>GuiType: slider, Name: Steps to light, Parent: pathTrace, Range: (1, 50)</GuiHint>*/
+uniform float stepsToLight = 10;
 
 /*<GuiHint>GuiType: slider, Name: Step size, Parent: pathTrace, Range: (0.01, 4)</GuiHint>*/
 uniform float stepSize = 0.11;

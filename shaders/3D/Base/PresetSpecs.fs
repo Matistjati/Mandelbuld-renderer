@@ -1,7 +1,8 @@
 <3D>
 {
 	<include>
-		random,</include>
+		random, remap
+	</include>
 
 	<shaderParameters>
 		{name: "coloring", key: "CTRL A Q"},

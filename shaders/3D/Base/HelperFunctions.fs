@@ -155,54 +155,61 @@
 
 
 
-// Cellular noise, returning F1 and F2 in a vec2.
-// 3x3x3 search region for good F2 everywhere, but a lot
-// slower than the 2x2x2 version.
-// The code below is a bit scary even to its author,
-// but it has at least half decent performance on a
-// modern GPU. In any case, it beats any software
-// implementation of Worley noise hands down.
-float cellular(vec3 P, float scale)
-{
-	#define K 0.142857142857 // 1/7
-	#define Ko 0.428571428571 // 1/2-K/2
-	#define K2 0.020408163265306 // 1/(7*7)
-	#define Kz 0.166666666667 // 1/6
-	#define Kzo 0.416666666667 // 1/2-1/6*2
+	// Cellular noise, returning F1 and F2 in a vec2.
+	// 3x3x3 search region for good F2 everywhere, but a lot
+	// slower than the 2x2x2 version.
+	// The code below is a bit scary even to its author,
+	// but it has at least half decent performance on a
+	// modern GPU. In any case, it beats any software
+	// implementation of Worley noise hands down.
+	float cellular(vec3 P, float scale)
+	{
+		#define K 0.142857142857 // 1/7
+		#define Ko 0.428571428571 // 1/2-K/2
+		#define K2 0.020408163265306 // 1/(7*7)
+		#define Kz 0.166666666667 // 1/6
+		#define Kzo 0.416666666667 // 1/2-1/6*2
 
-	P*=scale;
-	const float jitter = 0.8; // smaller jitter gives less errors in F2
-	vec3 Pi = mod289(floor(P));
- 	vec3 Pf = fract(P);
-	vec4 Pfx = Pf.x + vec4(0.0, -1.0, 0.0, -1.0);
-	vec4 Pfy = Pf.y + vec4(0.0, 0.0, -1.0, -1.0);
-	vec4 p = permute(Pi.x + vec4(0.0, 1.0, 0.0, 1.0));
-	p = permute(p + Pi.y + vec4(0.0, 0.0, 1.0, 1.0));
-	vec4 p1 = permute(p + Pi.z); // z+0
-	vec4 p2 = permute(p + Pi.z + vec4(1.0)); // z+1
-	vec4 ox1 = fract(p1*K) - Ko;
-	vec4 oy1 = mod7(floor(p1*K))*K - Ko;
-	vec4 oz1 = floor(p1*K2)*Kz - Kzo; // p1 < 289 guaranteed
-	vec4 ox2 = fract(p2*K) - Ko;
-	vec4 oy2 = mod7(floor(p2*K))*K - Ko;
-	vec4 oz2 = floor(p2*K2)*Kz - Kzo;
-	vec4 dx1 = Pfx + jitter*ox1;
-	vec4 dy1 = Pfy + jitter*oy1;
-	vec4 dz1 = Pf.z + jitter*oz1;
-	vec4 dx2 = Pfx + jitter*ox2;
-	vec4 dy2 = Pfy + jitter*oy2;
-	vec4 dz2 = Pf.z - 1.0 + jitter*oz2;
-	vec4 d1 = dx1 * dx1 + dy1 * dy1 + dz1 * dz1; // z+0
-	vec4 d2 = dx2 * dx2 + dy2 * dy2 + dz2 * dz2; // z+1
+		P*=scale;
+		const float jitter = 0.8; // smaller jitter gives less errors in F2
+		vec3 Pi = mod289(floor(P));
+ 		vec3 Pf = fract(P);
+		vec4 Pfx = Pf.x + vec4(0.0, -1.0, 0.0, -1.0);
+		vec4 Pfy = Pf.y + vec4(0.0, 0.0, -1.0, -1.0);
+		vec4 p = permute(Pi.x + vec4(0.0, 1.0, 0.0, 1.0));
+		p = permute(p + Pi.y + vec4(0.0, 0.0, 1.0, 1.0));
+		vec4 p1 = permute(p + Pi.z); // z+0
+		vec4 p2 = permute(p + Pi.z + vec4(1.0)); // z+1
+		vec4 ox1 = fract(p1*K) - Ko;
+		vec4 oy1 = mod7(floor(p1*K))*K - Ko;
+		vec4 oz1 = floor(p1*K2)*Kz - Kzo; // p1 < 289 guaranteed
+		vec4 ox2 = fract(p2*K) - Ko;
+		vec4 oy2 = mod7(floor(p2*K))*K - Ko;
+		vec4 oz2 = floor(p2*K2)*Kz - Kzo;
+		vec4 dx1 = Pfx + jitter*ox1;
+		vec4 dy1 = Pfy + jitter*oy1;
+		vec4 dz1 = Pf.z + jitter*oz1;
+		vec4 dx2 = Pfx + jitter*ox2;
+		vec4 dy2 = Pfy + jitter*oy2;
+		vec4 dz2 = Pf.z - 1.0 + jitter*oz2;
+		vec4 d1 = dx1 * dx1 + dy1 * dy1 + dz1 * dz1; // z+0
+		vec4 d2 = dx2 * dx2 + dy2 * dy2 + dz2 * dz2; // z+1
 
-	// Cheat and sort out only F1
-	d1 = min(d1, d2);
-	d1.xy = min(d1.xy, d1.wz);
-	d1.x = min(d1.x, d1.y);
-	return sqrt(d1.x);
-}
+		// Cheat and sort out only F1
+		d1 = min(d1, d2);
+		d1.xy = min(d1.xy, d1.wz);
+		d1.x = min(d1.x, d1.y);
+		return sqrt(d1.x);
+	}
 
 </random>
+
+<remap>
+	float remap(float value, float lowOrig, float highOrig, float lowNew, float highNew)
+	{
+		return lowNew + (value - lowOrig) * (highNew - lowNew) / (highOrig - lowOrig);
+	}
+</remap>
 
 <boundingSphere>
 	vec2 boundingSphere(vec4 sph, vec3 origin, vec3 ray)

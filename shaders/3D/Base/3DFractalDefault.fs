@@ -12,7 +12,7 @@
 </sceneDistance>
 
 <sky>
-	col += skyColor * (0.6 + 0.4 * direction.y);
+	col += skyColor * (0.6 + 0.4 * pow(clamp(0.6-direction.y,0.,1.),1.2));
 </sky>
 
 <sun>
@@ -201,29 +201,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 </lightingFunctions>
 
 <render>
-	vec2 rayBoxDst(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 invRaydir)
-	{
-		// Adapted from: http://jcgt.org/published/0007/03/04/
-		vec3 t0 = (boundsMin - rayOrigin) * invRaydir;
-		vec3 t1 = (boundsMax - rayOrigin) * invRaydir;
-		vec3 tmin = min(t0, t1);
-		vec3 tmax = max(t0, t1);
-				
-		float dstA = max(max(tmin.x, tmin.y), tmin.z);
-		float dstB = min(tmax.x, min(tmax.y, tmax.z));
-
-		// CASE 1: ray intersects box from outside (0 <= dstA <= dstB)
-		// dstA is dst to nearest intersection, dstB dst to far intersection
-
-		// CASE 2: ray intersects box from inside (dstA < 0 < dstB)
-		// dstA is the dst to intersection behind the ray, dstB is dst to forward intersection
-
-		// CASE 3: ray misses box (dstA > dstB)
-
-		float dstToBox = max(0, dstA);
-		float dstInsideBox = max(0, dstB - dstToBox);
-		return vec2(dstToBox, dstInsideBox);
-	}
+    vec2 RayBoxIntersection(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
+    {
+        vec3 tMin = (boxMin - rayOrigin) / rayDir;
+        vec3 tMax = (boxMax - rayOrigin) / rayDir;
+        vec3 t1 = min(tMin, tMax);
+        vec3 t2 = max(tMin, tMax);
+        float tNear = max(max(t1.x, t1.y), t1.z);
+        float tFar = min(min(t2.x, t2.y), t2.z);
+        return vec2(tNear, tFar);
+    }
 
 	float cloudNoise(vec3 pos)
 	{
@@ -237,15 +224,57 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return max(0, f - densityThreshold) * densityLevel;
 	}
 
-	float SampleCloudDensity(vec3 ro, vec3 rd)
+	#define boxMin boxPos-boxWidth*0.5
+	#define boxMax boxPos+boxWidth*0.5
+	float lightMarch(vec3 pos)
 	{
-		vec2 intersect = rayBoxDst(boxPos-boxWidth*0.5, boxPos+boxWidth*0.5, ro, 1/rd);
+		float distInsidebox = RayBoxIntersection(pos, sun, boxMin, boxMax).y;
+
+		float sunStepSize = distInsidebox/stepsToLight;
 		float totalDensity = 0;
+
+		for (int step = 0; step < stepsToLight; step++)
+		{
+			pos += sun * sunStepSize;
+			totalDensity += max(0, cloudNoise(position)) * sunStepSize;
+		}
+
+		float transmittance = exp(-totalDensity * lightAbsorbtionSun);
+		return darknessThreshold + transmittance * (1-darknessThreshold);
+	}
+
+
+	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol)
+	{
+		vec2 intersect = RayBoxIntersection(ro, rd, boxMin, boxMax);
+		if (intersect.y<0)
+		{
+			return 1;
+		}
+
+		const float phaseVal = 1;
+
+		float transmittance = 1;
+		vec3 lightEnergy = vec3(0);
 		for (float t = intersect.x; t < intersect.y; t+=stepSize)
 		{
-			totalDensity += cloudNoise(ro+rd*t) * stepSize;
+			float density = cloudNoise(ro+rd*t) * stepSize;
+			if (density > 0)
+			{
+				float lightTransmittance = lightMarch(ro+rd*t);
+				lightEnergy += density * stepSize * transmittance * lightTransmittance * phaseVal;
+				transmittance *= exp(-density * stepSize * lightAbsorptionThroughCloud);
+                    
+				// Early exit
+				if (transmittance < 0.01)
+				{
+					break;
+				}
+			}
 		}
-		float transmittance = exp(-totalDensity)*cloudBrightness;
+
+		cloudCol = lightEnergy;
+
 		return transmittance;
 	}
 
@@ -266,8 +295,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		if (t > maxDist) res = 1.0;// + pow(clamp(dot(ro, rd),0,1),5);
 		
 
-
-		return res*SampleCloudDensity(ro, rd);
+		vec3 temp;
+		return res*SampleCloudDensity(ro, rd, temp);
 	}
 
 	float hash(float seed)
@@ -369,6 +398,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		float dist;
 		bool intersects = intersectPlane(ro, direction, waterHeight, dist);
 		bool aboveWater = (ro + direction*t).y > waterHeight;
+		float skyReflectAmount = 1;
+		float transmittance = 1;
 
 		// With unsifficient raymarching steps, we will we unable to make a perfect deduction about the state of the ray
 		// The following approach suffers in form of incorrectly labelling some of the water around the fractal as part of the real fractal
@@ -378,7 +409,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		bool reflected = dist < maxWaterDist && (hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects);
 		if (reflected)
 		{
-			col = vec3(0.,0,0.05);
+			vec3 cloudCol;
+			transmittance *= SampleCloudDensity(ro, direction, cloudCol);
+			col = vec3(0.,0,0.05)+cloudCol;
 			ro = ro + direction*dist;
 
 			const float bumpDistance = 200;
@@ -395,6 +428,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			nor.z = -bumpfactor * (cellular(coord + step.yx) - cellular(coord - step.yx)) / (2. * epsilon);
 			nor = normalize(nor);
 			direction = reflect(direction, nor);
+			skyReflectAmount = 0.75*clamp(pow(dist,0.1),1.,1.69);
 		}
 
 		for(int bounce = 0; bounce < bounces; bounce++) // bounces of GI
@@ -410,15 +444,20 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			if(!hitSurface)
 			{
 				// Clouds
-				float transmittance = SampleCloudDensity(ro, direction);
+				vec3 cloudCol;
+				transmittance *= SampleCloudDensity(ro, direction, cloudCol);
+				
 
+				vec3 c = col;
 				<sky>
-			
+
+				col = c + (col-c)*skyReflectAmount;
+
 				<sun>
 
 				<edgeGlow>
 
-				return col*transmittance;
+				return clamp(col*transmittance+cloudCol, 0, 1);
 			}
 
 			if( bounce==0 ) fdis = t;
@@ -548,26 +587,34 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	if (pathTrace)
 	{
-		uint hash = uint(intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))));
-		vec2 frag = gl_FragCoord.xy;
-		// Anti aliasing
-		frag += hash2(hash, hash)*2-1;
-		vec2 uv = frag / screenSize * 2.0 - 1.0;
-		uv.x *= float(screenSize.x) / float(screenSize.y);
-		uv *= zoom;
+		if (displayCloudNoise)
+		{
+			vec3 pos = vec3(remap(gl_FragCoord.x/screenSize.x, 0, 1, -20, 20), 20, remap(gl_FragCoord.y/screenSize.y, 0, 1, -20, 20));
+			col = vec3(cloudNoise(pos));
+		}
+		else
+		{
+			uint hash = uint(intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))));
+			vec2 frag = gl_FragCoord.xy;
+			// Anti aliasing
+			frag += hash2(hash, hash)*2-1;
+			vec2 uv = frag / screenSize * 2.0 - 1.0;
+			uv.x *= float(screenSize.x) / float(screenSize.y);
+			uv *= zoom;
 
-		vec3 direction = normalize(vec3(uv.xy, -1));
+			vec3 direction = normalize(vec3(uv.xy, -1));
 
-		direction *= rotation;
+			direction *= rotation;
 
-		float seed = float(hash)/float(0xffffffffU);
-		col = calculateColor(position, direction, seed);
+			float seed = float(hash)/float(0xffffffffU);
+			col = calculateColor(position, direction, seed);
 
-		// gl_FragCoord is in the range [0.5, screenSize+0.5], so we subtract to get to [0, screenSize]
-		vec2 pos = gl_FragCoord.xy-vec2(0.5);
-		int index = int(pos.y*screenSize.x+pos.x); 
-		image[index] += vec4(col, 1);
-		col = pow(image[index].xyz / frame, vec3(gamma));
+			// gl_FragCoord is in the range [0.5, screenSize+0.5], so we subtract to get to [0, screenSize]
+			vec2 pos = gl_FragCoord.xy-vec2(0.5);
+			int index = int(pos.y*screenSize.x+pos.x); 
+			image[index] += vec4(col, 1);
+			col = pow(image[index].xyz / frame, vec3(gamma));
+		}
 	}
 	else
 	{
