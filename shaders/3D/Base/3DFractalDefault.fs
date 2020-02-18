@@ -244,7 +244,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	}
 
 
-	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol)
+	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol, bool calculateSunLight = false)
 	{
 		vec2 intersect = RayBoxIntersection(ro, rd, boxMin, boxMax);
 		if (intersect.y<0)
@@ -261,7 +261,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			float density = cloudNoise(ro+rd*t) * stepSize;
 			if (density > 0)
 			{
-				float lightTransmittance = lightMarch(ro+rd*t);
+				float lightTransmittance = 1;
+				if (calculateSunLight) lightTransmittance = lightMarch(ro+rd*t);
+
 				lightEnergy += density * stepSize * transmittance * lightTransmittance * phaseVal;
 				transmittance *= exp(-density * stepSize * lightAbsorptionThroughCloud);
                     
@@ -273,7 +275,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			}
 		}
 
-		cloudCol = lightEnergy;
+		cloudCol = lightEnergy*sunColor;
 
 		return transmittance;
 	}
@@ -445,7 +447,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			{
 				// Clouds
 				vec3 cloudCol;
-				transmittance *= SampleCloudDensity(ro, direction, cloudCol);
+				transmittance *= SampleCloudDensity(ro, direction, cloudCol, true);
 				
 
 				vec3 c = col;
