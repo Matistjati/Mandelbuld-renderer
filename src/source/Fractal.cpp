@@ -1432,6 +1432,7 @@ void Fractal::PopulateGUI()
 
 	// ParameterChangeRate
 	Uniform<float>* changeRate = new Uniform<float>();
+	changeRate->name = "changeRate";
 
 	nanogui::Slider* paramSlider = gui->form->AddSlider("parameterChangeRate", parameterChangeRate);
 	changeRate->SetGuiValue = [paramSlider, this]() { ((nanogui::Slider*)paramSlider)->setValue(this->parameterChangeRate); };
@@ -1441,9 +1442,29 @@ void Fractal::PopulateGUI()
 	paramSlider->setValue(parameterChangeRate);
 	paramSlider->setRange({ 0.000001f,5.f });
 	changeRate->guiElements = { paramSlider };
+	changeRate->PrintValue = [this]() {std::cout << "ParameterChangeRate: " << this->parameterChangeRate << std::endl; };
 
 
 	fractalUniforms.push_back(GuiElement(Element::Slider, changeRate, this));
+
+
+	SubMenu* debugMenu = new SubMenu(Element::SubMenu, "Debug", "debug", this, { 65, 0 });
+	subMenus.push_back(debugMenu);
+
+	debugMenu->form->setFixedSize({ 75, 25 });
+
+	nanogui::Button* button = debugMenu->form->AddButton("Print uniform values");
+	button->setCallback([this]()
+		{
+			for (size_t i = 0; i < this->fractalUniforms.size(); i++)
+			{
+				if (this->fractalUniforms[i].uniform->PrintValue)
+				{
+					this->fractalUniforms[i].uniform->PrintValue();
+				}
+				
+			}
+		});
 
 
 	// Reset button

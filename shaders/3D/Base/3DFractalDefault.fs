@@ -201,16 +201,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 </lightingFunctions>
 
 <render>
-    vec2 RayBoxIntersection(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
-    {
-        vec3 tMin = (boxMin - rayOrigin) / rayDir;
-        vec3 tMax = (boxMax - rayOrigin) / rayDir;
-        vec3 t1 = min(tMin, tMax);
-        vec3 t2 = max(tMin, tMax);
-        float tNear = max(max(t1.x, t1.y), t1.z);
-        float tFar = min(min(t2.x, t2.y), t2.z);
-        return vec2(tNear, tFar);
-    }
+	vec2 RayBoxIntersection(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
+	{
+		vec3 tMin = (boxMin - rayOrigin) / rayDir;
+		vec3 tMax = (boxMax - rayOrigin) / rayDir;
+		vec3 t1 = min(tMin, tMax);
+		vec3 t2 = max(tMin, tMax);
+		float tNear = max(max(t1.x, t1.y), t1.z);
+		float tFar = min(min(t2.x, t2.y), t2.z);
+		return vec2(tNear, tFar);
+	}
 
 	float cloudNoise(vec3 pos)
 	{
@@ -266,7 +266,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 				lightEnergy += density * stepSize * transmittance * lightTransmittance * phaseVal;
 				transmittance *= exp(-density * stepSize * lightAbsorptionThroughCloud);
-                    
+					
 				// Early exit
 				if (transmittance < 0.01)
 				{

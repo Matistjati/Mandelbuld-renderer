@@ -172,19 +172,15 @@ public:
 
 	nanogui::Button* AddButton(nanogui::Window* parent, const std::string& label, std::string caption)
 	{
-		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);
-		nanogui::Button* widget = new nanogui::Button(parent);
-
-		widget->setCaption(caption);
+		nanogui::Label* labelW = new nanogui::Label(mWindow, label);
+		auto widget = new nanogui::Button(mWindow, caption);
 
 		widget->setFontSize(mWidgetFontSize);
 		nanogui::Vector2i fs = widget->fixedSize();
-		widget->setFixedSize(Eigen::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
+		widget->setFixedSize(nanogui::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
 			fs.y() != 0 ? fs.y() : mFixedSize.y()));
-
 		if (mLayout->rowCount() > 0)
 			mLayout->appendRow(mVariableSpacing);
-
 		mLayout->appendRow(0);
 		mLayout->setAnchor(labelW, nanogui::AdvancedGridLayout::Anchor(1, mLayout->rowCount() - 1));
 		mLayout->setAnchor(widget, nanogui::AdvancedGridLayout::Anchor(2, mLayout->rowCount() - 1));
