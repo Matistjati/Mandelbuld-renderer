@@ -214,14 +214,15 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	float cloudNoise(vec3 pos)
 	{
-		float a;
-		float b;
-		float c;
-		a = 1-cellular(pos, noiseScaleLarge.x * noiseScaleSmall.x);
-		b = 1-cellular(pos, noiseScaleLarge.y * noiseScaleSmall.y);
-		c = 1-cellular(pos, noiseScaleLarge.z * noiseScaleSmall.z);
-		float f = a + (b * persistence) + (c * persistence * persistence);
-		return max(0, f - densityThreshold) * densityLevel;
+		pos.xz += time;
+		vec3 noise;
+		noise.x = 1-cellular(pos, noiseScaleLarge.x * noiseScaleSmall.x);
+		noise.y = 1-cellular(pos, noiseScaleLarge.y * noiseScaleSmall.y);
+		noise.z = 1-cellular(pos, noiseScaleLarge.z * noiseScaleSmall.z);
+		float shapeFBM = dot(noise, normalize(noiseWeights));
+		//float f = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
+
+		return max(0, shapeFBM - densityThreshold) * densityLevel;
 	}
 
 	#define boxMin boxPos-boxWidth*0.5
@@ -236,13 +237,25 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		for (int step = 0; step < stepsToLight; step++)
 		{
 			pos += sun * sunStepSize;
-			totalDensity += max(0, cloudNoise(position)) * sunStepSize;
+			totalDensity += max(0, cloudNoise(pos)) * sunStepSize;
 		}
 
 		float transmittance = exp(-totalDensity * lightAbsorbtionSun);
 		return darknessThreshold + transmittance * (1-darknessThreshold);
 	}
 
+	float hg(float a, float g)
+	{
+        float g2 = g*g;
+        return (1-g2) / (4*3.1415*pow(1+g2-2*g*(a), 1.5));
+    }
+
+	float phase(float a)
+	{
+        float blend = .5;
+        float hgBlend = hg(a,phaseParams.x) * (1-blend) + hg(a,-phaseParams.y) * blend;
+        return phaseParams.z + hgBlend*phaseParams.w;
+    }
 
 	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol, bool calculateSunLight = false)
 	{
@@ -252,7 +265,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			return 1;
 		}
 
-		const float phaseVal = 1;
+		float cosAngle = dot(rd, sun);
+        float phaseVal = phase(cosAngle);
 
 		float transmittance = 1;
 		vec3 lightEnergy = vec3(0);
@@ -262,11 +276,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			if (density > 0)
 			{
 				float lightTransmittance = 1;
-				if (calculateSunLight) lightTransmittance = lightMarch(ro+rd*t);
-
-				lightEnergy += density * stepSize * transmittance * lightTransmittance * phaseVal;
+				if (calculateSunLight)
+				{
+					lightTransmittance = lightMarch(ro+rd*t);
+					lightEnergy += density * stepSize * transmittance * lightTransmittance * phaseVal;
+				}
 				transmittance *= exp(-density * stepSize * lightAbsorptionThroughCloud);
-					
+
 				// Early exit
 				if (transmittance < 0.01)
 				{
@@ -275,7 +291,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			}
 		}
 
-		cloudCol = lightEnergy*sunColor;
+		cloudCol = lightEnergy*sunColor*cloudBrightness;
 
 		return transmittance;
 	}
@@ -379,6 +395,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
+#if 0
+		// Cloud testing
+		vec3 cloudCol;
+		float trans = SampleCloudDensity(ro, direction, cloudCol, true);
+		vec3 D = vec3(0.,0.5,0.7)*direction.y;
+		return clamp(D*trans+cloudCol, 0, 1);
+#endif
 		vec3 Sun = sun;
 		vec3 sunCol = 3.0*sunColor;
 		vec3 skyCol =  4.0*skyColor;

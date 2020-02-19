@@ -57,8 +57,7 @@ public:
 	nanogui::Window* window;
 	Form* form;
 
-	SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal, Eigen::Vector2i offset = { 0, 0 });
-
+	SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal, Eigen::Vector2i offset = { 0, 0 }, SubMenu* parent = nullptr);
 };
 
 class GUI : public nanogui::Screen

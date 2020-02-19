@@ -114,6 +114,11 @@ std::string Fractal::SubString(std::string str, int begin, int end)
 	return str.substr(begin, end-begin);
 }
 
+void Fractal::RemoveFirstCharIfEqual(std::string& str, char c)
+{
+	if (str[0] == c) str = str.substr(1);
+}
+
 void Fractal::CleanString(std::string& str, std::vector<char> chars)
 {
 	for (size_t i = 0; i < chars.size(); i++)
@@ -1145,7 +1150,31 @@ void Fractal::PopulateGuiFromShader()
 			std::string identifier = GuiElement::GetElement(params, "Identifier");
 			if (identifier[0] == ' ') identifier = identifier.substr(1);
 
-			subMenus.push_back(new SubMenu(GuiElement::GetElementFromString(type), name, identifier, this));
+			std::string parentIdentifier = GuiElement::GetElement(params, "Parent");
+			SubMenu* parent = nullptr;
+			Eigen::Vector2i offset = { 0,0 };
+			if (parentIdentifier != "")
+			{
+				offset = { 130, -10 };
+				RemoveFirstCharIfEqual(parentIdentifier);
+
+				for (size_t i = 0; i < subMenus.size(); i++)
+				{
+					if (StringEqualNoCase(subMenus[i]->identifier, parentIdentifier))
+					{
+						parent = subMenus[i];
+					}
+				}
+
+				if (parent == nullptr)
+				{
+					DebugPrint("Could not find parent, will do a default");
+					BreakIfDebug();
+					parent = subMenus[0];
+				}
+			}
+
+			subMenus.push_back(new SubMenu(GuiElement::GetElementFromString(type), name, identifier, this, offset, parent));
 		}
 		else
 		{

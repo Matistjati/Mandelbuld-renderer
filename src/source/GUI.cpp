@@ -303,17 +303,20 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 
 GuiElement::GuiElement(Element element, UniformSuper* uniform, Fractal* fractal) : element(element), uniform(uniform), fractal(fractal) { }
 
-SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal, Eigen::Vector2i offset) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window(), form()
+SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal, Eigen::Vector2i offset, SubMenu* parent) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window(), form()
 {
 	if (element == Element::SubMenu)
 	{
-		nanogui::Button* button = fractal->gui->form->AddButton(name);
+		Form* parentForm = (parent == nullptr) ? fractal->gui->form : parent->form;
+
+		nanogui::Button* button = parentForm->AddButton(name);
 
 		fractal->gui->performLayout();
 
 
 		form = new Form(fractal->gui, button, this);
-		window = form->addWindow(button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + Eigen::Vector2i{ 30,0 } + offset, name);
+		Eigen::Vector2i parentOffset = (parent == nullptr) ? (Eigen::Vector2i{30, 0}) : parent->form->parentMenu->window->position();
+		window = form->addWindow(parentOffset + button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y()/2)) + offset, name);
 
 		form->parentButton->setCallback([this]()
 			{
@@ -335,6 +338,39 @@ SubMenu::SubMenu(Element element, std::string name, std::string identifier, Frac
 		BreakIfDebug();
 	}
 }
+//
+//SubMenu::SubMenu(Element element, std::string name, std::string identifier, Fractal* fractal, SubMenu* parent, Eigen::Vector2i offset) : element(element), name(name), fractal(fractal), identifier(identifier), children(), window(), form()
+//{
+//	if (element == Element::SubMenu)
+//	{
+//		nanogui::Button* button = parent->form->AddButton(name);
+//
+//		fractal->gui->performLayout();
+//
+//
+//		form = new Form(fractal->gui, button, this);
+//		window = form->addWindow(parent->form->parentMenu->window->position() + button->position() + Eigen::Vector2i(button->size().x(), (int)(button->size().y() / 2)) + Eigen::Vector2i{ 30,0 } + offset, name);
+//
+//		form->parentButton->setCallback([this]()
+//			{
+//				window->setVisible(!window->visible());
+//				if (!window->visible())
+//				{
+//					for (size_t i = 0; i < form->parentMenu->children.size(); i++)
+//					{
+//						form->parentMenu->children[i]->setVisible(false);
+//					}
+//				}
+//			});
+//
+//		window->setVisible(false);
+//	}
+//	else
+//	{
+//		std::cout << "Could not determine GUI element type" << std::endl;
+//		BreakIfDebug();
+//	}
+//}
 
 GuiElement::GuiElement() : element(Element::error), fractal(), uniform()
 {

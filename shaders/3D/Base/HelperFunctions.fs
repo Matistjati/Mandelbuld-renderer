@@ -117,7 +117,7 @@
 		P.x*=3;
 		P.y*=5;
 		vec2 Pi = mod289(floor(P));
- 		vec2 Pf = fract(P);
+		vec2 Pf = fract(P);
 		vec3 oi = vec3(-1.0, 0.0, 1.0);
 		vec3 of = vec3(-0.5, 0.5, 1.5);
 		vec3 px = permute(Pi.x + oi);
@@ -173,7 +173,7 @@
 		P*=scale;
 		const float jitter = 0.8; // smaller jitter gives less errors in F2
 		vec3 Pi = mod289(floor(P));
- 		vec3 Pf = fract(P);
+		vec3 Pf = fract(P);
 		vec4 Pfx = Pf.x + vec4(0.0, -1.0, 0.0, -1.0);
 		vec4 Pfy = Pf.y + vec4(0.0, 0.0, -1.0, -1.0);
 		vec4 p = permute(Pi.x + vec4(0.0, 1.0, 0.0, 1.0));
@@ -215,11 +215,11 @@
 	vec2 boundingSphere(vec4 sph, vec3 origin, vec3 ray)
 	{
 		vec3 oc = origin - sph.xyz;
-    
+	
 		float b = dot(oc,ray);
 		float c = dot(oc,oc) - sph.w*sph.w;
 		float h = b*b - c;
-    
+	
 		if( h<0.0 ) return vec2(-1.0);
 
 		h = sqrt( h );
@@ -229,7 +229,7 @@
 </boundingSphere>
 
 <sphereFold>
-    // Sphere inversion
+	// Sphere inversion
 	void sphereFold(inout vec3 z, inout float dz, float r2, float innerRadius, float outerRadius)
 	{
 		if (r2 < innerRadius)
@@ -308,7 +308,7 @@ vec3 triplexPow(vec3 w, float power, inout float dw, float m)
 	return pow(r, power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
 #else
 	float theta = power * atan(w.y, w.x);
-    float phi = power * asin(w.z / r);
+	float phi = power * asin(w.z / r);
 
 	// Fun alternative: reverse sin and cos
 	//return pow(r, power) * vec3(sin(theta) * sin(phi), cos(phi), cos(theta) * sin(phi));
