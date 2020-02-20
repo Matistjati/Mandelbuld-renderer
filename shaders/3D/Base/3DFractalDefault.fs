@@ -214,11 +214,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	float cloudNoise(vec3 pos)
 	{
+		// Simplify (boxPos.y+boxWidth.y*0.5 - pos.y)/(boxPos.y+boxWidth*0.5-(boxPos.y-boxWidth*0.5));
+		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
+		vec2 posPercent = abs(boxPos.xz-pos.xz)/(boxWidth.xz*0.5);
 		pos.xz += time;
 		vec3 noise;
 		noise.x = 1-cellular(pos, noiseScaleLarge.x * noiseScaleSmall.x);
 		noise.y = 1-cellular(pos, noiseScaleLarge.y * noiseScaleSmall.y);
 		noise.z = 1-cellular(pos, noiseScaleLarge.z * noiseScaleSmall.z);
+		noise *= min(1, heightPercent*heightWeight);
+		noise.xz *= pow(1-posPercent, vec2(1-edgeDensity));
 		float shapeFBM = dot(noise, normalize(noiseWeights));
 		//float f = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
 
@@ -229,14 +234,14 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	#define boxMax boxPos+boxWidth*0.5
 	float lightMarch(vec3 pos)
 	{
-		float distInsidebox = RayBoxIntersection(pos, sun, boxMin, boxMax).y;
+		float distInsidebox = RayBoxIntersection(pos, -sun, boxMin, boxMax).y;
 
 		float sunStepSize = distInsidebox/stepsToLight;
 		float totalDensity = 0;
 
 		for (int step = 0; step < stepsToLight; step++)
 		{
-			pos += sun * sunStepSize;
+			pos += -(sun) * sunStepSize;
 			totalDensity += max(0, cloudNoise(pos)) * sunStepSize;
 		}
 
@@ -265,29 +270,32 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			return 1;
 		}
 
-		float cosAngle = dot(rd, sun);
+		float cosAngle = dot(rd, -(sun));
         float phaseVal = phase(cosAngle);
 
 		float transmittance = 1;
 		vec3 lightEnergy = vec3(0);
-		for (float t = intersect.x; t < intersect.y; t+=stepSize)
+		float delta = max(0.05, stepSize);
+		for (float t = intersect.x; t < intersect.y; t+=delta)
 		{
-			float density = cloudNoise(ro+rd*t) * stepSize;
+			float density = cloudNoise(ro+rd*t) * delta;
 			if (density > 0)
 			{
 				float lightTransmittance = 1;
 				if (calculateSunLight)
 				{
 					lightTransmittance = lightMarch(ro+rd*t);
-					lightEnergy += density * stepSize * transmittance * lightTransmittance * phaseVal;
+					lightEnergy += density * delta * transmittance * lightTransmittance * phaseVal;
 				}
-				transmittance *= exp(-density * stepSize * lightAbsorptionThroughCloud);
+				transmittance *= exp(-density * delta * lightAbsorptionThroughCloud);
 
 				// Early exit
 				if (transmittance < 0.01)
 				{
 					break;
 				}
+				// Step further when deeper into the volume
+				delta = max(0.05, stepSize*t);
 			}
 		}
 
@@ -313,8 +321,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		if (t > maxDist) res = 1.0;// + pow(clamp(dot(ro, rd),0,1),5);
 		
 
-		vec3 temp;
-		return res*SampleCloudDensity(ro, rd, temp);
+		//vec3 temp;
+		// Ignore clouds, if we use them the image takes forever to converge
+		return res;//*SampleCloudDensity(ro, rd, temp);
 	}
 
 	float hash(float seed)
@@ -399,7 +408,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		// Cloud testing
 		vec3 cloudCol;
 		float trans = SampleCloudDensity(ro, direction, cloudCol, true);
-		vec3 D = vec3(0.,0.5,0.7)*direction.y;
+		vec3 D = vec3(0.,0.5,0.7)*abs(direction.y);
+		D += sunColor * pow(clamp(dot(direction, (sun)),0,1),32.);
 		return clamp(D*trans+cloudCol, 0, 1);
 #endif
 		vec3 Sun = sun;
@@ -453,7 +463,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			nor.z = -bumpfactor * (cellular(coord + step.yx) - cellular(coord - step.yx)) / (2. * epsilon);
 			nor = normalize(nor);
 			direction = reflect(direction, nor);
-			skyReflectAmount = 0.75*clamp(pow(dist,0.1),1.,1.69);
+			skyReflectAmount = waterDarkness*clamp(pow(dist,1/waterDistScale),1.,waterDistLimit);
 		}
 
 		for(int bounce = 0; bounce < bounces; bounce++) // bounces of GI
@@ -614,7 +624,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	{
 		if (displayCloudNoise)
 		{
-			vec3 pos = vec3(remap(gl_FragCoord.x/screenSize.x, 0, 1, -20, 20), 20, remap(gl_FragCoord.y/screenSize.y, 0, 1, -20, 20));
+			vec3 pos = vec3(remap(gl_FragCoord.x/screenSize.x, 0, 1, -20, 20), 20, remap(gl_FragCoord.y/screenSize.y, 0, 1, -20, 20))/vec3(zoom,1,zoom);
 			col = vec3(cloudNoise(pos));
 		}
 		else

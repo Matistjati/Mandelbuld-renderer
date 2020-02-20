@@ -91,6 +91,15 @@ uniform float bumpFactor = 0.05;
 /*<GuiHint>GuiType: slider, Name: Water and sky max distance, Parent: waterSettings, Range: (0, 1000)</GuiHint>*/
 uniform float maxWaterDist = 1000;
 
+/*<GuiHint>GuiType: slider, Name: Water darkness, Parent: waterSettings, Range: (0.001, 1)</GuiHint>*/
+uniform float waterDarkness = 0.223;
+
+/*<GuiHint>GuiType: slider, Name: Water distance brightness, Parent: waterSettings, Range: (1, 100)</GuiHint>*/
+uniform float waterDistScale = 2.57;
+
+/*<GuiHint>GuiType: slider, Name: Water distance max increase, Parent: waterSettings, Range: (1, 4)</GuiHint>*/
+uniform float waterDistLimit = 2.51;
+
 
 /*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudColoring, Range: (0, 10)</GuiHint>*/
 uniform float densityLevel = 10;
@@ -111,10 +120,10 @@ uniform float lightAbsorptionThroughCloud = 1.43;
 uniform float cloudBrightness = 0.25;
 
 /*<GuiHint>GuiType: slider, Name: Steps to light, Parent: cloudColoring, Range: (1, 50)</GuiHint>*/
-uniform float stepsToLight = 15;
+uniform float stepsToLight = 1;
 
-/*<GuiHint>GuiType: slider, Name: Step size, Parent: cloudColoring, Range: (0.01, 4)</GuiHint>*/
-uniform float stepSize = 0.11;
+/*<GuiHint>GuiType: slider, Name: Step size, Parent: cloudColoring, Range: (0.005, 0.5)</GuiHint>*/
+uniform float stepSize = 0.005;
 
 
 
@@ -132,6 +141,12 @@ uniform float persistence = 0.3511;
 
 /*<GuiHint>GuiType: slider, Name: Density threshold, Parent: cloudNoise, Range: (0, 4)</GuiHint>*/
 uniform float densityThreshold = 0.69;
+
+/*<GuiHint>GuiType: slider, Name: Height weight, Parent: cloudNoise, Range: (1, 10)</GuiHint>*/
+uniform float heightWeight = 1.375;
+
+/*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 1)</GuiHint>*/
+uniform float edgeDensity = 0.93;
 
 
 
