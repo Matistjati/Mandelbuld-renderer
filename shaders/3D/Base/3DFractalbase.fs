@@ -101,9 +101,6 @@ uniform float waterDistScale = 2.57;
 uniform float waterDistLimit = 2.51;
 
 
-/*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudColoring, Range: (0, 10)</GuiHint>*/
-uniform float densityLevel = 10;
-
 /*<GuiHint>GuiType: slider, Name: Darkness threshold, Parent: cloudColoring, Range: (-10, 10)</GuiHint>*/
 uniform float darknessThreshold = 10;
 
@@ -145,8 +142,14 @@ uniform float densityThreshold = 0.69;
 /*<GuiHint>GuiType: slider, Name: Height weight, Parent: cloudNoise, Range: (1, 10)</GuiHint>*/
 uniform float heightWeight = 1.375;
 
+/*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudNoise, Range: (0, 20)</GuiHint>*/
+uniform float densityLevel = 10;
+
 /*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 1)</GuiHint>*/
 uniform float edgeDensity = 0.93;
+
+/*<GuiHint>GuiType: slider, Name: Cloud Scale, Parent: cloudNoise, Range: (0.001, 2)</GuiHint>*/
+uniform float cloudScale = 1;
 
 
 

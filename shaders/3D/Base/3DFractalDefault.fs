@@ -212,21 +212,71 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return vec2(tNear, tFar);
 	}
 
+	#define minComp(a) return min(a.x, a.y)
+
+	float hash31(vec3 p)  // replace this by something better
+	{
+		p  = fract( p*0.3183099+.1 );
+		p *= 17.0;
+		return fract( p.x*p.y*p.z*(p.x+p.y+p.z) );
+	}
+
+	float noise( in vec3 x )
+	{
+		x*=100.;
+		vec3 i = floor(x);
+		vec3 f = fract(x);
+		f = f*f*(3.0-2.0*f);
+	
+		return mix(mix(mix( hash31(i+vec3(0,0,0)), 
+							hash31(i+vec3(1,0,0)),f.x),
+					   mix( hash31(i+vec3(0,1,0)), 
+							hash31(i+vec3(1,1,0)),f.x),f.y),
+				   mix(mix( hash31(i+vec3(0,0,1)), 
+							hash31(i+vec3(1,0,1)),f.x),
+					   mix( hash31(i+vec3(0,1,1)), 
+							hash31(i+vec3(1,1,1)),f.x),f.y),f.z);
+	}
+
+	const mat3 m = mat3( 0.00,  0.80,  0.60,
+						-0.80,  0.36, -0.48,
+						-0.60, -0.48,  0.64 );
+
+	float cloudMap(vec3 pos)
+	{
+		pos*=0.5;
+		float f;
+		vec3 q = 0.001*pos;
+		f  = 0.5000*noise( q ); q = m*q*2.01;
+		f += 0.2500*noise( q ); q = m*q*2.02;
+		f += 0.1250*noise( q ); q = m*q*2.03;
+		f += 0.0625*noise( q ); q = m*q*2.01;
+		return f*f;
+	}
+
 	float cloudNoise(vec3 pos)
 	{
 		// Simplify (boxPos.y+boxWidth.y*0.5 - pos.y)/(boxPos.y+boxWidth*0.5-(boxPos.y-boxWidth*0.5));
+		pos*=cloudScale;
 		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
 		vec2 posPercent = abs(boxPos.xz-pos.xz)/(boxWidth.xz*0.5);
+		float minPos = min(posPercent.x, posPercent.y);
 		pos.xz += time;
 		vec3 noise;
 		noise.x = 1-cellular(pos, noiseScaleLarge.x * noiseScaleSmall.x);
 		noise.y = 1-cellular(pos, noiseScaleLarge.y * noiseScaleSmall.y);
 		noise.z = 1-cellular(pos, noiseScaleLarge.z * noiseScaleSmall.z);
 		noise *= min(1, heightPercent*heightWeight);
-		noise.xz *= pow(1-posPercent, vec2(1-edgeDensity));
-		float shapeFBM = dot(noise, normalize(noiseWeights));
-		//float f = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
+		noise *= 1.001577 + (0.1 - 1.001577)/(1 + pow(heightPercent/0.09209285,2.661173));
+		noise *= pow(1-minPos, 1-edgeDensity);
+		noise *= noiseWeights;
+		float shapeFBM = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
+		// keep inside range [0,1] as will be clamped in texture
+		float maxVal = 1 + (persistence) + (persistence * persistence);
 
+		shapeFBM /= maxVal;
+		shapeFBM*=1. + (-6.245234e-19 - 1.)/(1. + pow(cloudMap(pos)/0.3180541,37.59849));
+		
 		return max(0, shapeFBM - densityThreshold) * densityLevel;
 	}
 
@@ -404,7 +454,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
-#if 0
+#if 1
 		// Cloud testing
 		vec3 cloudCol;
 		float trans = SampleCloudDensity(ro, direction, cloudCol, true);
