@@ -151,7 +151,7 @@ uniform float heightWeight = 0.800958;
 /*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudNoise, Range: (0, 20)</GuiHint>*/
 uniform float densityLevel = 10;
 
-/*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Density Offset, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
 uniform float densityOffset = 1.01732;
 
 /*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 1)</GuiHint>*/

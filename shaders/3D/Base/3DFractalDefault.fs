@@ -265,11 +265,11 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		noise.y = 1-cellular(pos, noiseScaleSmall.y);
 		noise.z = 1-cellular(pos, noiseScaleSmall.z);
 		noise *= min(1, heightPercent*heightWeight);
+		noise *= 1 + (0.01 - 1)/(1 + pow(heightPercent/0.09665964, 24.51587));
 		noise.xz *= pow(1-posPercent, vec2(1-edgeDensity));
 		float shapeFBM = dot(noise, normalize(noiseWeights)) + densityOffset * .1;
 		shapeFBM *= snoise(pos*cloudDist);
 		float baseShape = shapeFBM;
-		//float f = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
 
 		if (shapeFBM > 0)
 		{
