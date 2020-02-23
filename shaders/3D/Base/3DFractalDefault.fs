@@ -257,27 +257,37 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	float cloudNoise(vec3 pos)
 	{
 		// Simplify (boxPos.y+boxWidth.y*0.5 - pos.y)/(boxPos.y+boxWidth*0.5-(boxPos.y-boxWidth*0.5));
-		pos*=cloudScale;
 		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
 		vec2 posPercent = abs(boxPos.xz-pos.xz)/(boxWidth.xz*0.5);
-		float minPos = min(posPercent.x, posPercent.y);
 		pos.xz += time;
 		vec3 noise;
-		noise.x = 1-cellular(pos, noiseScaleLarge.x * noiseScaleSmall.x);
-		noise.y = 1-cellular(pos, noiseScaleLarge.y * noiseScaleSmall.y);
-		noise.z = 1-cellular(pos, noiseScaleLarge.z * noiseScaleSmall.z);
+		noise.x = 1-cellular(pos, noiseScaleSmall.x);
+		noise.y = 1-cellular(pos, noiseScaleSmall.y);
+		noise.z = 1-cellular(pos, noiseScaleSmall.z);
 		noise *= min(1, heightPercent*heightWeight);
-		noise *= 1.001577 + (0.1 - 1.001577)/(1 + pow(heightPercent/0.09209285,2.661173));
-		noise *= pow(1-minPos, 1-edgeDensity);
-		noise *= noiseWeights;
-		float shapeFBM = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
-		// keep inside range [0,1] as will be clamped in texture
-		float maxVal = 1 + (persistence) + (persistence * persistence);
+		noise.xz *= pow(1-posPercent, vec2(1-edgeDensity));
+		float shapeFBM = dot(noise, normalize(noiseWeights)) + densityOffset * .1;
+		shapeFBM *= snoise(pos*cloudDist);
+		float baseShape = shapeFBM;
+		//float f = noise.x + (noise.y * persistence) + (noise.z * persistence * persistence);
 
-		shapeFBM /= maxVal;
-		shapeFBM*=1. + (-6.245234e-19 - 1.)/(1. + pow(cloudMap(pos)/0.3180541,37.59849));
-		
-		return max(0, shapeFBM - densityThreshold) * densityLevel;
+		if (shapeFBM > 0)
+		{
+			vec3 detailSamplePos = pos;
+			vec3 detailNoise;
+			detailNoise.x = 1-cellular(detailSamplePos, detailNoiseScale.x);
+			detailNoise.y = 1-cellular(detailSamplePos, detailNoiseScale.y);
+			detailNoise.z = 1-cellular(detailSamplePos, detailNoiseScale.z);
+			float detailFBM = dot(detailNoise, detailWeights);
+
+			// Subtract detail noise from base shape (weighted by inverse density so that edges get eroded more than centre)
+			float oneMinusShape = 1 - shapeFBM;
+			float detailErodeWeight = oneMinusShape * oneMinusShape * oneMinusShape;
+			float cloudDensity = baseShape - (1-detailFBM) * detailErodeWeight * detailNoiseWeight;
+
+			return max(0, cloudDensity - densityThreshold) * densityLevel;
+		}
+		return 0;
 	}
 
 	#define boxMin boxPos-boxWidth*0.5
