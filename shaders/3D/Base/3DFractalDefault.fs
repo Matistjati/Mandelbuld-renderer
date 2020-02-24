@@ -464,14 +464,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	vec3 calculateColor(vec3 ro, vec3 direction, float seed)
 	{
-#if 1
-		// Cloud testing
-		vec3 cloudCol;
-		float trans = SampleCloudDensity(ro, direction, cloudCol, true);
-		vec3 D = vec3(0.,0.5,0.7)*abs(direction.y);
-		D += sunColor * pow(clamp(dot(direction, (sun)),0,1),32.);
-		return clamp(D*trans+cloudCol, 0, 1);
-#endif
+		if (cloudOnly)
+		{
+			// Cloud testing
+			vec3 cloudCol;
+			float trans = SampleCloudDensity(ro, direction, cloudCol, true);
+			vec3 D = vec3(0.,0.5,0.7)*abs(direction.y);
+			D += sunColor * pow(clamp(dot(direction, (sun)),0,1),32.);
+			return clamp(D*trans+cloudCol, 0, 1);
+		}
+
 		vec3 Sun = sun;
 		vec3 sunCol = 3.0*sunColor;
 		vec3 skyCol =  4.0*skyColor;
@@ -692,7 +694,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			uint hash = uint(intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))));
 			vec2 frag = gl_FragCoord.xy;
 			// Anti aliasing
-			frag += hash2(hash, hash)*2-1;
+			frag += UniformToNormal(hash2(hash, hash))*antiAliasingMagnitude;
 			vec2 uv = frag / screenSize * 2.0 - 1.0;
 			uv.x *= float(screenSize.x) / float(screenSize.y);
 			uv *= zoom;

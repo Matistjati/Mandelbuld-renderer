@@ -1,4 +1,13 @@
 <random>
+	vec2 UniformToNormal(vec2 randuniform)
+	{
+		vec2 r = randuniform;
+		r.x = sqrt(-2.*log(1e-9+abs(r.x)));
+		r.y *= 6.28318;
+		r = r.x*vec2(cos(r.y),sin(r.y));
+		return r;
+	}
+
 	float hash11(float p)
 	{
 		p = fract(p * .1031);

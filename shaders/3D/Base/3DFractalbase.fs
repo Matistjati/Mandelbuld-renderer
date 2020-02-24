@@ -75,6 +75,9 @@ uniform bool displayCloudNoise = false;
 /*<GuiHint>GuiType: slider, Name: Bounces, Parent: pathTrace, Range: (1, 10)</GuiHint>*/
 uniform float bounces = 3;
 
+/*<GuiHint>GuiType: slider, Name: Anti aliasing amount, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float antiAliasingMagnitude = 1;
+
 /*<GuiHint>GuiType: slider, Name: Brightness, Parent: pathTrace, Range: (0.2, 10)</GuiHint>*/
 uniform float brightness = 5;
 
@@ -123,6 +126,8 @@ uniform float stepsToLight = 8;
 uniform float stepSize = 0.005;
 
 
+/*<GuiHint>GuiType: checkBox, Name: Render only clouds, Parent: cloudNoise</GuiHint>*/
+uniform bool cloudOnly = false;
 
 /*<GuiHint>GuiType: slider, Name: Noise Scale small, Parent: cloudNoise, Range: (0.0001, 1)</GuiHint>*/
 uniform vec3 noiseScaleSmall = vec3(0.0001, 0.362383, 0.130522);
