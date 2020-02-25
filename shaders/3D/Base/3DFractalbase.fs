@@ -111,13 +111,13 @@ uniform float darknessThreshold = 10;
 uniform vec4 phaseParams = vec4(0.794118, 0.838235, 1.01471,1.36765);
 
 /*<GuiHint>GuiType: slider, Name: Light absorbtion sun, Parent: cloudColoring, Range: (0, 3)</GuiHint>*/
-uniform float lightAbsorbtionSun = 0.0625;
+uniform float lightAbsorbtionSun = 0.016129;
 
 /*<GuiHint>GuiType: slider, Name: Light absorbtion through cloud, Parent: cloudColoring, Range: (0, 3)</GuiHint>*/
-uniform float lightAbsorptionThroughCloud = 1.43;
+uniform float lightAbsorptionThroughCloud = 0.532258;
 
 /*<GuiHint>GuiType: slider, Name: Cloud brightness, Parent: cloudColoring, Range: (0.001, 1)</GuiHint>*/
-uniform float cloudBrightness = 0.25;
+uniform float cloudBrightness = 0.231952;
 
 /*<GuiHint>GuiType: slider, Name: Steps to light, Parent: cloudColoring, Range: (1, 50)</GuiHint>*/
 uniform float stepsToLight = 8;
@@ -130,39 +130,39 @@ uniform float stepSize = 0.005;
 uniform bool cloudOnly = false;
 
 /*<GuiHint>GuiType: slider, Name: Noise Scale small, Parent: cloudNoise, Range: (0.0001, 1)</GuiHint>*/
-uniform vec3 noiseScaleSmall = vec3(0.0001, 0.362383, 0.130522);
+uniform vec3 noiseScaleSmall = vec3(0.107232, 0.362383, 0.154846);
 
 /*<GuiHint>GuiType: slider, Name: Noise weights, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
-uniform vec3 noiseWeights = vec3(0.395833, 0.25, 0.375);
+uniform vec3 noiseWeights = vec3(0.0357143, 0.107143, 0.0833333);
 
 /*<GuiHint>GuiType: slider, Name: Detail noise weights, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
-uniform vec3 detailWeights = vec3(0, 0, 0.489177);
+uniform vec3 detailWeights = vec3(0.0517241, 0.0238095, 0);
 
-/*<GuiHint>GuiType: slider, Name: Detail noise weights, Parent: cloudNoise, Range: (0, 100)</GuiHint>*/
-uniform float detailNoiseWeight = 1;
+/*<GuiHint>GuiType: slider, Name: Detail noise weights, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
+uniform float detailNoiseWeight = 4.42623;
 
 /*<GuiHint>GuiType: slider, Name: Detail Noise Scale, Parent: cloudNoise, Range: (0.0001, 1)</GuiHint>*/
 uniform vec3 detailNoiseScale = vec3(1);
 
 /*<GuiHint>GuiType: slider, Name: Noise persistence, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
-uniform float persistence = 0.3511;
+uniform float persistence = 0.293103;
 
 /*<GuiHint>GuiType: slider, Name: Density threshold, Parent: cloudNoise, Range: (-4, 4)</GuiHint>*/
-uniform float densityThreshold = 0.0692639;
+uniform float densityThreshold = -3.72414;
 
 /*<GuiHint>GuiType: slider, Name: Height weight, Parent: cloudNoise, Range: (0.0001, 10)</GuiHint>*/
 uniform float heightWeight = 0.800958;
 
 /*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudNoise, Range: (0, 20)</GuiHint>*/
-uniform float densityLevel = 10;
+uniform float densityLevel = 13.6905;
 
 /*<GuiHint>GuiType: slider, Name: Density Offset, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
-uniform float densityOffset = 1.01732;
+uniform float densityOffset = 2.14286;
 
 /*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 1)</GuiHint>*/
 uniform float edgeDensity = 0.785929;
 
-/*<GuiHint>GuiType: slider, Name: Cloud distance, Parent: cloudNoise, Range: (0.001, 2)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Cloud distance, Parent: cloudNoise, Range: (0.001, 0.1)</GuiHint>*/
 uniform float cloudDist = 0.0572489;
 
 

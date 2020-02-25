@@ -257,7 +257,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 	float cloudNoise(vec3 pos)
 	{
 		// Simplify (boxPos.y+boxWidth.y*0.5 - pos.y)/(boxPos.y+boxWidth*0.5-(boxPos.y-boxWidth*0.5));
-		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
+		/*float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
 		vec2 posPercent = abs(boxPos.xz-pos.xz)/(boxWidth.xz*0.5);
 		pos.xz += time;
 		vec3 noise;
@@ -268,10 +268,12 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		noise *= 1 + (0.01 - 1)/(1 + pow(heightPercent/0.09665964, 24.51587));
 		noise.xz *= pow(1-posPercent, vec2(1-edgeDensity));
 		float shapeFBM = dot(noise, normalize(noiseWeights)) + densityOffset * .1;
-		shapeFBM *= snoise(pos*cloudDist);
-		float baseShape = shapeFBM;
+		shapeFBM *= snoise(pos*cloudDist);*/
 
-		if (shapeFBM > 0)
+		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
+		float baseShape = map5(pos*noiseScaleSmall.x)*heightPercent;//shapeFBM;
+
+		if (baseShape > 0)
 		{
 			vec3 detailSamplePos = pos;
 			vec3 detailNoise;
@@ -281,7 +283,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			float detailFBM = dot(detailNoise, detailWeights);
 
 			// Subtract detail noise from base shape (weighted by inverse density so that edges get eroded more than centre)
-			float oneMinusShape = 1 - shapeFBM;
+			float oneMinusShape = 1 - baseShape;
 			float detailErodeWeight = oneMinusShape * oneMinusShape * oneMinusShape;
 			float cloudDensity = baseShape - (1-detailFBM) * detailErodeWeight * detailNoiseWeight;
 
@@ -322,7 +324,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
         return phaseParams.z + hgBlend*phaseParams.w;
     }
 
-	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol, bool calculateSunLight = false)
+	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol)
 	{
 		vec2 intersect = RayBoxIntersection(ro, rd, boxMin, boxMax);
 		if (intersect.y<0)
@@ -341,13 +343,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			float density = cloudNoise(ro+rd*t) * delta;
 			if (density > 0)
 			{
-				float lightTransmittance = 1;
-				if (calculateSunLight)
-				{
-					lightTransmittance = lightMarch(ro+rd*t);
-					lightEnergy += density * delta * transmittance * lightTransmittance * phaseVal;
-				}
 				transmittance *= exp(-density * delta * lightAbsorptionThroughCloud);
+				float lightTransmittance = lightMarch(ro+rd*t);
+				lightEnergy += density * delta * transmittance * lightTransmittance * phaseVal;
 
 				// Early exit
 				if (transmittance < 0.01)
@@ -468,7 +466,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		{
 			// Cloud testing
 			vec3 cloudCol;
-			float trans = SampleCloudDensity(ro, direction, cloudCol, true);
+			float trans = SampleCloudDensity(ro, direction, cloudCol);
 			vec3 D = vec3(0.,0.5,0.7)*abs(direction.y);
 			D += sunColor * pow(clamp(dot(direction, (sun)),0,1),32.);
 			return clamp(D*trans+cloudCol, 0, 1);
@@ -542,7 +540,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			{
 				// Clouds
 				vec3 cloudCol;
-				transmittance *= SampleCloudDensity(ro, direction, cloudCol, true);
+				transmittance *= SampleCloudDensity(ro, direction, cloudCol);
 				
 
 				vec3 c = col;
