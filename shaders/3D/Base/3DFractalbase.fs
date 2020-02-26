@@ -151,7 +151,7 @@ uniform float persistence = 0.293103;
 uniform float densityThreshold = -3.72414;
 
 /*<GuiHint>GuiType: slider, Name: Height weight, Parent: cloudNoise, Range: (0.0001, 10)</GuiHint>*/
-uniform float heightWeight = 0.800958;
+uniform float heightWeight = 1;
 
 /*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudNoise, Range: (0, 20)</GuiHint>*/
 uniform float densityLevel = 13.6905;
@@ -159,8 +159,8 @@ uniform float densityLevel = 13.6905;
 /*<GuiHint>GuiType: slider, Name: Density Offset, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
 uniform float densityOffset = 2.14286;
 
-/*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 1)</GuiHint>*/
-uniform float edgeDensity = 0.785929;
+/*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 2)</GuiHint>*/
+uniform float edgeDensity = 1;
 
 /*<GuiHint>GuiType: slider, Name: Cloud distance, Parent: cloudNoise, Range: (0.001, 0.1)</GuiHint>*/
 uniform float cloudDist = 0.0572489;

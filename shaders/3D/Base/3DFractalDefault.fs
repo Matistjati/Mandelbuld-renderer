@@ -212,48 +212,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		return vec2(tNear, tFar);
 	}
 
-	#define minComp(a) return min(a.x, a.y)
-
-	float hash31(vec3 p)  // replace this by something better
-	{
-		p  = fract( p*0.3183099+.1 );
-		p *= 17.0;
-		return fract( p.x*p.y*p.z*(p.x+p.y+p.z) );
-	}
-
-	float noise( in vec3 x )
-	{
-		x*=100.;
-		vec3 i = floor(x);
-		vec3 f = fract(x);
-		f = f*f*(3.0-2.0*f);
-	
-		return mix(mix(mix( hash31(i+vec3(0,0,0)), 
-							hash31(i+vec3(1,0,0)),f.x),
-					   mix( hash31(i+vec3(0,1,0)), 
-							hash31(i+vec3(1,1,0)),f.x),f.y),
-				   mix(mix( hash31(i+vec3(0,0,1)), 
-							hash31(i+vec3(1,0,1)),f.x),
-					   mix( hash31(i+vec3(0,1,1)), 
-							hash31(i+vec3(1,1,1)),f.x),f.y),f.z);
-	}
-
-	const mat3 m = mat3( 0.00,  0.80,  0.60,
-						-0.80,  0.36, -0.48,
-						-0.60, -0.48,  0.64 );
-
-	float cloudMap(vec3 pos)
-	{
-		pos*=0.5;
-		float f;
-		vec3 q = 0.001*pos;
-		f  = 0.5000*noise( q ); q = m*q*2.01;
-		f += 0.2500*noise( q ); q = m*q*2.02;
-		f += 0.1250*noise( q ); q = m*q*2.03;
-		f += 0.0625*noise( q ); q = m*q*2.01;
-		return f*f;
-	}
-
 	float cloudNoise(vec3 pos)
 	{
 		// Simplify (boxPos.y+boxWidth.y*0.5 - pos.y)/(boxPos.y+boxWidth*0.5-(boxPos.y-boxWidth*0.5));
@@ -271,7 +229,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		shapeFBM *= snoise(pos*cloudDist);*/
 
 		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
-		float baseShape = map5(pos*noiseScaleSmall.x)*heightPercent;//shapeFBM;
+		float baseShape = fbm(pos*noiseScaleSmall.x) * heightPercent * heightWeight;
+		baseShape *= 1+(-1)/(1.3+pow(heightPercent/0.87,-80));
+
+		vec2 posPercent = abs(boxPos.xz-pos.xz)/(boxWidth.xz*0.5);
+		float minPos = 1-max(posPercent.x, posPercent.y);
+		// A curve that is around y=0.25 at from x=0 to x=0.1. It then rises non-linearly to y=1 around x=0.2 
+		baseShape *= edgeDensity * (1.000014 + (0.2 - 1.000014)/(1 + pow(minPos/0.1414233, 5.614542)));
 
 		if (baseShape > 0)
 		{
