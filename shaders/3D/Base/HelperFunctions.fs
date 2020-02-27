@@ -263,12 +263,23 @@
 	}
 </remap>
 
-<boundingSphere>
-	vec2 boundingSphere(vec4 sph, vec3 origin, vec3 ray)
+<boundingGeometry>
+	vec2 RayBoxIntersection(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
 	{
-		vec3 oc = origin - sph.xyz;
+		vec3 tMin = (boxMin - rayOrigin) / rayDir;
+		vec3 tMax = (boxMax - rayOrigin) / rayDir;
+		vec3 t1 = min(tMin, tMax);
+		vec3 t2 = max(tMin, tMax);
+		float tNear = max(max(t1.x, t1.y), t1.z);
+		float tFar = min(min(t2.x, t2.y), t2.z);
+		return vec2(tNear, tFar);
+	}
+
+	vec2 RaySphereIntersection(vec4 sph, vec3 ro, vec3 rd)
+	{
+		vec3 oc = ro - sph.xyz;
 	
-		float b = dot(oc,ray);
+		float b = dot(oc,rd);
 		float c = dot(oc,oc) - sph.w*sph.w;
 		float h = b*b - c;
 	
@@ -278,7 +289,7 @@
 
 		return -b + vec2(-h,h);
 	}
-</boundingSphere>
+</boundingGeometry>
 
 <sphereFold>
 	// Sphere inversion
@@ -368,3 +379,160 @@
 	#endif
 	}
 </triplexPow>
+
+<pathTracing>
+	vec3 cosineDirection( in float seed, in vec3 nor)
+	{
+		float u = hash11(78.233 + seed);
+		float v = hash11(10.873 + seed);
+
+		// Method 1 and 2 first generate a frame of reference to use with an arbitrary
+		// distribution, cosine in this case. Method 3 (invented by fizzer) specializes 
+		// the whole math to the cosine distribution and simplfies the result to a more 
+		// compact version that does not depend on a full frame of reference.
+
+		#if 0
+			// method 1 by http://orbit.dtu.dk/fedora/objects/orbit:113874/datastreams/file_75b66578-222e-4c7d-abdf-f7e255100209/content
+			vec3 tc = vec3( 1.0+nor.z-nor.xy*nor.xy, -nor.x*nor.y)/(1.0+nor.z);
+			vec3 uu = vec3( tc.x, tc.z, -nor.x );
+			vec3 vv = vec3( tc.z, tc.y, -nor.y );
+
+			float a = 6.2831853 * v;
+			return sqrt(u)*(cos(a)*uu + sin(a)*vv) + sqrt(1.0-u)*nor;
+		#endif
+		#if 0
+			// method 2 by pixar:  http://jcgt.org/published/0006/01/01/paper.pdf
+			float ks = (nor.z>=0.0)?1.0:-1.0;     //do not use sign(nor.z), it can produce 0.0
+			float ka = 1.0 / (1.0 + abs(nor.z));
+			float kb = -ks * nor.x * nor.y * ka;
+			vec3 uu = vec3(1.0 - nor.x * nor.x * ka, ks*kb, -ks*nor.x);
+			vec3 vv = vec3(kb, ks - nor.y * nor.y * ka * ks, -nor.y);
+	
+			float a = 6.2831853 * v;
+			return sqrt(u)*(cos(a)*uu + sin(a)*vv) + sqrt(1.0-u)*nor;
+		#endif
+		#if 1
+			// method 3 by fizzer: http://www.amietia.com/lambertnotangent.html
+			float a = 6.2831853 * v;
+			u = 2.0*u - 1.0;
+			return normalize( nor + vec3(sqrt(1.0-u*u) * vec2(cos(a), sin(a)), u) );
+		#endif
+	}
+
+	vec3 uniformVector(float seed)
+	{
+		float a = 3.141593*hash11(78.233 + seed);
+		float b = 6.283185*hash11(10.873 + seed);
+		return vec3( sin(b)*sin(a), cos(b)*sin(a), cos(a) );
+	}
+</pathTracing>
+
+<clouds>
+	float cloudNoise(vec3 pos)
+	{
+		float baseShape = fbm(pos*noiseScale.x);
+
+		float heightPercent = (boxPos.y+boxWidth.y*0.5-pos.y)/(boxWidth.y);
+		// https://www.desmos.com/calculator/st2nn7aos1
+		// Remove smooth out bottom (approximately, lost original curve hehe)
+		baseShape *= 1+(-1)/(1.3+pow(heightPercent/0.87,-80));
+		// Smooth out top
+		baseShape *= heightPercent * heightWeight;
+
+		// Smooth out cloud edges
+		// Simplify (boxPos.y+boxWidth.y*0.5 - pos.y)/(boxPos.y+boxWidth*0.5-(boxPos.y-boxWidth*0.5)) to arrive at the following:
+		vec2 posPercent = abs(boxPos.xz-pos.xz)/(boxWidth.xz*0.5);
+		float minPos = 1-max(posPercent.x, posPercent.y);
+		// https://www.desmos.com/calculator/s0gl9g0f6p
+		// Multiply by following (approximately, lost original curve hehe)
+		baseShape *= edgeDensity * (1.000014 + (0.2 - 1.000014)/(1 + pow(minPos/0.1414233, 5.614542)));
+
+		if (baseShape > 0)
+		{
+			vec3 detailSamplePos = pos;
+			vec3 detailNoise;
+			detailNoise.x = 1-cellular(detailSamplePos, detailNoiseScale.x);
+			detailNoise.y = 1-cellular(detailSamplePos, detailNoiseScale.y);
+			detailNoise.z = 1-cellular(detailSamplePos, detailNoiseScale.z);
+			float detailFBM = dot(detailNoise, detailWeights);
+
+			// Subtract detail noise from base shape (weighted by inverse density so that edges get eroded more than centre)
+			float oneMinusShape = 1 - baseShape;
+			float detailErodeWeight = oneMinusShape * oneMinusShape * oneMinusShape;
+			float cloudDensity = baseShape - (1-detailFBM) * detailErodeWeight * detailNoiseWeight;
+
+			return max(0, cloudDensity - densityThreshold) * densityLevel;
+		}
+		return 0;
+	}
+
+	#define boxMin boxPos-boxWidth*0.5
+	#define boxMax boxPos+boxWidth*0.5
+	float lightMarch(vec3 pos)
+	{
+		float distInsidebox = RayBoxIntersection(pos, -sun, boxMin, boxMax).y;
+
+		float sunStepSize = distInsidebox/stepsToLight;
+		float totalDensity = 0;
+
+		for (int step = 0; step < stepsToLight; step++)
+		{
+			pos += -(sun) * sunStepSize;
+			totalDensity += max(0, cloudNoise(pos)) * sunStepSize;
+		}
+
+		float transmittance = exp(-totalDensity * lightAbsorbtionSun);
+		return darknessThreshold + transmittance * (1-darknessThreshold);
+	}
+
+	float hg(float a, float g)
+	{
+        float g2 = g*g;
+        return (1-g2) / (4*3.1415*pow(1+g2-2*g*(a), 1.5));
+    }
+
+	float phase(float a)
+	{
+        float blend = .5;
+        float hgBlend = hg(a,phaseParams.x) * (1-blend) + hg(a,-phaseParams.y) * blend;
+        return phaseParams.z + hgBlend*phaseParams.w;
+    }
+
+	float SampleCloudDensity(vec3 ro, vec3 rd, out vec3 cloudCol)
+	{
+		vec2 intersect = RayBoxIntersection(ro, rd, boxMin, boxMax);
+		if (intersect.y<0)
+		{
+			return 1;
+		}
+
+		float cosAngle = dot(rd, -(sun));
+        float phaseVal = phase(cosAngle);
+
+		float transmittance = 1;
+		vec3 lightEnergy = vec3(0);
+		float delta = max(0.05, stepSize);
+		for (float t = intersect.x; t < intersect.y; t+=delta)
+		{
+			float density = cloudNoise(ro+rd*t) * delta;
+			if (density > 0)
+			{
+				transmittance *= exp(-density * delta * lightAbsorptionThroughCloud);
+				float lightTransmittance = lightMarch(ro+rd*t);
+				lightEnergy += density * delta * transmittance * lightTransmittance * phaseVal;
+
+				// Early exit
+				if (transmittance < 0.01)
+				{
+					break;
+				}
+				// Step further when deeper into the volume
+				delta = max(0.05, stepSize*t);
+			}
+		}
+
+		cloudCol = lightEnergy*sunColor*cloudBrightness;
+
+		return transmittance;
+	}
+</clouds>

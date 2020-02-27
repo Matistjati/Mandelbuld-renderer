@@ -2,6 +2,7 @@
 # Mandelbuld-renderer (name subject to change)
 A realtime fractal renderer written using opengl. Gui is done with nanogui.<br/>
 It supports many fractals, including the mandelbrot, mandelbulb, mandelbox, buddhabrot, buddhagram and variations of these.<br/>
+Will either use approximated lighting models or path tracing with supports for a reflective ocean and clouds.<br/>
 There are plenty of sliders to change different aspects of the fractal. Each one has its own appropriate options.<br/>
 A 4096 x 2160 with 1000 as max iteration count:<br/>
 ![Alt text](/Images/buddhabrot.png?raw=true)
@@ -19,18 +20,15 @@ A mandelbulb rendered in realtime with a 1070 ti<br/>
 **Ctrl+Q/A, W/A, E/D etc**: change some aspects of the fractal, like the coloring method, initial parameter changes and adding extra operations to the main loop.<br/>
 
 **X**: Pause time (this affects things like the sun and some 2d fractals).<br/>
-**Z**: flip the fractal across the horizontal axis.<br/>
+
+
+## **Movement**<br/>
+**Space/shift**: Up/down.<br/>
 **WASD**: movement.<br/>
 
-## **3D**<br/>
-**Space/shift**: Up/down.<br/>
+**Scrolling the mousewheel or Q/E**: Zoom into or out of the fractal.<br/>
 
-**Q/E**: Tilt the world. Navigation while become subpar when doing this.<br/>
-**Scrolling the mousewheel**: Zoom into the fractal. If you want to go for "deep" zooms, increase maxIterations and decrease zoomDetailRatio (a small number greater than 0).<br/>
-## **2D**<br/>
-**Q/E**: Zoom in/out<br/>
-
-## **Dependencies**: GLFW3, glew, glm, zlib, libpng<br/>
+## **Dependencies**: GLFW3, glew, glm, zlib, libpng, nanogui<br/>
 ## **Resources**: <br/>
 [A video to set up a basic raymarching engine (where i started)](https://www.youtube.com/watch?v=yxNnRSefK94&list=LLk3DQC5zS5U7Icg-YoE8Rsw&index=6&t=0s)<br/>
 

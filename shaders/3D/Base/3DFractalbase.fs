@@ -72,6 +72,12 @@ uniform bool pathTrace = false;
 /*<GuiHint>GuiType: checkBox, Name: Display cloud noise, Parent: pathTrace</GuiHint>*/
 uniform bool displayCloudNoise = false;
 
+/*<GuiHint>GuiType: checkBox, Name: Render clouds, Parent: pathTrace</GuiHint>*/
+uniform bool displayClouds = true;
+
+/*<GuiHint>GuiType: checkBox, Name: Render Water, Parent: pathTrace</GuiHint>*/
+uniform bool displayWater = true;
+
 /*<GuiHint>GuiType: slider, Name: Bounces, Parent: pathTrace, Range: (1, 10)</GuiHint>*/
 uniform float bounces = 3;
 
@@ -83,6 +89,7 @@ uniform float brightness = 5;
 
 /*<GuiHint>GuiType: colorPicker, Name: Surface Color, Parent: pathTrace</GuiHint>*/
 uniform vec3 surfaceColor = vec3(0.1)*vec3(1.2,1.1,1.0);
+
 
 
 /*<GuiHint>GuiType: slider, Name: Water Height, Parent: waterSettings, Range: (-5, 5)</GuiHint>*/
@@ -130,22 +137,16 @@ uniform float stepSize = 0.005;
 uniform bool cloudOnly = false;
 
 /*<GuiHint>GuiType: slider, Name: Noise Scale small, Parent: cloudNoise, Range: (0.0001, 1)</GuiHint>*/
-uniform vec3 noiseScaleSmall = vec3(0.107232, 0.362383, 0.154846);
-
-/*<GuiHint>GuiType: slider, Name: Noise weights, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
-uniform vec3 noiseWeights = vec3(0.0357143, 0.107143, 0.0833333);
+uniform vec3 noiseScale = vec3(0.107232, 0.362383, 0.154846);
 
 /*<GuiHint>GuiType: slider, Name: Detail noise weights, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
 uniform vec3 detailWeights = vec3(0.0517241, 0.0238095, 0);
 
-/*<GuiHint>GuiType: slider, Name: Detail noise weights, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Detail noise weight, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
 uniform float detailNoiseWeight = 4.42623;
 
 /*<GuiHint>GuiType: slider, Name: Detail Noise Scale, Parent: cloudNoise, Range: (0.0001, 1)</GuiHint>*/
 uniform vec3 detailNoiseScale = vec3(1);
-
-/*<GuiHint>GuiType: slider, Name: Noise persistence, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
-uniform float persistence = 0.293103;
 
 /*<GuiHint>GuiType: slider, Name: Density threshold, Parent: cloudNoise, Range: (-4, 4)</GuiHint>*/
 uniform float densityThreshold = -3.72414;
@@ -156,14 +157,8 @@ uniform float heightWeight = 1;
 /*<GuiHint>GuiType: slider, Name: Density level, Parent: cloudNoise, Range: (0, 20)</GuiHint>*/
 uniform float densityLevel = 13.6905;
 
-/*<GuiHint>GuiType: slider, Name: Density Offset, Parent: cloudNoise, Range: (0, 10)</GuiHint>*/
-uniform float densityOffset = 2.14286;
-
 /*<GuiHint>GuiType: slider, Name: Edge density, Parent: cloudNoise, Range: (0.001, 2)</GuiHint>*/
 uniform float edgeDensity = 1;
-
-/*<GuiHint>GuiType: slider, Name: Cloud distance, Parent: cloudNoise, Range: (0.001, 0.1)</GuiHint>*/
-uniform float cloudDist = 0.0572489;
 
 
 
@@ -196,6 +191,9 @@ uniform vec3 sunColor = vec3(0.8,0.7,0.5);
 
 /*<GuiHint>GuiType: colorPicker, Name: Sky Color, Parent: sky</GuiHint>*/
 uniform vec3 skyColor = vec3(0.8, 0.95, 1.0);
+
+/*<GuiHint>GuiType: slider, Name: Sky brightness, Parent: sky, Range: (0, 1)</GuiHint>*/
+uniform float skyBrightness = 1;
 
 
 <uniforms>

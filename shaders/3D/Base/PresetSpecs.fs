@@ -1,7 +1,7 @@
 <3D>
 {
 	<include>
-		random, remap
+		clouds, pathTracing, random, remap, boundingGeometry
 	</include>
 
 	<shaderParameters>
