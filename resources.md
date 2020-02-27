@@ -1,3 +1,5 @@
+# Various resources used in this project, in no particular order
+
 # Interesting and extensive resources:
 [3D fractals and raymarching](http://blog.hvidtfeldts.net/index.php/2011/06/distance-estimated-3d-fractals-part-i/)<br/>
 [Polygonising distance fields (works with distance estimator)](http://paulbourke.net/geometry/polygonise/)<br/>
@@ -24,15 +26,19 @@
 [Comprehensive process about medlling clouds, with source code](https://www.youtube.com/watch?v=4QOcCGI6xOU)<br/>
 
 # Mandelbrot set:
+[In-depth techniques for coloring the mandelbrot set](https://www.math.univ-toulouse.fr/~cheritat/wiki-draw/index.php/Mandelbrot_set)<br/>
 [Mandelbrot plane inversions](https://mathcs.clarku.edu/~djoyce/julia/altplane.html)<br/>
 [Youtuber doing interesting fractal stuff, including mandelbrot inversions](https://www.youtube.com/user/Arneauxtje/videos)<br/>
 [Lots of stuff with mandelbrot set. Big volume, although nothing too new?](https://dhushara.com/DarkHeart/DarkHeart.htm)<br/>
 [Mandelbrot encyclopedia](https://mrob.com/pub/muency.html)<br/>
+[An implementation of the mandelbulb](https://www.shadertoy.com/view/ltfSWn)<br/>
 
 # Other fractals:
 [Interesting mandelbox thoughts (parameters etc)](https://sites.google.com/site/mandelbox/variations)<br/>
 [Kaliset](http://www.fractalforums.com/new-theories-and-research/very-simple-formula-for-fractal-patterns)<br/>
 [Kaleidoscopic ifs fractals](http://www.fractalforums.com/sierpinski-gasket/kaleidoscopic-(escape-time-ifs)/)<br/>
+[An overview of the buddhabrot and ways to optimize it](https://benedikt-bitterli.me/buddhabrot/)<br/>
+[An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)](http://www.steckles.com/buddha/)<br/>
 
 # Math:
 [Calculating sin and cos for same angle approximation](https://www.wolframalpha.com/input/?i=plot+sqrt%281-cos%5E2%29*sign%28x%29+from+-pi+to+pi)<br/>
