@@ -29,17 +29,8 @@ A mandelbulb rendered in realtime with a 1070 ti<br/>
 **Scrolling the mousewheel or Q/E**: Zoom into or out of the fractal.<br/>
 
 ## **Dependencies**: GLFW3, glew, glm, zlib, libpng, nanogui<br/>
-## **Resources**: <br/>
-[A video to set up a basic raymarching engine (where i started)](https://www.youtube.com/watch?v=yxNnRSefK94&list=LLk3DQC5zS5U7Icg-YoE8Rsw&index=6&t=0s)<br/>
+## **[Resources](https://github.com/Matistjati/Mandelbuld-renderer/blob/master/resources.md)** <br/>
 
-[An implementation of the mandelbulb](https://www.shadertoy.com/view/ltfSWn)<br/>
 
-[General on 3D distance estimators and shading](http://blog.hvidtfeldts.net/index.php/2011/06/distance-estimated-3d-fractals-part-i/)<br/>
 
-[An algoritmh for polygonizing a scalar field (what we use for 3D fractals). This can be used for 3D printing](http://paulbourke.net/geometry/polygonise/)<br/>
 
-[In-depth techniques for coloring the mandelbrot set](https://www.math.univ-toulouse.fr/~cheritat/wiki-draw/index.php/Mandelbrot_set)<br/>
-
-[An overview of the buddhabrot and ways to optimize it](https://benedikt-bitterli.me/buddhabrot/)<br/>
-
-[An algorithm for zooming into the buddhabrot (this is nontrivial unlike the case with the mandelbrot set)](http://www.steckles.com/buddha/)<br/>
