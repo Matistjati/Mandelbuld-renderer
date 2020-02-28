@@ -43,6 +43,7 @@
 # Math:
 [Calculating sin and cos for same angle approximation](https://www.wolframalpha.com/input/?i=plot+sqrt%281-cos%5E2%29*sign%28x%29+from+-pi+to+pi)<br/>
 [Sigmoidal 4pl](https://www.desmos.com/calculator/xcwuwfuvb5)<br/>
+[A nice and useful curve fitter](https://mycurvefit.com/)
 
 # Curiosities:
 [Interesting swedish article from another time](https://www.idg.se/2.1085/1.431735/mandelbrot--forskningen-fortsatter)<br/>
