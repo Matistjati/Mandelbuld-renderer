@@ -677,7 +677,7 @@ Fractal::~Fractal()
 }
 
 Fractal::Fractal(FractalType fractalType, int specIndex, int fractalIndex, int fractalNameIndex, Uniform<glm::vec2> screenSize)
-	: shader(), fractalType(fractalType), time(), deltaTime(0.05f), fractalIndex(fractalIndex), specIndex(specIndex), fractalName(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalPath()), fractalNameIndex)),
+	: shader(), fractalType(fractalType), time(), deltaTime(0.05f), specIndex(specIndex), fractalIndex(fractalIndex), fractalNameIndex(fractalNameIndex), fractalName(GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalPath()), fractalNameIndex)),
 	shaderIndices((shaderIndices.size() == 0) ? std::map<std::string, ShaderIndice*>() : shaderIndices), holdingMouse(false), fractalUniforms(),
 	fractalSourceCode((fractalSourceCode == "") ? "" : fractalSourceCode), subMenus(), camera((fractalType == FractalType::fractal3D) ? DefaultCamera3D : DefaultCamera2D),
 	mousePosition(), clickPosition()
