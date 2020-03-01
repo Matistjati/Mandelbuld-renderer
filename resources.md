@@ -24,6 +24,7 @@
 [Shadertoy implementation](https://www.shadertoy.com/view/XslGRr)<br/>
 [Fast 2D clouds](https://www.shadertoy.com/view/4tdSWr)<br/>
 [Comprehensive process about medlling clouds, with source code](https://www.youtube.com/watch?v=4QOcCGI6xOU)<br/>
+[A talk from the developer behind the realtime clouds of horizon zero dawn](http://killzone.dl.playstation.net/killzone/horizonzerodawn/presentations/Siggraph15_Schneider_Real-Time_Volumetric_Cloudscapes_of_Horizon_Zero_Dawn.pdf)
 
 # Mandelbrot set:
 [In-depth techniques for coloring the mandelbrot set](https://www.math.univ-toulouse.fr/~cheritat/wiki-draw/index.php/Mandelbrot_set)<br/>
