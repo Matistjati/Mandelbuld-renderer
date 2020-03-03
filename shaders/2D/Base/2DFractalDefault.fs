@@ -15,6 +15,8 @@
 	<heartIter>w=vec2(w.x*w.x-w.y*w.y,2*w.x*w.y)+c;</heartIter>,
 	<buffaloIter>w=vec2(abs(w.x*w.x-w.y*w.y),-2*abs(w.x*w.y))+c;</buffaloIter>,
 	<setW>w=parameter;</setW>,
+	<saveW>vec2 oldW = w;</saveW>,
+	<addTerm>w += parameter*complexPow(oldW, parameter1);</addTerm>,
 
 	// Header magic for certain buddhabrots
 	<firstMandelbrotIter>

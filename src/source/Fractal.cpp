@@ -1102,6 +1102,13 @@ void Fractal::UpdateFractalShader()
 
 	subMenus.clear();
 
+	camera->cursorVisible = true;
+	double x;
+	double y;
+	glfwGetCursorPos(window, &x, &y);
+	camera->lastNonGuiPos = { x,y };
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
 	Init();
 }
 

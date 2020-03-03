@@ -6,9 +6,7 @@
 	<uniforms>
 
 	</uniforms>
-	<cpuVariables>
-		<power>2</power>
-	</cpuVariables>
+
 	<mainLoop>
 		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye], [flowerSetup, defaultSetup], [inverseSetupAnimation], [inverseSetupAlt]]</loopSetup>,
 		<loopBody>[[complexPow(power), translate], [complexPow(power), translate, complexTan(w)], [complexPow(power), complexTan(w)], [complexPow(power), translate, complexSin(w)],
@@ -16,6 +14,32 @@
 		<loopTrap>none</loopTrap>,
 		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)], [escapeColor], [escapeColorLast(colorPeriodicity)], 
 					 [escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)]]</loopReturn>,
+	</mainLoop>
+}
+
+// Polynomial mandelbrot and julia 0
+{
+	<include>
+		Mandelbrot
+	</include>
+	<uniforms>
+		<
+			/*<GuiHint>GuiType: slider, Name: Coefficients, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
+			uniform vec4 coefficientsA = vec4(-1,1,0,0); 
+		>,
+		<
+			/*<GuiHint>GuiType: slider, Name: Coefficients, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
+			uniform vec4 coefficientsB = vec4(0); 
+		>,
+	</uniforms>
+
+	<mainLoop>
+		<loopSetup>[[defaultSetup], ]</loopSetup>,
+		<loopBody>[[saveW, addTerm(coefficientsA.x, 1), addTerm(coefficientsA.y, 2), addTerm(coefficientsA.z, 3), addTerm(coefficientsA.w, 4), translate],
+				   [saveW, addTerm(coefficientsA.x, 1), addTerm(coefficientsA.y, 2), addTerm(coefficientsA.z, 3), addTerm(coefficientsA.w, 4),
+						   addTerm(coefficientsB.x, 5), addTerm(coefficientsB.y, 6), addTerm(coefficientsB.z, 7), addTerm(coefficientsB.w, 8),translate],]</loopBody>,
+		<loopTrap>none</loopTrap>,
+		<loopReturn>[[escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)], [escapeColor], ]</loopReturn>,
 	</mainLoop>
 }
 
