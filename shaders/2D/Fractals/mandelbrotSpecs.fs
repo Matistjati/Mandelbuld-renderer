@@ -34,7 +34,7 @@
 	</uniforms>
 
 	<mainLoop>
-		<loopSetup>[[defaultSetup], ]</loopSetup>,
+		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye], [flowerSetup, defaultSetup], [inverseSetupAnimation], [inverseSetupAlt]]</loopSetup>,
 		<loopBody>[[saveW, addTerm(coefficientsA.x, 1), addTerm(coefficientsA.y, 2), addTerm(coefficientsA.z, 3), addTerm(coefficientsA.w, 4), translate],
 				   [saveW, addTerm(coefficientsA.x, 1), addTerm(coefficientsA.y, 2), addTerm(coefficientsA.z, 3), addTerm(coefficientsA.w, 4),
 						   addTerm(coefficientsB.x, 5), addTerm(coefficientsB.y, 6), addTerm(coefficientsB.z, 7), addTerm(coefficientsB.w, 8),translate],]</loopBody>,

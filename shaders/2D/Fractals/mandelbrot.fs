@@ -20,6 +20,9 @@
 
 	/*<GuiHint>GuiType: checkBox, Name: Min anti aliasing, Parent: renderParams</GuiHint>*/
 	uniform bool antiAliasingMin = false;
+	
+	/*<GuiHint>GuiType: checkBox, Name: Bad anti aliasing, Parent: renderParams</GuiHint>*/
+	uniform bool stupidAntiAliasing = false;
 </uniforms>
 
 

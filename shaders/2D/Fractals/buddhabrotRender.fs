@@ -6,7 +6,7 @@
 	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 10000), Parent: color</GuiHint>*/
 	uniform float brightness = 150;
 	
-	/*<GuiHint>GuiType: slider, Name: exposure, Range: (0, 1), Parent: color</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: exposure, Range: (0, 2), Parent: color</GuiHint>*/
 	uniform float exposure = 1;
 	
 	/*<GuiHint>GuiType: slider, Name: Gamma Correction, Range: (0, 2), Parent: color</GuiHint>*/

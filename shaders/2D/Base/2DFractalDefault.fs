@@ -122,7 +122,7 @@
 		}
 	}
 	// Anti aliasing by taking the average color of subpixels
-	else
+	else if (!stupidAntiAliasing)
 	{
 		vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
 		vec2 p2 = (2*(gl_FragCoord.xy+1)-screenSize)/screenSize.y;
@@ -135,26 +135,23 @@
 		}
 		col /= AA;
 	}
-
-	color = vec4(col.xyz, 1.0);
-</main>
-
-/*
-	vec3 col = vec3(0.0);
-	float minIterations = 100;
-	vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
-	for (float i = 0; i < antiAliasing; i++)
+	else
 	{
-		for (float j = 0; j < antiAliasing; j++)
+		float minIterations = 100;
+		vec2 p = (2*gl_FragCoord.xy-screenSize)/screenSize.y;
+		for (float i = 0; i < antiAliasing; i++)
 		{
-		    vec2 c = ((2*gl_FragCoord.xy-screenSize)/screenSize.y+(vec2(i,j)/antiAliasing)) * zoom + position.xy; 
+			for (float j = 0; j < antiAliasing; j++)
+			{
+				vec2 c = ((2*gl_FragCoord.xy-screenSize)/screenSize.y+(vec2(i,j)/antiAliasing)) * zoom + position.xy; 
 
-			float iterations = 0;
-			vec3 tempCol = mainLoop(c, iterations);
-			col = (iterations < minIterations) ? tempCol : col;
-			minIterations = min(minIterations, iterations);
+				float iterations = 0;
+				vec3 tempCol = mainLoop(c, iterations);
+				col = (iterations < minIterations) ? tempCol : col;
+				minIterations = min(minIterations, iterations);
+			}
 		}
 	}
 
-    color = vec4(col.xyz, 1.0);
-*/
+	color = vec4(col.xyz, 1.0);
+</main>
