@@ -71,7 +71,7 @@
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation]</shouldBeCleared>*/
+/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation, coefficientsA, coefficientsB]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -79,7 +79,7 @@ layout(std430, binding = 0) buffer densityMap
 
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotPoints</cpuInitialize>*/
-/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize]</shouldBeCleared>*/
+/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize, coefficientsA, coefficientsB]</shouldBeCleared>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
 	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding

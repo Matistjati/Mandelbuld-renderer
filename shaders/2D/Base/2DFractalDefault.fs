@@ -15,8 +15,16 @@
 	<heartIter>w=vec2(w.x*w.x-w.y*w.y,2*w.x*w.y)+c;</heartIter>,
 	<buffaloIter>w=vec2(abs(w.x*w.x-w.y*w.y),-2*abs(w.x*w.y))+c;</buffaloIter>,
 	<setW>w=parameter;</setW>,
-	<saveW>vec2 oldW = w;</saveW>,
-	<addTerm>w += parameter*complexPow(oldW, parameter1);</addTerm>,
+	<saveW>vec2 W = w; w = vec2(0);</saveW>,
+	<addTerm>w += parameter*complexPoW(oldW, parameter1);</addTerm>,
+	<addTerm1>w += parameter*W;</addTerm1>,
+	<addTerm2>w += parameter*mat2(W,-W.y,W.x)*W;</addTerm2>,
+	<addTerm3>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm3>,
+	<addTerm4>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm4>,
+	<addTerm5>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm5>,
+	<addTerm6>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm6>,
+	<addTerm7>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm7>,
+	<addTerm8>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm8>,
 
 	// Header magic for certain buddhabrots
 	<firstMandelbrotIter>

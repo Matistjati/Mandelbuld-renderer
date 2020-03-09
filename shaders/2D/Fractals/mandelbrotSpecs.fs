@@ -25,7 +25,7 @@
 	<uniforms>
 		<
 			/*<GuiHint>GuiType: slider, Name: Coefficients, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
-			uniform vec4 coefficientsA = vec4(-1,1,0,0); 
+			uniform vec4 coefficientsA = vec4(0,1,0,0); 
 		>,
 		<
 			/*<GuiHint>GuiType: slider, Name: Coefficients, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
@@ -35,9 +35,9 @@
 
 	<mainLoop>
 		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye], [flowerSetup, defaultSetup], [inverseSetupAnimation], [inverseSetupAlt]]</loopSetup>,
-		<loopBody>[[saveW, addTerm(coefficientsA.x, 1), addTerm(coefficientsA.y, 2), addTerm(coefficientsA.z, 3), addTerm(coefficientsA.w, 4), translate],
-				   [saveW, addTerm(coefficientsA.x, 1), addTerm(coefficientsA.y, 2), addTerm(coefficientsA.z, 3), addTerm(coefficientsA.w, 4),
-						   addTerm(coefficientsB.x, 5), addTerm(coefficientsB.y, 6), addTerm(coefficientsB.z, 7), addTerm(coefficientsB.w, 8),translate],]</loopBody>,
+		<loopBody>[[saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w), translate],
+				   [saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w),
+						   addTerm5(coefficientsB.x), addTerm6(coefficientsB.y), addTerm7(coefficientsB.z), addTerm8(coefficientsB.w), translate],]</loopBody>,
 		<loopTrap>none</loopTrap>,
 		<loopReturn>[[escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)], [escapeColor], ]</loopReturn>,
 	</mainLoop>
