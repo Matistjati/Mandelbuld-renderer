@@ -84,6 +84,20 @@ public:
 	nanogui::CheckBox* AddCheckbox(nanogui::Window* parent, std::string label, Uniform<bool>* uniform, Fractal* fractal, bool value);
 
 	// C++ doesnt let me define templated methods in another file
+	nanogui::detail::FormWidget<float, std::integral_constant<bool, true>>* Addempty()
+	{
+		auto widget = new nanogui::detail::FormWidget<float, std::integral_constant<bool, true>>(mWindow);
+
+		refresh();
+		widget->setFontSize(mWidgetFontSize);
+		nanogui::Vector2i fs = widget->fixedSize();
+		widget->setFixedSize(nanogui::Vector2i(fs.x() != 0 ? fs.x() : mFixedSize.x(),
+			fs.y() != 0 ? fs.y() : mFixedSize.y()));
+		widget->setVisible(false);
+		widget->numberFormat("%.6g");
+		return widget;
+	}
+
 	template <typename Type> nanogui::Slider* AddSlider(nanogui::Window* window, const std::string& label, const std::function<void(const Type&)>& setter, const std::function<Type()>& getter)
 	{
 		nanogui::Label* labelW = new nanogui::Label(mWindow, label, mLabelFontName, mLabelFontSize);

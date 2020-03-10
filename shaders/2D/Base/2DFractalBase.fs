@@ -23,7 +23,7 @@ uniform bool view3D = false;
 
 <uniforms>
 
-/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent: renderParams, Range: (1, 1024)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent: renderParams, Range: (1, 4096)</GuiHint>*/
 uniform float maxIterations = 256;
 
 /*<GuiHint>GuiType: slider, Name: Escape Radius, Parent: renderParams, Range: (1, 1024)</GuiHint>*/

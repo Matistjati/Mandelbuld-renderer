@@ -106,6 +106,11 @@ void Camera::PopulateCameraGUI(Fractal* fractal)
 		positionFieldY->numberFormat("%.6g");
 		position.guiElements.push_back(positionFieldZ);
 	}
+	else
+	{
+		auto empty = cameraMenu->form->Addempty();
+		position.guiElements.push_back(empty);
+	}
 
 	// Rotation
 	GuiElement rotationElement = GuiElement();
@@ -273,7 +278,7 @@ void Camera::ProcessMovement(CameraMovement direction, float magnitude)
 	if (position.value != startValue)
 	{
 		position.SetValue(position.value, false);
-		position.SetGuiValue();
+		if (position.SetGuiValue) position.SetGuiValue();
 	}
 }
 
