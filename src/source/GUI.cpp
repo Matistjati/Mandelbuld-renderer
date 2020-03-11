@@ -148,7 +148,14 @@ public:
 void AddColorPicker(Form* form, nanogui::Window* parent, std::string label, Uniform<nanogui::Color>* uniform, Fractal* fractal)
 {
 	nanogui::ColorPicker* picker = form->AddColorPicker(parent, label, ((Uniform<nanogui::Color>*)uniform)->value);
-	uniform->SetGuiValue = [picker, uniform]() { ((ColorWrapper*)picker)->SetColorTrue(uniform->GetValue()); picker->setBackgroundColor(uniform->GetValue());  };
+	uniform->SetGuiValue = [picker, fractal, uniform]()
+	{
+		if (!fractal->holdingMouse)
+		{
+			((ColorWrapper*)picker)->SetColorTrue(uniform->GetValue());
+		}
+		picker->setBackgroundColor(uniform->GetValue());
+	};
 	picker->setCallback([fractal, uniform](const nanogui::Color& c)
 		{
 			uniform->SetValue(c, Fractal::renderMode);
