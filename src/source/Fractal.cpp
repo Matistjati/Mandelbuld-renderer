@@ -684,6 +684,7 @@ Fractal::Fractal(FractalType fractalType, int specIndex, int fractalIndex, int f
 {
 	Fractal::screenSize = screenSize;
 	this->gui = new GUI(window, this);
+	
 	shader = GenerateShader(specIndex, fractalIndex, GetFractalNames(FileManager::GetDirectoryFileNames(GetFractalPath()), fractalNameIndex));
 }
 

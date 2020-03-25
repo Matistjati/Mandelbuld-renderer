@@ -31,6 +31,7 @@
 #include "headers/Fractal.h"
 #include "headers/Debug.h"
 #include "headers/GUI.h"
+#include "nanogui/layout.h"
 
 enum class Purpose
 {
@@ -140,7 +141,6 @@ int main()
 #endif
 
 	// Create a nanogui screen and pass the glfw pointer to initialize
-
 	Fractal* fractal = new Fractal(DefaultFractalType, DefaultSpecIndex, DefaultFractalIndex, DefaultFractalNameIndex, screenSize);
 	fractal->Init();
 
