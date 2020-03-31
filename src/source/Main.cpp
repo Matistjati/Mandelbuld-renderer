@@ -43,7 +43,7 @@ enum class Purpose
 constexpr Purpose programPurpose = Purpose::explore;
 
 // Screensize
-#define ConstWindowSize 1
+#define ConstWindowSize 0
 #if ConstWindowSize
 	#define ScreenSize 2
 

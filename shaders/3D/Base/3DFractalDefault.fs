@@ -470,7 +470,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			uint hash = uint(intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))));
 			vec2 frag = gl_FragCoord.xy;
 			// Anti aliasing
-			frag += UniformToNormal(hash2(hash, hash))*antiAliasingMagnitude;
+			// The magnitude of uniform to normal seems to be [0,1] -> [0, 3.5]. Therefore, we multiply by 1/3.5 to map back to [0,1]
+			frag += UniformToNormal(hash2(hash, hash))*0.285714285714285*antiAliasingMagnitude;
 			vec2 uv = frag / screenSize * 2.0 - 1.0;
 			uv.x *= float(screenSize.x) / float(screenSize.y);
 			uv *= zoom;
