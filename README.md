@@ -2,10 +2,12 @@
 # Mandelbuld-renderer (name subject to change)
 A realtime fractal renderer written using opengl. Gui is done with nanogui.<br/>
 It supports many fractals, including the mandelbrot, mandelbulb, mandelbox, buddhabrot, buddhagram and variations of these.<br/>
-Will either use approximated lighting models or path tracing with supports for a reflective ocean and clouds.<br/>
+Will either use approximated lighting models or path tracing with supports for a reflective ocean and clouds. These are highly customizable.<br/>
 There are plenty of sliders to change different aspects of the fractal. Each one has its own appropriate options.<br/>
-A 4096 x 2160 with 1000 as max iteration count:<br/>
+A 4096 x 2160 buddhabrot:<br/>
 ![Alt text](/Images/buddhabrot.png?raw=true)
+A path traced fractal in an ocean with clouds:<br/>
+![Alt text](/Images/Cloudy ocean.png?raw=true)
 A mandelbulb rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 # **Controls**<br/>
