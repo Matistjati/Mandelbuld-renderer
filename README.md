@@ -7,7 +7,7 @@ There are plenty of sliders to change different aspects of the fractal. Each one
 A 4096 x 2160 buddhabrot:<br/>
 ![Alt text](/Images/buddhabrot.png?raw=true)
 A path traced fractal in an ocean with clouds:<br/>
-![Alt text](/Images/Cloudy ocean.png?raw=true)
+![Alt text](/Images/Cloud_ocean.png.png?raw=true)
 A mandelbulb rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 # **Controls**<br/>
