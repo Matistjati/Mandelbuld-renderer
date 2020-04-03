@@ -12,10 +12,11 @@ A mandelbulb rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 # **Controls**<br/>
 ## **General**<br/>
+**Escape**: Exit the program. <br/>
 **Alt+R/F**: Change between 2D and 3D fractals. <br/>
 **Alt+E/D**: Change the current fractal file. Fractals will often be very different between files, but ones in the same will be similiar.<br/>
 **Alt+W/S**: Change the "specification" in the file. The fractal will be different rather different.<br/>
-**Alt+Q/A**: Change the operations for the main loop. This will have the least difference, but the change will still be easily noticable.<br/>
+**Alt+Q/A**: Change the operations for the main loop. This will have the least difference, but the change will still be easily noticeable.<br/>
 
 **Ctrl+Z**: Save an image of the current screen (some parameters will be different, making the image look better at the cost of rendering speed).<br/>
 **Ctrl+X**: Break if a debugger is attached.<br/>
