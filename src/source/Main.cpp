@@ -68,8 +68,8 @@ constexpr Purpose programPurpose = Purpose::explore;
 // Starting fractal
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalNameIndex = 2;
-#define DefaultFractalType FractalType::fractal3D
+constexpr auto DefaultFractalNameIndex = 1;
+#define DefaultFractalType FractalType::fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
 void GLAPIENTRY
@@ -111,7 +111,8 @@ int main()
 	#if _DEBUG
 		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 	#else
-		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), nullptr);
+		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
+		//GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), nullptr);
 	#endif
 #endif
 

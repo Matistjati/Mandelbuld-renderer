@@ -12,6 +12,7 @@ A mandelbulb rendered in realtime with a 1070 ti<br/>
 ![Alt text](/Images/sample.png?raw=true "Rendered in realmtime with a 1070 ti")
 # **Controls**<br/>
 ## **General**<br/>
+**F**: If in 3D, will toggle whether mouse can interact with UI or will rotate the camera <br/>
 **Escape**: Exit the program. <br/>
 **Alt+R/F**: Change between 2D and 3D fractals. <br/>
 **Alt+E/D**: Change the current fractal file. Fractals will often be very different between files, but ones in the same will be similiar.<br/>
