@@ -321,6 +321,8 @@ vec2 EscapeCount(vec2 w, vec4 area)
 	}
 	else
 	{
+		vec2 mid = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
+		float dist = distance(mid, area.xy);
 		vec2 c = w;
 
 		int insideCount = 0;

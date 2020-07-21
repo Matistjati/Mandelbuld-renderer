@@ -102,6 +102,7 @@ public:
 	void SetUniform(unsigned int id, float x, float y, float z) const;
 	void SetUniform(unsigned int id, float value) const;
 	void SetUniform(unsigned int id, int value) const;
+	void SetUniform(unsigned int id, unsigned int value) const;
 	void SetUniformStr(Uniform<glm::vec2> vector) const;
 	void SetUniformStr(Uniform<glm::vec3> vector) const;
 	void SetUniformStr(Uniform<glm::vec4> vector) const;

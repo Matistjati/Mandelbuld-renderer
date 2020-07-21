@@ -68,7 +68,7 @@ constexpr Purpose programPurpose = Purpose::explore;
 // Starting fractal
 constexpr auto DefaultFractalIndex = 0;
 constexpr auto DefaultSpecIndex = 0;
-constexpr auto DefaultFractalNameIndex = 1;
+constexpr auto DefaultFractalNameIndex = 0;
 #define DefaultFractalType FractalType::fractal2D
 constexpr auto ProgramName = "Mandelbulb";
 
@@ -109,7 +109,7 @@ int main()
 	glm::vec2 screenSize = Fractal::GetMonitorSize();
 	Fractal::screenSize = Uniform<glm::vec2>(screenSize, "screenSize", -1);
 	#if _DEBUG
-		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
+		GLFWwindow* mainWindow = glfwCreateWindow((int)screenSize.x, (int)screenSize.y, ProgramName, nullptr, nullptr);
 	#else
 		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 		//GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), nullptr);

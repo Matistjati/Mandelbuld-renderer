@@ -444,6 +444,11 @@ void Shader::SetUniform(unsigned int id, int value) const
 	glUniform1i(id, value);
 }
 
+void Shader::SetUniform(unsigned int id, unsigned int value) const
+{
+	glUniform1ui(id, value);
+}
+
 void Shader::SetUniformStr(Uniform<glm::vec2> vector) const
 {
 	UseProgramIfValid(vector.programId);

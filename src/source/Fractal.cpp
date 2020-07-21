@@ -822,7 +822,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	const static int imageCount = 100; 
 	const static double pi2 = 6.28318530717958647692528676655;
 	const static double dt = pi2 / double(imageCount-1); // Don't worry about the -1, you will get x images
-	const static int standardFPI = 5; // FPI: frames per image
+	const static int standardFPI = 1000; // FPI: frames per image
 	const size_t framesPerImage = std::max(standardFPI, int(float(standardFPI) / (float((fractal->screenSize.value.x * fractal->screenSize.value.y)) / standardWork)));
 
 	const size_t pixelCount = int(fractal->screenSize.value.x * fractal->screenSize.value.y);
@@ -920,8 +920,8 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 			index = (index + 1) % 2;
 			nextIndex = (index + 1) % 2;
 
-			fractal->shader->Use();
-			fractal->shader->SetUniform(fractal->frame);
+			((ComputeShader*)fractal->shader)->UseRender();
+			((ComputeShader*)fractal->shader)->SetUniform(((ComputeShader*)fractal->shader)->uniformRenderIds["frame"], fractal->frame.value);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
