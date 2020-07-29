@@ -19,6 +19,9 @@
 	
 	/*<GuiHint>GuiType: checkBox, Name: Render desirability map, Parent: renderParams</GuiHint>*/
 	uniform bool renderDesirability = false;
+	
+	/*<GuiHint>GuiType: checkBox, Name: Correct point selection for variations, Parent: renderParams</GuiHint>*/
+	uniform bool correctAlternate = false;
 
 	/*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 8)</GuiHint>*/
 	uniform float power = 2;
@@ -49,7 +52,7 @@
 	uniform float renderSize = 0.5;
 	
 	/*<GuiHint>GuiType: Slider, Name: Mutation size, Parent: renderParams, Range: (0, 5)</GuiHint>*/
-	uniform float mutationSize = 2;
+	uniform float mutationSize = 3;
 	
 	/*<GuiHint>GuiType: Slider, Name: Min Iterations, Parent: renderParams, Range: (1, 500)</GuiHint>*/
 	uniform float minIterations = 0;
@@ -70,6 +73,10 @@
 	// ((left edge, bottom edge), (right edge, top edge))
 	/*<GuiHint>GuiType: Slider, Name: Render Area, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
 	uniform vec4 renderArea = vec4(-2.5, -1, 1, 1);
+
+
+	// Notes:
+	// x=0.372996926 y=0.192069590 clickPosition juliabuddha
 </uniforms>
 
 <buffers>
@@ -380,7 +387,11 @@ vec2 EscapeCount(vec2 w, vec4 area)
 		{
 			<loopBody>
 
-			<loopExtraOperations>
+			if (correctAlternate)
+			{
+				<loopExtraOperations>
+			}
+			
 
 			if (insideBox(project(w,c),area))
 			{
@@ -442,7 +453,7 @@ vec2 getStartValue(uint hash, vec4 area)
 		vec2 escapeCount = EscapeCount(point, area);
 
 		// We only want to iterate points that are interesting enough
-		if (escapeCount.x > minIterations)
+		if (escapeCount.x > minIterations && escapeCount.y > 0)
 		{
 			if (escapeCount.x * escapeCount.y > prev.z * prev.w)
 			{
@@ -461,7 +472,7 @@ vec2 getStartValue(uint hash, vec4 area)
 <map01ToInterval>
 vec2 map01ToInterval(vec2 value, vec4 range)
 {
-	return vec2(value.x*(range.z-range.x)+range.x, value.y*(range.w-range.y)+range.y);
+	return vec2(value*(range.zw-range.xy)+range.xy);
 }
 </map01ToInterval>
 
