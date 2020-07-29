@@ -1804,13 +1804,16 @@ void Fractal::MousePressCallback(GLFWwindow* window, int button, int action, int
 {
 	if (action == GLFW_PRESS)
 	{
-		holdingMouse = true;
-
-		if (!camera->viewMode3D.value)
+		if (button == GLFW_MOUSE_BUTTON_2)
 		{
-			// Map from screen space to fractal space
-			clickPosition.SetValue(MapScreenMouseToFractal(), false);
-			shader->SetUniform(clickPosition);
+			holdingMouse = true;
+
+			if (!camera->viewMode3D.value)
+			{
+				// Map from screen space to fractal space
+				clickPosition.SetValue(MapScreenMouseToFractal(), false);
+				shader->SetUniform(clickPosition);
+			}
 		}
 	}
 	else if (action == GLFW_RELEASE)

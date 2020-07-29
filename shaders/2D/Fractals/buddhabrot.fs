@@ -16,6 +16,9 @@
 
 	/*<GuiHint>GuiType: slider, Name: Escape Radius, Parent: renderParams, Range: (0.01, 1000)</GuiHint>*/
 	uniform float escapeRadius = 8.;
+	
+	/*<GuiHint>GuiType: checkBox, Name: Render desirability map, Parent: renderParams</GuiHint>*/
+	uniform bool renderDesirability = false;
 
 	/*<GuiHint>GuiType: slider, Name: Power, Parent: fractalParams, Range: (-2, 8)</GuiHint>*/
 	uniform float power = 2;
@@ -45,16 +48,16 @@
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
 	uniform float renderSize = 0.5;
 	
-	/*<GuiHint>GuiType: Slider, Name: Mutation size, Parent: renderParams, Range: (0.0001, 0.1)</GuiHint>*/
-	uniform float mutationSize = 0.001;
+	/*<GuiHint>GuiType: Slider, Name: Mutation size, Parent: renderParams, Range: (0, 5)</GuiHint>*/
+	uniform float mutationSize = 2;
 	
 	/*<GuiHint>GuiType: Slider, Name: Min Iterations, Parent: renderParams, Range: (1, 500)</GuiHint>*/
-	uniform float minIterations = 50;
+	uniform float minIterations = 0;
 	
-	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by random, Parent: renderParams, Range: (1, 100)</GuiHint>*/
+	/*<GuiHint>GuiType: Slider, Name: Random point attempts, Parent: renderParams, Range: (1, 100)</GuiHint>*/
 	uniform float startPointAttempts = 20;
 
-	/*<GuiHint>GuiType: Slider, Name: Point finding attempts by mutation, Parent: renderParams, Range: (1, 30)</GuiHint>*/
+	/*<GuiHint>GuiType: Slider, Name: Mutation attempts, Parent: renderParams, Range: (1, 30)</GuiHint>*/
 	uniform float mutationAttemps = 4;
 
 	/*<GuiHint>GuiType: Slider, Name: Chance for new point, Parent: renderParams, Range: (0, 1)</GuiHint>*/
@@ -82,7 +85,6 @@ layout(std430, binding = 0) buffer densityMap
 /*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize, coefficientsA, coefficientsB]</shouldBeCleared>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
-	// We only really need a vec3- xy for position and z for iteration count. However, due to buggy drivers, the last float is required as padding
 	vec4 desirability[];
 };
 </buffers>
@@ -109,24 +111,71 @@ layout(std430, binding = 1) buffer desirabilityMap
 	else
 	{
 		// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
-		// To accomplish this, we want to find a number, b such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
+		// To accomplish this, we want to find a number b, such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
 		// Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
 		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
 		area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
 		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
 	}
 
-	// Computing long paths area expensive. To run at a decent framerate, we don't render points for every pixel
+	// Computing long paths are expensive. To run at a decent framerate, we don't render points for every pixel
 	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
 	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
 		for(int i = 0; i < pointsPerFrame; i++)
 		{
-			uint seed = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
-			vec2 w = getStartValue(seed, area);
-			if (w.x<-100) continue;
+			
+			if (renderDesirability)
+			{
+				vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
+				uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
+				vec4 w = desirability[index];
 
-			mainLoop(w, area);
+				vec2 coord = project(w.xy, vec2(0));
+				if(insideBox(coord, area))
+				{
+					int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
+
+					int y = int(screenSize.y-(coord.y-area.y)*map.y);
+					int imageIndex = int(x + screenSize.x * (y + 0.5));
+
+					points[imageIndex].xyz += w.w/maxIterations;
+				}
+
+
+
+				if (gl_GlobalInvocationID.xy == vec2(1))
+				{
+					vec2 c = clickPosition;
+					vec2 z = c;
+					for (float i = 0.; i < maxIterations*10; i++)
+					{
+						z = mat2(z,-z.y,z.x)*z+c;
+						coord.xy = z;
+						if(!insideBox(coord, area))
+						{
+							continue;
+						}
+						int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
+
+						int y = int(screenSize.y-(coord.y-area.y)*map.y);
+						int imageIndex = int(x + screenSize.x * (y + 0.5));
+
+						points[imageIndex].xyz += vec3(10000);
+					}
+				}
+				
+				break;
+			}
+			else
+			{
+				uint seed = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+
+				vec2 w = getStartValue(seed, area);
+				if (w.x<-100) continue;
+				mainLoop(w, area);
+			}
+
 		}
 	}
 </main>
@@ -331,6 +380,8 @@ vec2 EscapeCount(vec2 w, vec4 area)
 		{
 			<loopBody>
 
+			<loopExtraOperations>
+
 			if (insideBox(project(w,c),area))
 			{
 				insideCount++;
@@ -353,7 +404,7 @@ vec3 hslToRgb(vec3 c)
 </hslToRgb>
 
 <getStartValue>
-vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
+vec2 mutate(vec4 prev, inout uint hash, bool stepMutation)
 {
 	if (stepMutation)
 	{
@@ -362,8 +413,8 @@ vec2 mutate(vec2 prev, inout uint hash, bool stepMutation)
 		step = sqrt(step.x) * vec2(cos(step.y), sin(step.y));
 		
 		float s = length(step);
-		step *= log(s) / s;
-		return prev.xy+step*mutationSize; // Return a point we already know is good with a small mutation
+		step *= log(s) / s * pow(0.1, mutationSize);
+		return prev.xy + step; // Return a point we already know is good with a small mutation
 	}
 	else
 	{
@@ -380,19 +431,20 @@ vec2 getStartValue(uint hash, vec4 area)
 	vec4 prev = desirability[index];
 
 	float c = abs(fract(sin(hash)*62758.5453123)); // Do a random choice based on the seed
-	int pointAttempts = int((c < mutationChance) ? mutationAttemps : startPointAttempts);
+	//bool stepMutation = c < (mutationChance  (0.1 - prev.y / maxIterations * 10));
 	bool stepMutation = c < mutationChance;
+	int pointAttempts = int((stepMutation) ? mutationAttemps : startPointAttempts);
 
-	for(int i = 0; i < pointAttempts; ++i)
+	for(int i = 0; i < pointAttempts; i++)
 	{
-		vec2 point = mutate(prev.xy, hash, stepMutation);
+		vec2 point = mutate(prev, hash, stepMutation);
 
 		vec2 escapeCount = EscapeCount(point, area);
 
 		// We only want to iterate points that are interesting enough
 		if (escapeCount.x > minIterations)
 		{
-			if (escapeCount.x * escapeCount.x * escapeCount.y > prev.z * prev.z * prev.w)
+			if (escapeCount.x * escapeCount.y > prev.z * prev.w)
 			{
 				desirability[index] = vec4(point, escapeCount);
 			}

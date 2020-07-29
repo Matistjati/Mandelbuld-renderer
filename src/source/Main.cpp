@@ -110,6 +110,8 @@ int main()
 	Fractal::screenSize = Uniform<glm::vec2>(screenSize, "screenSize", -1);
 	#if _DEBUG
 		GLFWwindow* mainWindow = glfwCreateWindow((int)screenSize.x, (int)screenSize.y, ProgramName, nullptr, nullptr);
+		glfwSetWindowSizeLimits(mainWindow, 0, 0, int(screenSize.x), int(screenSize.y));
+		glfwSetWindowSize(mainWindow, int(screenSize.x), int(screenSize.y));
 	#else
 		GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, nullptr, nullptr);
 		//GLFWwindow* mainWindow = glfwCreateWindow(screenSize.x, screenSize.y, ProgramName, glfwGetPrimaryMonitor(), nullptr);
