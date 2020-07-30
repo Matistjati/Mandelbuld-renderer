@@ -248,6 +248,24 @@ GuiElement::GuiElement(Element element, std::string type, std::string uniformNam
 		{
 			AddSlider<int>(form, window, elementLabel, (Uniform<int>*)uniform, fractal, rangePair, stoi(value));
 		}
+		else if (type == "vec2")
+		{
+			if (value.substr(0, 4) == "vec2")
+			{
+				value = value.substr(4);
+			}
+
+			Fractal::CleanString(value, { '(',')' });
+
+			std::vector<std::string> values = Fractal::Split(value, ',');
+
+			if (values.size() == 1)
+			{
+				values.push_back(values[0]);
+			}
+
+			AddSlidersN(form, window, elementLabel, 2, (Uniform<glm::vec2>*)uniform, fractal, rangePair, glm::vec2(stof(values[0]), stof(values[1])));
+		}
 		else if (type == "vec3")
 		{
 			if (value.substr(0, 4) == "vec3")
@@ -448,6 +466,33 @@ UniformSuper* GuiElement::CreateUniform(std::string type, std::string name, std:
 		bool val = (value != "false") ? true : false;
 		bool renderVal = (renderValue == "") ? val : ((renderValue != "false") ? true : false);
 		return new Uniform<bool>(val, renderVal, name, id, programId, isObjectMember);
+	}
+	else if (type == "vec2")
+	{
+		if (value.substr(0, 4) == "vec2")
+		{
+			value = value.substr(4);
+		}
+
+		Fractal::CleanString(value, { '(',')' });
+
+		std::vector<std::string> values = Fractal::Split(value, ',');
+		std::vector<std::string> renderValues = (renderValue == "") ? values : Fractal::Split(renderValue, ',');
+
+		if (values.size() == 1)
+		{
+			values.push_back(values[0]);
+			values.push_back(values[0]);
+		}
+		if (renderValues.size() == 1)
+		{
+			renderValues.push_back(renderValues[0]);
+			renderValues.push_back(renderValues[0]);
+		}
+
+
+		return new Uniform<glm::vec2>(glm::vec2(stof(values[0]), stof(values[1])),
+			glm::vec2(stof(renderValues[0]), stof(renderValues[1])), name, id, programId, isObjectMember);
 	}
 	else if (type == "vec3")
 	{

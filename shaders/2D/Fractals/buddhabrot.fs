@@ -14,8 +14,17 @@
 	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 1024)</GuiHint>*/
 	uniform float maxIterations = 256;
 
-	/*<GuiHint>GuiType: slider, Name: Escape Radius, Parent: renderParams, Range: (0.01, 1000)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Escape Radius, Parent: renderParams, Range: (0.01, 100000)</GuiHint>*/
 	uniform float escapeRadius = 8.;
+	
+	/*<GuiHint>GuiType: slider, Name: Point picking radius, Parent: renderParams, Range: (0.01, 10)</GuiHint>*/
+	uniform float pointRadius = 3.;
+	
+	/*<GuiHint>GuiType: slider, Name: Point picking angle, Parent: renderParams, Range: (-6.283185307179586476925286766559005768394338798750211641949889184, 6.283185307179586476925286766559005768394338798750211641949889184)</GuiHint>*/
+	uniform vec2 pointAngle = vec2(0, 6.283185307179586476925286766559005768394338798750211641949889184);
+	
+	/*<GuiHint>GuiType: slider, Name: Point picking leniency, Parent: renderParams, Range: (0.5, 2)</GuiHint>*/
+	uniform float renderAreaLeniency = 1;
 	
 	/*<GuiHint>GuiType: checkBox, Name: Render desirability map, Parent: renderParams</GuiHint>*/
 	uniform bool renderDesirability = false;
@@ -77,11 +86,12 @@
 
 	// Notes:
 	// x=0.372996926 y=0.192069590 clickPosition juliabuddha
+	// x=0.331711054 y=0.0642777085
 </uniforms>
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation, coefficientsA, coefficientsB]</shouldBeCleared>*/
+/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation, coefficientsA, coefficientsB, pointAngle, renderAreaLeniency]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -89,7 +99,7 @@ layout(std430, binding = 0) buffer densityMap
 
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotPoints</cpuInitialize>*/
-/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize, coefficientsA, coefficientsB]</shouldBeCleared>*/
+/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize, coefficientsA, coefficientsB, pointAngle, pointRadius, renderAreaLeniency]</shouldBeCleared>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
 	vec4 desirability[];
@@ -212,7 +222,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 	int index = int(x + screenSize.x * (y + 0.5));
 
 	if (colorWheel)
-	{
+	{	
 		points[index].xyz += color;
 	}
 	else
@@ -289,7 +299,7 @@ mat4 getPosMatrix(vec3 p)
 bool insideBox(vec2 v, vec4 box)
 {
 	vec2 s = step(box.xy, v) - step(box.zw, v);
-	return bool(s.x * s.y);   
+	return bool(s.x * s.y);
 }
 
 vec2 project(vec2 w, vec2 c)
@@ -326,7 +336,7 @@ vec2 project(vec2 w, vec2 c)
 
 vec2 EscapeCount(vec2 w, vec4 area)
 {
-	// Checking the point is within the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
+	// Checking whether the point is within the largest parts of the set which do not escape (avoiding alot of computations, ~10x speedup)
 	if (pow2Optimize && (InMainCardioid(w) || InMainBulb(w)))
 	{
 		return vec2(-1000, 0);
@@ -363,8 +373,10 @@ vec2 EscapeCount(vec2 w, vec4 area)
 	}
 	else
 	{
-		vec2 mid = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
-		float dist = distance(mid, area.xy);
+		vec4 adjustedArea;
+		adjustedArea.xy = mix(area.xy, area.zw, renderAreaLeniency);
+		adjustedArea.zw = mix(area.zw, area.xy, renderAreaLeniency);
+
 		vec2 c = w;
 
 		int insideCount = 0;
@@ -379,12 +391,12 @@ vec2 EscapeCount(vec2 w, vec4 area)
 			}
 			
 
-			if (insideBox(project(w,c),area))
+			if (insideBox(project(w,c),adjustedArea))
 			{
 				insideCount++;
 			}
 
-			if (dot(w,w)>escapeRadius) return vec2(i,insideCount);
+			if (dot(w,w)>escapeRadius*escapeRadius) return vec2(i,insideCount);
 		}
 
 		return vec2(-1000, 0);
@@ -416,9 +428,10 @@ vec2 mutate(vec4 prev, inout uint hash, bool stepMutation)
 	else
 	{
 		// Generate a random point
-		vec2 random = hash2(hash,hash);
+		vec2 p = hash2(hash,hash);
+		p = vec2(sqrt(p.x) * pointRadius, map01ToInterval(p.y, pointAngle));
 		// Map it from [0,1) to fractal space
-		return map01ToInterval(random, renderArea);
+		return p.x * vec2(cos(p.y), sin(p.y));
 	}
 }
 
@@ -458,7 +471,12 @@ vec2 getStartValue(uint hash, vec4 area)
 <map01ToInterval>
 vec2 map01ToInterval(vec2 value, vec4 range)
 {
-	return vec2(value*(range.zw-range.xy)+range.xy);
+	return value*(range.zw-range.xy)+range.xy;
+}
+
+float map01ToInterval(float value, vec2 range)
+{
+	return value*(range.x-range.y)+range.x;
 }
 </map01ToInterval>
 

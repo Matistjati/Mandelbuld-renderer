@@ -70,14 +70,18 @@ inline T& Uniform<T>::GetValue()
 template<typename T>
 inline void Uniform<T>::SetValue(T value, bool renderMode)
 {
+	bool different = value != this->renderValue;
 	if (!renderMode)
 	{
 		this->value = value;
 	}
 	this->renderValue = value;
-	for (size_t i = 0; i < callbacks.size(); i++)
+	if (different)
 	{
-		callbacks[i](fractal);
+		for (size_t i = 0; i < callbacks.size(); i++)
+		{
+			callbacks[i](fractal);
+		}
 	}
 }
 
