@@ -197,20 +197,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Mix outside 0,1?
 
-	//vec2 coord = vec2(mix(c,w,t));
-	//vec2 coord = vec2(w.x,mix(w.y, c.y, t));
-	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
-	//vec2 coord = vec2(mix(w.x, c.x, t), mix(c.y,w.y, t));
-	//vec2 coord = vec2(mix(c.x, w.y, t), mix(w.y,c.x, t));
-	
-	//vec2 coord = vec2(mix(c.x, w.x, 0.1), w.y);
-	//vec2 coord = vec2(w.x, mix(w.y,c.x,0.3));
-	//vec2 coord = vec2(mix(c.x, w.x,0.5), mix(mix(c.y,w.y,0.5),c.x,0.5));
-	
-	//vec2 coord = vec2(c.x,w.y); //vec2 c = vec2(w.y,0)
-	//vec2 coord = vec2(c.x,mix(c.y,w.x,t)); //vec2 c = vec2(w.y,0) // Bifurcation diagram c = vec2(w.x,0);w=vec2(0);
-
-	//vec2 coord = c;
 	vec2 coord = project(w,c);
 	if(!insideBox(coord, area))
 	{
