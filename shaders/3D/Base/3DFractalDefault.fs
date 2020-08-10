@@ -1,13 +1,14 @@
 <sceneDistance>
-	float sceneDistance(vec3 w, out vec4 resColor)
+	float sceneDistance(vec3 w, out vec4 resColor, out float iterations)
 	{
-		return DistanceEstimator(w, resColor);
+		return DistanceEstimator(w, resColor, iterations);
 	}
 	
 	float sceneDistance(vec3 w)
 	{
 		vec4 temp;
-		return DistanceEstimator(w, temp);
+		float tempIter;
+		return DistanceEstimator(w, temp, tempIter);
 	}
 </sceneDistance>
 
@@ -100,7 +101,7 @@
 </distanceBreakCondition>
 
 <distanceEstimator>
-float DistanceEstimator(vec3 w, out vec4 resColor)
+float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 {
 	<distanceSetup>
 
@@ -118,6 +119,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 
 	resColor = <distanceTrapReturn>
 
+	iterations = i;
+
 	return <distanceReturn>;
 }
 </distanceEstimator>
@@ -126,10 +129,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 <trace>
 #define LinneaRetarded 0
 	// Compute the intersection of the fractal and a given ray parameterised by a starting point and a direction
-	float trace(vec3 origin, vec3 direction, out vec4 trapOut, float px, out float percentSteps, out bool hitSurface)
+	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations)
 	{
 		float res = -1;
-		vec4 trap;
 
 		float t = 0;
 		float h = 0;
@@ -138,7 +140,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		for(; i < maxSteps; i++)
 		{ 
 			vec3 pos = origin + direction * t;
-			h = fudgeFactor * sceneDistance(pos, trap);
+			h = fudgeFactor * sceneDistance(pos, trap, iterations);
 			th = 0.25 * px * t;
 
 			if (h < th || h > maxDist)
@@ -149,8 +151,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		}
 
 		percentSteps = float(i)/float(maxSteps);
-
-		trapOut = trap;
 
 		hitSurface = h < th && i < maxSteps;
 
@@ -175,9 +175,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		vec3 gradient;
 		vec4 temp;
 
-		gradient.x = sceneDistance(p + small_step.xyy, temp) - sceneDistance(p - small_step.xyy, temp);
-		gradient.y = sceneDistance(p + small_step.yxy, temp) - sceneDistance(p - small_step.yxy, temp);
-		gradient.z = sceneDistance(p + small_step.yyx, temp) - sceneDistance(p - small_step.yyx, temp);
+		gradient.x = sceneDistance(p + small_step.xyy) - sceneDistance(p - small_step.xyy);
+		gradient.y = sceneDistance(p + small_step.yxy) - sceneDistance(p - small_step.yxy);
+		gradient.z = sceneDistance(p + small_step.yyx) - sceneDistance(p - small_step.yyx);
 
 		return normalize(gradient);
 	}
@@ -257,7 +257,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		const float epsilon = 0.0001;
 
 		vec3 col;
-		vec3 colorMask = vec3(1);
+		vec3 colorMask = vec3(0.9);
 		vec3 accumulatedColor = vec3(0.0);
 
 		float fdis = 0.0;
@@ -265,7 +265,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		vec4 trap;
 		float steps;
 		bool hitSurface;
-		float t = trace(ro, direction, trap, px, steps, hitSurface);
+		float iterations;
+		float t = trace(ro, direction, trap, px, steps, hitSurface, iterations);
 
 		// Water intersection and reflection
 		float dist;
@@ -312,7 +313,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			// trace
 			//-----------------------
 			
-			t = trace(ro, direction, trap, px, steps, hitSurface);
+			t = trace(ro, direction, trap, px, steps, hitSurface, iterations);
 
 			if(!hitSurface)
 			{
@@ -341,8 +342,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 			//-----------------------
 			// add direct lighitng
 			//-----------------------
-			colorMask *= surfaceColor;
-			<coloring>
+			colorMask *= colorMask;
+			col += (cos(surfaceColor + vec3(0.3, 0.4, 0.8) * iterations * 10) * -0.5 + 0.5);
 			col*=brightness;
 
 			vec3 light = vec3(0.0);
@@ -386,8 +387,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor)
 		vec4 trap;
 		float steps;
 		bool hitSurface = false;
+		float iterations;
 
-		float t = trace(origin, direction, trap, px, steps, hitSurface);
+		float t = trace(origin, direction, trap, px, steps, hitSurface, iterations);
 
 		vec3 col = vec3(0);
 
