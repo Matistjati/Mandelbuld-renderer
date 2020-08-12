@@ -819,10 +819,10 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 {
 	const static std::string baseName = "TestImage/Animation/image";
 	const static int standardWork = 1920 * 1080;
-	const static int imageCount = 5; 
+	const static int imageCount = 300; 
 	const static double pi2 = 6.28318530717958647692528676655;
 	const static double dt = pi2 / double(imageCount-1); // Don't worry about the -1, you will get x images
-	const static int standardFPI = 5; // FPI: frames per image
+	const static int standardFPI = 40; // FPI: frames per image
 	const size_t framesPerImage = std::max(standardFPI, int(float(standardFPI) / (float((fractal->screenSize.value.x * fractal->screenSize.value.y)) / standardWork)));
 
 	const size_t pixelCount = int(fractal->screenSize.value.x * fractal->screenSize.value.y);
@@ -851,9 +851,9 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	fractal->shader->Use();
 	((Uniform<bool>*)fractal->fractalUniforms[17].uniform)->value = false;
 	((Uniform<bool>*)fractal->fractalUniforms[17].uniform)->SetShaderValue(false);
-	((Uniform<glm::vec3>*)fractal->fractalUniforms[21].uniform)->value = { 0.5,0.2,0.8 };
+	((Uniform<glm::vec3>*)fractal->fractalUniforms[21].uniform)->value = { 0.0 ,0.2,1 };
 	((Uniform<glm::vec3>*)fractal->fractalUniforms[21].uniform)->SetShaderValue(false);
-	fractal->clickPosition.value = { -0.747280777, 0.0738990828 };
+	fractal->clickPosition.value = { -0.753948450, -0.0111111403 };
 	fractal->shader->SetUniform(fractal->clickPosition);
 	fractal->camera->position.value = { 0.215171114, -0.0585942790, 0 };
 	fractal->shader->SetUniform(fractal->camera->position);
@@ -901,6 +901,8 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 		fractal->frame.value = 0;
 		fractal->shader->SetUniform(fractal->frame);
 		fractal->shader->SetUniform(fractal->time.id, float(i*dt));
+		((Uniform<glm::vec3>*)fractal->fractalUniforms[21].uniform)->value = { float(i)/float(imageCount)*0.2,0.2,1 };
+		((Uniform<glm::vec3>*)fractal->fractalUniforms[21].uniform)->SetShaderValue(false);
 
 
 #if _DEBUG
