@@ -85,7 +85,7 @@ uniform float bounces = 3;
 uniform float antiAliasingMagnitude = 1;
 
 /*<GuiHint>GuiType: slider, Name: Brightness, Parent: pathTrace, Range: (0.2, 10)</GuiHint>*/
-uniform float brightness = 5;
+uniform float brightness = 0.8;
 
 /*<GuiHint>GuiType: colorPicker, Name: Surface Color, Parent: pathTrace</GuiHint>*/
 uniform vec3 surfaceColor = vec3(0.1)*vec3(1.2,1.1,1.0);
