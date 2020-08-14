@@ -18,6 +18,15 @@
 	/*<GuiHint>GuiType: colorPicker, Name: Color A, Parent: Color</GuiHint>*/
 	uniform vec3 colorA = vec3(0, 0.707, 0.707);
 	
+	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: Color</GuiHint>*/
+	uniform vec3 colorB = vec3(0, 0.707, 0.707);
+	
+	/*<GuiHint>GuiType: colorPicker, Name: Color C, Parent: Color</GuiHint>*/
+	uniform vec3 colorC = vec3(0, 0.707, 0.707);
+	
+	/*<GuiHint>GuiType: colorPicker, Name: Color D, Parent: Color</GuiHint>*/
+	uniform vec3 colorD = vec3(0, 0.707, 0.707);
+	
 	/*<GuiHint>GuiType: colorPicker, Name: Edge Color, Parent: Color</GuiHint>*/
 	uniform vec3 edgeColor = vec3(0, 0.4, 0.4);
 
@@ -78,6 +87,17 @@
 
 	<
 		col = (cos(edgeColor + colorA * steps * colorFrequency) * -0.5 + 0.5);
+	>,
+
+	<
+		col = (cos(edgeColor + colorA * iterations * colorFrequency) * -0.5 + 0.5);
+	>,
+	
+	<
+		col = colorA;
+		col = mix(col, colorB, clamp(trap.x*trap.x, 0, 1));
+		col = mix(col, colorC, clamp(trap.y*trap.y, 0, 1));
+		col = mix(col, colorD, clamp(trap.z*trap.z, 0, 1));
 	>,
 
 	//col *= steps;

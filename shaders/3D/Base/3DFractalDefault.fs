@@ -129,7 +129,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 <trace>
 #define LinneaRetarded 0
 	// Compute the intersection of the fractal and a given ray parameterised by a starting point and a direction
-	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations, float dynamicMaxSteps)
+	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations)
 	{
 		float res = -1;
 
@@ -137,7 +137,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		float h = 0;
 		int i = 0;
 		float th = 0;
-		for(; i < dynamicMaxSteps; i++)
+		for(; i < maxSteps; i++)
 		{ 
 			vec3 pos = origin + direction * t;
 			h = fudgeFactor * sceneDistance(pos, trap, iterations);
@@ -150,9 +150,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			t += h;
 		}
 
-		percentSteps = float(i)/float(dynamicMaxSteps);
+		percentSteps = float(i)/float(maxSteps);
 
-		hitSurface = h < th && i < dynamicMaxSteps;
+		hitSurface = h < th && i < maxSteps;
 
 #if LinneaRetarded
 		if (t < maxDist && !fogColoring)
@@ -164,11 +164,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		}
 
 		return res;
-	}
-
-	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations)
-	{
-		return trace(origin, direction, trap, px, percentSteps, hitSurface, iterations, maxSteps);
 	}
 </trace>
 
@@ -279,7 +274,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		bool aboveWater = (ro + direction*t).y > waterHeight;
 		float skyReflectAmount = 1;
 		float transmittance = 1;
-		float stepsToTake = maxSteps;
 
 		// With unsifficient raymarching steps, we will we unable to make a perfect deduction about the state of the ray
 		// The following approach suffers in form of incorrectly labelling some of the water around the fractal as part of the real fractal
@@ -287,9 +281,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		// Case A: Hit the fractal but we are under water. Case B: Did not hit the fractal, still above water after marching but will intersect with water. 
 		// Stored as variable for future info
 		bool reflected = displayWater && (dist < maxWaterDist && (hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects));
+
 		if (reflected)
 		{
-			stepsToTake = maxSteps *5;
 			vec3 cloudCol = vec3(0);
 			if (displayClouds) transmittance *= SampleCloudDensity(ro, direction, cloudCol);
 			col = vec3(0.,0,0.05)+cloudCol;
@@ -322,12 +316,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			// trace
 			//-----------------------
 			
-			t = trace(ro, direction, trap, px, steps, hitSurface, iterations, stepsToTake);
-			stepsToTake = maxSteps;
+			t = trace(ro, direction, trap, px, steps, hitSurface, iterations);
 
 			if(!hitSurface)
 			{
+				if(bounce != 0)
+				{
+					break;
+				}
 				// Clouds
+
 				vec3 cloudCol = vec3(0);
 				if (displayClouds) transmittance *= SampleCloudDensity(ro, direction, cloudCol);
 				
@@ -353,7 +351,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			// add direct lighitng
 			//-----------------------
 			colorMask *= colorMask;
-			col = (cos(surfaceColor + vec3(0.3, 0.4, 0.8) * iterations * 10) * -0.5 + 0.5);
+			<coloring>
 			col*=brightness;
 
 			vec3 light = vec3(0.0);
@@ -407,7 +405,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		vec3 Sun = sun;
 
 		// Color the sky if we don't hit the fractal
-		if(t < 0.0)
+		if (t < 0.0)
 		{
 			// Sky gradient
 			<sky>

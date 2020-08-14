@@ -55,11 +55,12 @@
 		<distanceBody>[[rotate(rotMat1), octahedronFold, rotate(rotMat2), scaleTranslate],
 		]</distanceBody>,
 		<distanceTrap>[mandelBoxTrap]</distanceTrap>,
+		<distanceBreakCondition>foldBreak</distanceBreakCondition>,
 	</distanceEstimator>
 
 	<variables>
 		<scale>2</scale>,
-		<offset>vec3(1,0,0)</offset>,
+		<offset>vec3(1, 0, 0)</offset>,
 	</variables>
 
 	<cpuVariables>

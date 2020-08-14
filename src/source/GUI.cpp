@@ -53,7 +53,7 @@ void AddSlidersN(Form* form, nanogui::Window* parent, std::string label, int n, 
 {
 	nanogui::Button* button = form->AddButton(parent, label);
 	
-	fractal->gui->performLayout();
+	//fractal->gui->performLayout();
 
 
 	Form* subForm = new Form(fractal->gui, button, form->parentMenu);
