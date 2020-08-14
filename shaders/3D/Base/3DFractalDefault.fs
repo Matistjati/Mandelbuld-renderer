@@ -3,7 +3,7 @@
 	{
 		return DistanceEstimator(w, resColor, iterations);
 	}
-	
+
 	float sceneDistance(vec3 w)
 	{
 		vec4 temp;
@@ -129,7 +129,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 <trace>
 #define LinneaRetarded 0
 	// Compute the intersection of the fractal and a given ray parameterised by a starting point and a direction
-	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations)
+	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations, float dynamicMaxSteps)
 	{
 		float res = -1;
 
@@ -137,7 +137,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		float h = 0;
 		int i = 0;
 		float th = 0;
-		for(; i < maxSteps; i++)
+		for(; i < dynamicMaxSteps; i++)
 		{ 
 			vec3 pos = origin + direction * t;
 			h = fudgeFactor * sceneDistance(pos, trap, iterations);
@@ -150,9 +150,9 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			t += h;
 		}
 
-		percentSteps = float(i)/float(maxSteps);
+		percentSteps = float(i)/float(dynamicMaxSteps);
 
-		hitSurface = h < th && i < maxSteps;
+		hitSurface = h < th && i < dynamicMaxSteps;
 
 #if LinneaRetarded
 		if (t < maxDist && !fogColoring)
@@ -164,6 +164,11 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		}
 
 		return res;
+	}
+
+	float trace(vec3 origin, vec3 direction, out vec4 trap, float px, out float percentSteps, out bool hitSurface, out float iterations)
+	{
+		return trace(origin, direction, trap, px, percentSteps, hitSurface, iterations, maxSteps);
 	}
 </trace>
 
@@ -228,7 +233,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			return false;
 		}
 		
-		float d = -(ro.y - height)/rd.y;
+		float d = (height - ro.y)/rd.y;
 		d = min(100000.0, d);
 		if( d > 0. )
 		{
@@ -274,6 +279,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		bool aboveWater = (ro + direction*t).y > waterHeight;
 		float skyReflectAmount = 1;
 		float transmittance = 1;
+		float stepsToTake = maxSteps;
 
 		// With unsifficient raymarching steps, we will we unable to make a perfect deduction about the state of the ray
 		// The following approach suffers in form of incorrectly labelling some of the water around the fractal as part of the real fractal
@@ -283,6 +289,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		bool reflected = displayWater && (dist < maxWaterDist && (hitSurface && !aboveWater) || ((!hitSurface && aboveWater) && intersects));
 		if (reflected)
 		{
+			stepsToTake = maxSteps *5;
 			vec3 cloudCol = vec3(0);
 			if (displayClouds) transmittance *= SampleCloudDensity(ro, direction, cloudCol);
 			col = vec3(0.,0,0.05)+cloudCol;
@@ -305,6 +312,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			skyReflectAmount = waterDarkness*clamp(pow(dist,1/waterDistScale),1.,waterDistLimit);
 		}
 
+		
+
 		for(int bounce = 0; bounce < bounces; bounce++) // bounces of GI
 		{
 			//rd = normalize(rd);
@@ -313,7 +322,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			// trace
 			//-----------------------
 			
-			t = trace(ro, direction, trap, px, steps, hitSurface, iterations);
+			t = trace(ro, direction, trap, px, steps, hitSurface, iterations, stepsToTake);
+			stepsToTake = maxSteps;
 
 			if(!hitSurface)
 			{
@@ -343,7 +353,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			// add direct lighitng
 			//-----------------------
 			colorMask *= colorMask;
-			col += (cos(surfaceColor + vec3(0.3, 0.4, 0.8) * iterations * 10) * -0.5 + 0.5);
+			col = (cos(surfaceColor + vec3(0.3, 0.4, 0.8) * iterations * 10) * -0.5 + 0.5);
 			col*=brightness;
 
 			vec3 light = vec3(0.0);
@@ -355,7 +365,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 
 			// light 2
 			vec3 skyPoint = cosineDirection( seed + 7.1*float(frame) + 5681.123 + float(bounce)*92.13, nor);
-			float skySha = shadow( pos + nor*epsilon, skyPoint);
+			float skySha = shadow(pos + nor*epsilon, skyPoint);
 			light += skyCol * skySha;
 
 
