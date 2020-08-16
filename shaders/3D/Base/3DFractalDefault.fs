@@ -322,6 +322,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			{
 				if(bounce != 0)
 				{
+					//vec3 endPos = ro + direction * t;
+					//accumulatedColor += 
 					break;
 				}
 				// Clouds
@@ -359,12 +361,12 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			// light 1
 			float sunDif =  max(0.0, dot(Sun, nor));
 			float sunSha = 1.0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, Sun);
-			light += sunCol * sunDif * sunSha;
+			light += sunCol * sunDif * sunSha * pow(clamp(dot(nor, sun),0,1),3)*sunCoefficient;
 
 			// light 2
 			vec3 skyPoint = cosineDirection( seed + 7.1*float(frame) + 5681.123 + float(bounce)*92.13, nor);
 			float skySha = shadow(pos + nor*epsilon, skyPoint);
-			light += skyCol * skySha;
+			light += skyCol * skySha * skyCoefficient;
 
 
 			accumulatedColor += colorMask * col * light;
@@ -372,14 +374,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			//-----------------------
 			// calculate new ray
 			//-----------------------
-			float isDif = 0.8;
-			if( hash11(seed + 1.123 + 7.7*float(bounce)) < isDif )
+			if( hash11(seed + 1.123 + 7.7*float(bounce)) < diffuse )
 			{
 			   direction = cosineDirection(76.2 + 73.1*float(bounce) + seed + 17.7*float(frame), nor);
 			}
 			else
 			{
-				float glossiness = 0.2;
+				float glossiness = 1 - diffuse;
 				direction = normalize(reflect(direction, nor)) + uniformVector(seed + 111.123 + 65.2*float(bounce)) * glossiness;
 			}
 

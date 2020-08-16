@@ -81,6 +81,15 @@ uniform bool displayWater = true;
 /*<GuiHint>GuiType: slider, Name: Bounces, Parent: pathTrace, Range: (1, 10)</GuiHint>*/
 uniform float bounces = 3;
 
+/*<GuiHint>GuiType: slider, Name: Diffuse, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+uniform float diffuse = 0.8;
+
+/*<GuiHint>GuiType: slider, Name: Diffuse, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
+uniform float sunCoefficient = 1;
+
+/*<GuiHint>GuiType: slider, Name: Diffuse, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
+uniform float skyCoefficient = 1;
+
 /*<GuiHint>GuiType: slider, Name: Anti aliasing amount, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
 uniform float antiAliasingMagnitude = 1;
 
