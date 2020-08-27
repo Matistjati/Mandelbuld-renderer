@@ -360,8 +360,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 
 			// light 1
 			float sunDif =  max(0.0, dot(Sun, nor));
-			float sunSha = 1.0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, Sun);
-			light += sunCol * sunDif * sunSha * pow(clamp(dot(nor, sun),0,1),3)*sunCoefficient;
+			float sunSha = 0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, Sun);
+			light += sunCol * sunDif * sunSha * sunCoefficient;
 
 			// light 2
 			vec3 skyPoint = cosineDirection( seed + 7.1*float(frame) + 5681.123 + float(bounce)*92.13, nor);

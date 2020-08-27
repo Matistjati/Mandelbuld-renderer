@@ -84,11 +84,11 @@ uniform float bounces = 3;
 /*<GuiHint>GuiType: slider, Name: Diffuse, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
 uniform float diffuse = 0.8;
 
-/*<GuiHint>GuiType: slider, Name: Diffuse, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Sun light amount, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
 uniform float sunCoefficient = 1;
 
-/*<GuiHint>GuiType: slider, Name: Diffuse, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
-uniform float skyCoefficient = 1;
+/*<GuiHint>GuiType: slider, Name: Sky light amount, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
+uniform float skyCoefficient = 0.5;
 
 /*<GuiHint>GuiType: slider, Name: Anti aliasing amount, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
 uniform float antiAliasingMagnitude = 1;
