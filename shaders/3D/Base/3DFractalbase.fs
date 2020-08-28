@@ -90,7 +90,7 @@ uniform float sunCoefficient = 4;
 /*<GuiHint>GuiType: slider, Name: Sky light amount, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
 uniform float skyCoefficient = 2.16;
 
-/*<GuiHint>GuiType: slider, Name: Anti aliasing amount, Parent: pathTrace, Range: (0, 1)</GuiHint>*/
+/*<GuiHint>GuiType: slider, Name: Anti aliasing amount, Parent: pathTrace, Range: (0, 4)</GuiHint>*/
 uniform float antiAliasingMagnitude = 1;
 
 /*<GuiHint>GuiType: slider, Name: Brightness, Parent: pathTrace, Range: (0.2, 10)</GuiHint>*/
