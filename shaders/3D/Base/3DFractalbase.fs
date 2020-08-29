@@ -97,7 +97,7 @@ uniform float antiAliasingMagnitude = 1;
 uniform float brightness = 0.8;
 
 /*<GuiHint>GuiType: colorPicker, Name: Surface Color, Parent: pathTrace</GuiHint>*/
-uniform vec3 surfaceColor = vec3(0.1)*vec3(1.2,1.1,1.0);
+uniform vec3 surfaceColor = vec3(0.9);
 
 
 

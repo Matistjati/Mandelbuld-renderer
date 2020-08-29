@@ -222,7 +222,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 	}
 
 	bool intersectPlane(vec3 ro, vec3 rd, float height, out float dist)
-	{	
+	{
 		if (rd.y==0.0)
 		{
 			return false;
@@ -257,7 +257,7 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		const float epsilon = 0.0001;
 
 		vec3 col;
-		vec3 colorMask = vec3(0.9);
+		vec3 colorMask = surfaceColor;
 		vec3 accumulatedColor = vec3(0.0);
 
 		float fdis = 0.0;
@@ -310,8 +310,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 
 		for(int bounce = 0; bounce < bounces; bounce++) // bounces of GI
 		{
-			//rd = normalize(rd);
-	   
 			//-----------------------
 			// trace
 			//-----------------------
