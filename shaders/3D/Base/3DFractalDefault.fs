@@ -251,8 +251,8 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		}
 
 		vec3 Sun = sun;
-		vec3 sunCol = 3.0*sunColor;
-		vec3 skyCol =  4.0*skyColor;
+		vec3 sunCol = sunCoefficient*sunColor;
+		vec3 skyCol =  skyCoefficient*skyColor;
 		float px = (100/screenSize.y) * zoom * zoomDetailRatio;
 		const float epsilon = 0.0001;
 
@@ -260,7 +260,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 		vec3 colorMask = surfaceColor;
 		vec3 accumulatedColor = vec3(0.0);
 
-		float fdis = 0.0;
 
 		vec4 trap;
 		float steps;
@@ -318,14 +317,13 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 
 			if(!hitSurface)
 			{
+				// If we hit the sky after bouncing off of the fractal, do not perform sky lighting calculations
 				if(bounce != 0)
 				{
-					//vec3 endPos = ro + direction * t;
-					//accumulatedColor += 
 					break;
 				}
-				// Clouds
 
+				// Clouds
 				vec3 cloudCol = vec3(0);
 				if (displayClouds) transmittance *= SampleCloudDensity(ro, direction, cloudCol);
 				
@@ -342,8 +340,6 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 				return clamp(col*transmittance+cloudCol, 0, 1);
 			}
 
-			if( bounce==0 ) fdis = t;
-
 			vec3 pos = ro + direction * t;
 			vec3 nor = calculateNormal(pos);
 
@@ -359,12 +355,12 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			// light 1
 			float sunDif =  max(0.0, dot(Sun, nor));
 			float sunSha = 0; if( sunDif > 0.00001 ) sunSha = shadow( pos + nor*epsilon, Sun);
-			light += sunCol * sunDif * sunSha * sunCoefficient;
+			light += sunCol * sunDif * sunSha;
 
 			// light 2
 			vec3 skyPoint = cosineDirection( seed + 7.1*float(frame) + 5681.123 + float(bounce)*92.13, nor);
 			float skySha = shadow(pos + nor*epsilon, skyPoint);
-			light += skyCol * skySha * skyCoefficient;
+			light += skyCol * skySha;
 
 
 			accumulatedColor += colorMask * col * light;
