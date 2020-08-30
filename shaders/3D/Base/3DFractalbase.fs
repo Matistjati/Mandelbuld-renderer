@@ -117,7 +117,7 @@ uniform float waterDarkness = 0.223;
 uniform float waterDistScale = 2.57;
 
 /*<GuiHint>GuiType: slider, Name: Water distance max increase, Parent: waterSettings, Range: (1, 4)</GuiHint>*/
-uniform float waterDistLimit = 2.51;
+uniform float waterDistLimit = 2.5;
 
 
 /*<GuiHint>GuiType: slider, Name: Darkness threshold, Parent: cloudColoring, Range: (-10, 10)</GuiHint>*/
