@@ -127,7 +127,7 @@ uniform float darknessThreshold = 10;
 uniform vec4 phaseParams = vec4(0.794118, 0.838235, 1.01471,1.36765);
 
 /*<GuiHint>GuiType: slider, Name: Light absorbtion sun, Parent: cloudColoring, Range: (0, 3)</GuiHint>*/
-uniform float lightAbsorbtionSun = 0.016129;
+uniform float lightAbsorbtionSun = 0.0169;
 
 /*<GuiHint>GuiType: slider, Name: Light absorbtion through cloud, Parent: cloudColoring, Range: (0, 3)</GuiHint>*/
 uniform float lightAbsorptionThroughCloud = 0.532258;
