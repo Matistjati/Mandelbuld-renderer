@@ -114,7 +114,7 @@ uniform float maxWaterDist = 1000;
 uniform float waterDarkness = 0.223;
 
 /*<GuiHint>GuiType: slider, Name: Water distance brightness, Parent: waterSettings, Range: (1, 100)</GuiHint>*/
-uniform float waterDistScale = 2.57;
+uniform float waterDistScale = 2.569;
 
 /*<GuiHint>GuiType: slider, Name: Water distance max increase, Parent: waterSettings, Range: (1, 4)</GuiHint>*/
 uniform float waterDistLimit = 2.5;
