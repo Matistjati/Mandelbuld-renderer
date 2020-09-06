@@ -146,7 +146,7 @@ uniform float stepSize = 0.005;
 uniform bool cloudOnly = false;
 
 /*<GuiHint>GuiType: slider, Name: Noise Scale small, Parent: cloudNoise, Range: (0.0001, 1)</GuiHint>*/
-uniform float noiseScale = 0.107232;
+uniform float noiseScale = 0.1069232;
 
 /*<GuiHint>GuiType: slider, Name: Detail noise weights, Parent: cloudNoise, Range: (0, 1)</GuiHint>*/
 uniform vec3 detailWeights = vec3(0.0517241, 0.0238095, 0);
