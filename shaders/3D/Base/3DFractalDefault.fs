@@ -470,6 +470,16 @@ float DistanceEstimator(vec3 w, out vec4 resColor, out float iterations)
 			vec3 pos = vec3(remap(gl_FragCoord.x/screenSize.x, 0, 1, -20, 20), 20, remap(gl_FragCoord.y/screenSize.y, 0, 1, -20, 20))/vec3(zoom,1,zoom);
 			col = vec3(cloudNoise(pos));
 		}
+		else if (renderSky)
+		{
+			vec2 uv = gl_FragCoord.xy / screenSize * 2.0 - 1.0;
+			vec3 direction = normalize(vec3(uv.xy, -1));
+			vec2 frag = gl_FragCoord.xy;
+			uv.x *= float(screenSize.x) / float(screenSize.y);
+			uv *= zoom;
+			direction *= rotation;
+			col = vec3(remap(direction.y, -1, 1, 0, 1))*vec3(0.3, 0.2, 0.7);
+		}
 		else
 		{
 			uint hash = uint(intHash(intHash(abs(int(frame))+intHash(int(gl_FragCoord.x)))*intHash(int(gl_FragCoord.y))));

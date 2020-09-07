@@ -75,6 +75,9 @@ uniform bool displayCloudNoise = false;
 /*<GuiHint>GuiType: checkBox, Name: Render clouds, Parent: pathTrace</GuiHint>*/
 uniform bool displayClouds = true;
 
+/*<GuiHint>GuiType: checkBox, Name: Render only sky, Parent: pathTrace</GuiHint>*/
+uniform bool renderSky = false;
+
 /*<GuiHint>GuiType: checkBox, Name: Render Water, Parent: pathTrace</GuiHint>*/
 uniform bool displayWater = true;
 
