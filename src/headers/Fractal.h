@@ -190,6 +190,7 @@ public:
 	static std::string GetSectionName(std::string str);
 	static std::string GetSectionValue(std::string str);
 	static std::string SubString(std::string str, int begin, int end);
+	static std::string Trim(std::string str);
 	static void RemoveFirstCharIfEqual(std::string& str, char c = ' ');
 	static void CleanString(std::string& str, std::vector<char> chars);
 	static void CleanString(std::string& str, char c);
@@ -201,6 +202,7 @@ public:
 	static std::vector<std::string> SplitNotInChar(std::string str, char splitBy, std::vector<std::pair<char, char>> ignore);
 	static std::vector<std::string> GetOuterSections(std::string& source);
 	static std::vector<std::string> GetSections(std::string& source);
+	static std::vector<std::string> GetCharsWithinDelimeters(std::string content, std::string open, std::string close);
 	static bool StringToBool(std::string str);
 	static std::vector<std::string> GetFractalNames(std::vector<std::string> names);
 	static std::string GetFractalNames(std::vector<std::string> names, size_t index);

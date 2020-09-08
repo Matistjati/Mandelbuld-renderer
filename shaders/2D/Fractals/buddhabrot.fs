@@ -216,20 +216,20 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
-	int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
-	// The steps are to avoid points outside of the image accumulating on the left and right sides
-	int y = int(screenSize.y-(coord.y-area.y)*map.y);
+	float x = round(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
+
+	float y = round(screenSize.y-(coord.y-area.y)*map.y);
 	int index = int(x + screenSize.x * (y + 0.5));
 
 	if (colorWheel)
-	{	
+	{
 		points[index].xyz += color;
 	}
 	else
 	{
 		// Nebulabrot
 		// Smoothstep- more smooth image
-		/*points[index].xyz += smoothstep(vec3(pos.xyz), vec3(i),colorIteration*maxIterations);*/
+		//points[index].xyz += smoothstep(vec3(w.xy, c.x), vec3(i),colorIteration*maxIterations);
 
 		// Step- too detailed?
 		points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);

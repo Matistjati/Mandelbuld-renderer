@@ -114,6 +114,57 @@ std::string Fractal::SubString(std::string str, int begin, int end)
 	return str.substr(begin, end-begin);
 }
 
+std::string Fractal::Trim(std::string str)
+{
+	std::vector<char> charsToTrim = { ' ', '	' };
+	// Leading whitespace
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		bool isWhiteSpace = false;
+		for (size_t j = 0; j < charsToTrim.size(); j++)
+		{
+			if (str[i] == charsToTrim[j])
+			{
+				isWhiteSpace = true;
+				break;
+			}
+		}
+		if (isWhiteSpace)
+		{
+			i--;
+			str = str.substr(1);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Trailing whitespace
+	for (int i = str.size() - 1; i >= 0; i--)
+	{
+		bool isWhiteSpace = false;
+		for (size_t j = 0; j < charsToTrim.size(); j++)
+		{
+			if (str[i] == charsToTrim[j])
+			{
+				isWhiteSpace = true;
+				break;
+			}
+		}
+		if (isWhiteSpace)
+		{
+			// Do not increment i, as it is done "automatically" by making the size of the string smaller
+			str = str.substr(0, str.size()-1);
+		}
+		else
+		{
+			break;
+		}
+	}
+	return str;
+}
+
 void Fractal::RemoveFirstCharIfEqual(std::string& str, char c)
 {
 	if (str[0] == c) str = str.substr(1);
@@ -453,6 +504,69 @@ std::vector<std::string> Fractal::GetSections(std::string& source)
 	}
 
 	return sections;
+}
+
+std::vector<std::string> Fractal::GetCharsWithinDelimeters(std::string content, std::string open, std::string close)
+{
+	std::vector<std::string> strings;
+
+	int level = 0;
+	std::string current = "";
+
+	try
+	{
+		for (size_t i = 0; i < content.size(); i++)
+		{
+			if (content[i] == open[0])
+			{
+				bool same = true;
+				for (size_t j = 0; j < open.size(); j++)
+				{
+					if (content[i + j] != open[j])
+					{
+						same = false;
+						break;
+					}
+				}
+				if (same)
+				{
+					level++;
+					i += open.size();
+				}
+			}
+			else if (content[i] == close[0])
+			{
+				bool same = true;
+				for (size_t j = 0; j < close.size(); j++)
+				{
+					if (content[i + j] != close[j])
+					{
+						same = false;
+						break;
+					}
+				}
+				if (same)
+				{
+					level--;
+					i += close.size();
+					if (level == 0)
+					{
+						strings.push_back(current);
+						current = "";
+					}
+				}
+			}
+			if (level > 0)
+			{
+				current += content[i];
+			}
+		}		
+	}
+	catch (const std::exception & ex)
+	{
+		return {};
+	}
+	return strings;
 }
 
 bool Fractal::StringToBool(std::string str)
@@ -859,7 +973,7 @@ void Fractal::ImageSequence(GLFWwindow* window, Fractal* fractal)
 	fractal->shader->SetUniform(fractal->clickPosition);
 	fractal->camera->position.value = { 0.563757, 0.437172, 0 };
 	fractal->shader->SetUniform(fractal->camera->position);
-	fractal->camera->zoom.value = 0.142779;
+	fractal->camera->zoom.value = 0.142779f;
 	fractal->shader->SetUniform(fractal->camera->zoom);
 
 	fractal->shader->Use();

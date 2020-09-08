@@ -155,7 +155,31 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
 		std::vector<char> infoLog(length);
 		glGetShaderInfoLog(id, length, NULL, &infoLog[0]);
 
-		std::cerr << "Failed to compile " << shaderTypeToString[type] << " shader.\nError: " << std::string(infoLog.begin(), infoLog.end()) << std::endl;
+		std::string errorString =  std::string(infoLog.begin(), infoLog.end());
+		std::vector<std::string> lines = Fractal::Split(source, '\n');
+		std::vector<std::string> errorLineNumbers = Fractal::GetCharsWithinDelimeters(errorString, "0(", ")");
+		std::vector<std::string> errorStrings;
+
+		for (size_t i = 0; i < errorLineNumbers.size(); i++)
+		{
+			try
+			{
+				errorStrings.push_back(lines[std::stoi(errorLineNumbers[i])-1]);
+			}
+			catch (const std::exception&)
+			{
+				std::cout << "Invalid line number displaying error.";
+			}
+		}
+
+		std::cerr << "Failed to compile " << shaderTypeToString[type] << " shader.\nError: " << errorString << std::endl;
+		for (size_t i = 0; i < errorLineNumbers.size(); i++)
+		{
+			if (i < errorString.size())
+			{
+				std::cout << errorLineNumbers[i] << ": " << Fractal::Trim(errorStrings[i]) << std::endl;
+			}
+		}
 		glDeleteShader(id);
 		return -1;
 	}
