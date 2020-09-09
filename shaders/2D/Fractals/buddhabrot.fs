@@ -41,6 +41,12 @@
 	/*<GuiHint>GuiType: slider, Name: Y Rotation, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec3 yRot = vec3(0);
 	
+	/*<GuiHint>GuiType: slider, Name: W start value, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
+	uniform vec2 startValue = vec2(0);
+	
+	/*<GuiHint>GuiType: slider, Name: Percento, Parent: fractalParams, Range: (-2, 2)</GuiHint>*/
+	uniform float percent = 1;
+	
 	/*<GuiHint>GuiType: checkBox, Name: Color Wheel, Parent: color</GuiHint>*/
 	uniform bool colorWheel = true;
 	
@@ -91,7 +97,7 @@
 
 <buffers>
 /*<bufferType>mainBuffer</bufferType>*/
-/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation, coefficientsA, coefficientsB, pointAngle, renderAreaLeniency]</shouldBeCleared>*/
+/*<shouldBeCleared>checkBox, resetFrame, onUniformChange: [position, xRot, yRot, colorWheel, invalidSamples, colorOffset, colorIteration, renderArea, power, position, zoom, maxIterations, minIterations, mutationSize, rotation, coefficientsA, coefficientsB, pointAngle, renderAreaLeniency, startValue]</shouldBeCleared>*/
 layout(std430, binding = 0) buffer densityMap
 {
 	vec4 points[];
@@ -99,7 +105,7 @@ layout(std430, binding = 0) buffer densityMap
 
 /*<bufferType>privateBuffer</bufferType>*/
 /*<cpuInitialize>buddhaBrotPoints</cpuInitialize>*/
-/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize, coefficientsA, coefficientsB, pointAngle, pointRadius, renderAreaLeniency]</shouldBeCleared>*/
+/*<shouldBeCleared>button, onUniformChange: [power, maxIterations, minIterations, mutationSize, coefficientsA, coefficientsB, pointAngle, pointRadius, renderAreaLeniency, startValue]</shouldBeCleared>*/
 layout(std430, binding = 1) buffer desirabilityMap
 {
 	vec4 desirability[];
@@ -207,12 +213,26 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	// Mix outside 0,1?
 
+	// Code for rendering the lines of points instead of the dots of where they land
+	/*vec2 coord;
+	float a = atan(w.y,w.x);
+	float r = length(w);
+	float aa = atan(prev.y, prev.x);
+	float rr = length(prev);
+	
+	for (float i = 0; i < 20; i++)
+	{
+		vec2 d = pow(mix(rr,r,percent),2)*vec2(cos(mix(aa,a,percent)*2),sin(mix(aa,a,percent)*2))+c*percent;
+		//vec2 d = mix(prev, w, i/20);
+		coord = project(d,c);
+	}*/
+
 	vec2 coord = project(w,c);
+
 	if(!insideBox(coord, area))
 	{
 		continue;
 	}
-
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
@@ -234,6 +254,8 @@ layout(std430, binding = 1) buffer desirabilityMap
 		// Step- too detailed?
 		points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);
 	}
+
+	
 	</incrementWPosition>,
 </loopTrap>
 
@@ -489,6 +511,7 @@ float map01ToInterval(float value, vec2 range)
 		float i = 0;
 		for (; i < maxIterations; i++)
 		{
+			vec2 prev = w;
 			<loopBody>
 
 			<loopExtraOperations>

@@ -51,6 +51,7 @@
 
 <loopSetup>
 	<defaultSetup>vec2 w = vec2(0);</defaultSetup>,
+	<defaultBuddhaSetup>vec2 w = startValue;</defaultBuddhaSetup>,
 	<juliaSetupMouse>vec2 w = c; c = clickPosition;</juliaSetupMouse>,
 	<inverseSetup>vec2 w = vec2(0); c/=dot(c,c);</inverseSetup>,
 	<inverseSetupAlt>vec2 w = c; c/=dot(c,c);</inverseSetupAlt>,
