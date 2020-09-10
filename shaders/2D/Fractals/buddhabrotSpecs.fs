@@ -36,7 +36,7 @@
 	<mainLoop>
 		<loopSetup>[[defaultBuddhaSetup, mapSetup, colorSetup], [inverseSetup, mapSetup, colorSetup], [complexSetup, mapSetup, colorSetup], [juliaSetupMouse, mapSetup, colorSetup], [inverseSetupAnimation, mapSetup, colorSetup], 
 					[inverseSetupAlt, mapSetup, colorSetup], ]</loopSetup>,
-		<loopBody>[[saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w), translate],
+		<loopBody>[[fourDegreePoly(coefficientsA)],
 				   [saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w),
 						   addTerm5(coefficientsB.x), addTerm6(coefficientsB.y), addTerm7(coefficientsB.z), addTerm8(coefficientsB.w), translate],]</loopBody>,
 		<loopTrap>incrementWPosition</loopTrap>,

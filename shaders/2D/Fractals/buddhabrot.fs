@@ -217,13 +217,13 @@ layout(std430, binding = 1) buffer desirabilityMap
 	/*vec2 coord;
 	float a = atan(w.y,w.x);
 	float r = length(w);
-	float aa = atan(prev.y, prev.x);
-	float rr = length(prev);
+	float aa = atan(W.y, W.x);
+	float rr = length(W);
 	
 	for (float i = 0; i < 20; i++)
 	{
 		vec2 d = pow(mix(rr,r,percent),2)*vec2(cos(mix(aa,a,percent)*2),sin(mix(aa,a,percent)*2))+c*percent;
-		//vec2 d = mix(prev, w, i/20);
+		//vec2 d = mix(W, w, i/20);
 		coord = project(d,c);
 	}*/
 
@@ -254,7 +254,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 		// Step- too detailed?
 		points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);
 	}
-
 	
 	</incrementWPosition>,
 </loopTrap>
@@ -511,7 +510,6 @@ float map01ToInterval(float value, vec2 range)
 		float i = 0;
 		for (; i < maxIterations; i++)
 		{
-			vec2 prev = w;
 			<loopBody>
 
 			<loopExtraOperations>
