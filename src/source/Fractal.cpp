@@ -2152,9 +2152,8 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 									for (size_t i = 0; i < x.second.size(); i++)
 									{
 										// Here lies the corpse of readability
-										int parameterIndex = (x.first == 0) ? 0 : x.first - 1; // The first parameter will be named parameter, while the second will be named parameter2. Go figure
-										newSection.replace(x.second[i].first + offset, x.second[i].second - x.second[i].first, parameters[parameterIndex]);
-										offset += parameters[parameterIndex].size() - (parameterLength + ((x.first == 0) ? 0 : std::to_string(parameterIndex).size()));
+										newSection.replace(x.second[i].first + offset, x.second[i].second - x.second[i].first, parameters[x.first]);
+										offset += parameters[x.first].size() - (parameterLength + ((x.first == 0) ? 0 : std::to_string(x.first).size()));
 									}
 									
 								}

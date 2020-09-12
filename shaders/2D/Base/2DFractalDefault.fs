@@ -31,10 +31,10 @@
 	vec2 W = parameter.w*w+vec2(parameter.z, 0);
 	W = mat2(W,-W.y,W.x)*w+vec2(parameter.y, 0);
 	W = mat2(W,-W.y,W.x)*w+vec2(parameter.x, 0);
-	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.w,0);
-	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.z,0);
-	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.y,0);
-	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.x,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter1.w,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter1.z,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter1.y,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter1.x,0);
 	W = mat2(W,-W.y,W.x)*w+c;
 	w=W;
 	</eightDegreePoly>,

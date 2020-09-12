@@ -35,9 +35,9 @@
 
 	<mainLoop>
 		<loopSetup>[[defaultSetup], [juliaSetupMouse], [inverseSetup], [cSetup], [inverseSetupEye], [flowerSetup, defaultSetup], [inverseSetupAnimation], [inverseSetupAlt]]</loopSetup>,
-		<loopBody>[[saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w), translate],
-				   [saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w),
-						   addTerm5(coefficientsB.x), addTerm6(coefficientsB.y), addTerm7(coefficientsB.z), addTerm8(coefficientsB.w), translate],]</loopBody>,
+		<loopBody>[[fourDegreePoly(coefficientsA)],
+				   [eightDegreePoly(coefficientsB, coefficientsA)],
+				   ]</loopBody>,
 		<loopTrap>none</loopTrap>,
 		<loopReturn>[[escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)], [escapeColor], ]</loopReturn>,
 	</mainLoop>
