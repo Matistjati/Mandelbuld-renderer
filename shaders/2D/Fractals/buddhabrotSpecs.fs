@@ -32,6 +32,13 @@
 			uniform vec4 coefficientsB = vec4(0);
 		>,
 	</uniforms>
+		
+
+	<variables>
+		<correctAlternate>true</correctAlternate>,
+		<pow2Optimize>false</pow2Optimize>,
+	</variables>
+
 
 	<mainLoop>
 		<loopSetup>[[defaultBuddhaSetup, mapSetup, colorSetup], [inverseSetup, mapSetup, colorSetup], [complexSetup, mapSetup, colorSetup], [juliaSetupMouse, mapSetup, colorSetup], [inverseSetupAnimation, mapSetup, colorSetup], 
