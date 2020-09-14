@@ -20,7 +20,6 @@
 	<addTerm1>w += parameter*W;</addTerm1>,
 	<addTerm2>w += parameter*mat2(W,-W.y,W.x)*W;</addTerm2>,
 	<addTerm3>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm3>,
-	<addTerm4>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm4>,
 	<fourDegreePoly>
 	vec2 W = parameter.w*w+vec2(parameter.z,0);
 	W = mat2(W,-W.y,W.x)*w+vec2(parameter.y,0);
@@ -28,10 +27,17 @@
 	W = mat2(W,-W.y,W.x)*w+c;
 	w=W;
 	</fourDegreePoly>,
-	<addTerm5>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm5>,
-	<addTerm6>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm6>,
-	<addTerm7>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm7>,
-	<addTerm8>w += parameter*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*mat2(W,-W.y,W.x)*W;</addTerm8>,
+	<eightDegreePoly>
+	vec2 W = parameter.w*w+vec2(parameter.z, 0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter.y, 0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter.x, 0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.w,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.z,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.y,0);
+	W = mat2(W,-W.y,W.x)*w+vec2(parameter2.x,0);
+	W = mat2(W,-W.y,W.x)*w+c;
+	w=W;
+	</eightDegreePoly>,
 
 	// Header magic for certain buddhabrots
 	<firstMandelbrotIter>

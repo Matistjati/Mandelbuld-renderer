@@ -191,6 +191,7 @@ public:
 	static std::string GetSectionValue(std::string str);
 	static std::string SubString(std::string str, int begin, int end);
 	static std::string Trim(std::string str);
+	static std::string SubString(std::string str, size_t start, size_t end);
 	static void RemoveFirstCharIfEqual(std::string& str, char c = ' ');
 	static void CleanString(std::string& str, std::vector<char> chars);
 	static void CleanString(std::string& str, char c);

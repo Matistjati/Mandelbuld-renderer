@@ -29,7 +29,7 @@
 		>,
 		<
 			/*<GuiHint>GuiType: slider, Name: Coefficients, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
-			uniform vec4 coefficientsB = vec4(0); 
+			uniform vec4 coefficientsB = vec4(0);
 		>,
 	</uniforms>
 
@@ -37,8 +37,8 @@
 		<loopSetup>[[defaultBuddhaSetup, mapSetup, colorSetup], [inverseSetup, mapSetup, colorSetup], [complexSetup, mapSetup, colorSetup], [juliaSetupMouse, mapSetup, colorSetup], [inverseSetupAnimation, mapSetup, colorSetup], 
 					[inverseSetupAlt, mapSetup, colorSetup], ]</loopSetup>,
 		<loopBody>[[fourDegreePoly(coefficientsA)],
-				   [saveW, addTerm1(coefficientsA.x), addTerm2(coefficientsA.y), addTerm3(coefficientsA.z), addTerm4(coefficientsA.w),
-						   addTerm5(coefficientsB.x), addTerm6(coefficientsB.y), addTerm7(coefficientsB.z), addTerm8(coefficientsB.w), translate],]</loopBody>,
+				   [eightDegreePoly(coefficientsB, coefficientsA)],
+				   ]</loopBody>,
 		<loopTrap>incrementWPosition</loopTrap>,
 		<loopReturn>nothing</loopReturn>,
 		<loopBreakCondition>defaultBreak</loopBreakCondition>,

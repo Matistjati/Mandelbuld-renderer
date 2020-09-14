@@ -165,6 +165,11 @@ std::string Fractal::Trim(std::string str)
 	return str;
 }
 
+std::string Fractal::SubString(std::string str, size_t start, size_t end)
+{
+	return str.substr(start, end - start);
+}
+
 void Fractal::RemoveFirstCharIfEqual(std::string& str, char c)
 {
 	if (str[0] == c) str = str.substr(1);
@@ -2097,57 +2102,61 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 							{
 								std::vector<std::string> parameters = SplitNotInChar(parameterValue, ',', { { '(', ')' } });
 
-								// The first parameter is simply named parameter instead of parameter0
-								// This causes conflict with the normal replace function, since it will match with parameter1, parameter2, etc.
-								if (parameters.size())
+								// Key: parameter number. Value: array of starting and ending positions of various parameter occurences
+								std::map<int, std::vector<std::pair<size_t, size_t>>> parameterLocations;
+
+
+								const size_t parameterLength = std::string("parameter").size();
+								size_t start = 0;
+								while (true)
 								{
-									while (true)
+									size_t parameterStart = newSection.find("parameter", start);
+
+									if (parameterStart == std::string::npos)
 									{
-										const size_t paramLength = std::string("parameter").size();
-										size_t start = newSection.find("parameter");
+										break;
+									}
 
-										if (start == std::string::npos) break;
-
-										// Prevent breaking cases like "parameter = parameter1 + parameter";
-
-										while (true)
+									std::string numbers = "";
+									size_t i;
+									for (i = parameterStart + parameterLength; i < newSection.size(); i++)
+									{
+										// Check if current char is an integer
+										if (newSection[i] > 47 && newSection[i] < 58)
 										{
-											if (start + paramLength < newSection.size())
-											{
-												if (newSection[start + paramLength] > 47 && newSection[start + paramLength] < 58)
-												{
-													size_t newStart = newSection.find("parameter", start + paramLength);
-
-													if (start == newStart || newStart == std::string::npos) goto loopEnd;
-													else start = newStart;
-												}
-												else
-												{
-													break;
-												}
-											}
-										}
-
-										char parameterPostfix = newSection[start + std::string("parameter").length()];
-										if (parameterPostfix < 48 || parameterPostfix > 57) // The postfix isn't a number
-										{
-											Replace(newSection, "parameter", parameters[0], start);
+											numbers += newSection[i];
 										}
 										else
 										{
 											break;
 										}
 									}
+									if (numbers == "") numbers = "0";
+
+									int parameterNumber = std::stoi(numbers);
+									if (parameterLocations[parameterNumber].size())
+									{
+										parameterLocations[parameterNumber].push_back(std::pair<size_t, size_t>(parameterStart, i));
+									}
+									else
+									{
+										parameterLocations[parameterNumber] = { std::pair<size_t, size_t>(parameterStart, i) };
+									}
+
+									start = i;
 								}
 
-								loopEnd:
-
-								if (parameters.size() > 1)
+								int offset = 0;
+								for (auto const& x : parameterLocations)
 								{
-									for (size_t i = 1; i < parameters.size(); i++)
+									for (size_t i = 0; i < x.second.size(); i++)
 									{
-										while (Replace(newSection, "parameter" + std::to_string(i), parameters[i])) {}
+										// Here lies the corpse of readability
+										int parameterIndex = (x.first == 0) ? 0 : x.first - 1; // The first parameter will be named parameter, while the second will be named parameter2. Go figure
+										newSection.replace(x.second[i].first + offset, x.second[i].second - x.second[i].first, parameters[parameterIndex]);
+										offset += parameters[parameterIndex].size() - (parameterLength + ((x.first == 0) ? 0 : std::to_string(parameterIndex).size()));
 									}
+									
 								}
 							}
 						}
