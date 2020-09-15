@@ -109,3 +109,15 @@
 		return bool(step(dot(z,z),0.062499999));
 	}
 </MandelbrotInteriorCheck>
+
+<map01ToInterval>
+vec2 map01ToInterval(vec2 value, vec4 range)
+{
+	return value*(range.zw-range.xy)+range.xy;
+}
+
+float map01ToInterval(float value, vec2 range)
+{
+	return value*(range.x-range.y)+range.x;
+}
+</map01ToInterval>

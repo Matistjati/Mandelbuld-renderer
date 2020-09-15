@@ -47,7 +47,6 @@
 				   [eightDegreePoly(coefficientsB, coefficientsA)],
 				   ]</loopBody>,
 		<loopTrap>incrementWPosition</loopTrap>,
-		<loopReturn>nothing</loopReturn>,
 		<loopBreakCondition>defaultBreak</loopBreakCondition>,
 	</mainLoop>
 }

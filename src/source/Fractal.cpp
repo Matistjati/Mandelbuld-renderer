@@ -49,6 +49,11 @@ bool Fractal::ReplaceSection(Section originSection, Section destSection, std::st
 	}
 	int startOrigin = index + originSection.start.length();
 	int endOrigin = origin.find(originSection.end, startOrigin);
+	if (endOrigin == std::string::npos)
+	{
+		DebugPrint("Could not find closing tag " + originSection.end);
+		BreakIfDebug();
+	}
 
 	return Replace(dest, destSection.start, origin.substr(startOrigin, endOrigin - startOrigin));
 }
@@ -2485,9 +2490,10 @@ void Fractal::ParseShader(std::string& source, std::string & final, const std::s
 	Section include("include");
 	std::string includes = GetSection(include, source);
 	
+	CleanString(includes, { ' ', '\t', '\n' });
+
 	if (includes != "")
 	{
-		CleanString(includes, { ' ', '\t', '\n' });
 
 		size_t includeStart = specSection.find("<include>");
 		size_t includeEnd = specSection.find("</include>");

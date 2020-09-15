@@ -1,5 +1,5 @@
 <include>
-	complexPow, complexSquare, hash, MandelbrotInteriorCheck, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue, 
+	complexPow, complexSquare, hash, MandelbrotInteriorCheck, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue 
 </include>
 
 
@@ -198,7 +198,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 				if (w.x<-100) continue;
 				mainLoop(w, area);
 			}
-
 		}
 	}
 </main>
@@ -489,17 +488,7 @@ vec2 getStartValue(uint hash, vec4 area)
 }
 </getStartValue>
 
-<map01ToInterval>
-vec2 map01ToInterval(vec2 value, vec4 range)
-{
-	return value*(range.zw-range.xy)+range.xy;
-}
 
-float map01ToInterval(float value, vec2 range)
-{
-	return value*(range.x-range.y)+range.x;
-}
-</map01ToInterval>
 
 
 <mainLoop>
@@ -518,7 +507,5 @@ float map01ToInterval(float value, vec2 range)
 
 			<loopBreakCondition>
 		}
-
-		return <loopReturn>
 	}
 </mainLoop>

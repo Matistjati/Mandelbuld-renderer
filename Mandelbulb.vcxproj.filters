@@ -172,6 +172,12 @@
     <None Include="shaders\2D\Fractals\buddhabrotRender.fs">
       <Filter>Resource Files\2D\Fractals</Filter>
     </None>
+    <None Include="shaders\2D\Fractals\rootDensity.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
+    </None>
+    <None Include="shaders\2D\Fractals\rootDensityRender.fs">
+      <Filter>Resource Files\2D\Fractals</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources.txt">
