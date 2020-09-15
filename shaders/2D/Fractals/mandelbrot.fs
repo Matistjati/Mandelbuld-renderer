@@ -10,7 +10,7 @@
 	uniform float colorPeriodicity = 0.1;
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color A, Parent: color</GuiHint>*/
-	uniform vec3 colorA = vec3(0.7, 0.5, 0.1);
+	uniform vec3 colorA = vec3(0.44, 0, 1);
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: color</GuiHint>*/
 	uniform vec3 colorB = vec3(0.2, 0.9, 0.9);

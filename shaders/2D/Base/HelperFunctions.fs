@@ -121,3 +121,15 @@ float map01ToInterval(float value, vec2 range)
 	return value*(range.x-range.y)+range.x;
 }
 </map01ToInterval>
+
+<evalPoly>
+vec2 EvalPoly(vec2 poly[size], vec2 x)
+{
+	vec2 sum = poly[0];
+	for (int i = 1; i < size; i++)
+	{
+		sum = mat2(sum,-sum.y,sum.x) * x + poly[i];
+	}
+	return sum;
+}
+</evalPoly>
