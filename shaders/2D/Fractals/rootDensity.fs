@@ -1,5 +1,5 @@
 <include>
-	polynomial, intersection,
+	polynomial, intersection, hash,
 </include>
 
 
@@ -43,7 +43,7 @@ layout(std430, binding = 0) buffer densityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 	
-	int degree = 9;
+	int degree = size-1;
 	vec2 poly[size];
 	vec2 roots[size-1];
 	for (int i = 0; i < size - 1; i++)
@@ -52,8 +52,12 @@ layout(std430, binding = 0) buffer densityMap
 	}
 	for (int i = 0; i < size; i++)
 	{
-		float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
+		uint hash = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+		float theta = abs(fract(sin(hash)*62758.5453123));
+		//float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
 		//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
+
+		//(theta > 0.5) ? 1 : -1,0
 		poly[i] = vec2(sin(theta),0);
 	}
 	
@@ -66,7 +70,7 @@ layout(std430, binding = 0) buffer densityMap
 
 	for (int i = 0; i < size - 1; i++)
 	{
-		vec2 root = roots[i];
+		vec2 root = mat2(0,-1,-1,0)*roots[i];
 
 		if(!InsideBox(root, area))
 		{
@@ -76,7 +80,7 @@ layout(std430, binding = 0) buffer densityMap
 
 		float y = round(screenSize.y-(root.y-area.y)*map.y);
 		int index = int(x + screenSize.x * (y + 0.5));
-		points[index] += vec4(0.4,0.2,0.8,0);
+		points[index] += vec4(0.8,0.8,0.2,0);
 	}
 
 	// Gpu debugging
