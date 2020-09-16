@@ -36,13 +36,15 @@ layout(std430, binding = 0) buffer densityMap
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 	
 	int degree = 2;
-	vec2 poly[size] = vec2[](vec2(2,0),vec2(-2,0),vec2(1,0));
+	vec2 poly[size] = vec2[](vec2(-1,0),vec2(-1,0),vec2(1,0));
 
+	vec2 root = FindRoot(poly, degree);
+	SyntheticDivision(poly, degree, root);
 	// Gpu debugging
-	vec2 difference = (FindRoot(poly, degree));
-	difference /= 10;
-	float signum = ((difference.x > 0) ? 0.5 : 0) + ((difference.y > 0) ? 0.25 : 0);
-	points[int(gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*screenSize.x)] = vec4(abs(difference.xy), signum, 1);
+	vec2 value = EvalPoly(poly, degree-1,vec2(0));
+	value /= 10;
+	float signum = ((value.x > 0) ? 0.5 : 0) + ((value.y > 0) ? 0.25 : 0);
+	points[int(gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*screenSize.x)] = vec4(abs(value.xy), signum, 1);
 </main>
 
 

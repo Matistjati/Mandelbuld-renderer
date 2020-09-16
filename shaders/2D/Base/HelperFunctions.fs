@@ -150,4 +150,16 @@ vec2 FindRoot(vec2 poly[size], int degree)
 
 	return root;
 }
+
+void SyntheticDivision(inout vec2 poly[size], int degree, vec2 root)
+{
+	vec2 coefficient = poly[0];
+
+	for (int i = 1; i < degree; i++)
+	{
+		coefficient *= root;
+		coefficient += poly[i];
+		poly[i] = coefficient;
+	}
+}
 </polynomial>
