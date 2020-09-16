@@ -1,5 +1,5 @@
 <include>
-	polynomial,
+	polynomial, intersection,
 </include>
 
 
@@ -53,6 +53,7 @@ layout(std430, binding = 0) buffer densityMap
 	for (int i = 0; i < size; i++)
 	{
 		float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
+		//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
 		poly[i] = vec2(sin(theta),0);
 	}
 	
@@ -65,9 +66,15 @@ layout(std430, binding = 0) buffer densityMap
 
 	for (int i = 0; i < size - 1; i++)
 	{
-		float x = round(clamp((roots[i].x-area.x)*map.x,0,screenSize.x)-0.5);
+		vec2 root = roots[i];
 
-		float y = round(screenSize.y-(roots[i].y-area.y)*map.y);
+		if(!InsideBox(root, area))
+		{
+			continue;
+		}
+		float x = round(clamp((root.x-area.x)*map.x,0,screenSize.x)-0.5);
+
+		float y = round(screenSize.y-(root.y-area.y)*map.y);
 		int index = int(x + screenSize.x * (y + 0.5));
 		points[index] += vec4(0.4,0.2,0.8,0);
 	}

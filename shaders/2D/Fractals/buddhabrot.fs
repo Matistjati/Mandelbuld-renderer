@@ -1,5 +1,5 @@
 <include>
-	complexPow, complexSquare, hash, MandelbrotInteriorCheck, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue 
+	intersection, complexPow, complexSquare, hash, MandelbrotInteriorCheck, map01ToInterval, complexTan, complexSin, EscapeCount, hslToRgb, getStartValue,
 </include>
 
 
@@ -155,7 +155,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 				vec4 w = desirability[index];
 
 				vec2 coord = project(w.xy, vec2(0));
-				if(insideBox(coord, area))
+				if(InsideBox(coord, area))
 				{
 					int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
 
@@ -175,7 +175,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 					{
 						z = mat2(z,-z.y,z.x)*z+c;
 						coord.xy = z;
-						if(!insideBox(coord, area))
+						if(!InsideBox(coord, area))
 						{
 							continue;
 						}
@@ -228,7 +228,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	vec2 coord = project(w,c);
 
-	if(!insideBox(coord, area))
+	if(!InsideBox(coord, area))
 	{
 		continue;
 	}
@@ -313,13 +313,6 @@ mat4 getPosMatrix(vec3 p)
 	ret[2] = vec4(0.0,0.0,1.0,p.z);   
 	ret[3] = vec4(0.0,0.0,0.0,1.0);
 	return ret;
-}
-
-
-bool insideBox(vec2 v, vec4 box)
-{
-	vec2 s = step(box.xy, v) - step(box.zw, v);
-	return bool(s.x * s.y);
 }
 
 vec2 project(vec2 w, vec2 c)
@@ -411,7 +404,7 @@ vec2 EscapeCount(vec2 w, vec4 area)
 			}
 			
 
-			if (insideBox(project(w,c),adjustedArea))
+			if (InsideBox(project(w,c),adjustedArea))
 			{
 				insideCount++;
 			}

@@ -180,3 +180,11 @@ void FindAllRoots(vec2 poly[size], int degree, inout vec2 roots[size-1])
 	}
 }
 </polynomial>
+
+<intersection>
+bool InsideBox(vec2 v, vec4 box)
+{
+	vec2 s = step(box.xy, v) - step(box.zw, v);
+	return bool(s.x * s.y);
+}
+</intersection>
