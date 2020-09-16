@@ -10,8 +10,11 @@
 
 
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 1024)</GuiHint>*/
-	uniform float maxIterations = 256;
+	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 30)</GuiHint>*/
+	uniform float maxIterations = 20;
+	
+	/*<GuiHint>GuiType: slider, Name: Min difference, Parent:renderParams, Range: (0, 1)</GuiHint>*/
+	uniform float epsilon = 0.001;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))

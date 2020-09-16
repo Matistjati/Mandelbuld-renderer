@@ -142,10 +142,15 @@ vec2 FindRoot(vec2 poly[size], int degree)
 		derivative[i] = poly[i] * (degree-i);
 	}
 
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < maxIterations; i++)
 	{
 		vec2 dy = EvalPoly(derivative, degree - 1, root);
-		root -= mat2(dy.x,-dy.y,dy.y,dy.x)* EvalPoly(poly, degree, root) / dot(dy,dy);
+		vec2 delta = mat2(dy.x,-dy.y,dy.y,dy.x)* EvalPoly(poly, degree, root) / dot(dy,dy);
+		if (dot(delta,delta) < epsilon*epsilon)
+		{
+			break;
+		}
+		root -= delta;
 	}
 
 	return root;
