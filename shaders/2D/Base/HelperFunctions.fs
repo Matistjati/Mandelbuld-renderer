@@ -122,14 +122,32 @@ float map01ToInterval(float value, vec2 range)
 }
 </map01ToInterval>
 
-<evalPoly>
-vec2 EvalPoly(vec2 poly[size], vec2 x)
+<polynomial>
+vec2 EvalPoly(vec2 poly[size], int degree, vec2 x)
 {
 	vec2 sum = poly[0];
-	for (int i = 1; i < size; i++)
+	for (int i = 1; i < degree+1; i++)
 	{
 		sum = mat2(sum,-sum.y,sum.x) * x + poly[i];
 	}
 	return sum;
 }
-</evalPoly>
+
+vec2 FindRoot(vec2 poly[size], int degree)
+{
+	vec2 root = vec2(1.694201337, 1.177013233960);
+	vec2 derivative[size];
+	for (int i = 0; i < degree; i++)
+	{
+		derivative[i] = poly[i] * (degree-i);
+	}
+
+	for (int i = 0; i < 20; i++)
+	{
+		vec2 dy = EvalPoly(derivative, degree - 1, root);
+		root -= mat2(dy.x,-dy.y,dy.y,dy.x)* EvalPoly(poly, degree, root) / dot(dy,dy);
+	}
+
+	return root;
+}
+</polynomial>
