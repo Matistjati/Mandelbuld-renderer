@@ -19,11 +19,11 @@ layout(std430, binding=0) buffer renderInput
 {
 	vec4 points[];
 };
-#define IndexPoints(X,Y) uint(X+(Y-step(3,Y)*3)*screenSize.x+screenSize.x)
+#define IndexPoints(X,Y) uint(X+Y*screenSize.x)
 </buffers>
 
 <main>
 	vec4 col = points[IndexPoints(gl_FragCoord.x, gl_FragCoord.y)];
 
-	color = vec4(col.xyz, 1);
+	color = vec4(col.xyz/(brightness*time), 1);
 </main>

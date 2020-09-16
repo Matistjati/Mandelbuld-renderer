@@ -157,9 +157,21 @@ void SyntheticDivision(inout vec2 poly[size], int degree, vec2 root)
 
 	for (int i = 1; i < degree; i++)
 	{
-		coefficient *= root;
+		coefficient = mat2(coefficient,-coefficient.y,coefficient.x) * root;
 		coefficient += poly[i];
 		poly[i] = coefficient;
+	}
+}
+
+void FindAllRoots(vec2 poly[size], int degree, inout vec2 roots[size-1])
+{
+	int originalDegree = degree;
+	for (int i = 0; i < originalDegree; i++)
+	{
+		roots[i] = FindRoot(poly, degree);
+
+		SyntheticDivision(poly, degree, roots[i]);
+		degree--;
 	}
 }
 </polynomial>
