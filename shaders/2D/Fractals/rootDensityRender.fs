@@ -3,7 +3,7 @@
 </flags>
 
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 10000), Parent: color</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 500), Parent: color</GuiHint>*/
 	uniform float brightness = 150;
 	
 	/*<GuiHint>GuiType: slider, Name: exposure, Range: (0, 2), Parent: color</GuiHint>*/
@@ -25,5 +25,5 @@ layout(std430, binding=0) buffer renderInput
 <main>
 	vec4 col = points[IndexPoints(gl_FragCoord.x, gl_FragCoord.y)];
 
-	color = vec4(col.xyz/(brightness*time), 1);
+	color = pow(vec4(col.xyz/(brightness/exposure*frame), 1), vec4(gamma));
 </main>

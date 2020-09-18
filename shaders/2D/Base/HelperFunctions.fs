@@ -135,7 +135,7 @@ vec2 EvalPoly(vec2 poly[size], int degree, vec2 x)
 
 vec2 FindRoot(vec2 poly[size], int degree)
 {
-	vec2 root = vec2(1.694201337, 1.177013233960);
+	vec2 root = startGuess;
 	vec2 derivative[size];
 	for (int i = 0; i < degree; i++)
 	{
@@ -178,6 +178,23 @@ void FindAllRoots(vec2 poly[size], int degree, inout vec2 roots[size-1])
 		SyntheticDivision(poly, degree, roots[i]);
 		degree--;
 	}
+
+	/*
+		for (int i = 0; i < originalDegree-5; i++)
+	{
+		roots[i] = FindRoot(poly, degree);
+
+		SyntheticDivision(poly, degree, roots[i]);
+		degree--;
+	}
+	for (int i = 0; i < 5; i++)
+	{
+		roots[i+originalDegree-5] = FindRoot(poly, degree);
+
+		SyntheticDivision(poly, degree, roots[i+originalDegree-5]);
+		degree--;
+	}
+	*/
 }
 </polynomial>
 
