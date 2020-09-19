@@ -1985,6 +1985,11 @@ void Fractal::BuildMainLoop(Section targetSection, std::string& source, const st
 		distanceStart = defaultSource.find(targetSection.start);
 		if (distanceStart == std::string::npos)
 		{
+			size_t distanceTarget = target.find(targetSection.start);
+			if (distanceTarget != std::string::npos)
+			{
+				Replace(target, targetSection.start, "");
+			}
 			DebugPrint("Error building distance estimator: could not find distance estimator section");
 			return;
 		}

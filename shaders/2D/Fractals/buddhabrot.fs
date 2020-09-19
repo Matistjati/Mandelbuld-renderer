@@ -81,9 +81,6 @@
 	/*<GuiHint>GuiType: Slider, Name: Chance for new point, Parent: renderParams, Range: (0, 1)</GuiHint>*/
 	uniform float mutationChance = 0.8;
 	
-	/*<GuiHint>GuiType: Slider, Name: Points Per Frame, Parent: renderParams, Range: (1, 5)</GuiHint>*/
-	uniform float pointsPerFrame = 1;
-	
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
 	/*<GuiHint>GuiType: Slider, Name: Render Area, Parent: renderParams, Range: (-10, 10)</GuiHint>*/
@@ -145,59 +142,55 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
 	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
-		for(int i = 0; i < pointsPerFrame; i++)
-		{
-			
-			if (renderDesirability)
-			{
-				vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
-				uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
-				vec4 w = desirability[index];
 
-				vec2 coord = project(w.xy, vec2(0));
-				if(InsideBox(coord, area))
+		if (renderDesirability)
+		{
+			vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
+			uint index = uint(gl_GlobalInvocationID.y*screenSize.x+gl_GlobalInvocationID.x); // Accessing desirability like a 2d array
+			vec4 w = desirability[index];
+
+			vec2 coord = project(w.xy, vec2(0));
+			if(InsideBox(coord, area))
+			{
+				int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
+
+				int y = int(screenSize.y-(coord.y-area.y)*map.y);
+				int imageIndex = int(x + screenSize.x * (y + 0.5));
+
+				points[imageIndex].xyz += w.w/maxIterations;
+			}
+
+
+
+			if (gl_GlobalInvocationID.xy == vec2(1))
+			{
+				vec2 c = clickPosition;
+				vec2 z = c;
+				for (float i = 0.; i < maxIterations*10; i++)
 				{
+					z = mat2(z,-z.y,z.x)*z+c;
+					coord.xy = z;
+					if(!InsideBox(coord, area))
+					{
+						continue;
+					}
 					int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
 
 					int y = int(screenSize.y-(coord.y-area.y)*map.y);
 					int imageIndex = int(x + screenSize.x * (y + 0.5));
 
-					points[imageIndex].xyz += w.w/maxIterations;
+					points[imageIndex].xyz += vec3(10000);
 				}
-
-
-
-				if (gl_GlobalInvocationID.xy == vec2(1))
-				{
-					vec2 c = clickPosition;
-					vec2 z = c;
-					for (float i = 0.; i < maxIterations*10; i++)
-					{
-						z = mat2(z,-z.y,z.x)*z+c;
-						coord.xy = z;
-						if(!InsideBox(coord, area))
-						{
-							continue;
-						}
-						int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
-
-						int y = int(screenSize.y-(coord.y-area.y)*map.y);
-						int imageIndex = int(x + screenSize.x * (y + 0.5));
-
-						points[imageIndex].xyz += vec3(10000);
-					}
-				}
+			}
 				
-				break;
-			}
-			else
-			{
-				uint seed = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+		}
+		else
+		{
+			uint seed = intHash(intHash(abs(int(frame))+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
 
-				vec2 w = getStartValue(seed, area);
-				if (w.x<-100) continue;
-				mainLoop(w, area);
-			}
+			vec2 w = getStartValue(seed, area);
+			if (w.x<-100) return;
+			mainLoop(w, area);
 		}
 	}
 </main>

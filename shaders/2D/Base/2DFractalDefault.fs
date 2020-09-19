@@ -94,35 +94,6 @@
 	<defaultBreak>if (dot(w,w) > escapeRadius) break;</defaultBreak>,
 </loopBreakCondition>
 
-<mainLoop>
-	vec3 mainLoop(vec2 c, out float iterations<extraParameters>)
-	{
-		<loopSetup>
-
-		float i = 0;
-		for (; i < maxIterations; i++)
-		{
-			<loopBody>
-
-			<loopExtraOperations>
-
-			<loopTrap>
-
-			<loopBreakCondition>
-		}
-
-		// Normalize iterations between 0 and 1
-		iterations = i/maxIterations;
-
-		// Reduce error for smooth coloring
-		w = mat2(w,-w.y,w.x)*w+c; i++;
-		w = mat2(w,-w.y,w.x)*w+c; i++;
-		w = mat2(w,-w.y,w.x)*w+c; i++;
-
-		return <loopReturn>
-	}
-</mainLoop>
-
 <main>
 	vec3 col = vec3(0.0);
 	int AA = int(antiAliasing);

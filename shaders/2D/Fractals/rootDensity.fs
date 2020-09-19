@@ -46,7 +46,7 @@ layout(std430, binding = 0) buffer densityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
-	const int size = 16;
+	const int size = 14;
 </constants>
 
 
@@ -57,7 +57,7 @@ layout(std430, binding = 0) buffer densityMap
 	
 	float polyIndex = 0;
 	float counter = 1;
-	const int polynomialDegree = 10;
+	const int polynomialDegree = 11;
 	vec2 poly[size];
 	vec2 roots[size-1];
 	for (int i = 0; i < size - 1; i++)
@@ -74,7 +74,7 @@ layout(std430, binding = 0) buffer densityMap
 		//(theta > 0.5) ? 1 : -1,0
 		float coefficient = cos(3.141592*float(hash));
 		coefficient = ((coefficient > 0) ? 1 : -1) + pow(coefficient,3);
-		poly[i] = vec2(coefficient, 0);
+		poly[i] = vec2(coefficient, imag);
 		polyIndex += max(poly[i].x,0);
 		counter *= 3;
 	}
@@ -107,11 +107,3 @@ layout(std430, binding = 0) buffer densityMap
 	float signum = ((value.x > 0) ? 0.5 : 0) + ((value.y > 0) ? 0.25 : 0);
 	points[int(gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*screenSize.x)] = vec4(abs(value.xy), signum, 1);*/
 </main>
-
-
-<mainLoop>
-	void mainLoop(vec2 c, vec4 area)
-	{
-
-	}
-</mainLoop>

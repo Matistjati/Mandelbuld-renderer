@@ -26,6 +26,36 @@
 </uniforms>
 
 
+<mainLoop>
+	vec3 mainLoop(vec2 c, out float iterations<extraParameters>)
+	{
+		<loopSetup>
+
+		float i = 0;
+		for (; i < maxIterations; i++)
+		{
+			<loopBody>
+
+			<loopExtraOperations>
+
+			<loopTrap>
+
+			<loopBreakCondition>
+		}
+
+		// Normalize iterations between 0 and 1
+		iterations = i/maxIterations;
+
+		// Reduce error for smooth coloring
+		w = mat2(w,-w.y,w.x)*w+c; i++;
+		w = mat2(w,-w.y,w.x)*w+c; i++;
+		w = mat2(w,-w.y,w.x)*w+c; i++;
+
+		return <loopReturn>
+	}
+</mainLoop>
+
+
 <loopReturn>
 	<escapeColorLast>periodicLastPositionColor(w, parameter);</escapeColorLast>,
 </loopReturn>
