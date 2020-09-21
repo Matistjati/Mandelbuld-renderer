@@ -72,7 +72,9 @@ layout(std430, binding = 0) buffer densityMap
 		//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
 
 		//(theta > 0.5) ? 1 : -1,0
-		poly[i] = vec2(cos(3.141592*float(hash)),cos(3.141592*float(intHash(hash))));
+		float coefficient = cos(3.141592*float(hash));
+		coefficient = ((coefficient > 0) ? 1 : -1) + pow(coefficient,3);
+		poly[i] = vec2(coefficient, 0);
 		polyIndex += max(poly[i].x,0);
 		counter *= 3;
 	}
