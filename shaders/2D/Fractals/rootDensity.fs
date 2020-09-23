@@ -46,7 +46,7 @@ layout(std430, binding = 0) buffer densityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
-	const int size = 14;
+	const int size = 16;
 </constants>
 
 
@@ -57,7 +57,7 @@ layout(std430, binding = 0) buffer densityMap
 	
 	float polyIndex = 0;
 	float counter = 1;
-	const int polynomialDegree = 11;
+	int polynomialDegree = size-1;
 	vec2 poly[size];
 	vec2 roots[size-1];
 	for (int i = 0; i < size - 1; i++)
@@ -73,13 +73,29 @@ layout(std430, binding = 0) buffer densityMap
 
 		//(theta > 0.5) ? 1 : -1,0
 		float coefficient = cos(3.141592*float(hash));
-		coefficient = ((coefficient > 0) ? 1 : -1) + pow(coefficient,3);
+		coefficient = ((coefficient > 0) ? 1 : -1) + coefficient;
 		poly[i] = vec2(coefficient, imag);
 		polyIndex += max(poly[i].x,0);
 		counter *= 3;
 	}
 	
-	FindAllRoots(poly, polynomialDegree, roots);
+	int originalDegree = polynomialDegree;
+	for (int i = 0; i < originalDegree; i++)
+	{
+		roots[i] = FindRoot(poly, polynomialDegree);
+
+		vec2 coefficient = poly[0];
+
+		for (int j = 1; j < polynomialDegree; j++)
+		{
+			coefficient = mat2(coefficient,-coefficient.y,coefficient.x) * roots[i];
+			coefficient += poly[j];
+			poly[j] = coefficient;
+		}
+
+
+		polynomialDegree--;
+	}
 
 	vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
 	vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;

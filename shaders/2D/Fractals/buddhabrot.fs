@@ -110,7 +110,6 @@ layout(std430, binding = 1) buffer desirabilityMap
 </buffers>
 
 <constants>
-	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
 	// Numerical constants
 	#define PI_ONE_POINT_FIVE 4.7123889803846898576939650749192543262957540990626587

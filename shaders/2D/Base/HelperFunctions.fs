@@ -123,15 +123,6 @@ float map01ToInterval(float value, vec2 range)
 </map01ToInterval>
 
 <polynomial>
-vec2 EvalPoly(vec2 poly[size], int degree, vec2 x)
-{
-	vec2 sum = poly[0];
-	for (int i = 1; i < degree+1; i++)
-	{
-		sum = mat2(sum,-sum.y,sum.x) * x + poly[i];
-	}
-	return sum;
-}
 
 vec2 FindRoot(vec2 poly[size], int degree)
 {
@@ -144,8 +135,20 @@ vec2 FindRoot(vec2 poly[size], int degree)
 
 	for (int i = 0; i < maxIterations; i++)
 	{
-		vec2 dy = EvalPoly(derivative, degree - 1, root);
-		vec2 delta = mat2(dy.x,-dy.y,dy.y,dy.x)* EvalPoly(poly, degree, root) / dot(dy,dy);
+		vec2 sum = derivative[0];
+		for (int i = 1; i < degree; i++)
+		{
+			sum = mat2(sum,-sum.y,sum.x) * root + derivative[i];
+		}
+
+		vec2 dy = sum;
+
+		vec2 sum2 = poly[0];
+		for (int i = 1; i < degree+1; i++)
+		{
+			sum2 = mat2(sum2,-sum2.y,sum2.x) * root + poly[i];
+		}
+		vec2 delta = mat2(dy.x,-dy.y,dy.y,dy.x)* sum2 / dot(dy,dy);
 		if (dot(delta,delta) < epsilon*epsilon)
 		{
 			break;
@@ -156,46 +159,6 @@ vec2 FindRoot(vec2 poly[size], int degree)
 	return root;
 }
 
-void SyntheticDivision(inout vec2 poly[size], int degree, vec2 root)
-{
-	vec2 coefficient = poly[0];
-
-	for (int i = 1; i < degree; i++)
-	{
-		coefficient = mat2(coefficient,-coefficient.y,coefficient.x) * root;
-		coefficient += poly[i];
-		poly[i] = coefficient;
-	}
-}
-
-void FindAllRoots(vec2 poly[size], int degree, inout vec2 roots[size-1])
-{
-	int originalDegree = degree;
-	for (int i = 0; i < originalDegree; i++)
-	{
-		roots[i] = FindRoot(poly, degree);
-
-		SyntheticDivision(poly, degree, roots[i]);
-		degree--;
-	}
-
-	/*
-		for (int i = 0; i < originalDegree-5; i++)
-	{
-		roots[i] = FindRoot(poly, degree);
-
-		SyntheticDivision(poly, degree, roots[i]);
-		degree--;
-	}
-	for (int i = 0; i < 5; i++)
-	{
-		roots[i+originalDegree-5] = FindRoot(poly, degree);
-
-		SyntheticDivision(poly, degree, roots[i+originalDegree-5]);
-		degree--;
-	}
-	*/
-}
 </polynomial>
 
 <intersection>
