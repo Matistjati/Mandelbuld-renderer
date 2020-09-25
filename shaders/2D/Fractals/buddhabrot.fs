@@ -122,25 +122,25 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 
-	vec4 area;
-	if (view3D)
-	{
-		area = renderArea;
-	}
-	else
-	{
-		// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
-		// To accomplish this, we want to find a number b, such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
-		// Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
-		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
-		area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
-		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
-	}
 
 	// Computing long paths are expensive. To run at a decent framerate, we don't render points for every pixel
 	// renderSize is raised to the 4th power, due to the slider being linear while renderSize is not. We do not use "pow(renderSize, 4)", as this is most likely slower than multiplying it by itself 4 times
 	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
+		vec4 area;
+		if (view3D)
+		{
+			area = renderArea;
+		}
+		else
+		{
+			// When multiplying to zoom, we zoom towards 0. However, we want to zoom towards the midPoint of screenSize.x and screenSize.z.
+			// To accomplish this, we want to find a number b, such that "renderArea.x+b=renderArea.z+b". Solving this equation yields the definition of midPoint.
+			// Thus, we add b to both screenSize.x and screenSize.z sides such that 0 is in the center and then translate back by subtracting b.
+			vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
+			area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
+			area += vec4(position.xyxy)*vec4(1,-1,1,-1);
+		}
 
 		if (renderDesirability)
 		{

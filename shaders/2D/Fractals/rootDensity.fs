@@ -22,11 +22,17 @@
 	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: color</GuiHint>*/
 	uniform vec3 colB = vec3(0.2, 0.9, 0.9);
 
-	/*<GuiHint>GuiType: slider, Name: Degree, Parent:renderParams, Range: (-2, 2)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Degree, Parent: renderParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec2 startGuess = vec2(1.694201337, 1.177013233960);
 	
-	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent:renderParams, Range: (-100, 100)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent: renderParams, Range: (-100, 100)</GuiHint>*/
 	uniform float imag = 0;
+	
+	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: renderParams, Range: (0.0001, 1)</GuiHint>*/
+	uniform float coefficientSize = 0.01;
+
+	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
+	uniform float renderSize = 0.1;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
@@ -46,7 +52,7 @@ layout(std430, binding = 0) buffer densityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
-	const int size = 16;
+	const int size = 20;
 </constants>
 
 
@@ -55,66 +61,69 @@ layout(std430, binding = 0) buffer densityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 	
-	float polyIndex = 0;
-	float counter = 1;
-	int polynomialDegree = size-1;
-	vec2 poly[size];
-	vec2 roots[size-1];
-	for (int i = 0; i < size - 1; i++)
+	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
-		roots[i] = vec2(0);
-	}
-	for (int i = 0; i < size; i++)
-	{
-		uint hash = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
-		//float theta = abs(fract(sin(hash)*62758.5453123));
-		//float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
-		//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
+		float polyIndex = 0;
+		float counter = 1;
+		int polynomialDegree = size-1;
+		vec2 poly[size];
+		vec2 roots[size-1];
+		for (int i = 0; i < size - 1; i++)
+		{
+			roots[i] = vec2(0);
+		}
+		for (int i = 0; i < size; i++)
+		{
+			uint hash = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+			//float theta = abs(fract(sin(hash)*62758.5453123));
+			//float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
+			//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
 
-		//(theta > 0.5) ? 1 : -1,0
-		float coefficient = cos(3.141592*float(hash));
-		coefficient = ((coefficient > 0) ? 1 : -1) + coefficient;
-		poly[i] = vec2(coefficient, imag);
-		polyIndex += max(poly[i].x,0);
-		counter *= 3;
-	}
+			//(theta > 0.5) ? 1 : -1,0
+			float coefficient = cos(3.141592*float(hash));
+			coefficient = ((coefficient > 0) ? 1 : -1) + coefficient * coefficientSize;
+			poly[i] = vec2(coefficient, imag);
+			polyIndex += max(poly[i].x,0);
+			counter *= 3;
+		}
 	
-	int originalDegree = polynomialDegree;
-	for (int i = 0; i < originalDegree; i++)
-	{
-		roots[i] = FindRoot(poly, polynomialDegree);
-
-		vec2 coefficient = poly[0];
-
-		for (int j = 1; j < polynomialDegree; j++)
+		int originalDegree = polynomialDegree;
+		for (int i = 0; i < originalDegree; i++)
 		{
-			coefficient = mat2(coefficient,-coefficient.y,coefficient.x) * roots[i];
-			coefficient += poly[j];
-			poly[j] = coefficient;
+			roots[i] = FindRoot(poly, polynomialDegree);
+
+			vec2 coefficient = poly[0];
+
+			for (int j = 1; j < polynomialDegree; j++)
+			{
+				coefficient = mat2(coefficient,-coefficient.y,coefficient.x) * roots[i];
+				coefficient += poly[j];
+				poly[j] = coefficient;
+			}
+
+
+			polynomialDegree--;
 		}
 
+		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
+		vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
+		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
+		vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
 
-		polynomialDegree--;
-	}
-
-	vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
-	vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
-	area += vec4(position.xyxy)*vec4(1,-1,1,-1);
-	vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
-
-	for (int i = 0; i < size - 1; i++)
-	{
-		vec2 root = mat2(0,-1,-1,0)*roots[i];
-
-		if(!InsideBox(root, area))
+		for (int i = 0; i < size - 1; i++)
 		{
-			continue;
-		}
-		float x = round(clamp((root.x-area.x)*map.x,0,screenSize.x)-0.5);
+			vec2 root = mat2(0,-1,-1,0)*roots[i];
 
-		float y = round(screenSize.y-(root.y-area.y)*map.y);
-		int index = int(x + screenSize.x * (y + 0.5));
-		points[index] += vec4((cos(colA + colB * polyIndex/17000*100) * -0.5 + 0.5)*10,0);
+			if(!InsideBox(root, area))
+			{
+				continue;
+			}
+			float x = round(clamp((root.x-area.x)*map.x,0,screenSize.x)-0.5);
+
+			float y = round(screenSize.y-(root.y-area.y)*map.y);
+			int index = int(x + screenSize.x * (y + 0.5));
+			points[index] += vec4((cos(colA + colB * polyIndex/17000*100) * -0.5 + 0.5)*10,0);
+		}
 	}
 
 	// Gpu debugging
