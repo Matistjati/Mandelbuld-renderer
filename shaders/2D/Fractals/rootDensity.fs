@@ -75,7 +75,7 @@ layout(std430, binding = 0) buffer densityMap
 		}
 		for (int i = 0; i < size; i++)
 		{
-			uint hash = intHash(intHash(abs(int(frame))+i*2+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+			uint hash = intHash(intHash(abs(int(frame))+i*308703+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
 			//float theta = abs(fract(sin(hash)*62758.5453123));
 			//float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
 			//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
@@ -84,8 +84,8 @@ layout(std430, binding = 0) buffer densityMap
 			float coefficient = cos(3.141592*float(hash));
 			coefficient = ((coefficient > 0) ? 1 : -1) + coefficient * coefficientSize;
 			poly[i] = vec2(coefficient, imag);
-			polyIndex += max(poly[i].x,0);
-			counter *= 3;
+			polyIndex += coefficient;
+			counter *= 2;
 		}
 		/*
 		for (int i = 0; i < size; i++)
@@ -99,7 +99,7 @@ layout(std430, binding = 0) buffer densityMap
 		int originalDegree = polynomialDegree;
 		for (int i = 0; i < originalDegree; i++)
 		{
-			roots[i] = FindRoot(poly, polynomialDegree);
+			roots[i] = FindRoot(poly, polynomialDegree, uint(polyIndex));
 
 			vec2 coefficient = poly[0];
 
