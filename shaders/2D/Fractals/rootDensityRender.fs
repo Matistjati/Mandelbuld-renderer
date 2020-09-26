@@ -4,7 +4,7 @@
 
 <uniforms>
 	/*<GuiHint>GuiType: slider, Name: Brightness, Range: (1, 500), Parent: color</GuiHint>*/
-	uniform float brightness = 150;
+	uniform float brightness = 2;
 	
 	/*<GuiHint>GuiType: slider, Name: exposure, Range: (0, 2), Parent: color</GuiHint>*/
 	uniform float exposure = 1;

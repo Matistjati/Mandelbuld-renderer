@@ -21,10 +21,9 @@
 
 	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: color</GuiHint>*/
 	uniform vec3 colB = vec3(0.2, 0.9, 0.9);
-
-	// TODO: remove or reword
-	/*<GuiHint>GuiType: slider, Name: Starting guess, Parent: renderParams, Range: (-2, 2)</GuiHint>*/
-	uniform vec2 startGuess = vec2(1.694201337, 1.177013233960);
+	
+	/*<GuiHint>GuiType: slider, Name: Color frequency, Parent: color, Range: (0, 100)</GuiHint>*/
+	uniform float frequency = 8;
 	
 	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent: renderParams, Range: (-100, 100)</GuiHint>*/
 	uniform float imag = 0;
@@ -65,7 +64,6 @@ layout(std430, binding = 0) buffer densityMap
 	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) && gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
 		float polyIndex = 0;
-		float counter = 1;
 		int polynomialDegree = size-1;
 		vec2 poly[size];
 		vec2 roots[size-1];
@@ -76,16 +74,11 @@ layout(std430, binding = 0) buffer densityMap
 		for (int i = 0; i < size; i++)
 		{
 			uint hash = intHash(intHash(abs(int(frame))+i*308703+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
-			//float theta = abs(fract(sin(hash)*62758.5453123));
-			//float theta = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
-			//float r = i*float(gl_GlobalInvocationID.x)*float(gl_GlobalInvocationID.y)*time;
-
-			//(theta > 0.5) ? 1 : -1,0
+			
 			float coefficient = cos(3.141592*float(hash));
 			coefficient = ((coefficient > 0) ? 1 : -1) + coefficient * coefficientSize;
 			poly[i] = vec2(coefficient, imag);
-			polyIndex += coefficient;
-			counter *= 2;
+			polyIndex += max(coefficient, 0);
 		}
 		/*
 		for (int i = 0; i < size; i++)
@@ -131,7 +124,7 @@ layout(std430, binding = 0) buffer densityMap
 
 			float y = round(screenSize.y-(root.y-area.y)*map.y);
 			int index = int(x + screenSize.x * (y + 0.5));
-			points[index] += vec4((cos(colA + colB * polyIndex/17000*100) * -0.5 + 0.5)*10,0);
+			points[index] += vec4((cos(colA + colB * polyIndex/20 * frequency) * -0.5 + 0.5)*10,0);
 		}
 		/*
 		// Gpu debugging
