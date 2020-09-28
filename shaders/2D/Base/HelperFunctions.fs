@@ -123,6 +123,8 @@ float map01ToInterval(float value, vec2 range)
 </map01ToInterval>
 
 <polynomial>
+#define cDiv(a,b) mat2(b.x,-b.y,b.y,b.x) * a / dot(b,b)
+#define cMul(a,b) mat2(a,-a.y,a.x) * b
 
 vec2 FindRoot(vec2 poly[size], int degree, uint seed)
 {
@@ -137,20 +139,20 @@ vec2 FindRoot(vec2 poly[size], int degree, uint seed)
 
 	for (int i = 0; i < maxIterations; i++)
 	{
-		vec2 sum = derivative[0];
+		vec2 dy = derivative[0];
 		for (int i = 1; i < degree; i++)
 		{
-			sum = mat2(sum,-sum.y,sum.x) * root + derivative[i];
+			dy = mat2(dy,-dy.y,dy.x) * root + derivative[i];
 		}
 
-		vec2 dy = sum;
 
-		vec2 sum2 = poly[0];
+		vec2 y = poly[0];
 		for (int i = 1; i < degree+1; i++)
 		{
-			sum2 = mat2(sum2,-sum2.y,sum2.x) * root + poly[i];
+			y = mat2(y,-y.y,y.x) * root + poly[i];
 		}
-		vec2 delta = mat2(dy.x,-dy.y,dy.y,dy.x)* sum2 / dot(dy,dy);
+		vec2 delta = mat2(dy.x,-dy.y,dy.y,dy.x)* y / dot(dy,dy);
+
 		if (dot(delta,delta) < epsilon*epsilon)
 		{
 			break;
@@ -159,6 +161,65 @@ vec2 FindRoot(vec2 poly[size], int degree, uint seed)
 	}
 
 	return root;
+}
+
+vec2 EvalPoly(vec2 poly[size], int degree, vec2 x)
+{
+	vec2 sum = poly[0];
+	for (int i = 1; i < degree+1; i++)
+	{
+		sum = mat2(sum,-sum.y,sum.x) * x + poly[i];
+	}
+	return sum;
+}
+
+void FindAllRootsDurand(inout vec2 roots[size-1], vec2 poly[size], int degree)
+{
+	vec2 leading = poly[0];
+	for (int i = 0; i < size; i++)
+	{
+		poly[i] = cDiv(poly[i], leading);
+	}
+
+	vec2 oldRoots[size-1];
+	for (int i = 0; i < size - 1; i++)
+	{
+		roots[i] = complexPow(vec2(0.4,0.9), i);
+		oldRoots[i] = vec2(0);
+	}
+    
+	for (int iteration = 0; iteration < maxIterations; iteration++)
+	{
+		for (int i = 0; i < size - 1; i++)
+		{
+			oldRoots[i] = roots[i];
+		}
+		vec2 delta = vec2(0);
+
+		for (int i = 0; i < size - 1; i++)
+		{
+			vec2 product = vec2(1,0);
+			for (int j = 0; j < size - 1; j++)
+			{
+				if (i==j)
+				{
+					continue;
+				}
+
+				product = cMul(product, roots[i]-oldRoots[j]);
+			}
+			vec2 y = EvalPoly(poly, degree, roots[i]);
+			vec2 d = cDiv(y, product);
+			delta+=abs(d);
+			roots[i] -= d;
+		}
+
+		delta/=size;
+		if (dot(delta, delta) < epsilon*epsilon)
+		{
+			break;
+		}
+	}
 }
 
 </polynomial>

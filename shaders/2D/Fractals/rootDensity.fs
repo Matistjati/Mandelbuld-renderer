@@ -1,5 +1,5 @@
 <include>
-	intersection, hash, polynomial
+	complexPow, intersection, hash, polynomial
 </include>
 
 
@@ -32,7 +32,7 @@
 	uniform float coefficientSize = 0.0;
 
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderSize = 0.5;
+	uniform float renderSize = 0.2;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
@@ -88,7 +88,10 @@ layout(std430, binding = 0) buffer densityMap
 		poly[0] = vec2(1,0);
 		poly[size-1] = vec2(-1,0);
 		*/
-	
+		
+		FindAllRootsDurand(roots, poly, polynomialDegree);
+
+		/*
 		int originalDegree = polynomialDegree;
 		for (int i = 0; i < originalDegree; i++)
 		{
@@ -106,6 +109,7 @@ layout(std430, binding = 0) buffer densityMap
 
 			polynomialDegree--;
 		}
+		*/
 
 		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
 		vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
