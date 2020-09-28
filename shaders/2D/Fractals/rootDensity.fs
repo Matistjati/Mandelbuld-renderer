@@ -1,5 +1,5 @@
 <include>
-	polynomial, intersection, hash,
+	intersection, hash, polynomial
 </include>
 
 
@@ -22,17 +22,18 @@
 	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: color</GuiHint>*/
 	uniform vec3 colB = vec3(0.2, 0.9, 0.9);
 
-	/*<GuiHint>GuiType: slider, Name: Degree, Parent: renderParams, Range: (-2, 2)</GuiHint>*/
+	// TODO: remove or reword
+	/*<GuiHint>GuiType: slider, Name: Starting guess, Parent: renderParams, Range: (-2, 2)</GuiHint>*/
 	uniform vec2 startGuess = vec2(1.694201337, 1.177013233960);
 	
 	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent: renderParams, Range: (-100, 100)</GuiHint>*/
 	uniform float imag = 0;
 	
-	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: renderParams, Range: (0.0001, 1)</GuiHint>*/
-	uniform float coefficientSize = 0.01;
+	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: renderParams, Range: (0, 1)</GuiHint>*/
+	uniform float coefficientSize = 0.0;
 
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderSize = 0.1;
+	uniform float renderSize = 0.5;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
@@ -52,7 +53,7 @@ layout(std430, binding = 0) buffer densityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
-	const int size = 20;
+	const int size = 24;
 </constants>
 
 
@@ -61,7 +62,7 @@ layout(std430, binding = 0) buffer densityMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 	
-	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) || gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
+	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) && gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
 		float polyIndex = 0;
 		float counter = 1;
@@ -86,6 +87,14 @@ layout(std430, binding = 0) buffer densityMap
 			polyIndex += max(poly[i].x,0);
 			counter *= 3;
 		}
+		/*
+		for (int i = 0; i < size; i++)
+		{
+			poly[i] = vec2(0);
+		}
+		poly[0] = vec2(1,0);
+		poly[size-1] = vec2(-1,0);
+		*/
 	
 		int originalDegree = polynomialDegree;
 		for (int i = 0; i < originalDegree; i++)
@@ -124,11 +133,14 @@ layout(std430, binding = 0) buffer densityMap
 			int index = int(x + screenSize.x * (y + 0.5));
 			points[index] += vec4((cos(colA + colB * polyIndex/17000*100) * -0.5 + 0.5)*10,0);
 		}
+		/*
+		// Gpu debugging
+		vec2 value = abs(roots[1]);
+		value /= 1;
+		float signum = ((value.x > 0) ? 0.5 : 0) + ((value.y > 0) ? 0.25 : 0);
+		points[int(gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*screenSize.x)] = vec4(abs(value.xy), signum, 1);
+		*/
 	}
 
-	// Gpu debugging
-	/*vec2 value = abs(roots[2]);
-	value /= 10;
-	float signum = ((value.x > 0) ? 0.5 : 0) + ((value.y > 0) ? 0.25 : 0);
-	points[int(gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*screenSize.x)] = vec4(abs(value.xy), signum, 1);*/
+	
 </main>

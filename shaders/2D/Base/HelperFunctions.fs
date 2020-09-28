@@ -126,7 +126,10 @@ float map01ToInterval(float value, vec2 range)
 
 vec2 FindRoot(vec2 poly[size], int degree)
 {
-	vec2 root = startGuess;
+	// TODO: better random function you monkey
+	uint hash = intHash(intHash(abs(int(frame))+degree*177013+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+	vec2 root = hash2(hash, hash);
+	root = root.x * vec2(cos(root.y*6.28318530718), sin(root.y*6.28318530718));
 	vec2 derivative[size];
 	for (int i = 0; i < degree; i++)
 	{

@@ -26,4 +26,5 @@ layout(std430, binding=0) buffer renderInput
 	vec4 col = points[IndexPoints(gl_FragCoord.x, gl_FragCoord.y)];
 
 	color = pow(vec4(col.xyz/(brightness/exposure*frame), 1), vec4(gamma));
+	//color = vec4(col.xyz, 1);
 </main>
