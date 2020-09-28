@@ -32,7 +32,7 @@
 	uniform float coefficientSize = 0.0;
 
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderSize = 0.2;
+	uniform float renderSize = 0.5;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
@@ -52,7 +52,7 @@ layout(std430, binding = 0) buffer densityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
-	const int size = 24;
+	const int size = 20;
 </constants>
 
 
@@ -71,6 +71,8 @@ layout(std430, binding = 0) buffer densityMap
 		{
 			roots[i] = vec2(0);
 		}
+
+
 		for (int i = 0; i < size; i++)
 		{
 			uint hash = intHash(intHash(abs(int(frame))+i*308703+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
@@ -89,7 +91,54 @@ layout(std430, binding = 0) buffer densityMap
 		poly[size-1] = vec2(-1,0);
 		*/
 		
-		FindAllRootsDurand(roots, poly, polynomialDegree);
+		vec2 leading = poly[0];
+		for (int i = 0; i < size; i++)
+		{
+			poly[i] = cDiv(poly[i], leading);
+		}
+
+		vec2 oldRoots[size-1];
+		for (int i = 0; i < size - 1; i++)
+		{
+			roots[i] = complexPow(vec2(0.4,0.9), i);
+			oldRoots[i] = vec2(0);
+		}
+    
+		for (int iteration = 0; iteration < maxIterations; iteration++)
+		{
+			for (int i = 0; i < size - 1; i++)
+			{
+				oldRoots[i] = roots[i];
+			}
+			bool done = true;
+
+			for (int i = 0; i < size - 1; i++)
+			{
+				vec2 product = vec2(1,0);
+				for (int j = 0; j < size - 1; j++)
+				{
+					if (i==j)
+					{
+						continue;
+					}
+
+					product = mat2(product, -product.y, product.x) * (oldRoots[i]-oldRoots[j]);
+				}
+				vec2 y = EvalPoly(poly, polynomialDegree, oldRoots[i]);
+				vec2 d = cDiv(y, product);
+				if (dot(d, d) > epsilon*epsilon)
+				{
+					done = false;
+				}
+				roots[i] -= d;
+			}
+
+		
+			if (done)
+			{
+				break;
+			}
+		}
 
 		/*
 		int originalDegree = polynomialDegree;
@@ -108,8 +157,8 @@ layout(std430, binding = 0) buffer densityMap
 
 
 			polynomialDegree--;
-		}
-		*/
+		}*/
+		
 
 		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
 		vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
@@ -133,8 +182,8 @@ layout(std430, binding = 0) buffer densityMap
 		}
 		/*
 		// Gpu debugging
-		vec2 value = abs(roots[1]);
-		value /= 1;
+		vec2 value = roots[0];
+		value /= 5;
 		float signum = ((value.x > 0) ? 0.5 : 0) + ((value.y > 0) ? 0.25 : 0);
 		points[int(gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*screenSize.x)] = vec4(abs(value.xy), signum, 1);
 		*/

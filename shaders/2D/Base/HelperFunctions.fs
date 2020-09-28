@@ -173,55 +173,6 @@ vec2 EvalPoly(vec2 poly[size], int degree, vec2 x)
 	return sum;
 }
 
-void FindAllRootsDurand(inout vec2 roots[size-1], vec2 poly[size], int degree)
-{
-	vec2 leading = poly[0];
-	for (int i = 0; i < size; i++)
-	{
-		poly[i] = cDiv(poly[i], leading);
-	}
-
-	vec2 oldRoots[size-1];
-	for (int i = 0; i < size - 1; i++)
-	{
-		roots[i] = complexPow(vec2(0.4,0.9), i);
-		oldRoots[i] = vec2(0);
-	}
-    
-	for (int iteration = 0; iteration < maxIterations; iteration++)
-	{
-		for (int i = 0; i < size - 1; i++)
-		{
-			oldRoots[i] = roots[i];
-		}
-		vec2 delta = vec2(0);
-
-		for (int i = 0; i < size - 1; i++)
-		{
-			vec2 product = vec2(1,0);
-			for (int j = 0; j < size - 1; j++)
-			{
-				if (i==j)
-				{
-					continue;
-				}
-
-				product = cMul(product, roots[i]-oldRoots[j]);
-			}
-			vec2 y = EvalPoly(poly, degree, roots[i]);
-			vec2 d = cDiv(y, product);
-			delta+=abs(d);
-			roots[i] -= d;
-		}
-
-		delta/=size;
-		if (dot(delta, delta) < epsilon*epsilon)
-		{
-			break;
-		}
-	}
-}
-
 </polynomial>
 
 <intersection>
