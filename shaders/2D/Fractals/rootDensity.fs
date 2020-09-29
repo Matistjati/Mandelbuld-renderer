@@ -52,7 +52,7 @@ layout(std430, binding = 0) buffer densityMap
 <constants>
 	// Compute shaders are weird, for some reason i need to shift x
 	#define IndexPoints(X,Y) uint((X)+(Y)*screenSize.x)
-	const int size = 20;
+	const int size = 24;
 </constants>
 
 
@@ -82,15 +82,9 @@ layout(std430, binding = 0) buffer densityMap
 			poly[i] = vec2(coefficient, imag);
 			polyIndex += max(coefficient, 0);
 		}
-		/*
-		for (int i = 0; i < size; i++)
-		{
-			poly[i] = vec2(0);
-		}
-		poly[0] = vec2(1,0);
-		poly[size-1] = vec2(-1,0);
-		*/
+
 		
+
 		vec2 leading = poly[0];
 		for (int i = 0; i < size; i++)
 		{
@@ -100,7 +94,9 @@ layout(std430, binding = 0) buffer densityMap
 		vec2 oldRoots[size-1];
 		for (int i = 0; i < size - 1; i++)
 		{
-			roots[i] = complexPow(vec2(0.4,0.9), i);
+			// A point very close to but not on the unit circle
+			//roots[i] = complexPow(vec2(0.4,0.9), i);
+			roots[i] = complexPow(vec2(cos(1.15)-0.0001,sin(1.15)-0.0001), i);
 			oldRoots[i] = vec2(0);
 		}
     
@@ -124,7 +120,12 @@ layout(std430, binding = 0) buffer densityMap
 
 					product = mat2(product, -product.y, product.x) * (oldRoots[i]-oldRoots[j]);
 				}
-				vec2 y = EvalPoly(poly, polynomialDegree, oldRoots[i]);
+				vec2 y = poly[0];
+				for (int j = 1; j < polynomialDegree+1; j++)
+				{
+					y = mat2(y,-y.y,y.x) * oldRoots[i] + poly[j];
+				}
+
 				vec2 d = cDiv(y, product);
 				if (dot(d, d) > epsilon*epsilon)
 				{

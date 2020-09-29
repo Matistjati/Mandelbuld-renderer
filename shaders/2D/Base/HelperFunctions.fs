@@ -123,8 +123,8 @@ float map01ToInterval(float value, vec2 range)
 </map01ToInterval>
 
 <polynomial>
-#define cDiv(a,b) mat2(b.x,-b.y,b.y,b.x) * a / dot(b,b)
-#define cMul(a,b) mat2(a,-a.y,a.x) * b
+#define cDiv(a,b) mat2(b.x,-b.y,b.y,b.x) * (a) / dot(b,b)
+#define cMul(a,b) mat2(a,-a.y,a.x) * (b)
 
 vec2 FindRoot(vec2 poly[size], int degree, uint seed)
 {
@@ -161,16 +161,6 @@ vec2 FindRoot(vec2 poly[size], int degree, uint seed)
 	}
 
 	return root;
-}
-
-vec2 EvalPoly(vec2 poly[size], int degree, vec2 x)
-{
-	vec2 sum = poly[0];
-	for (int i = 1; i < degree+1; i++)
-	{
-		sum = mat2(sum,-sum.y,sum.x) * x + poly[i];
-	}
-	return sum;
 }
 
 </polynomial>
