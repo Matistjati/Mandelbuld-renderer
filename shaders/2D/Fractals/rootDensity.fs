@@ -95,8 +95,12 @@ layout(std430, binding = 0) buffer densityMap
 		for (int i = 0; i < size - 1; i++)
 		{
 			// A point very close to but not on the unit circle
-			//roots[i] = complexPow(vec2(0.4,0.9), i);
-			roots[i] = complexPow(vec2(cos(1.15)-0.0001,sin(1.15)-0.0001), i);
+			vec2 startPoint;
+			// If (0.4, 0.9) is chosen with maxIterations=1 and imag != 0, the fractal curves become separated
+			//startPoint = vec2(0.4,0.9);
+			startPoint = vec2(cos(1.15)-0.0001,sin(1.15)-0.0001);
+
+			roots[i] = complexPow(startPoint, i);
 			oldRoots[i] = vec2(0);
 		}
     
