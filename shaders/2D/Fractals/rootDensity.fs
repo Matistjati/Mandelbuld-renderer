@@ -114,7 +114,8 @@ layout(std430, binding = 0) buffer densityMap
 
 		for (int i = 0; i < size - 1; i++)
 		{
-			vec2 root = mat2(0,-1,-1,0)*roots[i];
+			vec2 root = roots[i];
+			root.x*=screenSize.y/screenSize.x;
 
 			if(!InsideBox(root, area))
 			{
