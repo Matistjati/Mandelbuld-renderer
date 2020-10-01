@@ -46,6 +46,9 @@
 [Sigmoidal 4pl](https://www.desmos.com/calculator/xcwuwfuvb5)<br/>
 [A nice and useful curve fitter](https://mycurvefit.com/)
 [A fast method for evaluating polynomials](https://en.wikipedia.org/wiki/Horner%27s_method)
+[A fast method for solving complex polynomials](https://en.wikipedia.org/wiki/Durand%E2%80%93Kerner_method)
+[Polynomial division, useful for solving higher-grade polynomials]( https://en.wikipedia.org/wiki/Synthetic_division)
+[A deep explanation of some phenomena concerning the littlewood fractal](https://johncarlosbaez.wordpress.com/2011/12/11/the-beauty-of-roots/)
 
 # Curiosities:
 [Interesting swedish article from another time](https://www.idg.se/2.1085/1.431735/mandelbrot--forskningen-fortsatter)<br/>
