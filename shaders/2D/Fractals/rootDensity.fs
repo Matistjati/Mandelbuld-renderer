@@ -22,8 +22,8 @@
 	/*<GuiHint>GuiType: colorPicker, Name: Color B, Parent: color</GuiHint>*/
 	uniform vec3 colB = vec3(0.2, 0.9, 0.9);
 	
-	/*<GuiHint>GuiType: slider, Name: Color frequency, Parent: color, Range: (0, 100)</GuiHint>*/
-	uniform float frequency = 8;
+	/*<GuiHint>GuiType: slider, Name: Color frequency, Parent: color, Range: (0, 3)</GuiHint>*/
+	uniform float frequency = 1.8;
 	
 	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent: renderParams, Range: (-100, 100)</GuiHint>*/
 	uniform float imag = 0;
@@ -76,11 +76,10 @@ layout(std430, binding = 0) buffer densityMap
 		for (int i = 0; i < size; i++)
 		{
 			uint hash = intHash(intHash(abs(int(frame))+i*308703+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
+			float coefficient = ((uint(hash) & 0xffffffffU)/float(0xffffffffU)>0.5) ? 1 : -1;
 			
-			float coefficient = cos(3.141592*float(hash));
-			coefficient = ((coefficient > 0) ? 1 : -1) + coefficient * coefficientSize;
 			poly[i] = vec2(coefficient, imag);
-			polyIndex += max(coefficient, 0);
+			polyIndex += max(coefficient,0)*pow(i,0.8);
 		}
 
 		
