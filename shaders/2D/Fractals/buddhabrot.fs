@@ -242,8 +242,10 @@ layout(std430, binding = 1) buffer desirabilityMap
 		// Smoothstep- more smooth image
 		//points[index].xyz += smoothstep(vec3(w.xy, c.x), vec3(i),colorIteration*maxIterations);
 
-		// Step- too detailed?
-		points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);
+		//points[index].xyz += color*step(vec3(i),colorIteration*maxIterations);
+		//points[index].xyz += color*vec3(step(vec3(i),vec3(colorIteration))*vec3(1.,step(colorIteration.x,i),step(colorIteration.y,i)));
+		
+		points[index].xyz += color*vec3(step(vec3(i),vec3(colorBorders))*vec3(1.,step(vec2(colorBorders.xy),vec2(i))));
 	}
 	
 	</incrementWPosition>,
@@ -256,6 +258,7 @@ layout(std430, binding = 1) buffer desirabilityMap
 
 	<colorSetup>
 		vec3 color;
+		vec3 colorBorders;
 		if (colorWheel)
 		{
 			vec2 d = vec2((c.x-renderArea.x)/(renderArea.z-renderArea.x),1.0-(c.y-renderArea.y)/(renderArea.w-renderArea.y))*2-1; 
@@ -265,6 +268,14 @@ layout(std430, binding = 1) buffer desirabilityMap
 		else
 		{
 			color = 1/(colorIteration);
+
+			// Sort colorIteration
+			// If you want a visualization of what is happening when coloring, replace i with w.x in the coloring part.
+			float smallest = min(min(colorIteration.x, colorIteration.y), colorIteration.z);
+			float largest = max(max(colorIteration.x, colorIteration.y), colorIteration.z);
+		
+			float mid = min(min(max(colorIteration.x,colorIteration.y),max(colorIteration.y,colorIteration.z)),max(colorIteration.x, colorIteration.z));
+			colorBorders = vec3(smallest, mid, largest) * maxIterations;
 		}
 	</colorSetup>,
 
