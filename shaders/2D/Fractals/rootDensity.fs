@@ -10,7 +10,7 @@
 
 
 <uniforms>
-	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 30)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 100)</GuiHint>*/
 	uniform float maxIterations = 20;
 	
 	/*<GuiHint>GuiType: slider, Name: Min difference, Parent:renderParams, Range: (0, 1)</GuiHint>*/
@@ -27,6 +27,12 @@
 	
 	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent: renderParams, Range: (-100, 100)</GuiHint>*/
 	uniform float imag = 0;
+	
+	/*<GuiHint>GuiType: slider, Name: Start point angle, Parent: renderParams, Range: (0, 6.28318530718)</GuiHint>*/
+	uniform float startAngle = 1.15;
+	
+	/*<GuiHint>GuiType: slider, Name: Start point distance to edge, Parent: renderParams, Range: (1, 100000)</GuiHint>*/
+	uniform float distanceToEdge = 1;
 	
 	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: renderParams, Range: (0, 1)</GuiHint>*/
 	uniform float coefficientSize = 0.0;
@@ -95,9 +101,8 @@ layout(std430, binding = 0) buffer densityMap
 		{
 			// A point very close to but not on the unit circle
 			vec2 startPoint;
-			// If (0.4, 0.9) is chosen with maxIterations=1 and imag != 0, the fractal curves become separated
-			//startPoint = vec2(0.4,0.9);
-			startPoint = vec2(cos(1.15)-0.0001,sin(1.15)-0.0001);
+			// If distancetoedge is large and maxIterations=1 and imag != 0, the fractal curves become separated
+			startPoint = (1-(0.000001*distanceToEdge))*vec2(cos(startAngle),sin(startAngle));
 
 			roots[i] = complexPow(startPoint, i);
 			oldRoots[i] = vec2(0);
