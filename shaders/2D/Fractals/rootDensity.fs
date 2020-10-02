@@ -13,7 +13,7 @@
 	/*<GuiHint>GuiType: slider, Name: Max Iterations, Parent:renderParams, Range: (1, 100)</GuiHint>*/
 	uniform float maxIterations = 20;
 	
-	/*<GuiHint>GuiType: slider, Name: Min difference, Parent:renderParams, Range: (0, 1)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: Min difference, Parent:renderParams, Range: (1e-7, 1e-3)</GuiHint>*/
 	uniform float epsilon = 0.001;
 	
 	/*<GuiHint>GuiType: colorPicker, Name: Color A, Parent: color</GuiHint>*/
@@ -28,14 +28,17 @@
 	/*<GuiHint>GuiType: slider, Name: Imaginary component, Parent: renderParams, Range: (-100, 100)</GuiHint>*/
 	uniform float imag = 0;
 	
-	/*<GuiHint>GuiType: slider, Name: Start point angle, Parent: renderParams, Range: (0, 6.28318530718)</GuiHint>*/
-	uniform float startAngle = 1.15;
-	
 	/*<GuiHint>GuiType: slider, Name: Start point distance to edge, Parent: renderParams, Range: (1, 100000)</GuiHint>*/
 	uniform float distanceToEdge = 1;
 	
+	/*<GuiHint>GuiType: slider, Name: Start point offset angle, Parent: renderParams, Range: (0, 6.2831)</GuiHint>*/
+	uniform float inputOffset = 1;
+	
 	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: renderParams, Range: (0, 1)</GuiHint>*/
 	uniform float coefficientSize = 0.0;
+	
+	/*<GuiHint>GuiType: checkBox, Name: Render starting points, Parent: renderParams</GuiHint>*/
+	uniform bool renderStartPoints = false;
 
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
 	uniform float renderSize = 0.5;
@@ -83,7 +86,7 @@ layout(std430, binding = 0) buffer densityMap
 		{
 			uint hash = intHash(intHash(abs(int(frame))+i*308703+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
 			float coefficient = ((uint(hash) & 0xffffffffU)/float(0xffffffffU)>0.5) ? 1 : -1;
-			
+
 			poly[i] = vec2(coefficient, imag);
 			polyIndex += max(coefficient,0)*pow(i,0.8);
 		}
@@ -97,57 +100,65 @@ layout(std430, binding = 0) buffer densityMap
 		}
 
 		vec2 oldRoots[size-1];
+		float startAngle = 1/(float(size)-1)*6.28318530718;
+		float offset = startAngle*0.25;
 		for (int i = 0; i < size - 1; i++)
 		{
 			// A point very close to but not on the unit circle
 			vec2 startPoint;
 			// If distancetoedge is large and maxIterations=1 and imag != 0, the fractal curves become separated
-			startPoint = (1-(0.000001*distanceToEdge))*vec2(cos(startAngle),sin(startAngle));
+			startPoint = pow((1-(0.000001*distanceToEdge)),i)*vec2(cos(startAngle*i*inputOffset+offset),sin(startAngle*i*inputOffset+offset));
 
-			roots[i] = complexPow(startPoint, i);
+			roots[i] = startPoint;
 			oldRoots[i] = vec2(0);
 		}
-    
-		for (int iteration = 0; iteration < maxIterations; iteration++)
-		{
-			for (int i = 0; i < size - 1; i++)
-			{
-				oldRoots[i] = roots[i];
-			}
-			bool done = true;
+		
 
-			for (int i = 0; i < size - 1; i++)
+		// Durand kerner root finding
+		if (!renderStartPoints)
+		{
+			for (int iteration = 0; iteration < maxIterations; iteration++)
 			{
-				vec2 product = vec2(1,0);
-				for (int j = 0; j < size - 1; j++)
+				for (int i = 0; i < size - 1; i++)
 				{
-					if (i==j)
+					oldRoots[i] = roots[i];
+				}
+				bool done = true;
+
+				for (int i = 0; i < size - 1; i++)
+				{
+					vec2 product = vec2(1,0);
+					for (int j = 0; j < size - 1; j++)
 					{
-						continue;
+						if (i==j)
+						{
+							continue;
+						}
+
+						product = mat2(product, -product.y, product.x) * (oldRoots[i]-oldRoots[j]);
+					}
+					vec2 y = poly[0];
+					for (int j = 1; j < polynomialDegree+1; j++)
+					{
+						y = mat2(y,-y.y,y.x) * oldRoots[i] + poly[j];
 					}
 
-					product = mat2(product, -product.y, product.x) * (oldRoots[i]-oldRoots[j]);
+					vec2 d = cDiv(y, product);
+					if (dot(d, d) > epsilon*epsilon)
+					{
+						done = false;
+					}
+					roots[i] -= d;
 				}
-				vec2 y = poly[0];
-				for (int j = 1; j < polynomialDegree+1; j++)
-				{
-					y = mat2(y,-y.y,y.x) * oldRoots[i] + poly[j];
-				}
-
-				vec2 d = cDiv(y, product);
-				if (dot(d, d) > epsilon*epsilon)
-				{
-					done = false;
-				}
-				roots[i] -= d;
-			}
 
 		
-			if (done)
-			{
-				break;
+				if (done)
+				{
+					break;
+				}
 			}
 		}
+		
 
 		/*
 		int originalDegree = polynomialDegree;
