@@ -137,17 +137,16 @@ layout(std430, binding = 0) buffer densityMap
 						sum += vec2(a.x,-a.y)/dot(a,a);
 					}
 
-					vec2 y = poly[0];
-					for (int j = 1; j < polynomialDegree+1; j++)
+
+					// Using horners method to simultaneously evaluate the polynomial and its roots
+					vec2 y = vec2(0);
+					vec2 dy = vec2(0);
+					for (int j = 0; j < polynomialDegree; j++)
 					{
+						dy = mat2(dy,-dy.y,dy.x) * oldRoots[i] + y;
 						y = mat2(y,-y.y,y.x) * oldRoots[i] + poly[j];
 					}
 
-					vec2 dy = derivative[0];
-					for (int j = 1; j < polynomialDegree; j++)
-					{
-						dy = mat2(dy,-dy.y,dy.x) * oldRoots[i] + derivative[j];
-					}
 
 					vec2 c = cDiv(y, dy);
 					vec2 denom = vec2(1,0)-cMul(c,sum);
