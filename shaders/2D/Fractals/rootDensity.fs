@@ -91,12 +91,10 @@ layout(std430, binding = 0) buffer densityMap
 			polyIndex += max(coefficient,0)*pow(i,0.8);
 		}
 
-		
-
-		vec2 leading = poly[0];
-		for (int i = 0; i < size; i++)
+		vec2 derivative[size];
+		for (int i = 0; i < polynomialDegree; i++)
 		{
-			poly[i] = cDiv(poly[i], leading);
+			derivative[i] = poly[i] * (polynomialDegree-i);
 		}
 
 		vec2 oldRoots[size-1];
@@ -114,7 +112,7 @@ layout(std430, binding = 0) buffer densityMap
 		}
 		
 
-		// Durand kerner root finding
+		// Aberth ehrlich root finding
 		if (!renderStartPoints)
 		{
 			for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -127,7 +125,7 @@ layout(std430, binding = 0) buffer densityMap
 
 				for (int i = 0; i < size - 1; i++)
 				{
-					vec2 product = vec2(1,0);
+					vec2 sum = vec2(0,0);
 					for (int j = 0; j < size - 1; j++)
 					{
 						if (i==j)
@@ -135,15 +133,25 @@ layout(std430, binding = 0) buffer densityMap
 							continue;
 						}
 
-						product = mat2(product, -product.y, product.x) * (oldRoots[i]-oldRoots[j]);
+						vec2 a = oldRoots[i]-oldRoots[j];
+						sum += vec2(a.x,-a.y)/dot(a,a);
 					}
+
 					vec2 y = poly[0];
 					for (int j = 1; j < polynomialDegree+1; j++)
 					{
 						y = mat2(y,-y.y,y.x) * oldRoots[i] + poly[j];
 					}
 
-					vec2 d = cDiv(y, product);
+					vec2 dy = derivative[0];
+					for (int j = 1; j < polynomialDegree; j++)
+					{
+						dy = mat2(dy,-dy.y,dy.x) * oldRoots[i] + derivative[j];
+					}
+
+					vec2 c = cDiv(y, dy);
+					vec2 denom = vec2(1,0)-cMul(c,sum);
+					vec2 d = cDiv(c, denom);
 					if (dot(d, d) > epsilon*epsilon)
 					{
 						done = false;
