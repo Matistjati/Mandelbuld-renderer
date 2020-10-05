@@ -41,7 +41,7 @@
 	uniform bool renderStartPoints = false;
 
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderSize = 0.65;
+	uniform float renderSize = 0.5;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
@@ -73,12 +73,15 @@ layout(std430, binding = 0) buffer densityMap
 	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) && gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
 	{
 		float polyIndex = 0;
-		const int degree = size-1;
+		int polynomialDegree = size-1;
 		vec2 poly[size];
 		vec2 roots[size-1];
+		for (int i = 0; i < size - 1; i++)
+		{
+			roots[i] = vec2(0);
+		}
 
 
-		// Initializing the polynomial coefficients
 		for (int i = 0; i < size; i++)
 		{
 			uint hash = intHash(intHash(abs(int(frame))+i*308703+intHash(gl_GlobalInvocationID.x))*intHash(gl_GlobalInvocationID.y));
@@ -88,7 +91,14 @@ layout(std430, binding = 0) buffer densityMap
 			polyIndex += max(coefficient,0)*pow(i,0.8);
 		}
 
-		// Initial values for the roots, evenly distributed points amoung a circle centered at the origin
+		
+
+		vec2 leading = poly[0];
+		for (int i = 0; i < size; i++)
+		{
+			poly[i] = cDiv(poly[i], leading);
+		}
+
 		vec2 oldRoots[size-1];
 		float startAngle = 1/(float(size)-1)*6.28318530718;
 		float offset = startAngle*0.25;
@@ -96,26 +106,28 @@ layout(std430, binding = 0) buffer densityMap
 		{
 			// A point very close to but not on the unit circle
 			vec2 startPoint;
-			// If distancetoedge is large and maxIterations=1 and, the fractal curves become separated
-			float theta = startAngle*i*inputOffset+offset;
-			float r = 1-(0.000001*distanceToEdge);
+			// If distancetoedge is large and maxIterations=1 and imag != 0, the fractal curves become separated
+			startPoint = pow((1-(0.000001*distanceToEdge)),i)*vec2(cos(startAngle*i*inputOffset+offset),sin(startAngle*i*inputOffset+offset));
 
-			roots[i] = pow(r,i)*vec2(cos(theta),sin(theta));
-			oldRoots[i] = roots[i];
+			roots[i] = startPoint;
+			oldRoots[i] = vec2(0);
 		}
 		
 
-		// Aberth ehrlich root finding
-		// https://i.ytimg.com/vi/XIzCzfMDSzk/maxresdefault.jpg
+		// Durand kerner root finding
 		if (!renderStartPoints)
 		{
 			for (int iteration = 0; iteration < maxIterations; iteration++)
 			{
+				for (int i = 0; i < size - 1; i++)
+				{
+					oldRoots[i] = roots[i];
+				}
 				bool done = true;
 
 				for (int i = 0; i < size - 1; i++)
 				{
-					vec2 sum = vec2(0,0);
+					vec2 product = vec2(1,0);
 					for (int j = 0; j < size - 1; j++)
 					{
 						if (i==j)
@@ -123,23 +135,15 @@ layout(std430, binding = 0) buffer densityMap
 							continue;
 						}
 
-						vec2 a = oldRoots[i]-oldRoots[j];
-						sum += vec2(a.x,-a.y)/dot(a,a);
+						product = mat2(product, -product.y, product.x) * (oldRoots[i]-oldRoots[j]);
 					}
-
-					// Using horners method to simultaneously evaluate the polynomial and its derivative
-					vec2 y = vec2(0);
-					vec2 dy = vec2(0);
-					for (int j = 0; j < degree; j++)
+					vec2 y = poly[0];
+					for (int j = 1; j < polynomialDegree+1; j++)
 					{
-						dy = mat2(dy,-dy.y,dy.x) * oldRoots[i] + y;
 						y = mat2(y,-y.y,y.x) * oldRoots[i] + poly[j];
 					}
 
-
-					vec2 d = cDiv(y, dy);
-					vec2 denom = vec2(1,0)-cMul(d,sum);
-					d = cDiv(d, denom);
+					vec2 d = cDiv(y, product);
 					if (dot(d, d) > epsilon*epsilon)
 					{
 						done = false;
@@ -152,14 +156,30 @@ layout(std430, binding = 0) buffer densityMap
 				{
 					break;
 				}
-
-				for (int i = 0; i < size - 1; i++)
-				{
-					oldRoots[i] = roots[i];
-				}
 			}
 		}
 		
+
+		/*
+		int originalDegree = polynomialDegree;
+		for (int i = 0; i < originalDegree; i++)
+		{
+			roots[i] = FindRoot(poly, polynomialDegree, uint(polyIndex));
+
+			vec2 coefficient = poly[0];
+
+			for (int j = 1; j < polynomialDegree; j++)
+			{
+				coefficient = mat2(coefficient,-coefficient.y,coefficient.x) * roots[i];
+				coefficient += poly[j];
+				poly[j] = coefficient;
+			}
+
+
+			polynomialDegree--;
+		}*/
+		
+
 		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
 		vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
 		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
