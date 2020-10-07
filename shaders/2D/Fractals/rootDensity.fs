@@ -102,26 +102,6 @@ layout(std430, binding = 1) buffer outputMap
 		}
 		poly[size - 1] = vec2(1,0);
 
-		/*poly[0]=vec2(1,0);
-		poly[1]=vec2(1,0);
-		poly[2]=vec2(-1,0);
-		poly[3]=vec2(1,0);
-		poly[4]=vec2(1,0);
-
-		poly[5]=vec2(1,0);
-		poly[6]=vec2(-1,0);
-		poly[7]=vec2(1,0);
-		poly[8]=vec2(1,0);
-		poly[9]=vec2(1,0);
-
-		poly[10]=vec2(1,0);
-		poly[11]=vec2(-1,0);
-		poly[12]=vec2(1,0);
-		poly[13]=vec2(1,0);
-		poly[14]=vec2(1,0);
-		poly[15]=vec2(-1,0);*/
-		
-
 		// Initial values for the roots, evenly distributed points amoung a circle centered at the origin
 		vec2 oldRoots[size-1];
 		float startAngle = 1/(float(size)-1)*6.28318530718;
