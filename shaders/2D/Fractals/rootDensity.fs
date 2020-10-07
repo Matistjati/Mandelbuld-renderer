@@ -160,10 +160,12 @@ layout(std430, binding = 1) buffer outputMap
 						y = cMul(y,currentRoot) + poly[j];
 					}
 
-					dvec2 hy = dvec2(y);
-					dvec2 hdy = dvec2(dy);
 
-					vec2 w = vec2(cDiv(hy,hdy));
+					// We want to compute x^2+y^2 of the derivative. This can present serious rounding errors using floats, so we compute it using doubles
+					// The (mat2(dy.x,-dy.y,dy.y,dy.x) * y) is computed using floaths for speed and the dot product and division using doubles, and the result is then cast back to float
+					dvec2 Ddy = dvec2(dy);
+					vec2 w = vec2((mat2(dy.x,-dy.y,dy.y,dy.x) * y) / dot(Ddy,Ddy));
+
 					vec2 c = vec2(1,0) - cMul(w,sum);
 					vec2 d = cDiv(w,c);
 					

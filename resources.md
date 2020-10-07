@@ -52,3 +52,4 @@
 
 # Curiosities:
 [Interesting swedish article from another time](https://www.idg.se/2.1085/1.431735/mandelbrot--forskningen-fortsatter)<br/>
+[Fractal in google (sort of)](https://www.google.com/search?sxsrf=ALeKk03AyRKQYL05JIhkW6K82nYGHR0Stg:1602086128626&q=abarth+ehrlich&spell=1&sa=X&ved=2ahUKEwipnuL066LsAhVErosKHVV5CY4QBSgAegQICxAu&cshid=1602086156206559&biw=1920&bih=969)<br/>
