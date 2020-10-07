@@ -100,7 +100,6 @@ layout(std430, binding = 1) buffer outputMap
 			poly[i] = vec2(coefficient, imag);
 			polyIndex += max(coefficient,0)*pow(1+base,-float(i));
 		}
-		poly[size - 1] = vec2(1,0);
 
 		// Initial values for the roots, evenly distributed points amoung a circle centered at the origin
 		vec2 oldRoots[size-1];
@@ -114,7 +113,7 @@ layout(std430, binding = 1) buffer outputMap
 			float theta = startAngle*i*angleMultiplier+offset+angleOffset;
 			float r = 1-(0.000001*distanceToEdge);
 
-			roots[i] = pow(r,i)*vec2(cos(theta),sin(theta));
+			roots[i] = pow(r,i)*vec2(cos(theta),sin(theta))*clickPosition;
 			oldRoots[i] = roots[i];
 		}
 		
@@ -161,8 +160,8 @@ layout(std430, binding = 1) buffer outputMap
 					}
 
 
-					// We want to compute x^2+y^2 of the derivative. This can present serious rounding errors using floats, so we compute it using doubles
-					// The (mat2(dy.x,-dy.y,dy.y,dy.x) * y) is computed using floaths for speed and the dot product and division using doubles, and the result is then cast back to float
+					// We want to compute dot(dy,dy). This can present serious rounding errors using floats, so we compute it using doubles
+					// The (mat2(dy.x,-dy.y,dy.y,dy.x) * y) is computed using floats for speed and division using doubles, the result is then cast back to float
 					dvec2 Ddy = dvec2(dy);
 					vec2 w = vec2((mat2(dy.x,-dy.y,dy.y,dy.x) * y) / dot(Ddy,Ddy));
 
