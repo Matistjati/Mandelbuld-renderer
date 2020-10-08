@@ -40,14 +40,14 @@
 	/*<GuiHint>GuiType: slider, Name: Start point offset, Parent: renderParams, Range: (0, 6.2831)</GuiHint>*/
 	uniform float angleOffset = 0;
 	
-	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: renderParams, Range: (0, 1)</GuiHint>*/
+	/*<GuiHint>GuiType: slider, Name: coefficient size, Parent: fractalParams, Range: (-5, 5)</GuiHint>*/
 	uniform float coefficientSize = 0.0;
 	
 	/*<GuiHint>GuiType: checkBox, Name: Render starting points, Parent: renderParams</GuiHint>*/
 	uniform bool renderStartPoints = false;
 
 	/*<GuiHint>GuiType: Slider, Name: Rendering Amount, Parent: renderParams, Range: (0.01, 1)</GuiHint>*/
-	uniform float renderSize = 0.65;
+	uniform float renderSize = 0.4;
 
 	// The area in the complex plane we render
 	// ((left edge, bottom edge), (right edge, top edge))
@@ -82,10 +82,11 @@ layout(std430, binding = 1) buffer outputMap
 
 	vec2 uv = gl_GlobalInvocationID.xy/screenSize.xy;
 	
-	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize*renderSize*renderSize) && gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize*renderSize*renderSize))
+	if (gl_GlobalInvocationID.x < screenSize.x*(renderSize*renderSize) && gl_GlobalInvocationID.y < screenSize.y*(renderSize*renderSize))
 	{
 		float polyIndex = 0;
 		const int degree = size-1;
+		// Polynomial in form poly[0]*x^degree+poly[1]*x^(degree-1) ....
 		vec2 poly[size];
 		vec2 roots[size-1];
 
@@ -113,7 +114,7 @@ layout(std430, binding = 1) buffer outputMap
 			float theta = startAngle*i*angleMultiplier+offset+angleOffset;
 			float r = 1-(0.000001*distanceToEdge);
 
-			roots[i] = pow(r,i)*vec2(cos(theta),sin(theta))*clickPosition;
+			roots[i] = pow(r,i)*vec2(cos(theta),sin(theta));//*clickPosition;
 			oldRoots[i] = roots[i];
 		}
 		
@@ -170,8 +171,8 @@ layout(std430, binding = 1) buffer outputMap
 					
 
 
-					// Durand kerner
-					/*vec2 product = vec2(1,0);
+					/*// Durand kerner
+					vec2 product = vec2(1,0);
 					for (int j = 0; j < size - 1; j++)
 					{
 						if (i == j)
@@ -189,7 +190,7 @@ layout(std430, binding = 1) buffer outputMap
 						y = cMul(y,oldRoots[i]) + poly[j];
 					}
 
-					vec2 d = cdDiv(y,product);*/
+					vec2 d = cDiv(y,product);*/
 
 
 					if (dot(d, d) > epsilon*epsilon)
@@ -207,43 +208,27 @@ layout(std430, binding = 1) buffer outputMap
 			}
 		}
 		
+		// Check buddhabrot.fs for a loose derivation of what is done here
 		vec2 midPoint = vec2(abs(renderArea.x)-abs(renderArea.z),abs(renderArea.y)-abs(renderArea.w))*0.5;
 		vec4 area = (renderArea+midPoint.xyxy)*zoom-midPoint.xyxy;
 		area += vec4(position.xyxy)*vec4(1,-1,1,-1);
 		vec2 map = vec2(screenSize.xy/vec2(area.z-area.x,area.w-area.y));
 		
-
-
-
 		for (int i = 0; i < size - 1; i++)
 		{
 			vec2 root = roots[i];
 			root.x*=screenSize.y/screenSize.x;
 
-			if (length(root) > 3)
-			{
-				vec2 coord = vec2(0.,0.);
-
-				int x = int(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
-
-				int y = int(screenSize.y-(coord.y-area.y)*map.y);
-				int imageIndex = int(x + screenSize.x * (y + 0.5));
-
-				points[imageIndex].xyz = vec3(
-				((poly[0].x > 0) ? 0.5 : 0) + ((poly[1].x > 0) ? 0.25 : 0)+ ((poly[2].x > 0) ? 0.125 : 0)+ ((poly[3].x > 0) ? 0.0625 : 0)+ ((poly[4].x > 0) ? 0.03125 : 0),
-				((poly[5].x > 0) ? 0.5 : 0) + ((poly[6].x > 0) ? 0.25 : 0)+ ((poly[7].x > 0) ? 0.125 : 0)+ ((poly[8].x > 0) ? 0.0625 : 0)+ ((poly[9].x > 0) ? 0.03125 : 0),
-				((poly[10].x > 0) ? 0.5 : 0) + ((poly[11].x > 0) ? 0.25 : 0)+ ((poly[12].x > 0) ? 0.125 : 0)+ ((poly[13].x > 0) ? 0.0625 : 0))+ ((poly[14].x > 0) ? 0.03125 : 0)+ ((poly[15].x > 0) ? 0.015625 : 0);
-			}
-
 			if(!InsideBox(root, area))
 			{
 				continue;
 			}
+
 			float x = round(clamp((root.x-area.x)*map.x,0,screenSize.x)-0.5);
 
 			float y = round(screenSize.y-(root.y-area.y)*map.y);
 			int index = int(x + screenSize.x * (y + 0.5));
-			points[index] += vec4((cos(colA + colB * polyIndex*100 * frequency) * -0.5 + 0.5)*10,0);
+			points[index] += vec4((cos(colA + colB * polyIndex * 100 * frequency) * -0.5 + 0.5)*10,0);
 		}
 		/*
 		// Gpu debugging
