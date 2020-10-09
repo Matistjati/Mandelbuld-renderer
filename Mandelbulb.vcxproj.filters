@@ -178,6 +178,12 @@
     <None Include="shaders\2D\Fractals\rootDensityRender.fs">
       <Filter>Resource Files\2D\Fractals</Filter>
     </None>
+    <None Include="shaders\3D\Fractals\Sky.fs">
+      <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
+    <None Include="shaders\3D\Fractals\SkySpecs.fs">
+      <Filter>Resource Files\3D\Fractals</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources.txt">

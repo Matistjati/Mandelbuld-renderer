@@ -194,6 +194,8 @@
     <None Include="shaders\3D\Base\AlternateDefault.fs" />
     <None Include="shaders\3D\Base\HelperFunctions.fs" />
     <None Include="shaders\3D\Base\PresetSpecs.fs" />
+    <None Include="shaders\3D\Fractals\Sky.fs" />
+    <None Include="shaders\3D\Fractals\SkySpecs.fs" />
     <None Include="shaders\3D\Fractals\Mandelbox.fs" />
     <None Include="shaders\3D\Fractals\MandelboxSpecs.fs" />
     <None Include="shaders\3D\Fractals\Mandelbulb.fs" />
