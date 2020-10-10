@@ -38,6 +38,11 @@
 	boxFold, sphereFold, triplexPow, icosaFold, sierpinskiFold, mengerFold
 </include>
 
+<textures>
+	uniform sampler3D cloudDensity;
+</textures>
+
+
 <main>
 	vec3 col = vec3(0);
 	vec2 uv = (gl_FragCoord.xy-vec2(0.5)) / screenSize * 2.0 - 1.0;
@@ -52,5 +57,7 @@
 
 	color = vec4(col, 1);
 	
+	color = texture(cloudDensity, vec3(0,0,0));
+
 	//image[int(gl_FragCoord.x*screenSize.y+gl_FragCoord.y)] = vec4(1,0,0,1);
 </main>
