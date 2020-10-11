@@ -842,6 +842,13 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		glfwSetWindowTitle(window, title.c_str());
 #endif
 
+		// Temporary solution
+		if (fractal->shader->textures.size())
+		{
+			glBindTexture(GL_TEXTURE_2D, fractal->shader->textures[0]);
+		}
+		
+
 		fractal->shader->Use();
 		if (fractal->shader->type == ShaderType::fragment)
 		{

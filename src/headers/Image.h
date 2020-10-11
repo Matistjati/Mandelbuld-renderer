@@ -72,16 +72,19 @@ class Image
 public:
 	Image(int width, int height, std::vector<Pixel> *pixels);
 	Image(int width, int height, std::vector<glm::ivec4> pixels);
+	Image(std::string filePath);
 	~Image();
-	void Save(const std::string path);
+	void Save(const std::string path); 
 	void FlipVertically();
 	void FlipAndSave(const std::string path);
+	void Invert();
 
 	std::vector<Pixel> *pixels;
 	int width;
 	int height;
 private:
-	bool containsCopy;
+	bool pixelsInitialized;
+	bool hasAlpha;
 	inline Pixel* PixelAt(int x, int y);
 	inline void Swap(Pixel* a, Pixel* b);
 };

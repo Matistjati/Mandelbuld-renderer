@@ -5,6 +5,7 @@
 #include "headers/FileManager.h"
 #include "headers/Fractal.h"
 #include "headers/BufferInitialization.h"
+#include "headers/Image.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -37,6 +38,25 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	std::string fShaderCode = path ? FileManager::ReadFile(fragmentPath).c_str() : fragmentPath.c_str();
 
 	id = CreateFragmentProgram(vShaderCode, fShaderCode);
+
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	Image texture = Image("textures/sweating.png");
+	//texture.Invert();
+	//texture.Save("textures/ddooo.png");
+
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&texture.pixels[0])[0][0]);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	textures = { (int)textureID };
+
 
 	GlErrorCheck();
 }

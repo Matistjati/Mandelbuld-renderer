@@ -32,6 +32,8 @@
 
 	/*<GuiHint>GuiType: slider, Name: Color Period, Parent: Color, Range: (0, 100)</GuiHint>*/
 	uniform float colorFrequency = 10;
+
+	uniform sampler2D testingTexture;
 </uniforms>
 
 <include>
@@ -55,9 +57,9 @@
 
 	col = vec3(0.2,0.4,0.6)*((direction.y+1)/1.7);
 
-	color = vec4(col, 1);
+	//color = vec4(col, 1);
 	
-	color = texture(cloudDensity, vec3(0,0,0));
+	color = vec4(texture(testingTexture, uv).xyz, 1);
 
 	//image[int(gl_FragCoord.x*screenSize.y+gl_FragCoord.y)] = vec4(1,0,0,1);
 </main>

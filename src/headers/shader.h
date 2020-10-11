@@ -70,6 +70,7 @@ public:
 	unsigned int id;
 	ShaderType type;
 	std::map<std::string, Buffer> buffers;
+	std::vector<int> textures;
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path = false);

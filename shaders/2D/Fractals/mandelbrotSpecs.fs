@@ -13,7 +13,7 @@
 				   [tricornIter], [celticIter], [complexPow(power), setW(w.xy+w.x), translate], [setW(complexPow(w,2)+0.19*complexPow(w,3)+c)]]</loopBody>,
 		<loopTrap>none</loopTrap>,
 		<loopReturn>[[escapeColorPeriodicCosSmooth(colorPeriodicity, colorA, colorB)], [escapeColor], [escapeColorLast(colorPeriodicity)], 
-					 [escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)]]</loopReturn>,
+					 [escapeColorPeriodicCos(colorPeriodicity, colorA, colorB)], textureColor]</loopReturn>,
 	</mainLoop>
 }
 

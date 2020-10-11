@@ -32,6 +32,8 @@
 
 	/*<GuiHint>GuiType: slider, Name: Color Period, Parent: Color, Range: (0, 100)</GuiHint>*/
 	uniform float colorFrequency = 10;
+
+	uniform sampler2D testingTexture;
 </uniforms>
 
 <include>
@@ -99,6 +101,19 @@
 		col = mix(col, colorC, clamp(trap.y*trap.y, 0, 1));
 		col = mix(col, colorD, clamp(trap.z*trap.z, 0, 1));
 	>,
+
+	<
+		col = colorA;
+		col = mix(col, colorB, clamp(trap.x*trap.x, 0, 1));
+		col = mix(col, colorC, clamp(trap.y*trap.y, 0, 1));
+		col = mix(col, colorD, clamp(trap.z*trap.z, 0, 1));
+		vec2 p = 0.5*((position+direction*t).xy+1);
+		p.y = 1.-p.y;
+		p*=0.45;
+		p+=vec2(0.3);
+		col = mix(col, (texture(testingTexture, p)).xyz,vec3(0.5));
+	>,
+
 
 	//col *= steps;
 	//col *= 1 - length(uv); // Flashlight
