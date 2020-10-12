@@ -33,7 +33,8 @@
 	/*<GuiHint>GuiType: slider, Name: Color Period, Parent: Color, Range: (0, 100)</GuiHint>*/
 	uniform float colorFrequency = 10;
 
-	uniform sampler2D testingTexture;
+	uniform sampler2D testingTexture1;
+	uniform sampler2D testingTexture2;
 </uniforms>
 
 <include>
@@ -111,7 +112,8 @@
 		p.y = 1.-p.y;
 		p*=0.45;
 		p+=vec2(0.3);
-		col = mix(col, (texture(testingTexture, p)).xyz,vec3(0.5));
+		col = mix(col, (texture(testingTexture1, p)).xyz,vec3(0.5));
+		col = mix(col, (texture(testingTexture2, p)).xyz,vec3(0.5));
 	>,
 
 

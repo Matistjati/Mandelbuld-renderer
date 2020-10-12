@@ -39,23 +39,57 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 
 	id = CreateFragmentProgram(vShaderCode, fShaderCode);
 
-	GLuint textureID;
-	glGenTextures(1, &textureID);
+
+
+	glUseProgram(id);
+	GLuint textureID1;
+	glGenTextures(1, &textureID1);
+
+	GLuint textureID2;
+	glGenTextures(1, &textureID2);
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID1);
 
-	Image texture = Image("textures/sweating.png");
+	Image texture1 = Image("textures/sweating.png");
+	Image texture2 = Image("textures/genshin.png");
 	//texture.Invert();
 	//texture.Save("textures/ddooo.png");
 
+
 	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&texture.pixels[0])[0][0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture1.width, texture1.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&texture1.pixels[0])[0][0]);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	textures = { (int)textureID };
+
+	unsigned int textureLocation = glGetUniformLocation(id, "testingTexture1");
+	glUniform1i(textureLocation, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID1);
+	
+
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textureID2);
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture2.width, texture2.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&texture2.pixels[0])[0][0]);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+
+	unsigned int textureLocation2 = glGetUniformLocation(id, "testingTexture2");
+	glUniform1i(textureLocation2, 1);
+	glActiveTexture(GL_TEXTURE0+1);
+	glBindTexture(GL_TEXTURE_2D, textureID2);
+
+
+
+	textures = { (int)textureID1, (int)textureID2 };
+
 
 
 	GlErrorCheck();
