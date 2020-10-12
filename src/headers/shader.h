@@ -19,6 +19,16 @@ enum class ShaderType
 	fragment, compute
 };
 
+
+struct Texture
+{
+public:
+	unsigned int id;
+	int unitId;
+	Texture(unsigned int id, int unitId);
+	Texture();
+};
+
 struct Buffer
 {
 public:
@@ -70,7 +80,8 @@ public:
 	unsigned int id;
 	ShaderType type;
 	std::map<std::string, Buffer> buffers;
-	std::vector<int> textures;
+	std::vector<Texture> textures;
+	int lowestAvailableTextureUnit;
 
 	// constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path = false);
@@ -125,6 +136,7 @@ protected:
 	unsigned int CompileShader(unsigned int type, const std::string& source);
 	unsigned int CreateFragmentProgram(const std::string& vertex, const std::string& fragment);
 	std::vector<Buffer> GenerateBuffersForProgram(std::string source);
+	std::vector<Texture> GenerateTexturesForProgram(std::string source, unsigned int id);
 
 };
 

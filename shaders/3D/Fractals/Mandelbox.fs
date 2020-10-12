@@ -33,7 +33,10 @@
 	/*<GuiHint>GuiType: slider, Name: Color Period, Parent: Color, Range: (0, 100)</GuiHint>*/
 	uniform float colorFrequency = 10;
 
+	/*<TextureInfo>FileName: "sweating.png"</TextureInfo>*/
 	uniform sampler2D testingTexture1;
+
+	/*<TextureInfo>FileName: "genshin.png"</TextureInfo>*/
 	uniform sampler2D testingTexture2;
 </uniforms>
 

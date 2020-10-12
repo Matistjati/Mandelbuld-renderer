@@ -31,7 +31,7 @@ Shader::~Shader()
 	GlErrorCheck();
 }
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path)
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, bool path) : lowestAvailableTextureUnit(0)
 {
 	type = ShaderType::fragment;
 	std::string vShaderCode = path ? FileManager::ReadFile(vertexPath).c_str() : vertexPath.c_str();
@@ -40,62 +40,10 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, b
 	id = CreateFragmentProgram(vShaderCode, fShaderCode);
 
 
-
-	glUseProgram(id);
-	GLuint textureID1;
-	glGenTextures(1, &textureID1);
-
-	GLuint textureID2;
-	glGenTextures(1, &textureID2);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID1);
-
-	Image texture1 = Image("textures/sweating.png");
-	Image texture2 = Image("textures/genshin.png");
-	//texture.Invert();
-	//texture.Save("textures/ddooo.png");
-
-
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture1.width, texture1.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&texture1.pixels[0])[0][0]);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-
-	unsigned int textureLocation = glGetUniformLocation(id, "testingTexture1");
-	glUniform1i(textureLocation, 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID1);
-	
-
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, textureID2);
-
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture2.width, texture2.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&texture2.pixels[0])[0][0]);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-
-	unsigned int textureLocation2 = glGetUniformLocation(id, "testingTexture2");
-	glUniform1i(textureLocation2, 1);
-	glActiveTexture(GL_TEXTURE0+1);
-	glBindTexture(GL_TEXTURE_2D, textureID2);
-
-
-
-	textures = { (int)textureID1, (int)textureID2 };
-
-
-
 	GlErrorCheck();
 }
 
-Shader::Shader(unsigned int id, ShaderType type) : id(id), type(type) {}
+Shader::Shader(unsigned int id, ShaderType type) : id(id), type(type), lowestAvailableTextureUnit(0) {}
 
 unsigned int Shader::CreateFragmentProgram(const std::string& vertex, const std::string& fragment)
 {
@@ -182,6 +130,13 @@ unsigned int Shader::CreateFragmentProgram(const std::string& vertex, const std:
 				buffers[buffer[i].name] = buffer[i];
 			}
 		}
+	}
+
+	if (fragment.find("<TextureInfo>") != std::string::npos)
+	{
+		std::vector<Texture> texture = GenerateTexturesForProgram(fragment, id);
+
+		textures = texture;
 	}
 
 	glDeleteShader(vertexId);
@@ -373,6 +328,115 @@ std::vector<Buffer> Shader::GenerateBuffersForProgram(std::string source)
 		}
 	}
 	return buffers;
+}
+
+std::vector<Texture> Shader::GenerateTexturesForProgram(std::string source, unsigned int id)
+{
+	glUseProgram(id);
+	const std::string start = "<TextureInfo>";
+	const std::string end = "</TextureInfo>";
+	std::vector<Texture> textures(0);
+	size_t offset = 0;
+	while (true)
+	{
+		size_t textureInfoStart = source.find(start, offset);
+		size_t textureInfoEnd = source.find(end, textureInfoStart);
+
+		std::string fileName = "";
+		std::string textureName = "";
+
+		if (textureInfoStart != std::string::npos)
+		{
+			std::string textureContent = Fractal::SubString(source, textureInfoStart+start.size(), textureInfoEnd);
+
+			std::vector<std::string> content = Fractal::SplitNotInChar(textureContent, ',', { {'[',']'}, {'{','}'} });
+			
+			for (size_t i = 0; i < content.size(); i++)
+			{
+				std::vector<std::string> entry = Fractal::SplitNotInChar(content[i], ':', { {'[',']'}, {'{','}'} });
+				std::string key = entry[0];
+				Fractal::CleanString(key, { ' ', '	', '\n' });
+				if (key == "FileName")
+				{
+					std::string value = entry[1];
+					size_t quoteStart = value.find("\"");
+					size_t quoteEnd = value.rfind("\"");
+					fileName = Fractal::SubString(value, quoteStart+1, quoteEnd);
+				}
+			}
+
+			size_t uniformStart = source.find("uniform", textureInfoStart);
+			if (uniformStart != std::string::npos)
+			{
+				size_t delimeterLocation = source.find(";", uniformStart+8);
+				size_t nameStart = std::string::npos;
+				size_t nameEnd = std::string::npos;
+				for (int i = delimeterLocation; i >= 0; i--)
+				{
+					if (source[i] != ' ' && source[i] != '	' && source[i] != '\n')
+					{
+						nameEnd = i;
+						break;
+					}
+				}
+				nameStart = source.rfind(" ", nameEnd);
+
+				textureName = Fractal::SubString(source, nameStart+1, nameEnd);
+			}
+			else
+			{
+				DebugPrint("Could not find texture sampler uniform");
+				BreakIfDebug();
+			}
+
+			if (fileName != "")
+			{
+				std::string filePath = "";
+				if (FileManager::FileExists(fileName)) filePath = fileName;
+				else if (FileManager::FileExists("textures/"+fileName)) filePath = "textures/" + fileName;
+				else
+				{
+					DebugPrint("Could not find the file location of specified texture " + filePath);
+					BreakIfDebug();
+				}
+
+				Image textureImage = Image(filePath);
+
+				unsigned int textureId;
+				glGenTextures(1, &textureId);
+
+				Texture texture = Texture(textureId, lowestAvailableTextureUnit);
+				lowestAvailableTextureUnit += 1;
+
+				unsigned int textureLocation = glGetUniformLocation(id, textureName.c_str());
+				glUniform1i(textureLocation, texture.unitId);
+				glActiveTexture(GL_TEXTURE0 + texture.unitId);
+				glBindTexture(GL_TEXTURE_2D, textureId);
+
+
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureImage.width, textureImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(&textureImage.pixels[0])[0][0]);
+
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+
+				
+				glActiveTexture(GL_TEXTURE0 + texture.unitId);
+				glBindTexture(GL_TEXTURE_2D, textureId);
+				textures.push_back(texture);
+			}
+
+			offset += textureInfoEnd+end.size();
+		}
+		else
+		{
+			break;
+		}
+
+	}
+
+
+	return textures;
 }
 
 void UseProgramIfValid(unsigned int id)
@@ -680,4 +744,12 @@ unsigned int ComputeShader::CreateProgram(std::string source)
 	glDeleteShader(compute);
 	GlErrorCheck();
 	return id;
+}
+
+Texture::Texture(unsigned int id, int unitId) : id(id), unitId(unitId)
+{
+}
+
+Texture::Texture() : id(-1), unitId(-1)
+{
 }
