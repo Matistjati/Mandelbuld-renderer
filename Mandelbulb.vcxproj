@@ -189,6 +189,7 @@
     <None Include="shaders\2D\Fractals\mandelbrotSpecs.fs" />
     <None Include="shaders\2D\Fractals\rootDensity.fs" />
     <None Include="shaders\2D\Fractals\rootDensityRender.fs" />
+    <None Include="shaders\2D\Fractals\rootDensitySpecs.fs" />
     <None Include="shaders\3D\Base\3DFractalbase.fs" />
     <None Include="shaders\3D\Base\3DFractalDefault.fs" />
     <None Include="shaders\3D\Base\AlternateDefault.fs" />
