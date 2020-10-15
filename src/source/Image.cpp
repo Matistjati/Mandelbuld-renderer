@@ -87,8 +87,8 @@ Image::Image(std::string filePath) : pixelsInitialized(true)
 
 	if (!hasAlpha)
 	{
-		DebugPrint("There is currently no support for an alpha channel");
-		BreakIfDebug();
+		//DebugPrint("There is currently no support for an alpha channel");
+		//BreakIfDebug();
 	}
 
 	std::vector<Pixel>* data = new std::vector<Pixel>(width * height);
@@ -98,11 +98,11 @@ Image::Image(std::string filePath) : pixelsInitialized(true)
 		for (int x = 0; x < width; x++)
 		{
 			png_bytep px = &(row[x * 4]);
-			(*data)[y * width + x] = Pixel(px[0], px[1], px[2], px[3]);
-			// Do something awesome for each pixel here...
-			//printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x, y, px[0], px[1], px[2], px[3]);
+			(*data)[y * width + x] = Pixel(px[0], px[1], px[2], 255);
 		}
 	}
+
+
 	this->pixels = data;
 }
 

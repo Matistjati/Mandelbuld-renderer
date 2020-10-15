@@ -27,6 +27,14 @@ public:
 	int unitId;
 	Texture(unsigned int id, int unitId);
 	Texture();
+
+	void Delete()
+	{
+		if (glIsTexture(id))
+		{
+			glDeleteTextures(1, &id);
+		}
+	}
 };
 
 struct Buffer

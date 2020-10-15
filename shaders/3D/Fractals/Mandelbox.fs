@@ -38,6 +38,9 @@
 
 	/*<TextureInfo>FileName: "genshin.png"</TextureInfo>*/
 	uniform sampler2D testingTexture2;
+	
+	/*<TextureInfo>FileName: "pizza time.png"</TextureInfo>*/
+	uniform sampler2D testingTexture3;
 </uniforms>
 
 <include>
@@ -116,7 +119,8 @@
 		p*=0.45;
 		p+=vec2(0.3);
 		col = mix(col, (texture(testingTexture1, p)).xyz,vec3(0.5));
-		col = mix(col, (texture(testingTexture2, p)).xyz,vec3(0.5));
+		col = mix(col, (texture(testingTexture2, p)).xyz,vec3(0.25));
+		col = mix(col, (texture(testingTexture3, p)).xyz,vec3(0.125));
 	>,
 
 

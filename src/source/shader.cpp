@@ -28,6 +28,10 @@ Shader::~Shader()
 	{
 		buffer.second.Delete();
 	}
+	for (auto& texture : textures)
+	{
+		texture.Delete();
+	}
 	GlErrorCheck();
 }
 
@@ -409,6 +413,11 @@ std::vector<Texture> Shader::GenerateTexturesForProgram(std::string source, unsi
 				lowestAvailableTextureUnit += 1;
 
 				unsigned int textureLocation = glGetUniformLocation(id, textureName.c_str());
+				if (textureLocation == unsigned int (-1))
+				{
+					DebugPrint("Could not find uniform texture " + textureName);
+					//BreakIfDebug();
+				}
 				glUniform1i(textureLocation, texture.unitId);
 				glActiveTexture(GL_TEXTURE0 + texture.unitId);
 				glBindTexture(GL_TEXTURE_2D, textureId);
@@ -426,7 +435,7 @@ std::vector<Texture> Shader::GenerateTexturesForProgram(std::string source, unsi
 				textures.push_back(texture);
 			}
 
-			offset += textureInfoEnd+end.size();
+			offset = textureInfoEnd + end.size();
 		}
 		else
 		{

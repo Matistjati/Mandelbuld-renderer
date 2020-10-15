@@ -842,13 +842,11 @@ void Fractal::RenderLoop(GLFWwindow* window, Fractal* fractal)
 		glfwSetWindowTitle(window, title.c_str());
 #endif
 
-		// Temporary solution
-		if (fractal->shader->textures.size())
+		// Bind all textures
+		for (size_t i = 0; i < fractal->shader->textures.size(); i++)
 		{
-			glActiveTexture(GL_TEXTURE0 + fractal->shader->textures[0].unitId);
-			glBindTexture(GL_TEXTURE_2D, fractal->shader->textures[0].id);
-			glActiveTexture(GL_TEXTURE0 + fractal->shader->textures[1].unitId);
-			glBindTexture(GL_TEXTURE_2D, fractal->shader->textures[1].id);
+			glActiveTexture(GL_TEXTURE0 + fractal->shader->textures[i].unitId);
+			glBindTexture(GL_TEXTURE_2D, fractal->shader->textures[i].id);
 		}
 		
 
@@ -1506,9 +1504,11 @@ void Fractal::FindPathAndSaveImage()
 
 void Fractal::SaveImage(std::string path)
 {
-	if (shader->textures.size())
+	// Bind all textures
+	for (size_t i = 0; i < shader->textures.size(); i++)
 	{
-		glBindTexture(GL_TEXTURE_2D, shader->textures[0].id);
+		glActiveTexture(GL_TEXTURE0 + shader->textures[i].unitId);
+		glBindTexture(GL_TEXTURE_2D, shader->textures[i].id);
 	}
 	if (shader->type == ShaderType::compute)
 	{

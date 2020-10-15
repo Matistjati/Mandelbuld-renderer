@@ -82,9 +82,9 @@ public:
 	std::vector<Pixel> *pixels;
 	int width;
 	int height;
+	bool hasAlpha;
 private:
 	bool pixelsInitialized;
-	bool hasAlpha;
 	inline Pixel* PixelAt(int x, int y);
 	inline void Swap(Pixel* a, Pixel* b);
 };
