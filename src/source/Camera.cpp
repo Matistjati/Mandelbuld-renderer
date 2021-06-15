@@ -108,37 +108,37 @@ void Camera::PopulateCameraGUI(Fractal* fractal)
 	}
 	else
 	{
-		auto empty = cameraMenu->form->Addempty();
-		position.guiElements.push_back(empty);
+		//auto empty = cameraMenu->form->Addempty();
+		//position.guiElements.push_back(empty);
 	}
 
 	// Rotation
-	GuiElement rotationElement = GuiElement();
+	/*GuiElement rotationElement = GuiElement();
 	rotationElement.element = Element::error;
 	rotationElement.fractal = fractal;
 	rotationElement.uniform = &rotation;
-	fractal->fractalUniforms.push_back(rotationElement);
+	fractal->fractalUniforms.push_back(rotationElement);*/
 }
 
 float Camera::GetYaw()
 {
-	return yaw;
+	return yaw.value;
 }
 
 float Camera::GetPitch()
 {
-	return pitch;
+	return pitch.value;
 }
 
 void Camera::SetYaw(float v)
 {
-	yaw = v;
+	yaw.value = v;
 	rotationMatrixIsCurrent = false;
 }
 
 void Camera::SetPitch(float v)
 {
-	pitch = v;
+	pitch.value = v;
 	rotationMatrixIsCurrent = false;
 }
 
@@ -206,14 +206,14 @@ glm::vec3 Camera::GetForwardVector()
 {
 	glm::vec3 out;
 	// Vertical movement
-	out = GetWorldUp() * cos(glm::radians(-pitch) + static_cast<float>(M_PI_2));
+	out = GetWorldUp() * cos(glm::radians(-GetPitch()) + static_cast<float>(M_PI_2));
 
 	if (useBuddhabrotRotation)
 	{
 		glm::vec3 forward = glm::vec3(1, 0, 0);
 
 		forward.y = 0;
-		float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
+		float rads = static_cast<float>(abs(fmod(glm::radians(GetPitch()), M_PI) - M_PI_2)); // Move less horizontally when looking down
 		forward *= sin(rads);
 		out += forward;
 	}
@@ -222,7 +222,7 @@ glm::vec3 Camera::GetForwardVector()
 		float yaw = glm::radians(GetYaw()) + static_cast<float>(M_PI_2);
 		glm::vec3 forward = glm::vec3(-cos(yaw), 0, -sin(yaw));
 		forward.y = 0;
-		float rads = static_cast<float>(abs(fmod(glm::radians(pitch), M_PI) - M_PI_2)); // Move less horizontally when looking down
+		float rads = static_cast<float>(abs(fmod(glm::radians(GetPitch()), M_PI) - M_PI_2)); // Move less horizontally when looking down
 		forward *= sin(rads);
 		out += forward;
 	}
@@ -293,7 +293,7 @@ void Camera::ProcessZoom(float magnitude)
 
 void Camera::ProcessMouseMovement(glm::vec2 offset)
 {
-	SetYaw(yaw + offset.x);
+	SetYaw(GetYaw() + offset.x);
 	//std::cout << (fmod(glm::radians(yaw), M_PI*2)) << std::endl;
 
 	const static float pitchLimit = 89.999f;

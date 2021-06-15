@@ -78,8 +78,8 @@ public:
 	void ProcessMouseMovement(glm::vec2 offset);
 private:
 	// Euler Angles
-	float yaw;
-	float pitch;
+	Uniform<float> yaw;
+	Uniform<float> pitch;
 	bool rotationMatrixIsCurrent;
 	Uniform<glm::mat3> rotation;
 
