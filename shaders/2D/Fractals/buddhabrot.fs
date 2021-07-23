@@ -226,10 +226,15 @@ layout(std430, binding = 1) buffer desirabilityMap
 	// Converting a position in fractal space to image space- google "map one range to another"
 	// We are mapping from [renderArea.x, renderArea.z) to [0, screenSize.x) for x, corresponding for y
 	// That position is then turned into a linear index using 2d array math
-	float x = round(clamp((coord.x-area.x)*map.x,0,screenSize.x)-0.5);
 
-	float y = round(screenSize.y-(coord.y-area.y)*map.y);
-	int index = int(x + screenSize.x * (y + 0.5));
+	// We assume that the if statement above prevents out of bound writes, and if not that the driver will manage.
+	float x = (coord.x-area.x)*map.x;
+	// Take the floor of the y coordinate, as it is up by many orders of magnitude. We only care about the integer part
+	// We do screenSize.y - in order to flip the y coordinate, opengl has inverted y scale
+	// Normally this would be the responsibility of the rendering shader, but I can't make it work without a black area at the bottom
+	float y = floor(screenSize.y-(coord.y-area.y)*map.y);
+
+	int index = int(x + screenSize.x * y);
 
 	if (colorWheel)
 	{
